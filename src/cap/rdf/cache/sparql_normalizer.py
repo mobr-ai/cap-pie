@@ -154,7 +154,7 @@ class SPARQLNormalizer:
     def _extract_currency_uris(self, text: str) -> str:
         """Extract currency URIs."""
         # pattern captures the full URI including any digits
-        pattern = r'<http://www\.mobr\.ai/ontologies/cardano#cnt/[^>]+>'
+        pattern = r'<http://www\.mobr\.ai/ont/cardano#cnt/[^>]+>'
         matches = list(re.finditer(pattern, text))
 
         for match in reversed(matches):
@@ -503,7 +503,7 @@ class SPARQLNormalizer:
 
         skip_patterns = [
             '://', '<http', 'www.', '.org', '.com',
-            'XMLSchema', '/ontologies/', 'SUBSTR'
+            'XMLSchema', '/ont/', 'SUBSTR'
         ]
 
         if any(pattern in context for pattern in skip_patterns):

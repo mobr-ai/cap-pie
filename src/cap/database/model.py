@@ -14,6 +14,9 @@ from sqlalchemy import (
     Text,
     Index,
     text,
+    BigInteger,
+    Numeric,
+    UniqueConstraint,
 )
 
 Base = declarative_base()
@@ -318,4 +321,38 @@ class SharedImage(Base):
     __table_args__ = (
         Index("uq_shared_image_user_sha", "user_id", "content_sha256", unique=True),
         Index("idx_shared_image_expires", "expires_at"),
+    )
+
+class Asset(Base):
+    __tablename__ = "asset"
+
+    id = Column(BigInteger, primary_key=True)
+    asset_id = Column(Text, nullable=False, unique=True)
+    symbol = Column(Text, nullable=False, index=True)
+    name = Column(Text, nullable=True)
+    policy_id = Column(Text, nullable=True, index=True)
+    asset_name_hex = Column(Text, nullable=True)
+    decimals = Column(Integer, nullable=False, server_default=text("0"))
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))
+
+
+class AssetOHLCV(Base):
+    __tablename__ = "asset_ohlcv"
+
+    id = Column(BigInteger, primary_key=True)
+    asset_id = Column(Text, ForeignKey("asset.asset_id", ondelete="CASCADE"), nullable=False)
+    ts = Column(DateTime(timezone=True), nullable=False)
+    interval = Column(Text, nullable=False)
+    open = Column(Numeric(38, 18), nullable=False)
+    high = Column(Numeric(38, 18), nullable=False)
+    low = Column(Numeric(38, 18), nullable=False)
+    close = Column(Numeric(38, 18), nullable=False)
+    volume = Column(Numeric(38, 18), nullable=False)
+    source = Column(Text, nullable=False, server_default=text("'unknown'"))
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text("now()"))
+
+    __table_args__ = (
+        UniqueConstraint("asset_id", "ts", "interval", "source", name="uq_asset_ohlcv_asset_ts_interval_source"),
+        Index("ix_asset_ohlcv_asset_ts", "asset_id", "ts"),
+        Index("ix_asset_ohlcv_ts_interval", "ts", "interval"),
     )
