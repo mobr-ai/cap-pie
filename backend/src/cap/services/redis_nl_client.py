@@ -10,6 +10,7 @@ from typing import Optional, Any, Tuple
 import redis.asyncio as redis
 from opentelemetry import trace
 
+from cap.federated.models import FederatedQuery, QuerySource
 from cap.rdf.cache.placeholder_counters import PlaceholderCounters
 from cap.rdf.cache.placeholder_restorer import PlaceholderRestorer
 from cap.rdf.cache.query_normalizer import QueryNormalizer
@@ -89,15 +90,19 @@ class RedisNLClient:
                     return 0  # Indicates duplicate, not cached
 
                 # Process SPARQL (single or sequential)
-                sparql_spec, placeholder_map = self._normalize_sparql(sparql_query, normalize)
+                normalized_payload, placeholder_map, query_type = self._normalize_federated_query(
+                    sparql_query,
+                    normalize_query=normalize,
+                )
 
                 cache_data = {
                     "original_query": nl_query,
                     "normalized_query": user_query,
-                    "sparql_query": sparql_spec,
+                    "sparql_query": normalized_payload,
                     "placeholder_map": placeholder_map,
                     "is_sequential": isinstance(sparql_query, str) and sparql_query.strip().startswith('['),
-                    "precached": False
+                    "precached": False,
+                    "query_type": query_type,
                 }
 
                 ttl_value = ttl or self.ttl
@@ -199,18 +204,74 @@ class RedisNLClient:
                 stats["errors"].append(error_msg)
                 return stats
 
-    def _normalize_sparql(self, sparql_query: str, normalize_query: bool = True) -> Tuple[str, dict[str, str]]:
-        """Normalize SPARQL query (handles single and sequential)."""
+
+    def _detect_cached_query_type(self, assistant_payload: str) -> str:
+        text = assistant_payload.strip()
+
         try:
-            parsed = json.loads(sparql_query)
-            if isinstance(parsed, list):
-                return self._normalize_sequential_sparql(parsed, normalize_query)
-            else:
-                normalizer = SPARQLNormalizer()
-                return normalizer.normalize(sparql_query=sparql_query, normalize_query=normalize_query)
-        except (json.JSONDecodeError, TypeError):
+            parsed = json.loads(text)
+            has_sparql = bool(parsed.get("sparql"))
+            has_sql = bool(parsed.get("sql"))
+            if has_sparql and has_sql:
+                return QuerySource.FEDERATED.value
+            if has_sql:
+                return QuerySource.ASSET.value
+            return QuerySource.ONCHAIN.value
+        except Exception:
+            upper = text.upper()
+            has_sparql = any(k in upper for k in ["PREFIX ", "SELECT ", "ASK ", "CONSTRUCT ", "DESCRIBE "]) and "WHERE" in upper
+            has_sql = any(k in upper for k in ["FROM ASSET_OHLCV", "JOIN ASSET", "WITH ", "SELECT "]) and "PREFIX " not in upper
+
+            if has_sparql and has_sql:
+                return QuerySource.FEDERATED.value
+            if has_sql:
+                return QuerySource.ASSET.value
+            return QuerySource.ONCHAIN.value
+
+
+    def _normalize_federated_query(
+        self,
+        assistant_payload: str,
+        normalize_query: bool = True,
+    ) -> tuple[str, dict[str, str], str]:
+        query_type = self._detect_cached_query_type(assistant_payload)
+
+        if assistant_payload.strip().startswith("{"):
+            parsed = json.loads(assistant_payload)
+            sparql = parsed.get("sparql", "") or ""
+            sql = parsed.get("sql", "") or ""
+        else:
+            sparql = assistant_payload if query_type == QuerySource.ONCHAIN.value else ""
+            sql = assistant_payload if query_type == QuerySource.ASSET.value else ""
+
+        placeholder_map: dict[str, str] = {}
+
+        if sparql and normalize_query:
+            sparql, sparql_placeholders = self._normalize_sparql(
+                sparql_query=sparql,
+                normalize_query=normalize_query
+            )
+            placeholder_map.update({f"SPARQL::{k}": v for k, v in sparql_placeholders.items()})
+
+        if sql and normalize_query:
             normalizer = SPARQLNormalizer()
-            return normalizer.normalize(sparql_query=sparql_query, normalize_query=normalize_query)
+            sql, sql_placeholders = normalizer.normalize(
+                sparql_query=sql,
+                normalize_query=True,
+            )
+            placeholder_map.update({f"SQL::{k}": v for k, v in sql_placeholders.items()})
+
+        normalized_payload = json.dumps(
+            {
+                "source": query_type,
+                "sparql": sparql,
+                "sql": sql,
+            },
+            sort_keys=True,
+        )
+
+        return normalized_payload, placeholder_map, query_type
+
 
     def _normalize_sequential_sparql(self, queries: list[dict], normalize_query: bool = True) -> Tuple[str, dict[str, str]]:
         """Normalize sequential SPARQL queries with global counters."""
@@ -268,22 +329,21 @@ class RedisNLClient:
                     return data
 
                 # Restore placeholders
-                restored_sparql = self._restore_sparql(
+                restored_payload = self._restore_federated_payload(
                     data["sparql_query"],
                     placeholder_map,
-                    current_values
+                    current_values,
                 )
 
-                # Check if restoration failed (placeholders still present)
-                remaining_placeholders = re.findall(r'<<[A-Z_]+_\d+>>', restored_sparql)
+                remaining_placeholders = re.findall(r'<<[A-Z_]+_\d+>>', restored_payload)
                 if remaining_placeholders:
                     logger.error(f"Failed to restore placeholders: {remaining_placeholders}")
                     logger.error(f"Original query: {original_query}")
                     logger.error(f"Cached normalized: {normalized_query}")
                     span.set_attribute("cache_hit", False)
-                    return None  # Force cache miss to regenerate query
+                    return None
 
-                data["sparql_query"] = restored_sparql
+                data["sparql_query"] = restored_payload
                 span.set_attribute("cache_hit", True)
                 return data
 
@@ -292,39 +352,41 @@ class RedisNLClient:
                 logger.error(f"Failed to retrieve cached query: {e}")
                 return None
 
-    def _restore_sparql(
+    def _restore_federated_payload(
         self,
-        sparql: str,
+        payload: str,
         placeholder_map: dict[str, str],
-        current_values: dict[str, list[str]]
+        current_values: dict[str, list[str]],
     ) -> str:
-        """Restore SPARQL with actual values."""
-        try:
-            parsed = json.loads(sparql)
-            if isinstance(parsed, list):
-                for query_info in parsed:
-                    original_query = query_info['query']
-                    restored_query = PlaceholderRestorer.restore(
-                        query_info['query'],
-                        placeholder_map,
-                        current_values
-                    )
+        parsed = json.loads(payload)
 
-                    # Check if any placeholders remain unreplaced
-                    remaining_placeholders = re.findall(r'<<[A-Z_]+_\d+>>', restored_query)
-                    if remaining_placeholders:
-                        logger.error(f"Query still contains unreplaced placeholders: {remaining_placeholders}")
-                        logger.error(f"Original: {original_query}")
-                        logger.error(f"Placeholder map: {placeholder_map}")
-                        logger.error(f"Current values: {current_values}")
-                        logger.error(f"After restoration: {restored_query}")
+        sparql_map = {
+            k.replace("SPARQL::", "", 1): v
+            for k, v in placeholder_map.items()
+            if k.startswith("SPARQL::")
+        }
+        sql_map = {
+            k.replace("SQL::", "", 1): v
+            for k, v in placeholder_map.items()
+            if k.startswith("SQL::")
+        }
 
-                    query_info['query'] = restored_query
-                return json.dumps(parsed)
-        except (json.JSONDecodeError, TypeError):
-            pass
+        if parsed.get("sparql"):
+            parsed["sparql"] = PlaceholderRestorer.restore(
+                parsed["sparql"],
+                sparql_map,
+                current_values,
+            )
 
-        return PlaceholderRestorer.restore(sparql, placeholder_map, current_values)
+        if parsed.get("sql"):
+            parsed["sql"] = PlaceholderRestorer.restore(
+                parsed["sql"],
+                sql_map,
+                current_values,
+            )
+
+        return json.dumps(parsed, sort_keys=True)
+
 
     async def get_query_count(self, nl_query: str) -> int:
         """Get the number of times a query has been asked."""
@@ -337,6 +399,7 @@ class RedisNLClient:
         except Exception as e:
             logger.error(f"Failed to get query count: {e}")
             return 0
+
 
     async def get_popular_queries(self, limit: int = 5) -> list[dict[str, Any]]:
         """Get most popular queries."""

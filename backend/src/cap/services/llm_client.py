@@ -22,6 +22,8 @@ from cap.services.intent.context_assembler import ConversationContextAssembler
 from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
 from cap.rdf.cache.semantic_matcher import SemanticMatcher
+from cap.federated.planner import FederatedPlanner
+from cap.federated.models import FederatedQuery, QuerySource
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -334,6 +336,47 @@ User Question: {natural_query}
 
             span.set_attribute("sparql_length", len(content))
             return content, refer_decision
+
+
+    async def nl_to_federated_query(
+        self,
+        natural_query: str,
+        conversation_history: list[dict] | None,
+        use_ontology: bool = True,
+        use_fewshot: bool = True,
+        fewshot_strategy: SearchStrategy = SearchStrategy.auto,
+        fewshot_top_n: int = -1,
+        _eval_retrieved_out: list[dict] | None = None,
+    ) -> tuple[FederatedQuery, Any]:
+        ontology_block = self.ontology_prompt if use_ontology else ""
+
+        fewshot_block = ""
+        if use_fewshot and fewshot_strategy != SearchStrategy.none:
+            # Reuse existing retrieval, but now the returned assistant payload may be
+            # SPARQL-only, SQL-only, or federated JSON.
+            retrieved: list[dict] = []
+            prompt_seed = ""
+            prompt_seed = await self._add_few_shot_learning(
+                nl_query=natural_query,
+                prompt=prompt_seed,
+                strategy=fewshot_strategy,
+                top_n=fewshot_top_n if fewshot_top_n != -1 else self.fewshot_top_n,
+                _eval_retrieved_out=retrieved,
+            )
+            fewshot_block = prompt_seed
+
+        refer_decision = await self._refer_classifier.classify(natural_query)
+
+        planner = FederatedPlanner(self)
+        federated_query = await planner.generate(
+            natural_query=natural_query,
+            conversation_history=conversation_history,
+            ontology_block=ontology_block,
+            fewshot_block=fewshot_block,
+        )
+
+        return federated_query, refer_decision
+
 
     @staticmethod
     def _categorize_query(user_query: str, result_type: str) -> str:
