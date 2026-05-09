@@ -1,0 +1,19 @@
+{# src/cap/mailing/templates/user_confirmation_resent.html #} {% extends
+"base_email.html" %} {% block preheader %} {{ translations.preheader or "We sent
+you a new confirmation email." }} {% endblock %} {% block header_title %} {{
+translations.header_title or translations.title or "Confirmation resent" }} {%
+endblock %} {% block content %}
+<h2 style="margin: 0 0 12px 0">
+  {{ translations.title or "Confirmation email resent" }}
+</h2>
+
+<p style="margin: 0 0 12px 0">
+  {{ translations.lead or "We’ve just sent you a new confirmation email. Please
+  check your inbox (and spam folder)." }}
+</p>
+
+<p style="margin: 0">
+  {{ translations.help or "If you still don’t see it, try again in a few minutes
+  or contact support." }}
+</p>
+{% endblock %}

@@ -1,0 +1,219 @@
+"""
+Test script for the Natural Language Query Pipeline.
+Run this to verify nl components are working correctly.
+Not for pytest
+"""
+import logging
+import asyncio
+import argparse
+import time
+from pathlib import Path
+
+from cap.services.redis_nl_client import RedisNLClient, cleanup_redis_nl_client
+from cap.rdf.cache.query_normalizer import QueryNormalizer
+
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.ERROR)
+
+def _read_content_nl_file(path: str | Path) -> str:
+    """Read and return the content of a txt file with nl queries."""
+    path = Path(path)
+    with path.open("r", encoding="utf-8") as f:
+        return f.read()
+
+
+class NLNormalizationTester:
+    """Test harness for NL normalization pipeline."""
+
+
+    def __init__(self, input: str, input_pairs: str):
+        self.qn = QueryNormalizer()
+        self.redis_client = RedisNLClient()
+        self.input: str = input
+        self.input_pairs: str = input_pairs
+        self.metrics = []
+        self.query_pairs = []
+
+
+    def _print_metrics_summary(self):
+        """Print summary of all test metrics."""
+        if not self.metrics:
+            return
+
+        print("\n" + "="*60)
+        print("METRICS SUMMARY")
+        print("="*60)
+
+        total_queries = len(self.metrics)
+        successful = sum(1 for m in self.metrics if m['status'] == 'success')
+        failed = total_queries - successful
+
+        execution_times = [m['execution_time'] for m in self.metrics if m['status'] == 'success']
+
+        if execution_times:
+            avg_time = sum(execution_times) / len(execution_times)
+            min_time = min(execution_times)
+            max_time = max(execution_times)
+
+            print(f"\nTotal Queries: {total_queries}")
+            print(f"Successful: {successful}")
+            print(f"Failed: {failed}")
+            print(f"\nExecution Times:")
+            print(f"  Average: {avg_time:.2f}s")
+            print(f"  Minimum: {min_time:.2f}s")
+            print(f"  Maximum: {max_time:.2f}s")
+            print(f"  Total: {sum(execution_times):.2f}s")
+
+            print(f"\nPer-Query Breakdown:")
+            for m in self.metrics:
+                status_icon = "v" if m['status'] == 'success' else "x"
+                print(f"  {status_icon} {m['execution_time']:.2f}s - {m['query'][:60]}...")
+
+
+    async def test_query(self, query: str, expected: str = "") -> bool:
+        """Test a natural language query."""
+        start_time = time.time()
+        print("\n" + "="*60)
+        print(f"Testing caching of: {query}")
+        print("="*60)
+
+        try:
+
+            normalized = QueryNormalizer.normalize(query)
+            cached_data = await self.redis_client.get_cached_query_with_original(normalized, query)
+
+            if cached_data:
+                cached_data = cached_data["sparql_query"]
+
+            # Store the query pair
+            self.query_pairs.append((normalized, cached_data))
+
+            if expected:
+                assert normalized == expected
+
+            print(f"{query} normalizes to '{normalized}'")
+            print(f"caches to '{cached_data}'")
+            return True
+
+        except Exception as e:
+            execution_time = time.time() - start_time
+            print(f"\nx Query failed: {e}")
+            print(f"Time before failure: {execution_time:.2f} seconds")
+
+            self.metrics.append({
+                'query': query,
+                'execution_time': execution_time,
+                'status': 'failed',
+                'error': str(e)
+            })
+            return False
+
+
+    async def run_all_tests(self):
+        """Run all tests."""
+        print("\n" + "="*60)
+        print("NL Query Normalization Pipeline Test Suite")
+        print("="*60)
+
+        if self.input.endswith(".txt"):
+            txt_files = [self.input]
+        else:
+            nl_dir = Path(self.input)
+            txt_files = sorted(nl_dir.rglob("*.txt"))
+
+        if (self.input_pairs != ""):
+            print("\n" + "="*60)
+            print("Testing precache from file")
+            print("="*60)
+            await cleanup_redis_nl_client()
+            await self.redis_client.precache_from_file(self.input_pairs)
+            print("="*60)
+            exit(0)
+
+        for txt_file in txt_files:
+            print(f"Testing queries in file: {txt_file}")
+            txt_content = _read_content_nl_file(txt_file)
+            nl_queries = txt_content.split("\n")
+            for query in nl_queries:
+                if query.strip() and not query.strip().startswith("#"):
+                    try:
+                        result = await self.test_query(query)
+
+                    except Exception as e:
+                        print(f"Test failed!")
+                        print(f"    exception: {e}")
+                        exit()
+
+                    assert result, f"Query failed"
+
+                    print(f"✓ Test passed for query\n    {query}")
+
+        self._print_metrics_summary()
+        self._print_query_pairs()
+
+    def _print_query_pairs(self):
+        """Print all query-normalization pairs, sorted alphabetically."""
+        if not self.query_pairs:
+            return
+
+        print("\n" + "="*60)
+        print("QUERY CACHING PAIRS")
+        print("="*60)
+
+        # Sort by original query, then by normalized query
+        sorted_pairs = sorted(self.query_pairs, key=lambda x: (x[0].lower(), x[1].lower()))
+
+        print(f"\nTotal pairs: {len(sorted_pairs)}\n")
+        for original, normalized in sorted_pairs:
+            print(f"'{original}' -> '{normalized}'")
+
+        # Sort by normalized query, then by original query
+        sorted_pairs = sorted(self.query_pairs, key=lambda x: (x[1].lower(), x[0].lower()))
+        print(f"\n\nTotal pairs: {len(sorted_pairs)}\n")
+        for original, normalized in sorted_pairs:
+            print(f"'{original}' -> '{normalized}'")
+
+async def main():
+    """Run the test suite."""
+
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Run SPARQL test suite.")
+    parser.add_argument(
+        "--input",
+        default="documentation/examples/nl",
+        help="Folder containing .txt files with NL queries (default: documentation/examples/nl) or a txt file"
+    )
+    parser.add_argument(
+        "--input-pairs",
+        default="",
+        help="msg file with NL - SPARQL queries (default: empty)"
+    )
+    args = parser.parse_args()
+
+    tester = NLNormalizationTester(
+        input=args.input,
+        input_pairs=args.input_pairs
+    )
+    await tester.run_all_tests()
+    print("✓✓✓ All tests passed ✓✓✓")
+
+# Usage:
+# python nl_normalization_tests.py
+# or
+# python nl_normalization_tests.py --input path_to_folder_with_txt_files_or_txt_file
+
+if __name__ == "__main__":
+    print("""
+    ╔══════════════════════════════════════════════════╗
+    ║  CAP NP Query Normalization Pipeline Test Suite  ║
+    ╚══════════════════════════════════════════════════╝
+
+    Press Ctrl+C to cancel
+    """)
+
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n\nTest cancelled by user")
+    except Exception as e:
+        print(f"\n\nTest suite error: {e}")

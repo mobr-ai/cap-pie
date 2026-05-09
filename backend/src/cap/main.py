@@ -1,0 +1,288 @@
+import logging
+import uvloop
+import asyncio
+import os
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+from starlette.responses import FileResponse
+from opentelemetry import trace
+from sqlalchemy import text
+
+from cap.api.sparql_query import router as api_router
+from cap.api.nl_query import router as nl_router
+from cap.telemetry import setup_telemetry, instrument_app
+from cap.rdf.triplestore import TriplestoreClient
+from cap.config import settings
+from cap.services.llm_client import get_llm_client, cleanup_llm_client
+from cap.services.redis_nl_client import cleanup_redis_nl_client
+
+from cap.database.session import engine
+from cap.database.model import Base
+
+from cap.api.auth import router as auth_router
+from cap.api.waitlist import router as wait_router
+from cap.api.waitlist_admin import router as wait_admin_router
+from cap.api.cache_admin import router as cache_router
+from cap.api.user import router as user_router
+from cap.api.user_admin import router as user_admin_router
+from cap.api.conversation import router as conversation_router
+from cap.api.conversation_admin import router as conversation_admin_router
+from cap.api.system_admin import router as system_router
+from cap.api.dashboard import router as dashboard_router
+from cap.api.share import router as share_router
+from cap.api.demo_nl import router as demo_router
+from cap.api.metrics import router as metrics_router
+from cap.api.notifications_admin import router as notif_admin_router
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Allowed frontend origins (comma-separated env optional)
+DEFAULT_CORS = [
+    "http://localhost:5173",   # Vite dev
+    "http://localhost:4173",   # Vite preview
+    "http://0.0.0.0:8000",     # Local dev server
+    "http://localhost:8000",   # Local dev server
+    "http://127.0.0.1:8000",   # Local dev server
+    "https://cap.mobr.ai",     # production
+]
+ENV_CORS = os.getenv("CORS_ORIGINS", "")
+ALLOWED_ORIGINS = [o.strip() for o in ENV_CORS.split(",") if o.strip()] or DEFAULT_CORS
+
+logger = logging.getLogger(__name__)
+logger.setLevel(getattr(logging, settings.LOG_LEVEL))
+tracer = trace.get_tracer(__name__)
+
+# Set uvloop as the event loop policy
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+
+async def initialize_graph(client: TriplestoreClient, graph_uri: str, ontology_path: str) -> bool:
+    """Initialize a graph with ontology data if it doesn't exist."""
+    with tracer.start_as_current_span("initialize_graph") as span:
+        span.set_attribute("graph_uri", graph_uri)
+        span.set_attribute("ontology_path", ontology_path)
+
+        try:
+            exists = await client.check_graph_exists(graph_uri)
+
+            if not exists:
+                span.set_attribute("creating_new_graph", True)
+
+                if ontology_path != "":
+                    with open(ontology_path, "r") as f:
+                        turtle_data = f.read()
+                else:
+                    turtle_data = ""
+
+                await client.create_graph(graph_uri, turtle_data)
+                exists = await client.check_graph_exists(graph_uri)
+                if exists:
+                    logger.info(f"Successfully initialized graph: {graph_uri}")
+                    return True
+
+                logger.error(f"Could not create graph: {graph_uri}")
+                return False
+
+            logger.info(f"Graph already exists: {graph_uri}")
+            return False
+
+        except Exception as e:
+            span.set_attribute("error", str(e))
+            logger.error(f"Failed to initialize graph {graph_uri}: {e}")
+            raise RuntimeError(f"Failed to initialize graph {graph_uri}: {e}")
+
+
+async def initialize_required_graphs(client: TriplestoreClient) -> None:
+    """Initialize all required graphs for the application."""
+    with tracer.start_as_current_span("initialize_required_graphs") as span:
+        required_graphs = [
+            (settings.CARDANO_GRAPH, settings.ONTOLOGY_PATH),
+            (f"{settings.CARDANO_GRAPH}/metadata", ""),
+        ]
+
+        initialization_results = []
+        for graph_uri, ontology_path in required_graphs:
+            try:
+                if ontology_path:
+                    result = await initialize_graph(client, graph_uri, ontology_path)
+                else:
+                    # Create empty graph for data
+                    exists = await client.check_graph_exists(graph_uri)
+                    if not exists:
+                        await client.create_graph(graph_uri, "")
+                        logger.info(f"Created empty graph: {graph_uri}")
+                        result = True
+                    else:
+                        result = False
+
+                initialization_results.append((graph_uri, result))
+            except Exception as e:
+                logger.error(f"Failed to initialize graph {graph_uri}: {e}")
+                raise RuntimeError(f"Application startup failed: {e}")
+
+        span.set_attribute("initialization_results", str(initialization_results))
+        logger.info("Graph initialization completed successfully")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager."""
+    try:
+        llm_client = get_llm_client()
+        try:
+            check = llm_client.ontology_prompt
+            logger.info(f"Ontology prompt is {check}")
+
+            await llm_client.warmup_intent_indices()
+            logger.info("Intent indices warmed up successfully")
+
+        except Exception:
+            logger.exception("Failed to warm up intent indices during startup")
+
+        yield
+    finally:
+        await cleanup_llm_client()
+        await cleanup_redis_nl_client()
+        logger.info("Application shutdown completed")
+
+
+def setup_tracing():
+    # Only set up tracing if explicitly enabled
+    if settings.ENABLE_TRACING:
+        setup_telemetry()
+    else:
+        # Set a no-op tracer provider to disable tracing
+        trace.set_tracer_provider(trace.NoOpTracerProvider())
+
+
+def create_application() -> FastAPI:
+    setup_tracing()
+    app = FastAPI(
+        title="CAP",
+        description="Cardano Analytics Platform powered by LLM",
+        version="0.2.0",
+        lifespan=lifespan,
+    )
+
+    instrument_app(app)
+
+    # CORS (handles preflight + normal responses)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With", "X-Client-Request-Id"],
+        expose_headers=["Content-Disposition", "X-Conversation-Id", "X-User-Message-Id"],
+    )
+
+    # Place all backend routes under /api
+    app.include_router(api_router)
+    app.include_router(nl_router)
+    app.include_router(auth_router)
+    app.include_router(user_router)
+    app.include_router(user_admin_router)
+    app.include_router(wait_router)
+    app.include_router(wait_admin_router)
+    app.include_router(cache_router)
+    app.include_router(dashboard_router)
+    app.include_router(share_router)
+    app.include_router(system_router)
+    app.include_router(metrics_router)
+    app.include_router(demo_router)
+    app.include_router(notif_admin_router)
+    app.include_router(conversation_router)
+    app.include_router(conversation_admin_router)
+
+    return app
+
+
+app = create_application()
+
+# DB init
+Base.metadata.create_all(bind=engine)
+with engine.begin() as conn:
+    conn.execute(
+        text(
+            """
+    CREATE TABLE IF NOT EXISTS waiting_list (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      ref TEXT,
+      language TEXT
+    )
+    """
+        )
+    )
+
+# Paths
+CAP_DIR = os.path.dirname(__file__)
+FRONTEND_DIST = os.getenv("FRONTEND_DIST", os.path.join(CAP_DIR, "static"))
+INDEX_HTML = os.path.join(FRONTEND_DIST, "index.html")
+
+# 1) Serve built assets (safe: only mount if present)
+assets_dir = os.path.join(FRONTEND_DIST, "assets")
+if os.path.isdir(assets_dir):
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+# Share page static ("shared_pages")
+SHARED_PAGES_DIR = os.path.join(CAP_DIR, "shared_pages")
+if os.path.isdir(SHARED_PAGES_DIR):
+    app.mount(
+        "/share-static",
+        StaticFiles(directory=SHARED_PAGES_DIR),
+        name="share-static",
+    )
+
+# Optional: avoid noisy 500s for favicon in backend-only mode
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    fav = os.path.join(FRONTEND_DIST, "favicon.ico")
+    if os.path.isfile(fav):
+        return FileResponse(fav)
+    raise HTTPException(status_code=404, detail="Not found")
+
+# 2) LLM interface route (must come before catch-all)
+@app.get("/llm", include_in_schema=False)
+async def llm_interface():
+    """Serve the LLM natural language query interface."""
+    llm_page = os.path.join(CAP_DIR, "templates", "llm.html")
+    if os.path.isfile(llm_page):
+        return FileResponse(llm_page)
+    raise HTTPException(status_code=404, detail="LLM interface not found")
+
+# 3) Root -> index.html (safe in backend-only mode)
+@app.get("/", include_in_schema=False)
+async def index():
+    if os.path.isfile(INDEX_HTML):
+        return FileResponse(INDEX_HTML)
+    raise HTTPException(
+        status_code=404,
+        detail="Frontend not built (missing static/index.html). Run the frontend dev server or build the UI.",
+    )
+
+# 4) Catch-all SPA fallback (must be last)
+@app.get("/{full_path:path}", include_in_schema=False)
+async def spa_fallback(full_path: str):
+    # Never let SPA fallback shadow API routes
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    # Try to serve a real file if it exists
+    candidate = os.path.join(FRONTEND_DIST, full_path)
+    if os.path.isfile(candidate):
+        return FileResponse(candidate)
+
+    # Otherwise, serve index.html only if present; else 404 (backend-only mode)
+    if os.path.isfile(INDEX_HTML):
+        return FileResponse(INDEX_HTML)
+
+    raise HTTPException(
+        status_code=404,
+        detail="Frontend not built (missing static/index.html).",
+    )
