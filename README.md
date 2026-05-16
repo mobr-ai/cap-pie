@@ -12,7 +12,7 @@ This is the CAP subtree mapped to the backend folder (git@github.com:mobr-ai/cap
 
 check backend/README.md for details about CAP
 
-cheking backend git logs: git log ebef786 --
+cheking backend git logs before subtree mapping: git log ebef786 --
 
 ### frontend
 
@@ -20,4 +20,4 @@ This is the CAP Frontend subtree mapped to the frontend folder (git@github.com:m
 
 check frontend/README.md for details about CAP frontend
 
-cheking frontend git logs: git log 78e99db --
+cheking frontend git logs before subtree mapping: git log 78e99db --
