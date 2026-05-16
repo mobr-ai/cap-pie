@@ -247,19 +247,20 @@ class RedisNLClient:
         placeholder_map: dict[str, str] = {}
 
         if sparql and normalize_query:
-            sparql, sparql_placeholders = self._normalize_sparql(
+            normalizer = SPARQLNormalizer()
+            sparql, sparql_placeholders = normalizer.normalize(
                 sparql_query=sparql,
                 normalize_query=normalize_query
             )
             placeholder_map.update({f"SPARQL::{k}": v for k, v in sparql_placeholders.items()})
 
-        if sql and normalize_query:
-            normalizer = SPARQLNormalizer()
-            sql, sql_placeholders = normalizer.normalize(
-                sparql_query=sql,
-                normalize_query=True,
-            )
-            placeholder_map.update({f"SQL::{k}": v for k, v in sql_placeholders.items()})
+        # if sql and normalize_query:
+        #     normalizer = SPARQLNormalizer()
+        #     sql, sql_placeholders = normalizer.normalize(
+        #         sparql_query=sql,
+        #         normalize_query=normalize_query,
+        #     )
+        #     placeholder_map.update({f"SQL::{k}": v for k, v in sql_placeholders.items()})
 
         normalized_payload = json.dumps(
             {
