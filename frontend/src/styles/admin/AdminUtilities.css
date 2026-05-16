@@ -1,0 +1,52 @@
+/* src/styles/admin/AdminUtilities.css */
+
+/* =========================================================
+   Global Admin Scrollbar Style (match Artifacts.css)
+   ========================================================= */
+
+/* Apply to all admin scroll containers */
+.AdminPage .admin-table-wrapper,
+.AdminPage .admin-tabs-scroller,
+.AdminPage .admin-section--table,
+.AdminPage .admin-stat-grid,
+.AdminPage .admin-notify-card,
+.AdminPage .admin-table-wrapper * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+/* WebKit */
+.AdminPage .admin-table-wrapper::-webkit-scrollbar,
+.AdminPage .admin-tabs-scroller::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.AdminPage .admin-table-wrapper::-webkit-scrollbar-track,
+.AdminPage .admin-tabs-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Floating thumb */
+.AdminPage .admin-table-wrapper::-webkit-scrollbar-thumb,
+.AdminPage .admin-tabs-scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  opacity: 0;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* Reveal on hover */
+.AdminPage .admin-table-wrapper:hover::-webkit-scrollbar-thumb,
+.AdminPage .admin-tabs-scroller:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Active drag */
+.AdminPage .admin-table-wrapper::-webkit-scrollbar-thumb:active,
+.AdminPage .admin-tabs-scroller::-webkit-scrollbar-thumb:active {
+  background-color: rgba(255, 255, 255, 0.6);
+}

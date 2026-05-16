@@ -1,0 +1,170 @@
+/* src/styles/admin/AdminTabs.css */
+
+.admin-tabs {
+  position: relative;
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at top left,
+    #020617,
+    #020617 40%,
+    #020617
+  );
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  margin-bottom: 1.25rem;
+
+  /*
+    With the current AdminTabs.jsx structure, the OUTER .admin-tabs is the shell
+    and the INNER .admin-tabs-scroller does the scrolling.
+  */
+  overflow: hidden;
+  touch-action: pan-x pan-y;
+}
+
+/* Ensure buttons sit above the indicator pill */
+.admin-tabs--animated .admin-tab {
+  position: relative;
+  z-index: 2;
+}
+
+/* Inner scroll row (buttons) */
+.admin-tabs-scroller {
+  display: flex;
+  gap: 0.5rem;
+
+  /* Scrolling happens here (not on .admin-tabs shell) */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+
+  /* Stabilize sizing so scroll math/indicator stays consistent */
+  max-width: 100%;
+  min-width: 0;
+
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-tabs-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sliding indicator pill (rendered by AdminTabs.jsx) */
+.admin-tab-indicator {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: 0;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #1a231d, #2189bd);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  z-index: 1;
+  transition:
+    transform 200ms ease,
+    width 200ms ease;
+  will-change: transform, width;
+  pointer-events: none;
+}
+
+.admin-tab {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #9ca3af;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hover styles only on devices that truly support hover */
+@media (hover: hover) and (pointer: fine) {
+  .admin-tab:hover {
+    color: #e5e7eb;
+    background: rgba(31, 41, 55, 0.8);
+  }
+}
+
+/* On touch devices, prevent sticky hover artifacts */
+@media (hover: none) and (pointer: coarse) {
+  .admin-tab:hover {
+    color: #9ca3af;
+    background: transparent;
+  }
+
+  .admin-tab:active {
+    background: rgba(31, 41, 55, 0.35);
+  }
+}
+
+/*
+  Active tab: the indicator provides the background.
+  Keep button itself transparent so we don't double-paint.
+*/
+.admin-tab--active {
+  color: #f9fafb;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-tab--active,
+.admin-tab--active:hover,
+.admin-tab--active:active,
+.admin-tab--active:focus-visible {
+  color: #f9fafb;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .admin-tab-indicator {
+    transition: none;
+  }
+
+  .admin-tab {
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /*
+    On mobile, keep tabs in one line and allow horizontal scroll.
+    The shell stays fixed; the inner scroller scrolls.
+  */
+  .admin-tabs {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .admin-tabs-scroller {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+
+    /* keep scrollbar hidden on mobile too */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .admin-tabs-scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-tab {
+    flex: 0 0 auto;
+  }
+}

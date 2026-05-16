@@ -1,0 +1,20 @@
+/* src/styles/admin/AdminMetrics.css */
+
+/* Clickable Recent Queries rows (Admin Metrics) */
+
+.admin-recentq-row {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+/* Desktop hover only (avoid sticky hover on touch devices) */
+@media (hover: hover) and (pointer: fine) {
+  .admin-recentq-row:hover td {
+    background-color: rgba(31, 41, 55, 0.85);
+  }
+}
+
+/* Subtle press feedback */
+.admin-recentq-row:active td {
+  background-color: rgba(31, 41, 55, 0.95);
+}

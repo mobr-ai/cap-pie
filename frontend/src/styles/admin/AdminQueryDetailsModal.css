@@ -1,0 +1,346 @@
+/* src/styles/admin/AdminQueryDetailsModal.css */
+
+/* Tab container for Query Details */
+.uq-tabcard {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+  background: rgba(2, 6, 23, 0.65);
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+.uq-tabbar {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(2, 6, 23, 0.85);
+  flex-wrap: wrap;
+}
+
+.uq-tabs-spacer {
+  flex: 1 1 auto;
+}
+
+.uq-tabpanel {
+  padding: 0.75rem 0.75rem 0.25rem;
+  overflow: visible;
+  max-height: none;
+  min-height: 0;
+}
+
+/* Tabs */
+.uq-tab {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  border-radius: 10px;
+  padding: 0.32rem 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .uq-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.uq-tab.active {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+/*
+  Tight, "floating thumb" scrollbar used by widgets (Artifacts.css)
+  Reused here for QueryDetailsModal text areas.
+*/
+.uq-tight-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.uq-tight-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.uq-tight-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.uq-tight-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  opacity: 0;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.uq-tight-scroll:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.uq-tight-scroll::-webkit-scrollbar-thumb:active {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* QueryDetailsModal helpers */
+.uq-modal-sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.uq-copy-btn {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   QueryDetailsModal
+   ========================================================= */
+
+.uq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.uq-modal {
+  width: min(920px, 100%);
+  max-width: 100%;
+  max-height: min(92vh, calc(100dvh - 2rem));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #e5e7eb;
+  background: linear-gradient(135deg, #020617, #0b1220);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.75rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.uq-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex: 0 0 auto;
+}
+
+.uq-modal-header h3 {
+  margin: 0;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.uq-modal-close {
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.uq-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.uq-tabcard,
+.uq-modal-grid {
+  min-height: 0;
+}
+
+.uq-modal-section {
+  min-width: 0;
+}
+
+.uq-modal-section label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.uq-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  padding: 0.9rem 0.2rem 0;
+  overflow: auto;
+  max-height: 30vh;
+}
+
+.uq-modal-grid > div {
+  min-width: 0;
+}
+
+.uq-modal-query,
+.uq-modal-code,
+.uq-modal-error {
+  display: block;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+
+.uq-modal-query,
+.uq-modal-code {
+  max-height: 32vh;
+  padding: 0.85rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.uq-modal-query {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.uq-modal-code {
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.uq-modal-error {
+  max-height: min(24vh, 240px);
+  padding: 0.85rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  color: #fecaca;
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.uq-modal-code code,
+.uq-modal-error code {
+  white-space: inherit;
+  word-break: inherit;
+  overflow-wrap: inherit;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.uq-modal-query.uq-tight-scroll,
+.uq-modal-code.uq-tight-scroll,
+.uq-modal-error.uq-tight-scroll,
+.uq-modal-grid.uq-tight-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.uq-modal-query.uq-tight-scroll::-webkit-scrollbar,
+.uq-modal-code.uq-tight-scroll::-webkit-scrollbar,
+.uq-modal-error.uq-tight-scroll::-webkit-scrollbar,
+.uq-modal-grid.uq-tight-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.uq-modal-query.uq-tight-scroll::-webkit-scrollbar-track,
+.uq-modal-code.uq-tight-scroll::-webkit-scrollbar-track,
+.uq-modal-error.uq-tight-scroll::-webkit-scrollbar-track,
+.uq-modal-grid.uq-tight-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.uq-modal-query.uq-tight-scroll::-webkit-scrollbar-thumb,
+.uq-modal-code.uq-tight-scroll::-webkit-scrollbar-thumb,
+.uq-modal-error.uq-tight-scroll::-webkit-scrollbar-thumb,
+.uq-modal-grid.uq-tight-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  opacity: 0;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.uq-modal-query.uq-tight-scroll:hover::-webkit-scrollbar-thumb,
+.uq-modal-code.uq-tight-scroll:hover::-webkit-scrollbar-thumb,
+.uq-modal-error.uq-tight-scroll:hover::-webkit-scrollbar-thumb,
+.uq-modal-grid.uq-tight-scroll:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.uq-modal-query.uq-tight-scroll::-webkit-scrollbar-thumb:active,
+.uq-modal-code.uq-tight-scroll::-webkit-scrollbar-thumb:active,
+.uq-modal-error.uq-tight-scroll::-webkit-scrollbar-thumb:active,
+.uq-modal-grid.uq-tight-scroll::-webkit-scrollbar-thumb:active {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .uq-modal-backdrop {
+    align-items: flex-start;
+    padding: 0.75rem;
+    overflow-y: auto;
+  }
+
+  .uq-modal {
+    width: 100%;
+    max-height: none;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .uq-tabbar {
+    gap: 0.45rem;
+  }
+
+  .uq-open-convo-btn,
+  .uq-copy-btn {
+    flex: 0 0 auto;
+  }
+
+  .uq-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .uq-modal-query,
+  .uq-modal-code {
+    max-height: 28vh;
+  }
+
+  .uq-modal-error {
+    max-height: 22vh;
+    font-size: 0.8rem;
+  }
+}

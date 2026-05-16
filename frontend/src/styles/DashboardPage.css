@@ -1,0 +1,12 @@
+/* src/styles/DashboardPage.css */
+/* Dashboard page entrypoint: only imports + tiny cross-dashboard utilities */
+
+@import "./dashboard/DashboardLayout.css";
+@import "./dashboard/DashboardWidgetCard.css";
+@import "./dashboard/DashboardWidgetHeader.css";
+@import "./dashboard/DashboardWidgetBody.css";
+@import "./dashboard/DashboardWidgetModal.css";
+@import "./dashboard/DashboardUtilities.css";
+@import "./dashboard/DashboardSettingsModal.css";
+@import "./dashboard/DashboardResponsive.css";
+@import "./dashboard/DashboardTheme.css";

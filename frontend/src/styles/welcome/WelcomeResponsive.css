@@ -1,0 +1,168 @@
+/* src/styles/welcome/WelcomeResponsive.css */
+
+@media (max-width: 1100px) {
+  .WelcomePage-content {
+    column-gap: 1.5rem;
+    padding: 2rem;
+  }
+
+  .WelcomePage-title {
+    font-size: 2.7rem;
+  }
+
+  .WelcomePage-videoCard {
+    width: min(720px, 100%);
+  }
+}
+
+@media (max-width: 900px) {
+  .WelcomePage-content {
+    grid-template-columns: 1fr;
+    row-gap: 1.25rem;
+    padding: 1.35rem;
+  }
+
+  .WelcomePage-left {
+    max-width: 560px;
+  }
+
+  .WelcomePage-right {
+    width: 100%;
+  }
+
+  /* On mobile, keep the video big but not taller than the screen */
+  .WelcomePage-videoCard {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 55vh;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
+  .WelcomePage-scrollHint {
+    bottom: 0.85rem;
+    position: relative;
+    text-align-last: center;
+  }
+
+  .WelcomePage-showcase {
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .WelcomePage-title {
+    font-size: 2.25rem;
+  }
+
+  .WelcomePage-subtitle {
+    font-size: 0.98rem;
+  }
+
+  .WelcomePage-content {
+    padding: 1.1rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .CapCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .CapSection-inner {
+    padding: 0 1.35rem;
+  }
+
+  .CapKpis {
+    grid-template-columns: 1fr;
+  }
+
+  .CapSectionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .CapSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .CapTableRow {
+    grid-template-columns: 1fr;
+  }
+
+  .CapCTA-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .CapCTAButton {
+    width: 100%;
+  }
+
+  .CapFooter-inner {
+    padding: 1.1rem 1.35rem;
+  }
+
+  .CapFooterBrand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* 1) Give the whole hero more room on large displays */
+.WelcomePage-content {
+  max-width: 1520px;
+  padding: 2.5rem;
+}
+
+/* 2) Let the right side claim more of the width */
+.WelcomePage-content {
+  /* was: minmax(380px, 520px) minmax(420px, 1fr) */
+  /* grid-template-columns: minmax(360px, 520px) minmax(520px, 1fr); */
+}
+
+/* 3) Make the video panel “sit” more like Claude (toward the right) */
+.WelcomePage-right {
+  justify-self: end;
+}
+
+/* 4) Let the card scale up when space exists */
+.WelcomePage-videoCard {
+  width: clamp(560px, 44vw, 980px);
+  max-height: calc(100vh - 5.25rem);
+}
+
+/* 5) Extra boost on ultra-wide screens (optional but matches Claude feel) */
+@media (min-width: 1500px) {
+  .WelcomePage-content {
+    max-width: 1680px;
+    column-gap: 2.5rem;
+  }
+
+  .WelcomePage-videoCard {
+    width: clamp(640px, 46vw, 1100px);
+  }
+}
+
+/* If you want it bigger on tall screens, allow a bit more width */
+@media (min-height: 900px) {
+  .WelcomePage-videoCard {
+    width: min(1200px, 100%);
+    max-height: calc(100vh - 160px);
+  }
+}
+
+/* Optional: on ultrawide specifically, be stricter on max-height */
+@media (min-aspect-ratio: 21/9) {
+  .WelcomePage-videoCard {
+    max-height: calc(100vh - 15rem);
+    max-width: calc(100vh - 15rem);
+  }
+}
+
+@media (max-width: 1024px) {
+  .WelcomePage-content {
+    padding: 1rem !important;
+  }
+}

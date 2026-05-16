@@ -1,0 +1,84 @@
+/* src/styles/admin/AdminLayout.css */
+
+/* Page shell */
+
+.AdminPage {
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+  color: #e5e7eb;
+}
+
+/* Center the content and constrain max width */
+
+.AdminPage-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* Header */
+
+.admin-header {
+  margin-bottom: 1.5rem;
+}
+
+.admin-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.admin-subtitle {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin-bottom: 0;
+}
+
+/* Sections */
+
+.admin-section {
+  margin-bottom: 1.5rem;
+}
+
+.admin-section--table {
+  margin-top: 0.5rem;
+}
+
+.admin-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-section-header--compact {
+  margin-bottom: 0.5rem;
+}
+
+.admin-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+}
+
+.admin-section-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Responsive tweaks that belong to the page shell / section headings */
+
+@media (max-width: 768px) {
+  .AdminPage {
+    padding-top: 1rem;
+  }
+
+  .admin-title {
+    font-size: 1.4rem;
+  }
+
+  .admin-section-title {
+    font-size: 0.95rem;
+  }
+}

@@ -1,0 +1,176 @@
+/* src/styles/admin/AdminTables.css */
+
+/* Users table: typography & layout */
+
+.admin-users-table {
+  font-size: 0.85rem;
+  color: #e5e7eb;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Header: similar vibes to section titles */
+
+.admin-users-table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.9);
+  padding-top: 0.45rem;
+  padding-bottom: 0.35rem;
+}
+
+/* Body cells a bit tighter, matching the compact dashboard feel */
+
+.admin-users-table tbody td {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  border-top: 1px solid rgba(31, 41, 55, 0.9);
+}
+
+/* Subtle custom striping so it blends with the dark cards */
+
+.admin-users-table tbody tr:nth-child(odd) td {
+  background-color: rgba(15, 23, 42, 0.96);
+}
+
+.admin-users-table tbody tr:nth-child(even) td {
+  background-color: rgba(17, 24, 39, 0.96);
+}
+
+/* Search + table */
+
+.admin-table-section {
+  margin-top: 0.5rem;
+}
+
+.admin-search-wrapper {
+  margin-bottom: 0.75rem;
+}
+
+.admin-search-input {
+  border-radius: 9999px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.admin-table-wrapper {
+  max-height: 420px;
+  border-radius: 0.75rem;
+  overflow: auto;
+  border: 1px solid rgba(55, 65, 81, 0.8);
+}
+
+/* Make table header stand out a bit more */
+
+.admin-users-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #020617;
+  z-index: 1;
+}
+
+/* Sticky actions column */
+
+.admin-users-actions-col {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: #020617;
+}
+
+.admin-users-actions-col--head {
+  width: 80px;
+}
+
+.admin-users-actions-cell {
+  white-space: nowrap;
+}
+
+/* Action buttons */
+
+.admin-user-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.admin-user-action-btn {
+  padding: 0.1rem 0.3rem;
+}
+
+/* Sortable headers */
+
+.admin-sortable-header {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.admin-sortable-header span {
+  vertical-align: middle;
+}
+
+.admin-sort-icon {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.admin-sortable-header:hover .admin-sort-icon {
+  opacity: 0.9;
+}
+
+/* User rows */
+
+.admin-user-row td {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-user-row:hover td {
+  background-color: rgba(31, 41, 55, 0.9);
+}
+
+/* Anonymized users */
+
+.admin-user-row--anonymized td {
+  background-color: rgba(15, 23, 42, 0.95);
+  color: #6b7280;
+  font-style: italic;
+}
+
+.admin-user-row--anonymized td.admin-users-actions-cell {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+/* Username + anonymized badge */
+
+.admin-user-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.admin-user-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  background-color: rgba(55, 65, 81, 0.9);
+  color: #e5e7eb;
+  flex-shrink: 0;
+}
+
+/* Disks table tweaks (inherits from .admin-users-table) */
+
+.admin-disks-table tbody td {
+  white-space: nowrap;
+}

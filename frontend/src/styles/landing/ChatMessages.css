@@ -1,0 +1,479 @@
+/* src/styles/landing/ChatMessages.css */
+
+/* Generic fade-in animation (used for user text) */
+.cap-root .fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Message rows */
+.cap-root .message {
+  display: flex;
+  gap: 1rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cap-root .message.user {
+  flex-direction: row-reverse;
+}
+
+.cap-root .message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.cap-root .message.user .message-avatar {
+  background: linear-gradient(135deg, #62636462, #f8f8ff17);
+  color: white;
+}
+
+.cap-root .message.assistant .message-avatar {
+  background: var(--surface-light);
+  color: var(--text-secondary);
+}
+
+.cap-root .message-content {
+  flex: 1 1 auto;
+  max-width: 65%;
+  min-width: 0; /* prevents chart/table overflow from breaking layout */
+}
+
+.cap-root .message.user .message-content {
+  text-align: right;
+}
+
+/* Bubbles */
+.cap-root .message-bubble {
+  padding: 0.875rem 1.125rem;
+  border-radius: 12px;
+
+  display: flex; /* was inline-block */
+  flex-direction: column;
+  align-self: flex-start; /* keeps bubble tight like before */
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cap-root .message.user .message-bubble {
+  background: #35466b61;
+  color: white;
+}
+
+.cap-root .message.assistant .message-bubble {
+  background: var(--surface-light);
+  color: var(--text-primary);
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Status messages (streaming status) */
+.cap-root .message.status {
+  opacity: 0.8;
+}
+
+.cap-root .message.status .message-avatar {
+  background: transparent;
+}
+
+.cap-root .message.status .message-bubble {
+  background: transparent;
+  color: var(--text-secondary);
+
+  font-size: 0.7rem;
+  font-style: italic;
+
+  padding: 0.5rem 1rem;
+  border-left: 2px solid var(--primary);
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Typing dots */
+.cap-root .thinking-animation {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.cap-root .thinking-animation span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: thinking 1.4s infinite;
+}
+
+.cap-root .thinking-animation span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.cap-root .thinking-animation span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinking {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  30% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Don't animate the whole bubble while typing */
+.cap-root .typing-mode {
+  animation: none !important;
+  white-space: pre-wrap;
+}
+
+/* Very small screens: let bubbles take full width */
+@media (max-width: 480px) {
+  .cap-root .message-content {
+    max-width: 100%;
+  }
+}
+
+/* Markdown rendering inside bubbles (single source of truth) */
+.cap-root .message-bubble.markdown-body,
+.cap-root .message-bubble .markdown-body,
+.cap-root .rm-chat {
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Remove big first/last margins that make bubbles look huge */
+.cap-root .message-bubble.markdown-body > :first-child,
+.cap-root .rm-chat > :first-child {
+  margin-top: 0;
+}
+.cap-root .message-bubble.markdown-body > :last-child,
+.cap-root .rm-chat > :last-child {
+  margin-bottom: 0;
+}
+
+/* Tight vertical rhythm */
+.cap-root .message-bubble.markdown-body p,
+.cap-root .message-bubble.markdown-body ul,
+.cap-root .message-bubble.markdown-body ol,
+.cap-root .message-bubble.markdown-body pre,
+.cap-root .message-bubble.markdown-body blockquote,
+.cap-root .message-bubble.markdown-body table,
+.cap-root .rm-chat p,
+.cap-root .rm-chat ul,
+.cap-root .rm-chat ol,
+.cap-root .rm-chat pre,
+.cap-root .rm-chat blockquote,
+.cap-root .rm-chat table {
+  margin: 0.45rem 0;
+}
+
+/* Headings: small + tight (chat-sized) */
+.cap-root .message-bubble.markdown-body h1,
+.cap-root .message-bubble.markdown-body h2,
+.cap-root .message-bubble.markdown-body h3,
+.cap-root .message-bubble.markdown-body h4,
+.cap-root .message-bubble.markdown-body h5,
+.cap-root .message-bubble.markdown-body h6,
+.cap-root .rm-chat h1,
+.cap-root .rm-chat h2,
+.cap-root .rm-chat h3,
+.cap-root .rm-chat h4,
+.cap-root .rm-chat h5,
+.cap-root .rm-chat h6 {
+  margin: 0.6rem 0 0.35rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.cap-root .message-bubble.markdown-body h1,
+.cap-root .rm-chat h1 {
+  font-size: 1.05rem;
+}
+.cap-root .message-bubble.markdown-body h2,
+.cap-root .rm-chat h2 {
+  font-size: 0.98rem;
+}
+.cap-root .message-bubble.markdown-body h3,
+.cap-root .rm-chat h3 {
+  font-size: 0.92rem;
+}
+.cap-root .message-bubble.markdown-body h4,
+.cap-root .rm-chat h4 {
+  font-size: 0.88rem;
+}
+.cap-root .message-bubble.markdown-body h5,
+.cap-root .rm-chat h5 {
+  font-size: 0.86rem;
+}
+.cap-root .message-bubble.markdown-body h6,
+.cap-root .rm-chat h6 {
+  font-size: 0.84rem;
+}
+
+/* Lists */
+.cap-root .message-bubble.markdown-body ul,
+.cap-root .message-bubble.markdown-body ol,
+.cap-root .rm-chat ul,
+.cap-root .rm-chat ol {
+  padding-left: 1.15rem;
+}
+
+.cap-root .message-bubble.markdown-body li,
+.cap-root .rm-chat li {
+  margin: 0.2rem 0;
+}
+
+/* Inline code */
+.cap-root .message-bubble.markdown-body code,
+.cap-root .rm-chat code {
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95em;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+}
+
+/* Code blocks */
+.cap-root .message-bubble.markdown-body pre,
+.cap-root .rm-chat pre,
+.cap-root .rm-pre {
+  padding: 10px 12px;
+  border-radius: 10px;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.cap-root .message-bubble.markdown-body pre code,
+.cap-root .rm-chat pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Blockquotes */
+.cap-root .message-bubble.markdown-body blockquote,
+.cap-root .rm-chat blockquote,
+.cap-root .rm-quote {
+  padding: 10px 12px;
+  border-left: 3px solid rgba(255, 255, 255, 0.18);
+  opacity: 0.9;
+  border-radius: 10px;
+}
+
+/* Tables */
+.cap-root .message-bubble.markdown-body table,
+.cap-root .rm-chat table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cap-root .message-bubble.markdown-body th,
+.cap-root .message-bubble.markdown-body td,
+.cap-root .rm-chat th,
+.cap-root .rm-chat td {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cap-root .rm-table-wrap {
+  overflow-x: auto;
+}
+
+/* Links */
+.cap-root .message-bubble.markdown-body a,
+.cap-root .rm-chat a,
+.cap-root .markdown-body a {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.cap-root .message-bubble.markdown-body a:hover,
+.cap-root .rm-chat a:hover,
+.cap-root .markdown-body a:hover {
+  color: #bfdbfe;
+}
+
+/* === Structural invariants (DO NOT style content here) === */
+
+.cap-root .message {
+  display: flex;
+  gap: 1rem;
+}
+
+.cap-root .message.user {
+  flex-direction: row-reverse;
+}
+
+.cap-root .message-content {
+  flex: 1 1 auto;
+  max-width: 65%;
+  min-width: 0; /* CRITICAL for tables & charts */
+  align-self: stretch;
+}
+
+.cap-root .message.assistant .message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bubble owns vertical layout */
+.cap-root .message-bubble {
+  display: flex; /* ensure column layout */
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* Backgrounds only (no layout logic elsewhere) */
+.cap-root .message.user .message-bubble {
+  background: #35466b61;
+}
+
+.cap-root .message.assistant .message-bubble {
+  background: var(--surface-light);
+}
+
+/* Message content sizing */
+.cap-root .message-content {
+  flex: 1 1 auto;
+  min-width: 0; /* CRITICAL for flex overflow */
+  max-width: 65%;
+}
+
+/* User messages stay right-aligned */
+.cap-root .message.user .message-content {
+  text-align: right;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .cap-root .message-content {
+    max-width: 85%;
+  }
+}
+
+/* Mobile: allow near-full width like old version */
+@media (max-width: 480px) {
+  .cap-root .message-content {
+    max-width: 95%; /* <-- key change */
+  }
+}
+
+/* Ensure typing-mode container does NOT center its children */
+.rm-chat.typing-mode {
+  justify-content: flex-start;
+  align-items: stretch;
+  text-align: left;
+}
+
+/* Status line inside assistant bubble */
+.message.assistant .thinking-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  font-size: 0.7rem;
+  font-style: italic;
+
+  /* match llm.html-ish */
+  opacity: 0.85;
+
+  /* optional: add the subtle left accent like llm.html status bubble */
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid var(--primary);
+}
+
+/* Dots should be inline and not expand */
+.message.assistant .thinking-animation {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+/* === Markdown sizing fix (CRITICAL) === */
+
+/* Bubble must NOT be inline-block */
+.cap-root .message-bubble {
+  display: flex !important;
+  flex-direction: column;
+  align-self: flex-start;
+}
+
+/* Allow message column to grow vertically */
+.cap-root .message-content {
+  align-self: stretch;
+}
+
+/* Markdown container must define its own height */
+.cap-root .rm-chat {
+  min-height: max-content;
+}
+
+/* Status row inside assistant bubble (while streaming, even with text already present) */
+.cap-root .rm-assistant-statusRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  opacity: 0.9;
+
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid var(--primary);
+
+  /* keeps it tight and consistent with bubble rhythm */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.cap-root .rm-assistant-statusText {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

@@ -1,0 +1,281 @@
+.Auth-body-wrapper {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #282c34;
+}
+
+.Auth-body-wrapper * {
+  font-size: 15px;
+}
+
+.Auth-logo {
+  align-self: center;
+  height: 6rem;
+  position: relative;
+  margin-bottom: 5vh;
+  filter: drop-shadow(5px 9px 2px rgba(0, 0, 0, 0.4));
+}
+
+.Auth-title {
+  text-align: center;
+  font-size: xx-large;
+  width: 70%;
+  align-self: center;
+}
+
+.Auth-container-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-family: monospace;
+  justify-content: center;
+  max-width: fit-content;
+  text-align: center;
+}
+
+.Auth-container {
+  background-color: #98a9b1;
+  border-color: #000;
+  border-width: 1rem;
+  border-radius: 10px;
+  min-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 19px 38px,
+    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+}
+
+@media only screen and (min-width: 1024px) {
+  .Auth-container {
+    min-width: 450px;
+    padding: 2rem;
+    max-width: min-content;
+  }
+}
+
+.Auth-input-email,
+.Auth-input-email-entered {
+  margin-top: 5vh;
+}
+
+.Auth-input-email-entered {
+  cursor: pointer;
+}
+
+.Auth-input-email-entered:hover span {
+  background-color: rgb(172, 47, 47);
+}
+
+.Auth-input-email-entered span:after {
+  content: "@";
+}
+
+.Auth-input-email span:after {
+  content: "@";
+}
+
+.Auth-input-email-entered:hover span:after {
+  content: "X";
+  display: inline;
+}
+
+/* Important: do not use negative margin here (it breaks setpass title layout) */
+.Auth-input-pass {
+  margin-top: 2vh;
+  margin-bottom: 3vh;
+}
+
+.Auth-input-button {
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+}
+
+.Auth-input-label {
+  background: lightslategrey;
+  color: white;
+  width: 3rem;
+  justify-content: center;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+.Auth-alternative-link {
+  cursor: pointer;
+  display: inline-flex;
+  text-decoration: underline;
+}
+
+.Auth-divider {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  font-size: 12px;
+  justify-content: center;
+  padding: 1rem 1rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.Auth-divider:before,
+.Auth-divider:after {
+  content: "";
+  border-bottom: 1px solid #c2c8d0;
+  flex: 1 0 auto;
+  height: 0.5em;
+  margin: 0;
+}
+
+.Auth-divider-or {
+  text-align: center;
+  flex: 0.2 0 auto;
+  margin: 0;
+  height: 12px;
+}
+
+.Auth-oauth-button {
+  text-transform: capitalize;
+  font-size: 0.75rem;
+  margin-top: 0.4rem;
+  display: grid;
+  grid-template-columns: 2rem auto;
+  align-items: center;
+  justify-content: normal;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+}
+
+.Auth-oauth-button:hover {
+  background-color: lightslategray;
+}
+
+.Auth-password-eye {
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.Auth-password-eye:hover {
+  color: rgba(55, 71, 79, 0.808);
+}
+
+.Auth-email-input {
+  border-top-right-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
+
+.Auth-password-input {
+  border-top-right-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
+
+.Auth-confirmation-warning {
+  display: inline-flex;
+  text-decoration: underline;
+}
+
+.confirm-message-box {
+  border: 1px solid #ccc;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 19px 38px,
+    rgba(0, 0, 0, 0.22) 0px 15px 12px;
+  text-align: center;
+  max-width: 450px;
+  margin-top: 2rem;
+}
+
+.Auth-confirm-text {
+  font-size: 1rem;
+  margin-top: 1rem;
+  color: #444;
+}
+
+.Auth-keep-logged-toggle {
+  margin-bottom: 1rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.form-check-label {
+  cursor: pointer !important;
+}
+
+.Auth-oauth-logo {
+  height: 1.5rem;
+  width: auto;
+  margin-left: 100%;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* New: hint box (replaces inline styles) */
+.Auth-hintBox {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-align: left;
+}
+
+.Auth-hintLine {
+  line-height: 1.2;
+}
+
+.Auth-hintSub {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* Password strength colors */
+.Auth-hintSub.passwordStrengthWeak {
+  color: #d32f2f; /* red */
+  font-weight: 600;
+}
+
+.Auth-hintSub.passwordStrengthOk {
+  color: #f57c00; /* orange */
+  font-weight: 600;
+}
+
+.Auth-hintSub.passwordStrengthStrong {
+  color: #2e7d32; /* green */
+  font-weight: 600;
+}
+
+/* Optional: keep "empty" neutral */
+.Auth-hintSub.passwordStrengthEmpty {
+  color: inherit;
+  font-weight: 400;
+}
+
+/* New: link row spacing (replaces inline styles) */
+.Auth-linkRow {
+  margin-top: 0.25rem;
+}
+
+/* New: setup link CTA wrapper (replaces inline styles) */
+.Auth-setupCtaWrapper {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.Auth-setupCtaHelp {
+  margin-bottom: 0.5rem;
+}
+
+.Auth-wallet-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #e1e1e1;
+}
+
+.Auth-oauth-wallets {
+  text-align: center;
+  color: #e1e1e1;
+  size: small;
+}

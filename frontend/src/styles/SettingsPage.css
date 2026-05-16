@@ -1,0 +1,149 @@
+/* src/styles/SettingsPage.css */
+.Settings-body {
+  background-color: #2b303a;
+  color: #fff;
+  font-family: Anton;
+  min-height: 100vh;
+  overflow-wrap: anywhere;
+  padding: 2rem;
+}
+
+.Settings-container {
+  background: #343a40;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0000001a;
+  margin: auto;
+  max-width: 600px;
+  padding: 2rem;
+  font-family: monospace;
+}
+
+.Settings-title {
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.Settings-user-box {
+  margin-bottom: 1.5rem;
+}
+
+.Settings-referral-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.Settings-username-wallet {
+  font-size: smaller;
+}
+
+.Settings-referral-link {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: #61dafb;
+}
+
+.Settings-referral-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.Settings-icon {
+  margin-right: 0.5rem;
+}
+
+/* New: display name / username rows */
+.Settings-name-row,
+.Settings-handle-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.Settings-editable-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.Settings-primary-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.Settings-secondary-handle {
+  opacity: 0.9;
+}
+
+.Settings-inline-input {
+  width: 100%;
+  max-width: 260px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #6c757d;
+  background: #2f353b;
+  color: #fff;
+  outline: none;
+}
+
+/* Ensure avatar and info stack on small screens */
+@media (max-width: 768px) {
+  .Settings-user-box .row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .Settings-user-box .col-4,
+  .Settings-user-box .col-8 {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .Settings-referral-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .Settings-referral-buttons {
+    justify-content: center;
+  }
+}
+
+.Settings-avatar-wrapper {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  max-width: 120px !important;
+  max-height: 120px !important;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  margin: auto;
+  padding: 10px;
+}
+
+.Settings-avatar-icon {
+  position: absolute;
+  height: 1.5rem;
+  color: lightseagreen;
+  margin-top: 4vh;
+  cursor: pointer;
+}
+
+.Settings-username-icon {
+  color: gray;
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.Settings-editable-line:hover .Settings-username-icon {
+  color: lightseagreen;
+}
+
+.Settings-danger-zone {
+  background-color: #59454d;
+  border-radius: 6px;
+}

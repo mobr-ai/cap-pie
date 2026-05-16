@@ -1,0 +1,140 @@
+/* src/styles/WaitingListPage.css */
+
+/* === Logo === */
+
+.WaitingList-logo {
+  pointer-events: none;
+  padding: 3vh;
+  height: 28vh;
+  filter: none;
+  display: block;
+  z-index: 1;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .WaitingList-logo {
+    animation: WaitingList-logo-spin 10s linear infinite;
+  }
+}
+
+@keyframes WaitingList-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.WaitingList-logo-static {
+  pointer-events: none;
+  padding: 3vh;
+  height: 28vh;
+  filter: drop-shadow(5px 20px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Wrapper holds a static shadow underneath (shadow does not rotate) */
+.logo-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.logo-wrap::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 10%;
+  bottom: 0;
+  height: 4%;
+  background: radial-gradient(closest-side, #75abb75c, #0000);
+  filter: blur(6px);
+  opacity: 1;
+  transform: skew(119deg) scale(2.05, 0.85);
+  pointer-events: none;
+  z-index: 0;
+  padding-top: 8rem;
+}
+
+/* === Page layout === */
+
+.WaitingList-body {
+  background-color: #282c34;
+  margin: auto;
+  color: #fff;
+
+  /* current behavior: centered layout */
+  display: grid !important;
+  place-items: center;
+
+  /* legacy props kept to avoid layout drift */
+  flex-direction: row;
+  font-family: Anton;
+  min-height: 100vh;
+  margin-left: auto;
+  overflow-wrap: anywhere;
+  justify-content: space-evenly;
+  position: relative;
+}
+
+/* Desktop behavior preserved */
+@media only screen and (min-width: 1024px) {
+  .WaitingList-body {
+    display: flex !important;
+    max-height: 100vh !important;
+  }
+
+  .WaitingList-middle-column {
+    min-height: 100vh;
+    max-width: 60vw;
+    margin-right: 5vw;
+  }
+}
+
+.WaitingList-middle-column {
+  align-items: center;
+  align-self: baseline;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  order: 0;
+  padding: 10%;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* === Typography === */
+
+.WaitingList-logo-text {
+  font-family: monospace;
+  font-size: 20px;
+  font-weight: 600;
+  color: rgb(204, 204, 204);
+}
+
+/* === Form === */
+
+.WaitingList-input-form input::placeholder {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.WaitingList-input-form input {
+  text-align: center;
+  font-size: 1rem;
+  margin: 0.5rem;
+  height: 3rem;
+  width: 20rem;
+}
+
+.WaitingList-input-form button {
+  font-size: 1rem;
+  margin: 0.5rem;
+  height: 3rem;
+}
+
+.WaitingList-input {
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-family: monospace;
+}

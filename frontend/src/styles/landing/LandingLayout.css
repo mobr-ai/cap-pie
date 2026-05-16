@@ -1,0 +1,420 @@
+/* src/styles/landing/LandingLayout.css */
+
+/* Reset only inside Landing page scope */
+.cap-root,
+.cap-root * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Scoped custom properties (instead of :root) */
+.cap-root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --secondary: #64748b;
+
+  --background: #020617;
+  --surface: #0f172a;
+  --surface-light: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+
+  --border: #273549;
+
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.6;
+
+  height: 90vh;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* main page container (also used by DashboardPage) */
+.cap-root .container {
+  max-width: 60vw;
+  margin: 1rem auto;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  width: 100%;
+}
+
+/* Chat wrapper */
+.cap-root .chat-container {
+  flex: 1;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  /* min-height: 500px; */
+
+  /* critical so the inner scroller can work */
+  min-height: 0;
+}
+
+/* Messages list */
+.cap-root .messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Scrollbars for messages */
+.cap-root .messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cap-root .messages::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+.cap-root .messages::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cap-root .messages::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Responsive tweaks (mobile) */
+@media (max-width: 768px) {
+  .cap-root .container {
+    padding: 0rem;
+    max-width: 99vw;
+  }
+
+  .cap-root .chat-container {
+    min-height: 420px;
+    border-radius: 10px;
+  }
+
+  .cap-root .messages {
+    padding: 1rem;
+  }
+}
+
+/* Empty state */
+
+.cap-root .landing-empty-rotator {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2.25rem 1.5rem;
+}
+
+.cap-root .landing-empty-line {
+  max-width: 900px;
+  width: 100%;
+
+  text-align: center;
+
+  font-size: 1.6rem;
+  font-weight: 650;
+  line-height: 1.25;
+
+  color: var(--text-primary);
+
+  opacity: 0.96;
+  transition: opacity 0.2s ease;
+}
+
+.cap-root .landing-empty-line.is-fading {
+  opacity: 0;
+}
+
+.cap-root .landing-empty-typed {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cap-root .landing-empty-caret {
+  display: inline-block;
+  width: 10px;
+  height: 1.15em;
+  margin-left: 6px;
+  transform: translateY(2px);
+
+  background: rgba(241, 245, 249, 0.7);
+  border-radius: 2px;
+
+  animation: landingCaretBlink 0.9s steps(1) infinite;
+}
+
+@keyframes landingCaretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .cap-root .landing-empty-line {
+    font-size: 1.25rem;
+  }
+
+  .cap-root .landing-empty {
+    min-height: 25rem !important;
+  }
+}
+
+.cap-root .landing-empty {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 1.25rem;
+  padding: 2.25rem 1.5rem;
+}
+
+/* Static robot section */
+.cap-root .landing-empty-robotWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cap-root .landing-empty-robotBadge {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0) 60%
+    ),
+    linear-gradient(180deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.42),
+    0 0 0 6px rgba(37, 99, 235, 0.08),
+    0 0 38px rgba(37, 99, 235, 0.16);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle “sheen” */
+.cap-root .landing-empty-robotBadge::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transform: translateX(-35%) rotate(12deg);
+  animation: landingRobotSheen 5.5s ease-in-out infinite;
+}
+
+@keyframes landingRobotSheen {
+  0% {
+    transform: translateX(-45%) rotate(12deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(45%) rotate(12deg);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateX(45%) rotate(12deg);
+    opacity: 0;
+  }
+}
+
+.cap-root .landing-empty-robot {
+  font-size: 34px;
+  line-height: 1;
+  z-index: 1;
+}
+
+/* Typed line */
+.cap-root .landing-empty-line {
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+
+  font-size: 1.6rem;
+  font-weight: 650;
+  line-height: 1.25;
+
+  color: var(--text-primary);
+
+  opacity: 0.96;
+  transition: opacity 0.22s ease;
+}
+
+.cap-root .landing-empty-line.is-fading {
+  opacity: 0;
+}
+
+.cap-root .landing-empty-typed {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cap-root .landing-empty-caret {
+  display: inline-block;
+  width: 10px;
+  height: 1.15em;
+  margin-left: 6px;
+  transform: translateY(2px);
+
+  background: rgba(241, 245, 249, 0.7);
+  border-radius: 2px;
+
+  animation: landingCaretBlink 0.9s steps(1) infinite;
+}
+
+@keyframes landingCaretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .cap-root .landing-empty-robotBadge {
+    width: 78px;
+    height: 78px;
+  }
+
+  .cap-root .landing-empty-robot {
+    font-size: 30px;
+  }
+
+  .cap-root .landing-empty-line {
+    font-size: 1.15rem;
+  }
+}
+
+.cap-root .landing-empty {
+  flex: 1;
+  min-height: 0;
+
+  display: grid;
+  grid-template-rows: 120px auto;
+  align-items: center;
+  justify-items: center;
+
+  row-gap: 0.75rem;
+  padding: 2.25rem 1.5rem;
+}
+
+.cap-root .landing-empty-robotWrap {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cap-root .landing-empty-robotBadge {
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0) 60%
+    ),
+    linear-gradient(180deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.75));
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  /* subtler: less glow, less spread */
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    0 0 0 5px rgba(37, 99, 235, 0.05),
+    0 0 18px rgba(37, 99, 235, 0.08);
+}
+
+/* optional: either remove sheen OR make it barely noticeable */
+.cap-root .landing-empty-robotBadge::after {
+  opacity: 0.22; /* was visually strong */
+  animation-duration: 7.5s; /* slower */
+}
+
+@media (max-width: 768px) {
+  .cap-root .chat-container.is-empty {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 0;
+    justify-content: center;
+  }
+
+  .cap-root .chat-container.is-empty .input-container {
+    z-index: 5;
+  }
+}
+
+@media (max-width: 768px) {
+  .cap-root .landing-empty-line {
+    max-width: 100%;
+  }
+
+  .cap-root .landing-empty-typed {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-height: 15%;
+    height: 15%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

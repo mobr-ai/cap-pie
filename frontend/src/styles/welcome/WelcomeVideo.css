@@ -1,0 +1,140 @@
+/* src/styles/welcome/WelcomeVideo.css */
+
+/* Right side video panel */
+.WelcomePage-right {
+  width: 100%;
+  justify-self: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/*
+  Your video is 800x800. Make the container square to avoid letterboxing.
+  Then use cover to fill without black bars.
+*/
+.WelcomePage-videoCard {
+  position: relative;
+
+  /* keep it big but not absurd */
+  width: min(820px, 100%);
+  aspect-ratio: 1 / 1; /* matches 800x800 */
+  max-height: calc(100vh - 5.25rem);
+
+  border-radius: 22px;
+  overflow: hidden;
+
+  /* subtle depth; no border */
+  box-shadow:
+    0 40px 110px rgba(0, 0, 0, 0.55),
+    0 12px 30px rgba(0, 0, 0, 0.35);
+
+  /* avoids any “flash” if video hasn’t painted yet */
+  background: #070a10;
+}
+
+.WelcomePage-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fills container: no black bars */
+  display: block;
+  transform: none;
+  filter: saturate(0.95) contrast(1.05) brightness(0.92);
+}
+
+/* keep shade tasteful (not too heavy, so video edges don’t feel “cropped”) */
+.WelcomePage-videoShade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.38) 0%,
+      rgba(0, 0, 0, 0.12) 45%,
+      rgba(0, 0, 0, 0.16) 100%
+    ),
+    radial-gradient(
+      700px 420px at 20% 55%,
+      rgba(0, 0, 0, 0.22),
+      transparent 65%
+    );
+  pointer-events: none;
+}
+
+/* Entrance animation (starts only after videoReady flips true) */
+.WelcomePage-videoCard {
+  opacity: 0;
+  transform: translate3d(var(--enter-x, 0), var(--enter-y, 0), 0)
+    rotate(var(--enter-r, 0)) scale(var(--enter-s, 1));
+  will-change: transform, opacity;
+}
+
+.WelcomePage-videoCard.is-loading {
+  opacity: 0;
+}
+
+.WelcomePage-videoCard.is-ready {
+  animation: WelcomeVideoEnter 720ms cubic-bezier(0.2, 0.9, 0.2, 1)
+    var(--enter-delay, 0s) both;
+}
+
+@keyframes WelcomeVideoEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--enter-x, 0), var(--enter-y, 0), 0)
+      rotate(var(--enter-r, 0)) scale(var(--enter-s, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0) scale(1);
+  }
+}
+
+/* Subtle skeleton while video loads */
+.WelcomePage-videoSkeleton {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      900px 650px at 30% 30%,
+      rgba(255, 255, 255, 0.06),
+      transparent 62%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.08) 35%,
+      rgba(255, 255, 255, 0.04) 70%
+    );
+  background-size:
+    100% 100%,
+    220% 100%;
+  animation: WelcomeSkeletonShimmer 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes WelcomeSkeletonShimmer {
+  0% {
+    background-position:
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      0 0,
+      -120% 0;
+  }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .WelcomePage-videoCard,
+  .WelcomePage-videoCard.is-ready,
+  .WelcomePage-videoSkeleton {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

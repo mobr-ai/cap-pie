@@ -1,0 +1,15 @@
+/* src/styles/dashboard/DashboardLayout.css */
+
+.dashboard-page {
+  width: 100%;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-auto-rows: 420px;
+  gap: 1.5rem;
+  align-items: stretch;
+  grid-auto-flow: row dense;
+  width: 100%;
+}

@@ -1,0 +1,373 @@
+/* src/styles/dashboard/DashboardSettingsModal.css */
+
+/* Settings modal container */
+.dashboard-settings-modal,
+.dashboard-rename-modal {
+  background: rgba(10, 20, 40, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  color: rgba(241, 245, 249, 0.92);
+}
+
+.dashboard-settings-modal .modal-title {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.dashboard-settings-sectionTitle {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  color: rgba(226, 232, 240, 0.95);
+  letter-spacing: 0.02em;
+}
+
+/* Header/footer bars */
+.dashboard-settings-modal .modal-header {
+  background: rgba(20, 35, 65, 0.55);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  padding: 14px 16px;
+}
+
+.dashboard-settings-modal .modal-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  padding: 12px 16px;
+}
+
+/* Labels */
+.dashboard-settings-modal .form-label {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+/* Inputs/selects */
+.dashboard-settings-modal .form-control,
+.dashboard-settings-modal .form-select {
+  color: #f8fafc;
+  background-color: rgba(2, 6, 23, 0.55);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.dashboard-settings-modal .form-control::placeholder {
+  color: rgba(203, 213, 225, 0.6);
+}
+
+/* Muted helper text */
+.dashboard-settings-modal .text-muted {
+  color: rgba(203, 213, 225, 0.75) !important;
+}
+
+/* Close icon visibility */
+.dashboard-settings-modal .btn-close {
+  filter: invert(1);
+  opacity: 0.85;
+}
+.dashboard-settings-modal .btn-close:hover {
+  opacity: 1;
+}
+
+/* Body layout (compact + scroll) */
+.dashboard-settings-body {
+  padding: 12px 16px;
+  max-height: min(70vh, 620px);
+  overflow: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) rgba(2, 6, 23, 0.25);
+}
+
+/* WebKit scrollbar */
+.dashboard-settings-body::-webkit-scrollbar {
+  width: 10px;
+}
+.dashboard-settings-body::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.22);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1);
+}
+.dashboard-settings-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.38),
+    rgba(148, 163, 184, 0.22)
+  );
+  border: 2px solid rgba(2, 6, 23, 0.35);
+}
+.dashboard-settings-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.52),
+    rgba(148, 163, 184, 0.3)
+  );
+}
+.dashboard-settings-body::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(
+    180deg,
+    rgba(169, 194, 255, 0.55),
+    rgba(148, 163, 184, 0.28)
+  );
+}
+
+.dashboard-settings-hint {
+  margin-bottom: 1rem;
+}
+
+/* Sections */
+.dashboard-settings-sectionWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-settings-block {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  display: flex;
+  flex-direction: column;
+}
+.dashboard-settings-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* Layout row */
+.dashboard-settings-layoutRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.dashboard-settings-layoutSelect {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dashboard-settings-positionInfo {
+  flex: 0 0 165px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.22);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.dashboard-settings-positionTitle {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.85);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dashboard-settings-positionValue {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(241, 245, 249, 0.9);
+}
+
+/* Move buttons */
+.dashboard-settings-moveRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dashboard-settings-moveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Pills */
+.dashboard-pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.25);
+  color: rgba(241, 245, 249, 0.92);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.dashboard-pill:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: rgba(2, 6, 23, 0.35);
+}
+
+.dashboard-pill.is-selected {
+  border-color: rgba(59, 130, 246, 0.75);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+/* Color picker grid */
+.dashboard-colorGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboard-colorChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: rgba(226, 232, 240, 0.9);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dashboard-colorChip:hover {
+  border-color: rgba(148, 163, 184, 0.28);
+  background: rgba(2, 6, 23, 0.35);
+}
+
+.dashboard-colorChip.is-selected {
+  border-color: rgba(59, 130, 246, 0.65);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+.dashboard-colorSwatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dashboard-colorSwatch[data-color="blue"] {
+  background: #3b82f6;
+}
+.dashboard-colorSwatch[data-color="green"] {
+  background: #22c55e;
+}
+.dashboard-colorSwatch[data-color="purple"] {
+  background: #a855f7;
+}
+.dashboard-colorSwatch[data-color="orange"] {
+  background: #f97316;
+}
+.dashboard-colorSwatch[data-color="pink"] {
+  background: #ec4899;
+}
+.dashboard-colorSwatch[data-color="teal"] {
+  background: #14b8a6;
+}
+.dashboard-colorSwatch[data-color="gray"] {
+  background: #94a3b8;
+}
+
+/* Compact dialog (if used) */
+.dashboard-settings-modal-dialog .modal-dialog {
+  max-width: 620px;
+}
+
+/* Desktop: keep layout select tighter */
+@media (min-width: 768px) {
+  .dashboard-settings-layoutSelect {
+    max-width: 320px;
+  }
+}
+
+/* Responsive: stack appearance columns */
+@media (max-width: 640px) {
+  .dashboard-settings-layoutRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dashboard-settings-positionInfo {
+    flex: 1 1 auto;
+  }
+}
+
+/* Appearance two columns */
+.dashboard-settings-appearanceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Compact color grid */
+.dashboard-colorGrid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dashboard-colorChip--compact {
+  padding: 8px 10px;
+  border-radius: 12px;
+  gap: 8px;
+}
+
+.dashboard-colorSwatch--compact {
+  width: 14px;
+  height: 14px;
+  border-radius: 5px;
+}
+
+/* Compact pills + category colors */
+.dashboard-pillRow--compact {
+  gap: 8px;
+}
+
+.dashboard-pill--compact {
+  padding: 7px 10px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+
+  /* use category accent if present */
+  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(2, 6, 23, 0.22);
+}
+
+.dashboard-pill--compact .dashboard-pillDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.45);
+}
+
+.dashboard-pill--compact[style*="--pill-accent"] {
+  border-color: color-mix(
+    in srgb,
+    var(--pill-accent) 45%,
+    rgba(148, 163, 184, 0.2)
+  );
+}
+
+.dashboard-pill--compact[style*="--pill-accent"] .dashboard-pillDot {
+  background: var(--pill-accent);
+}
+
+.dashboard-pill.is-selected {
+  border-color: rgba(59, 130, 246, 0.75);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+/* Inline error */
+.dashboard-settings-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  color: rgba(254, 226, 226, 0.92);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}

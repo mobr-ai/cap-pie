@@ -1,0 +1,160 @@
+/* src/styles/welcome/WelcomeHero.css */
+
+.WelcomePage {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      1200px 700px at 18% 24%,
+      rgba(60, 140, 210, 0.14),
+      transparent 62%
+    ),
+    radial-gradient(
+      1000px 700px at 82% 22%,
+      rgba(30, 90, 140, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 700px at 70% 70%,
+      rgba(10, 40, 60, 0.35),
+      transparent 65%
+    ),
+    linear-gradient(180deg, #07131c 0%, #060b12 100%);
+}
+
+.WelcomePage-hero {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Smooth anchor jumps without forcing the whole app */
+.WelcomePage {
+  scroll-behavior: smooth;
+}
+
+/* Center the whole composition like Claude */
+.WelcomePage-content {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 2.25rem;
+
+  display: grid;
+  grid-template-columns: minmax(380px, 520px) minmax(420px, 1fr);
+  align-items: center;
+  column-gap: 2rem;
+}
+
+/* Scroll hint */
+.WelcomePage-scrollHint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.2rem;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease;
+}
+
+.WelcomePage-scrollHint:hover {
+  transform: translateX(-50%) translateY(-3px);
+}
+
+.WelcomePage-scrollHint:active {
+  transform: translateX(-50%) translateY(-1px);
+}
+
+/* Glow goes on the pill instead (box-shadow is stable in Firefox) */
+.WelcomePage-scrollHintPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+
+  transition:
+    background 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.WelcomePage-scrollHint:hover .WelcomePage-scrollHintPill {
+  background: rgba(90, 200, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(90, 200, 255, 0.22),
+    0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.WelcomePage-scrollHintText {
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.WelcomePage-scrollHintDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(140, 220, 255, 0.85);
+  box-shadow:
+    0 0 0 2px rgba(140, 220, 255, 0.14),
+    0 0 28px rgba(140, 220, 255, 0.35);
+  animation: WelcomeDotPulse 1.25s ease-in-out infinite;
+}
+
+@keyframes WelcomeDotPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.95);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateY(2px) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Left side should feel centered in its column, not glued to the viewport edge */
+.WelcomePage-left {
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.15rem;
+
+  z-index: 2;
+}
+
+.WelcomePage-heading {
+  width: 100%;
+  max-width: 520px;
+}
+
+.WelcomePage-title {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 3.15rem;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.WelcomePage-subtitle {
+  margin: 0.85rem 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.WelcomePage-auth {
+  width: 100%;
+}

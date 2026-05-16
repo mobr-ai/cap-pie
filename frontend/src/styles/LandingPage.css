@@ -1,0 +1,8 @@
+/* src/styles/LandingPage.css */
+/* Landing page CSS aggregator */
+
+@import "./landing/LandingLayout.css";
+@import "./landing/ChatMessages.css";
+@import "./landing/Artifacts.css";
+@import "./landing/ChatInput.css";
+@import "./landing/TopQueries.css";

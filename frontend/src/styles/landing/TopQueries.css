@@ -1,0 +1,126 @@
+/* src/styles/landing/TopQueries.css */
+
+.cap-root .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  color: var(--text-secondary);
+
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.cap-root .empty-state-examples-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  color: var(--text-secondary);
+  gap: 0.5rem;
+
+  padding-bottom: 1rem;
+  text-align: left;
+}
+
+.cap-root .examples {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  padding: 0 1.5rem;
+  margin: 1rem;
+}
+
+.cap-root .example-chip {
+  padding: 0.5rem 1rem;
+
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  cursor: pointer;
+  transition: all 0.2s;
+
+  /* prevent horizontal overflow on long queries */
+  max-width: 100%;
+  white-space: normal; /* allow multi-line */
+  overflow-wrap: anywhere; /* break long ids */
+  word-break: break-word; /* fallback */
+  hyphens: auto; /* nicer breaks when possible */
+  text-align: left;
+  line-height: 1.25;
+
+  /* make sure flexbox allows shrinking */
+  min-width: 0;
+}
+
+.cap-root .example-chip:hover:not(.disabled) {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.cap-root .example-chip.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cap-root .examples {
+    padding: 0 0.5rem;
+    margin: 0 0 1rem;
+  }
+}
+
+/* Wrapper for showing examples only in empty state, with a smooth collapse */
+.cap-root .top-queries-wrap {
+  overflow: hidden;
+  transform-origin: top center;
+
+  /* enough for title + 1-2 lines of chips */
+  /* max-height: 260px; */
+
+  opacity: 1;
+  transform: scaleY(1);
+
+  transition:
+    max-height 280ms ease,
+    opacity 200ms ease,
+    transform 280ms ease,
+    margin 280ms ease,
+    padding 280ms ease;
+}
+
+.cap-root .top-queries-wrap.is-hidden {
+  max-height: 0;
+  opacity: 0;
+  transform: scaleY(0.92);
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  pointer-events: none;
+}
+
+/* Mobile: slightly smaller max-height and quicker collapse */
+@media (max-width: 768px) {
+  .cap-root .top-queries-wrap {
+    /* max-height: 220px; */
+    transition:
+      max-height 240ms ease,
+      opacity 180ms ease,
+      transform 240ms ease,
+      margin 240ms ease,
+      padding 240ms ease;
+  }
+}

@@ -1,0 +1,196 @@
+/* src/styles/dashboard/DashboardWidgetHeader.css */
+
+/* Bootstrap compatibility: force header to behave like our layout */
+.dashboard-widget .card-header.dashboard-widget-header {
+  padding: 0.75rem 0.85rem !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  background: transparent !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+
+  /* IMPORTANT: avoid clipping line-clamped text + toolbar transforms */
+  overflow: visible !important;
+
+  /* make sure header spans the full card width */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-widget-headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  /* IMPORTANT: fill available width so title isn't formatted narrow */
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.dashboard-widget-titleBlock {
+  /* IMPORTANT: allow the title area to expand and use all space */
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.widget-title {
+  font-size: 1.03rem;
+  font-weight: 700;
+
+  /* a bit more breathing room helps avoid descender clipping */
+  line-height: 1.2;
+
+  color: rgba(255, 255, 255, 0.95);
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  overflow: hidden;
+
+  /* ensure clamping uses full available width */
+  max-width: 100%;
+}
+
+.widget-subtitle {
+  font-size: 0.85rem;
+  line-height: 1.25;
+  margin-top: 2px;
+
+  min-width: 0;
+  max-width: 100%;
+}
+
+.widget-subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.widget-subtitle-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: var(--dash-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.widget-subtitle-link:hover {
+  color: rgba(219, 234, 254, 1);
+}
+
+.widget-subtitle-muted {
+  color: rgba(226, 232, 240, 0.55);
+}
+
+.widget-subtitle-iconBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--dash-link);
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* avoid shrink weirdness */
+  flex: 0 0 auto;
+}
+
+.widget-subtitle-iconBtn:hover {
+  color: rgba(219, 234, 254, 1);
+}
+
+.widget-metaTime {
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.48);
+}
+
+/* Toolbar (top-right) */
+.dashboard-widget-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  /* never let toolbar steal width from title block */
+  flex: 0 0 auto;
+
+  /* by default hidden on hover-capable devices */
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+/* show on hover */
+.dashboard-widget:hover .dashboard-widget-toolbar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Always show on touch-like devices (no hover) */
+@media (hover: none), (pointer: coarse) {
+  .dashboard-widget-toolbar {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Buttons */
+.dashboard-widget-toolBtn {
+  appearance: none;
+  border: 1px solid var(--dash-btn-border);
+  background: var(--dash-btn-bg);
+  color: rgba(226, 232, 240, 0.92);
+
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.dashboard-widget-toolBtn:hover {
+  transform: translateY(-1px);
+  background: var(--dash-btn-bg-hover);
+  border-color: var(--dash-btn-border-hover);
+}
+
+.dashboard-widget-toolBtn:active {
+  transform: translateY(0px);
+}
+
+.dashboard-widget-toolBtn svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}

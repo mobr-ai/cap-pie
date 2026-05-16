@@ -1,0 +1,217 @@
+/* ShareModal.css */
+
+.ShareModal-grid-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+  padding: 1rem 0;
+}
+
+.ShareModal-share-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.ShareModal-share-icon:hover {
+  background-color: rgba(148, 163, 184, 0.16);
+}
+
+.ShareModal-share-icon p {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+/* Avoid fighting bootstrap global .modal-footer */
+.ShareModal-root .modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ShareModal-imageMode {
+  display: flex;
+  flex-direction: column;
+  /* gap: 0.9rem; */
+}
+
+/* Preview wrappers: behave like a viewport, not a stretching box */
+.ShareModal-imagePreview,
+.ShareModal-imageWrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(2, 6, 23, 0.55);
+
+  /* Key: center content and prevent weird stretching */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Key: cap height in modal so images don't become "infinite tall" */
+  max-height: min(62vh, 780px);
+}
+
+/* If your ShareModal uses both classes in different modes,
+   keep them identical for consistent rendering */
+.ShareModal-imagePreview img,
+.ShareModal-imageWrap img {
+  display: flex;
+
+  /* Key: never exceed wrapper bounds */
+  max-width: 90%;
+  max-height: 100%;
+
+  /* Key: keep proportions even if someone sets a height somewhere */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+
+  /* Optional: looks nicer against the dark modal bg */
+  background: transparent;
+  align-self: flex-start;
+  padding: 1rem;
+  border-radius: 30px;
+}
+
+/* Actions row */
+.ShareModal-imageActions,
+.ShareModal-actionsRow {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.ShareModal-root .modal-content {
+  background: rgba(10, 20, 40, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+}
+
+.ShareModal-root .modal-header {
+  background: rgba(20, 35, 65, 0.55);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  padding: 14px 16px;
+}
+
+.ShareModal-root .modal-title {
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: rgba(226, 232, 240, 0.98);
+}
+
+/* .ShareModal-root .modal-body {
+  padding: 14px 25px;
+} */
+
+.ShareModal-root .modal-footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  padding: 12px 16px;
+}
+
+.ShareModal-root .btn-close {
+  filter: invert(1);
+  opacity: 0.85;
+}
+
+.ShareModal-root .btn-close:hover {
+  opacity: 1;
+}
+
+.ShareModal-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.ShareModal-divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.14);
+  margin: 12px 0;
+}
+
+.ShareModal-subtitle {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.7);
+  margin-bottom: 10px;
+  letter-spacing: 0.2px;
+}
+
+/* --- Step D: state-driven slide between preview and share grid --- */
+
+.ShareModal-stage {
+  overflow: hidden;
+}
+
+.ShareModal-stageInner {
+  display: flex;
+  width: 200%;
+  transition: transform 220ms ease;
+  will-change: transform;
+}
+
+.ShareModal-stage.is-grid .ShareModal-stageInner {
+  transform: translateX(-50%);
+}
+
+.ShareModal-panel {
+  width: 50%;
+  flex: 0 0 50%;
+}
+
+.ShareModal-gridHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .ShareModal-stageInner {
+    transition: none;
+  }
+}
+
+.ShareModal-linkStatus {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.75);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ShareModal-linkPct {
+  font-variant-numeric: tabular-nums;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.ShareModal-linkError {
+  color: rgba(248, 113, 113, 0.95);
+}
+
+.ShareModal-linkRetryRow {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 0 2px;
+}
+
+/* Optional: visual cue when disabled */
+.ShareModal-share-icon :is(button, a)[aria-disabled="true"],
+.ShareModal-share-icon button:disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}

@@ -1,0 +1,170 @@
+/* src/styles/dashboard/DashboardResponsive.css */
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 1rem;
+  }
+
+  .dashboard-widget {
+    border-radius: 12px;
+  }
+
+  .dashboard-widget.widget-wide {
+    grid-column: span 1 !important;
+  }
+
+  /* On mobile we typically avoid hover transforms */
+  .dashboard-widget:hover,
+  .dashboard-widget-clickable:hover {
+    transform: none;
+  }
+
+  /*
+    Mobile collapsed widgets: avoid vertical stretching by not forcing
+    a fixed capture height. Let Vega render at its own computed height.
+  */
+  .dashboard-widget-capture {
+    height: auto;
+    overflow: hidden;
+  }
+
+  .dashboard-widget-capture .vega-chart-container,
+  .dashboard-widget-capture .vega-embed {
+    height: auto;
+    max-height: none;
+  }
+
+  .dashboard-widget-capture canvas,
+  .dashboard-widget-capture svg {
+    height: auto;
+    max-height: none;
+  }
+  .dashboard-widget-modal .modal-content {
+    max-height: 72vh; /* slightly shorter */
+  }
+
+  .dashboard-widget-modal .modal-body {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-widget-modal-inner {
+    overflow: auto; /* allow content to scroll instead of feeling "tall" */
+  }
+}
+
+/* Mobile modal should adapt to rotation */
+@media (max-width: 768px) {
+  /* default (portrait-ish) */
+  .dashboard-widget-modal .modal-content {
+    max-height: 72svh; /* use small viewport height */
+    width: min(96vw, 520px);
+    margin: 0 auto;
+  }
+
+  .dashboard-widget-modal .modal-body {
+    overflow: auto;
+  }
+}
+
+/* Mobile landscape: shorter height, wider modal */
+@media (max-width: 768px) and (orientation: landscape) {
+  .dashboard-widget-modal .modal-content {
+    max-height: 88svh; /* use more of the shorter height */
+    width: min(98vw, 860px); /* take advantage of horizontal space */
+  }
+
+  .dashboard-widget-modal .modal-body {
+    padding: 0.6rem 0.75rem 0.8rem;
+  }
+}
+
+/* Extra safety: very short landscape devices */
+@media (max-width: 768px) and (orientation: landscape) and (max-height: 420px) {
+  .dashboard-widget-modal .modal-content {
+    max-height: 92svh;
+  }
+
+  .dashboard-widget-modal .modal-header {
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-widget-modal .modal-body {
+    display: flex;
+    min-height: 0;
+  }
+
+  .dashboard-widget-modal-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+/* -------------------------------------------------------
+   Mobile modal sizing must work in landscape too.
+   Landscape phones often exceed 768px width (e.g. 915x412),
+   so max-width rules won't apply. Use height + coarse pointer.
+------------------------------------------------------- */
+
+/* General: any coarse-pointer (phones/tablets) gets sane modal sizing */
+@media (pointer: coarse) {
+  .dashboard-widget-modal .modal-content {
+    width: min(96vw, 560px);
+    margin: 0 auto;
+    max-height: 72svh; /* better than vh on mobile browsers */
+  }
+}
+
+/* Landscape phone: width can be large, but height is small */
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+  .dashboard-widget-modal .modal-content {
+    width: min(98vw, 980px);
+    max-height: 92svh;
+  }
+
+  .dashboard-widget-modal .modal-body {
+    padding: 0.6rem 0.75rem 0.8rem;
+  }
+}
+
+/* Fallback for browsers that don't support svh well */
+@supports not (height: 1svh) {
+  @media (pointer: coarse) {
+    .dashboard-widget-modal .modal-content {
+      max-height: 72vh;
+    }
+  }
+  @media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+    .dashboard-widget-modal .modal-content {
+      max-height: 72vh;
+    }
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .dashboard-widget-modal .modal-dialog {
+    width: 96vw;
+    max-width: 96vw;
+    margin: 1.5vh auto;
+  }
+  .dashboard-widget-modal .modal-content {
+    max-height: 72dvh;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .dashboard-widget-modal .modal-dialog {
+    width: 98vw;
+    max-width: 98vw;
+    margin: 1vh auto;
+  }
+  .dashboard-widget-modal .modal-content {
+    max-height: 96dvh;
+  }
+}

@@ -1,0 +1,196 @@
+/* src/styles/landing/Artifacts.css */
+
+/* Chart container */
+.chat-chart-slot {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Vega safety */
+.vega-chart-container,
+.vega-chart-container canvas,
+.vega-chart-container svg {
+  max-width: 100%;
+  height: auto;
+  /* max-height: 600px; */
+}
+
+/* KV tables must never stretch layout */
+.kv-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Artifact tools */
+.artifact-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.artifact-toolBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.12s ease;
+}
+
+.artifact-toolBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.artifact-toolBtn:disabled {
+  opacity: 0.5;
+}
+
+/* Wrapper MUST define the width context */
+.kv-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  display: block;
+}
+
+/* Table itself */
+.kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: auto;
+}
+
+.kv-table th,
+.kv-table td {
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid #243047;
+  white-space: nowrap;
+}
+
+.kv-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #111827;
+  z-index: 1;
+  cursor: pointer;
+}
+
+/* table scrollbars */
+
+.table-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+/* WebKit browsers */
+.table-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  opacity: 0;
+}
+
+.table-scroll:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Hover / active state */
+.table-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Optional: active drag */
+.table-scroll::-webkit-scrollbar-thumb:active {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Links */
+.kv-table-link {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+.kv-table-link:hover {
+  color: #bfdbfe;
+}
+
+/* Artifact action row */
+.cap-root .artifact-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+/* Buttons */
+.cap-root .artifact-toolBtn {
+  appearance: none;
+  border: 1px solid #374151;
+  background: #111827;
+  color: rgba(226, 232, 240, 0.92);
+
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease;
+}
+
+.cap-root .artifact-toolBtn:hover:not(:disabled) {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+.cap-root .artifact-toolBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Clickable Vega charts: force pointer on the actual vega-embed wrapper */
+.vega-chart-clickable .vega-embed,
+.vega-chart-clickable .vega-embed * {
+  cursor: pointer !important;
+}
+
+/* Also cover the canvas explicitly (some browsers are picky) */
+.vega-chart-clickable canvas {
+  cursor: pointer !important;
+}
+
+/* Modal wrapper may also win in some layouts */
+.dashboard-widget-modal-inner .vega-chart-clickable,
+.dashboard-widget-modal-inner .vega-chart-clickable * {
+  cursor: pointer !important;
+}

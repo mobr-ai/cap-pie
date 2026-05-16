@@ -1,0 +1,167 @@
+/* DashboardWidgetModal.css */
+
+.dashboard-widget-modal {
+  pointer-events: auto;
+}
+
+/* Modal content should be a stable flex column */
+.dashboard-widget-modal .modal-content {
+  background: var(--dash-bg);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+
+  /* Default desktop sizing */
+  width: min(1100px, 92vw);
+  max-height: min(86vh, 980px);
+}
+
+/* Header stays natural height */
+.dashboard-widget-modal .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 16px;
+  flex: 0 0 auto;
+}
+
+.dashboard-widget-modal .modal-title {
+  font-size: 18px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Body takes remaining space */
+.dashboard-widget-modal .modal-body {
+  padding: 12px 14px 16px;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Inner wrapper for charts/tables */
+.dashboard-widget-modal-inner {
+  display: flex;
+  width: 100%;
+  /* height: 100%; */
+  min-height: 0;
+}
+
+/* This container is what VegaChart will target as the resize "slot" */
+.dashboard-widget-modal-inner .vega-chart-container {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Embed area: let Vega control internal canvas sizing (no stretching) */
+.dashboard-widget-modal-inner .vega-chart-embed,
+.dashboard-widget-modal-inner .vega-embed {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
+
+/* Critical: do NOT force canvas/svg to 100% height (that distorts)
+   Instead, allow Vega to re-render to container size.
+*/
+.dashboard-widget-modal-inner canvas,
+.dashboard-widget-modal-inner svg {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto !important;
+  width: auto !important;
+}
+
+/* Tooltip should not be clipped by modal content */
+.dashboard-widget-modal .vg-tooltip {
+  z-index: 2000;
+}
+
+/* Mobile portrait */
+@media (pointer: coarse) {
+  .dashboard-widget-modal .modal-content {
+    width: min(96vw, 560px);
+    max-height: 72vh;
+  }
+}
+
+/* Mobile landscape: use much more width/height */
+@media (pointer: coarse) and (orientation: landscape) {
+  .dashboard-widget-modal .modal-content {
+    width: min(98vw, 980px);
+    max-height: 92vh;
+  }
+}
+
+/* Extra guard for short landscape heights */
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 520px) {
+  .dashboard-widget-modal .modal-content {
+    max-height: 94vh;
+  }
+}
+
+/* Guarantee a measurable height for Vega before render */
+.dashboard-widget-modal-inner {
+  flex: 1 1 auto;
+  min-height: 240px;
+}
+
+/* Vega tooltip above Bootstrap modal/backdrop */
+#vg-tooltip-element.vg-tooltip {
+  z-index: 20000 !important;
+  pointer-events: none;
+  background-color: rgb(43 48 53);
+  opacity: 0.85;
+  color: white;
+}
+
+.dashboard-widget-modal .btn-close {
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+/* Make the modal dialog actually use viewport space */
+.dashboard-widget-modal .modal-dialog {
+  width: min(96vw, 1200px);
+  max-width: min(96vw, 1200px);
+  margin: 2vh auto;
+}
+
+/* Give the content a viewport-relative max height */
+.dashboard-widget-modal .modal-content {
+  max-height: calc(96dvh - 4vh);
+  display: flex;
+  flex-direction: column;
+  /* height: 100%; */
+  height: 62vh;
+}
+
+/* Let modal body be the flexible area */
+.dashboard-widget-modal .modal-body {
+  flex: 1 1 auto;
+  min-height: 720; /* critical for flex children to be able to shrink/scroll */
+  display: flex !important;
+  flex-direction: column;
+}
+
+/* This is the slot VegaChart prefers for sizing */
+.dashboard-widget-modal-inner {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+
+/* Ensure the Vega container can take all available space */
+.dashboard-widget-modal-inner .vega-chart-container,
+.dashboard-widget-modal-inner .vega-chart-embed {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* .fade.modal.show {
+  display: flex !important;
+}*/

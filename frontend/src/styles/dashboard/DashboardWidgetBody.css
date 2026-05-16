@@ -1,0 +1,79 @@
+/* src/styles/dashboard/DashboardWidgetBody.css */
+
+.dashboard-widget .card-body {
+  padding: 0.8rem 0.85rem 0.9rem;
+  min-height: 0;
+  display: flex;
+}
+
+.dashboard-widget-inner {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+}
+
+/* Desktop: let capture fill remaining card space (instead of max 320px) */
+.dashboard-widget-capture {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 90%;
+  height: auto;
+  overflow: hidden;
+
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+/* IMPORTANT: in dashboard collapsed (desktop), container must FILL the capture box */
+.dashboard-widget-capture .vega-chart-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Vega-embed wrapper should also fill available space */
+.dashboard-widget-capture .vega-embed {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*
+  Do NOT force canvas/svg height to auto on desktop.
+  Let Vega size the scene to the container via its internal signals.
+  We only cap them so they never overflow the capture area.
+*/
+.dashboard-widget-capture canvas,
+.dashboard-widget-capture svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Stabilize during transforms (drag/swap animations) */
+.dashboard-widget-capture,
+.dashboard-widget-capture .vega-chart-container,
+.dashboard-widget-capture canvas,
+.dashboard-widget-capture svg {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* If Vega renders a smaller internal canvas, scale it to the available box (no distortion) */
+.dashboard-widget-capture .vega-embed canvas,
+.dashboard-widget-capture .vega-embed svg {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain; /* keep aspect ratio */
+  display: block;
+  cursor: pointer;
+}
