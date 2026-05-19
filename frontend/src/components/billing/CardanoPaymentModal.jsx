@@ -43,6 +43,10 @@ function isVerificationPendingError(err) {
   return code === "txNotFound";
 }
 
+function isPendingVerificationResult(result) {
+  return result?.status === "pending_verification" || result?.code === "txNotFound";
+}
+
 async function verifyCardanoPaymentWithRetry({
   session,
   paymentSessionId,
@@ -54,7 +58,25 @@ async function verifyCardanoPaymentWithRetry({
 
   for (let i = 0; i < attempts; i += 1) {
     try {
-      return await verifyCardanoPayment(session, paymentSessionId, txHash);
+      const result = await verifyCardanoPayment(session, paymentSessionId, txHash);
+
+      if (!isPendingVerificationResult(result)) {
+        return result;
+      }
+
+      lastError = new Error("txNotFound");
+      lastError.code = "txNotFound";
+      lastError.detail = {
+        code: "txNotFound",
+        received_lovelace: result?.received_lovelace || 0,
+        expected_lovelace: result?.expected_lovelace,
+      };
+
+      if (i === attempts - 1) {
+        throw lastError;
+      }
+
+      await sleep(delayMs);
     } catch (err) {
       lastError = err;
 

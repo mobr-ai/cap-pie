@@ -5,6 +5,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -315,6 +316,20 @@ def verify_cardano_payment(
     if not result.ok:
         db.add(session)
         db.commit()
+
+        if result.error == "txNotFound":
+            return JSONResponse(
+                status_code=202,
+                content={
+                    "status": "pending_verification",
+                    "code": "txNotFound",
+                    "session_id": session.session_id,
+                    "tx_hash": tx_hash,
+                    "received_lovelace": result.received_lovelace,
+                    "expected_lovelace": result.expected_lovelace,
+                },
+            )
+
         raise HTTPException(
             status_code=400,
             detail={
