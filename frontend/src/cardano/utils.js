@@ -50,15 +50,15 @@ async function getAnyAddress(api) {
     for (const [name, fn] of attempts) {
         try {
             const value = await fn();
-            
+
 
             const normalized = normalizeHexAddress(value);
             if (normalized) {
-                
+
                 return normalized;
             }
         } catch (err) {
-            
+
         }
     }
 
@@ -66,11 +66,11 @@ async function getAnyAddress(api) {
 }
 
 export async function getWalletInfo(walletName, api) {
-    
-    
+
+
 
     const networkId = await api.getNetworkId().catch((err) => {
-        
+
         return undefined;
     });
 
@@ -81,7 +81,7 @@ export async function getWalletInfo(walletName, api) {
     try {
         version = await window.cardano?.[walletName]?.getVersion?.();
     } catch (err) {
-        
+
     }
 
     const walletInfo = {
@@ -92,7 +92,7 @@ export async function getWalletInfo(walletName, api) {
         addressHex: addrHex || null,
     };
 
-    
+
 
     return walletInfo;
 }
