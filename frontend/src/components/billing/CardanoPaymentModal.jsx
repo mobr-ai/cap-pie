@@ -28,6 +28,47 @@ function compactAddress(value) {
   return `${value.slice(0, 12)}...${value.slice(-10)}`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isVerificationPendingError(err) {
+  const detail = err?.detail;
+  const code =
+    err?.code ||
+    detail?.code ||
+    (typeof detail === "string" ? detail : null) ||
+    err?.message;
+
+  return code === "txNotFound";
+}
+
+async function verifyCardanoPaymentWithRetry({
+  session,
+  paymentSessionId,
+  txHash,
+  attempts = 12,
+  delayMs = 5000,
+}) {
+  let lastError = null;
+
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await verifyCardanoPayment(session, paymentSessionId, txHash);
+    } catch (err) {
+      lastError = err;
+
+      if (!isVerificationPendingError(err) || i === attempts - 1) {
+        throw err;
+      }
+
+      await sleep(delayMs);
+    }
+  }
+
+  throw lastError || new Error("paymentVerificationFailed");
+}
+
 function getPlanList(data) {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.plans)) return data.plans;
@@ -252,7 +293,11 @@ export default function CardanoPaymentModal({
       });
 
       setStatus("verifying");
-      const verified = await verifyCardanoPayment(session, created.session_id, txHash);
+      const verified = await verifyCardanoPaymentWithRetry({
+        session,
+        paymentSessionId: created.session_id,
+        txHash,
+      });
 
       setStatus("paid");
       await refreshWalletBalance();

@@ -62,6 +62,27 @@ function getProtocolParams() {
     .build();
 }
 
+function addWalletInput(txBuilder, utxo) {
+  const address = utxo.output().address();
+  const input = utxo.input();
+  const amount = utxo.output().amount();
+
+  if (typeof txBuilder.add_regular_input === "function") {
+    txBuilder.add_regular_input(address, input, amount);
+    return;
+  }
+
+  if (typeof txBuilder.add_input === "function") {
+    txBuilder.add_input(address, input, amount);
+    return;
+  }
+
+  throw makePaymentError(
+    "unsupportedTransactionBuilder",
+    "This Cardano serialization library does not expose a supported input method",
+  );
+}
+
 function parseUtxos(utxoHexList) {
   if (!Array.isArray(utxoHexList) || utxoHexList.length === 0) {
     throw makePaymentError(
@@ -174,12 +195,33 @@ export async function buildSignSubmitPaymentTx({
 
   const txBuilder = TransactionBuilder.new(getProtocolParams());
 
-  for (const utxo of utxos) {
-    txBuilder.add_input(
-      utxo.output().address(),
-      utxo.input(),
-      utxo.output().amount(),
-    );
+  for (const [index, utxo] of utxos.entries()) {
+    try {
+      addWalletInput(txBuilder, utxo);
+    } catch (err) {
+      const output = utxo.output();
+      const input = utxo.input();
+      const amountValue = output.amount();
+
+      console.error("[CardanoPayment] add_input failed", {
+        index,
+        txHash: input.transaction_id().to_hex?.(),
+        outputIndex: input.index?.(),
+        address: output.address().to_bech32?.(),
+        lovelace: amountValue.coin().to_str(),
+        error: err,
+      });
+
+      throw makePaymentError(
+        "txInputBuildFailed",
+        "Could not add wallet UTxO to the payment transaction",
+        {
+          cause: err,
+          utxoIndex: index,
+          lovelace: amountValue.coin().to_str(),
+        },
+      );
+    }
   }
 
   txBuilder.add_output(

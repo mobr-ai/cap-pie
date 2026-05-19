@@ -609,7 +609,7 @@
       "ready": "Ready",
       "creatingSession": "Preparing",
       "buildingTransaction": "Wallet approval",
-      "verifying": "Verifying",
+      "verifying": "Waiting on-chain",
       "paid": "Paid",
       "error": "Needs attention"
     },
@@ -624,7 +624,7 @@
     "errors": {
       "walletRequired": "Connect a Cardano wallet before starting payment.",
       "paymentFailed": "Payment could not be completed. Please try again.",
-      "txNotFound": "Transaction was not found on-chain yet. Wait a few seconds and try again.",
+      "txNotFound": "Transaction was submitted but is not indexed yet. Please wait a few seconds and try again if needed.",
       "insufficientPaymentAmount": "The transaction did not include the required amount.",
       "paymentSessionExpired": "This payment session expired. Start a new one.",
       "missingTxHash": "Missing transaction hash.",
@@ -636,7 +636,9 @@
       "walletSignTxUnavailable": "This wallet does not support transaction signing.",
       "walletSubmitTxUnavailable": "This wallet does not support transaction submission.",
       "paymentAddressMissing": "Payment address is missing.",
-      "invalidPaymentAmount": "Invalid payment amount."
+      "invalidPaymentAmount": "Invalid payment amount.",
+      "txInputBuildFailed": "Could not build the transaction from this wallet UTxO set. Try refreshing the wallet, switching accounts, or using another wallet.",
+      "unsupportedTransactionBuilder": "This Cardano transaction builder version is not supported by the current payment flow."
     }
   },
   "settingsBilling": {

@@ -610,7 +610,7 @@
       "ready": "Pronto",
       "creatingSession": "Preparando",
       "buildingTransaction": "Aprovação na carteira",
-      "verifying": "Verificando",
+      "verifying": "Aguardando on-chain",
       "paid": "Pago",
       "error": "Requer atenção"
     },
@@ -625,7 +625,7 @@
     "errors": {
       "walletRequired": "Conecte uma carteira Cardano antes de iniciar o pagamento.",
       "paymentFailed": "Não foi possível concluir o pagamento. Tente novamente.",
-      "txNotFound": "A transação ainda não foi encontrada on-chain. Aguarde alguns segundos e tente novamente.",
+      "txNotFound": "A transação foi enviada, mas ainda não foi indexada. Aguarde alguns segundos e tente novamente se necessário.",
       "insufficientPaymentAmount": "A transação não incluiu o valor necessário.",
       "paymentSessionExpired": "Esta sessão de pagamento expirou. Inicie uma nova.",
       "missingTxHash": "Hash da transação ausente.",
@@ -637,7 +637,9 @@
       "walletSignTxUnavailable": "Esta carteira não suporta assinatura de transações.",
       "walletSubmitTxUnavailable": "Esta carteira não suporta envio de transações.",
       "paymentAddressMissing": "Endereço de pagamento ausente.",
-      "invalidPaymentAmount": "Valor de pagamento inválido."
+      "invalidPaymentAmount": "Valor de pagamento inválido.",
+      "txInputBuildFailed": "Não foi possível construir a transação com os UTxOs desta carteira. Atualize a carteira, troque de conta ou tente outra carteira.",
+      "unsupportedTransactionBuilder": "Esta versão do construtor de transações Cardano não é suportada pelo fluxo de pagamento atual."
     }
   },
   "settingsBilling": {
