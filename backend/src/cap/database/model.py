@@ -90,6 +90,107 @@ class CardanoAuthChallenge(Base):
     )
 
 
+class BillingPlan(Base):
+    __tablename__ = "billing_plan"
+
+    id = Column(Integer, primary_key=True)
+    code = Column(String(64), unique=True, nullable=False, index=True)
+    name = Column(String(120), nullable=False)
+    description = Column(Text, nullable=True)
+    entitlement_code = Column(String(64), nullable=False, index=True)
+    is_active = Column(Boolean, nullable=False, server_default=text("true"), default=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+
+class BillingPrice(Base):
+    __tablename__ = "billing_price"
+
+    id = Column(Integer, primary_key=True)
+    plan_id = Column(Integer, ForeignKey("billing_plan.id", ondelete="CASCADE"), nullable=False, index=True)
+    network = Column(String(32), nullable=False, index=True)
+    currency = Column(String(32), nullable=False, server_default=text("'lovelace'"))
+    amount = Column(BigInteger, nullable=False)
+    duration_days = Column(Integer, nullable=False)
+    is_active = Column(Boolean, nullable=False, server_default=text("true"), default=True)
+    starts_at = Column(DateTime, nullable=False, server_default=text("NOW()"), index=True)
+    ends_at = Column(DateTime, nullable=True, index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+
+    __table_args__ = (
+        Index("idx_billing_price_plan_network_active", "plan_id", "network", "is_active"),
+    )
+
+
+class BillingPaymentAddress(Base):
+    __tablename__ = "billing_payment_address"
+
+    id = Column(Integer, primary_key=True)
+    network = Column(String(32), nullable=False, index=True)
+    address = Column(String(256), nullable=False, index=True)
+    label = Column(String(120), nullable=True)
+    is_active = Column(Boolean, nullable=False, server_default=text("true"), default=True)
+    created_at = Column(DateTime, server_default=text("NOW()"))
+
+    __table_args__ = (
+        Index("idx_billing_payment_address_network_active", "network", "is_active"),
+    )
+
+
+class PaymentSession(Base):
+    __tablename__ = "payment_session"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(String(80), unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
+
+    plan_id = Column(Integer, ForeignKey("billing_plan.id", ondelete="SET NULL"), nullable=True, index=True)
+    price_id = Column(Integer, ForeignKey("billing_price.id", ondelete="SET NULL"), nullable=True, index=True)
+    payment_address_id = Column(Integer, ForeignKey("billing_payment_address.id", ondelete="SET NULL"), nullable=True, index=True)
+
+    plan_code_snapshot = Column(String(64), nullable=False)
+    entitlement_code_snapshot = Column(String(64), nullable=False, index=True)
+    network_snapshot = Column(String(32), nullable=False)
+    currency_snapshot = Column(String(32), nullable=False)
+    amount_snapshot = Column(BigInteger, nullable=False)
+    payment_address_snapshot = Column(String(256), nullable=False)
+    duration_days_snapshot = Column(Integer, nullable=False)
+
+    status = Column(String(32), nullable=False, server_default=text("'pending'"), index=True)
+    provider = Column(String(64), nullable=True)
+    tx_hash = Column(String(128), nullable=True, index=True)
+    provider_response = Column(JSON, nullable=True)
+
+    expires_at = Column(DateTime, nullable=False, index=True)
+    paid_at = Column(DateTime, nullable=True, index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+
+    __table_args__ = (
+        Index("idx_payment_session_user_status", "user_id", "status"),
+        Index("idx_payment_session_status_expires", "status", "expires_at"),
+    )
+
+
+class UserEntitlement(Base):
+    __tablename__ = "user_entitlement"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
+    entitlement_code = Column(String(64), nullable=False, index=True)
+    source = Column(String(64), nullable=False)
+    payment_session_id = Column(Integer, ForeignKey("payment_session.id", ondelete="SET NULL"), nullable=True, index=True)
+
+    starts_at = Column(DateTime, nullable=False, index=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    status = Column(String(32), nullable=False, server_default=text("'active'"), index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+
+    __table_args__ = (
+        Index("idx_user_entitlement_user_code_status", "user_id", "entitlement_code", "status"),
+        Index("idx_user_entitlement_code_status_expires", "entitlement_code", "status", "expires_at"),
+    )
+
+
 class Conversation(Base):
     __tablename__ = "conversation"
 

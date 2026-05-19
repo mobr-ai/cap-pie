@@ -39,6 +39,11 @@ if config.config_file_name is not None:
 MANAGED_TABLES = {
     "user",
     "cardano_auth_challenge",
+    "billing_plan",
+    "billing_price",
+    "billing_payment_address",
+    "payment_session",
+    "user_entitlement",
 }
 
 def include_object(object, name, type_, reflected, compare_to):
