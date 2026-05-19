@@ -109,7 +109,6 @@
         "title": "Pronto para explorar os dados da Cardano em modo turbo?",
         "description": "Faça login acima para acessar seu espaço de trabalho e começar a salvar suas análises."
       },
-
       "pillars": {
         "title": "Nosso roadmap: Os Três Pilares da Inovação",
         "llm": {
@@ -125,7 +124,6 @@
           "desc": "Workspaces interativos e personalizáveis onde usuários fixam gráficos e tabelas gerados por IA para monitoramento em tempo real."
         }
       },
-
       "flow": {
         "title": "Da Pergunta ao Insight",
         "step1": {
@@ -141,9 +139,11 @@
           "desc": "Os resultados são automaticamente renderizados em gráficos interativos Vega-Lite ou tabelas estruturadas."
         }
       },
-
       "kpis": {
-        "ask": { "title": "Perguntas", "subtitle": "em linguagem simples" },
+        "ask": {
+          "title": "Perguntas",
+          "subtitle": "em linguagem simples"
+        },
         "federate": {
           "title": "Federação (planejado)",
           "subtitle": "on-chain + off-chain"
@@ -153,7 +153,6 @@
           "subtitle": "simples e instantânea"
         }
       },
-
       "examples": {
         "body": "O roadmap da plataforma prevê queries federadas.",
         "colQuery": "Exemplo de pergunta do usuário",
@@ -175,7 +174,6 @@
         ]
       }
     },
-
     "footer": {
       "tagline": "Construindo infraestrutura avançada de dados e IA para ecossistemas descentralizados.",
       "followUs": "Siga-nos",
@@ -578,5 +576,94 @@
       "title": "Armazenamento bloqueado",
       "body": "O CAP precisa de armazenamento do navegador (cookies/local storage) para manter seu login. Ative o armazenamento para este site, desative o modo de privacidade estrito ou libere espaço e recarregue a página."
     }
-  }
+  },
+  "billing": {
+    "plans": {
+      "capPremiumAccess": "Acesso CAP Premium"
+    },
+    "modal": {
+      "title": "Desbloquear CAP Premium",
+      "subtitle": "Pague com segurança usando sua carteira Cardano conectada.",
+      "plan": "Plano",
+      "amount": "Valor",
+      "duration": "Duração",
+      "durationDays": "{{count}} dias",
+      "network": "Rede",
+      "wallet": "Carteira",
+      "noWallet": "Não conectada",
+      "paymentAddress": "Endereço de pagamento",
+      "loadedAfterStart": "Carregado ao iniciar o pagamento",
+      "success": "Pagamento verificado. O acesso Premium está ativo.",
+      "note": "O valor e o endereço de pagamento são gerados pelo CAP antes da transação ser criada. O acesso só é liberado após verificação no backend.",
+      "eyebrow": "Acesso premium",
+      "loadingPrice": "Carregando",
+      "balanceLoading": "Lendo saldo...",
+      "walletBalance": "Saldo: {{balance}} ₳DA",
+      "connectWalletToSeeBalance": "Conecte a carteira para ver o saldo.",
+      "benefits": {
+        "unlimitedQueries": "Consultas ilimitadas em linguagem natural durante o período ativo.",
+        "premiumAnalytics": "Acesso à geração premium de dashboards e análises on-chain.",
+        "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta."
+      }
+    },
+    "status": {
+      "ready": "Pronto",
+      "creatingSession": "Preparando",
+      "buildingTransaction": "Aprovação na carteira",
+      "verifying": "Verificando",
+      "paid": "Pago",
+      "error": "Requer atenção"
+    },
+    "actions": {
+      "close": "Fechar",
+      "done": "Concluir",
+      "processing": "Processando...",
+      "payWithCardano": "Pagar com Cardano",
+      "refresh": "Atualizar",
+      "payWithAda": "Pagar com ₳DA"
+    },
+    "errors": {
+      "walletRequired": "Conecte uma carteira Cardano antes de iniciar o pagamento.",
+      "paymentFailed": "Não foi possível concluir o pagamento. Tente novamente.",
+      "txNotFound": "A transação ainda não foi encontrada on-chain. Aguarde alguns segundos e tente novamente.",
+      "insufficientPaymentAmount": "A transação não incluiu o valor necessário.",
+      "paymentSessionExpired": "Esta sessão de pagamento expirou. Inicie uma nova.",
+      "missingTxHash": "Hash da transação ausente.",
+      "walletChangeAddressMissing": "A carteira não retornou um endereço de troco válido.",
+      "unsupportedCardanoNetwork": "Esta rede Cardano não é suportada para pagamento.",
+      "noSpendableUtxos": "Esta carteira não possui UTxOs disponíveis. Adicione ADA a esta carteira ou escolha outra carteira.",
+      "insufficientWalletBalance": "Saldo insuficiente. Disponível: {{balance}} ₳DA. Necessário: {{required}} ₳DA incluindo uma estimativa de taxa.",
+      "walletBalanceUnavailable": "O saldo da carteira não está disponível. Verifique se a carteira está desbloqueada e conectada.",
+      "walletSignTxUnavailable": "Esta carteira não suporta assinatura de transações.",
+      "walletSubmitTxUnavailable": "Esta carteira não suporta envio de transações.",
+      "paymentAddressMissing": "Endereço de pagamento ausente.",
+      "invalidPaymentAmount": "Valor de pagamento inválido."
+    }
+  },
+  "settingsBilling": {
+    "title": "Cobrança e Acesso",
+    "subtitle": "Gerencie acesso premium, pagamentos e futuras opções de créditos.",
+    "premiumPlan": "Acesso Premium por 30 dias",
+    "premiumDescription": "Acesso ilimitado a consultas enquanto o entitlement estiver ativo.",
+    "unlock": "Desbloquear",
+    "renew": "Renovar",
+    "connectWallet": "Conectar carteira de pagamento",
+    "connectedWallet": "Conectada: {{wallet}}",
+    "connectHint": "Conecte uma carteira Cardano para iniciar o fluxo de pagamento.",
+    "walletConnected": "{{wallet}} conectada para pagamento.",
+    "paymentVerified": "Pagamento verificado e acesso atualizado.",
+    "futureDonations": "Doações em breve",
+    "futureCredits": "Créditos pré-pagos em breve",
+    "status": {
+      "loading": "Verificando",
+      "free": "Plano gratuito",
+      "premium": "Premium ativo"
+    },
+    "errors": {
+      "statusFailed": "Não foi possível carregar o status de cobrança.",
+      "walletConnectFailed": "Não foi possível conectar esta carteira.",
+      "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento."
+    }
+  },
+  "connectingWallet": "Conectando {{wallet}}..."
 }

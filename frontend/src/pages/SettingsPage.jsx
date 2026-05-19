@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
+import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -27,10 +28,40 @@ import { useLocalUpload } from "../hooks/useLocalUpload";
 import { resizeImage } from "../utils/resizeImage";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import avatarImg from "/icons/avatar.png";
+import { SUPPORTED_WALLETS, WALLET_ICONS } from "../cardano/constants";
+import { getWalletInfo } from "../cardano/utils";
+import { fetchMyEntitlements, hasEntitlement } from "../billing/api";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._]{5,29}$/;
 // Simple, friendly display name rule: 2-30 chars, trimmed, no control chars
 const DISPLAY_NAME_REGEX = /^[^\x00-\x1F\x7F]{2,30}$/;
+
+function formatWalletName(value) {
+  if (!value || typeof value !== "string") return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getSessionWalletName(session, user) {
+  return (
+    session?.wallet_info?.wallet ||
+    session?.wallet_info?.wallet_name ||
+    session?.wallet_name ||
+    user?.wallet_info?.wallet ||
+    user?.wallet_info?.wallet_name ||
+    user?.wallet_name ||
+    ""
+  );
+}
+
+function getSessionWalletAddress(session, user) {
+  return (
+    session?.wallet_info?.address ||
+    session?.wallet_address ||
+    user?.wallet_info?.address ||
+    user?.wallet_address ||
+    ""
+  );
+}
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -46,6 +77,16 @@ export default function SettingsPage() {
 
   const [language, setLanguage] = useState(i18n.language.split("-")[0] || "en");
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingEntitlements, setBillingEntitlements] = useState([]);
+  const [billingError, setBillingError] = useState("");
+
+  const [billingWalletName, setBillingWalletName] = useState("");
+  const [billingWalletApi, setBillingWalletApi] = useState(null);
+  const [billingWalletInfo, setBillingWalletInfo] = useState(null);
+  const autoBillingWalletTriedRef = useRef(false);
 
   // Editing states
   const [editingUsername, setEditingUsername] = useState(false);
@@ -66,6 +107,10 @@ export default function SettingsPage() {
 
   const navigate = useNavigate();
   const avatarInputRef = useRef(null);
+  const hasPremiumAccess = hasEntitlement(
+    billingEntitlements,
+    "cap_premium_access",
+  );
 
   const usernameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -99,6 +144,114 @@ export default function SettingsPage() {
     setNewUsername(user?.username || "");
     setNewDisplayName(user?.display_name || "");
   }, [user?.username, user?.display_name]);
+
+  // ---- Billing -------------------------------------------------------------
+
+  const refreshBilling = async () => {
+    if (!outlet?.session?.access_token) return;
+
+    setBillingLoading(true);
+    setBillingError("");
+
+    try {
+      const data = await fetchMyEntitlements(outlet.session);
+      setBillingEntitlements(data?.entitlements || []);
+    } catch (err) {
+      console.error("[Settings] Billing status failed:", err);
+      setBillingError(t("settingsBilling.errors.statusFailed"));
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshBilling();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outlet?.session?.access_token]);
+
+  const detectWallets = () => {
+    const w = window.cardano || {};
+    const allowed = new Set((SUPPORTED_WALLETS || []).map((x) => x.toLowerCase()));
+
+    return Object.keys(w)
+      .map((key) => ({ key, norm: key.toLowerCase() }))
+      .filter(({ norm }) => allowed.has(norm))
+      .map(({ key, norm }) => ({ key, norm }))
+      .sort((a, b) => a.norm.localeCompare(b.norm));
+  };
+
+  const connectBillingWallet = async (walletName, options = {}) => {
+    const { silent = false } = options;
+    setBillingError("");
+
+    try {
+      const w = window.cardano || {};
+      const exactKey =
+        Object.keys(w).find((k) => k.toLowerCase() === walletName.toLowerCase()) ||
+        walletName;
+
+      if (!w[exactKey]) {
+        throw new Error("walletNotFound");
+      }
+
+      const api = await w[exactKey].enable();
+      const info = await getWalletInfo(exactKey, api);
+
+      setBillingWalletName(exactKey);
+      setBillingWalletApi(api);
+      setBillingWalletInfo(info);
+      if (!silent) {
+        showToast?.(
+          t("settingsBilling.walletConnected", {
+            wallet: formatWalletName(exactKey),
+          }),
+          "success",
+        );
+      }
+    } catch (err) {
+      console.error("[Settings] Billing wallet connect failed:", err);
+
+      if (!silent) {
+        setBillingError(t("settingsBilling.errors.walletConnectFailed"));
+      }
+
+      throw err;
+    }
+  };
+
+  useEffect(() => {
+    if (autoBillingWalletTriedRef.current) return;
+    if (billingWalletApi) return;
+
+    const sessionWallet = getSessionWalletName(outlet.session, user);
+    const sessionAddress = getSessionWalletAddress(outlet.session, user);
+
+    if (!sessionWallet) return;
+
+    autoBillingWalletTriedRef.current = true;
+
+    setBillingWalletName(sessionWallet);
+
+    if (sessionAddress) {
+      setBillingWalletInfo((prev) => ({
+        ...(prev || {}),
+        wallet: sessionWallet,
+        address: sessionAddress,
+      }));
+    }
+
+    connectBillingWallet(sessionWallet, { silent: true }).catch(() => {
+      setBillingError(t("settingsBilling.errors.reconnectWalletForPayment", {
+        wallet: formatWalletName(sessionWallet),
+      }));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [billingWalletApi, outlet?.session?.access_token, user?.id]);
+
+  const handleBillingPaid = async () => {
+    await refreshBilling();
+    showToast?.(t("settingsBilling.paymentVerified"), "success");
+  };
 
   // ---- Helpers -------------------------------------------------------------
 
@@ -484,6 +637,107 @@ export default function SettingsPage() {
           </Form.Group>
         </Form>
 
+        <div className="mt-4 p-3 Settings-billing-zone">
+          <div className="Settings-billing-header">
+            <div>
+              <h5 className="Settings-section-title">
+                {t("settingsBilling.title")}
+              </h5>
+              <p className="Settings-section-subtitle">
+                {t("settingsBilling.subtitle")}
+              </p>
+            </div>
+
+            <div
+              className={
+                hasPremiumAccess
+                  ? "Settings-billing-status is-active"
+                  : "Settings-billing-status"
+              }
+            >
+              {billingLoading
+                ? t("settingsBilling.status.loading")
+                : hasPremiumAccess
+                  ? t("settingsBilling.status.premium")
+                  : t("settingsBilling.status.free")}
+            </div>
+          </div>
+
+          <div className="Settings-billing-card">
+            <div>
+              <div className="Settings-billing-plan">
+                {t("settingsBilling.premiumPlan")}
+              </div>
+              <div className="Settings-billing-copy">
+                {t("settingsBilling.premiumDescription")}
+              </div>
+            </div>
+
+            <Button
+              size="sm"
+              variant={hasPremiumAccess ? "outline-light" : "primary"}
+              onClick={() => setShowPaymentModal(true)}
+              disabled={!billingWalletApi}
+            >
+              {hasPremiumAccess
+                ? t("settingsBilling.renew")
+                : t("settingsBilling.unlock")}
+            </Button>
+          </div>
+
+          <div className="Settings-billing-wallets">
+            <div className="Settings-billing-wallet-title">
+              {billingWalletApi
+                ? t("settingsBilling.connectedWallet", {
+                    wallet: formatWalletName(billingWalletName),
+                  })
+                : t("settingsBilling.connectWallet")}
+            </div>
+
+            {billingWalletInfo?.address ? (
+              <div className="Settings-billing-address">
+                {billingWalletInfo.address}
+              </div>
+            ) : null}
+
+            <div className="Settings-billing-wallet-row">
+              {detectWallets().map(({ key, norm }) => (
+                <Button
+                  key={formatWalletName(key)}
+                  size="sm"
+                  variant="outline-light"
+                  className="Settings-billing-wallet-btn"
+                  onClick={() => connectBillingWallet(key)}
+                >
+                  {WALLET_ICONS[norm] ? (
+                    <img
+                      src={WALLET_ICONS[norm]}
+                      alt=""
+                      className="Settings-billing-wallet-icon"
+                    />
+                  ) : null}
+                  {formatWalletName(key)}
+                </Button>
+              ))}
+            </div>
+
+            {!billingWalletApi ? (
+              <div className="Settings-billing-hint">
+                {t("settingsBilling.connectHint")}
+              </div>
+            ) : null}
+
+            {billingError ? (
+              <div className="Settings-billing-error">{billingError}</div>
+            ) : null}
+          </div>
+
+          <div className="Settings-billing-future">
+            <span>{t("settingsBilling.futureDonations")}</span>
+            <span>{t("settingsBilling.futureCredits")}</span>
+          </div>
+        </div>
+
         <div className="mt-4 p-3 Settings-danger-zone">
           <h5 className="text-danger">{t("dangerZone")}</h5>
           <Button
@@ -496,6 +750,15 @@ export default function SettingsPage() {
           </Button>
         </div>
       </Container>
+
+      <CardanoPaymentModal
+        show={showPaymentModal}
+        onHide={() => setShowPaymentModal(false)}
+        session={outlet.session}
+        walletName={billingWalletName}
+        walletApi={billingWalletApi}
+        onPaid={handleBillingPaid}
+      />
 
       <ShareModal
         show={showShareModal}

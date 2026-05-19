@@ -6,6 +6,25 @@ import "../../styles/AuthPage.css";
 import { getWalletInfo } from "../../cardano/utils";
 import { SUPPORTED_WALLETS, WALLET_ICONS } from "../../cardano/constants";
 
+function formatWalletName(value) {
+  if (!value || typeof value !== "string") return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function withTimeout(promise, ms, message) {
+  let timeoutId;
+
+  const timeout = new Promise((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(message));
+    }, ms);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => {
+    window.clearTimeout(timeoutId);
+  });
+}
+
 /**
  * Wallet login (button-per-wallet style)
  * - Robust, case-insensitive detection from window.cardano
@@ -15,6 +34,7 @@ import { SUPPORTED_WALLETS, WALLET_ICONS } from "../../cardano/constants";
 export default function CardanoWalletLogin({ onLogin, showToast }) {
   const { t } = useTranslation();
   const [availableWallets, setAvailableWallets] = useState([]);
+  const [connectingWallet, setConnectingWallet] = useState("");
   const scanningRef = useRef(false);
 
   const lower = (s) => (typeof s === "string" ? s.toLowerCase() : s);
@@ -82,6 +102,10 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
   }, [updateWallets]);
 
   const handleConnect = async (walletName) => {
+    if (connectingWallet) return;
+
+    setConnectingWallet(walletName);
+
     try {
       const w = window.cardano || {};
       const exactKey =
@@ -92,7 +116,11 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
         throw new Error(`Wallet provider not found: ${walletName}`);
       }
 
-      const api = await w[exactKey].enable();
+      const api = await withTimeout(
+        w[exactKey].enable(),
+        30000,
+        `Wallet connection timed out: ${formatWalletName(exactKey)}`
+      );
       const walletInfo = await getWalletInfo(exactKey, api);
 
       if (!walletInfo?.address) {
@@ -188,7 +216,12 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
       showToast?.(t("loginError"), "danger");
     } catch (err) {
       console.error("Cardano Auth Error:", err);
-      showToast?.(t("loginError"), "danger");
+      showToast?.(
+        err?.message || t("loginError"),
+        "danger"
+      );
+    } finally {
+      setConnectingWallet("");
     }
   };
 
@@ -203,13 +236,21 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
               size="md"
               onClick={() => handleConnect(wallet)}
               className="Auth-oauth-button"
+              disabled={Boolean(connectingWallet)}
             >
               <img
                 src={WALLET_ICONS[wallet] || WALLET_ICONS[wallet.toLowerCase()]}
                 alt={wallet}
                 className="Auth-oauth-logo"
               />
-              {t("connectWallet", { wallet })}
+              {connectingWallet === wallet
+                ? t("connectingWallet", {
+                    wallet: formatWalletName(wallet),
+                    defaultValue: `Connecting ${formatWalletName(wallet)}...`,
+                  })
+                : t("connectWallet", {
+                    wallet: formatWalletName(wallet),
+                  })}
             </Button>
           ))}
         </>
