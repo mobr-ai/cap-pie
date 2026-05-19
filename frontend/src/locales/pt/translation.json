@@ -63,6 +63,7 @@
   "connectWallet": "Conectar Carteira {{wallet}}",
   "joinWaitListSubtitleWallet": "Você conectou uma carteira Cardano. Informe seu e-mail para concluir o cadastro e entrar na lista de espera.",
   "walletNotFound": "Nenhuma carteira Cardano detectada. Instale <nami>Nami</nami>, <lace>Lace</lace>, <flint>Flint</flint> ou <eternl>Eternl</eternl> e recarregue a página.",
+  "walletLocked": "Desbloqueie sua carteira e tente novamente.",
   "walletLoginSuccess": "Login com carteira realizado com sucesso",
   "loginError": "Falha no login. Por favor, tente novamente.",
   "tooltipAvatar": "Alterar seu avatar",

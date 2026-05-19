@@ -10,35 +10,28 @@ import { SUPPORTED_WALLETS, WALLET_ICONS } from "../../cardano/constants";
  * Wallet login (button-per-wallet style)
  * - Robust, case-insensitive detection from window.cardano
  * - Persistent re-scan (covers late injections without route changes)
- * - Buttons styled like the Google OAuth option
+ * - Uses signed CIP-30 / CIP-8 challenge verification
  */
 export default function CardanoWalletLogin({ onLogin, showToast }) {
   const { t } = useTranslation();
   const [availableWallets, setAvailableWallets] = useState([]);
   const scanningRef = useRef(false);
 
-  // normalize helpers
   const lower = (s) => (typeof s === "string" ? s.toLowerCase() : s);
   const ALLOWED = useRef(new Set((SUPPORTED_WALLETS || []).map(lower)));
 
-  // Build a stable list from window.cardano (case-insensitive)
   const detectAvailable = useCallback(() => {
     const w = window.cardano || {};
     const keys = Object.keys(w);
 
-    // map the real keys → lowercase → keep if in ALLOWED
     const present = keys
       .map((k) => ({ raw: k, norm: lower(k) }))
       .filter(({ norm }) => ALLOWED.current.has(norm))
       .map(({ norm }) => norm);
 
-    // make unique, stable & sorted for consistency
-    const unique = Array.from(new Set(present)).sort();
-
-    return unique;
+    return Array.from(new Set(present)).sort();
   }, []);
 
-  // Set state only when it actually changes (stringify compare avoids flicker)
   const updateWallets = useCallback(() => {
     const found = detectAvailable();
     setAvailableWallets((prev) => {
@@ -47,32 +40,23 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
     });
   }, [detectAvailable]);
 
-  // Persistent detection:
-  // - immediate
-  // - cardano#initialized event
-  // - focus / visibilitychange
-  // - DOMContentLoaded / load (and a grace re-check after load)
-  // - polling every 500ms while mounted
   useEffect(() => {
     if (scanningRef.current) return;
     scanningRef.current = true;
 
     const onUpdate = () => updateWallets();
 
-    // 1) immediate
-    // microtask + rAF to avoid early first-paint races
     queueMicrotask(onUpdate);
     requestAnimationFrame(onUpdate);
 
-    // 2) wallet init event (Lace/Nami emit this)
     window.addEventListener("cardano#initialized", onUpdate);
 
-    // 3) doc lifecycle
     const onDom = onUpdate;
     const onLoad = () => {
       onUpdate();
-      setTimeout(onUpdate, 1000); // grace re-check post-load
+      setTimeout(onUpdate, 1000);
     };
+
     if (document.readyState === "complete") {
       onLoad();
     } else {
@@ -80,12 +64,10 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
       window.addEventListener("load", onLoad, { once: true });
     }
 
-    // 4) visibility / focus (extensions may init when tab is activated)
     window.addEventListener("focus", onUpdate);
     const onVis = () => document.visibilityState === "visible" && onUpdate();
     document.addEventListener("visibilitychange", onVis);
 
-    // 5) persistent polling (every 500ms) until unmount
     const poll = setInterval(onUpdate, 500);
 
     return () => {
@@ -101,35 +83,86 @@ export default function CardanoWalletLogin({ onLogin, showToast }) {
 
   const handleConnect = async (walletName) => {
     try {
-      // walletName here is lowercased; window.cardano keys might be mixed-case.
-      // Prefer the exact key from window.cardano if it exists.
       const w = window.cardano || {};
       const exactKey =
         Object.keys(w).find((k) => k.toLowerCase() === walletName) ||
         walletName;
 
+      if (!w[exactKey]) {
+        throw new Error(`Wallet provider not found: ${walletName}`);
+      }
+
       const api = await w[exactKey].enable();
       const walletInfo = await getWalletInfo(exactKey, api);
 
-      const res = await fetch("/api/v1/auth/cardano", {
+      if (!walletInfo?.address) {
+        throw new Error("Wallet did not return a usable Cardano address");
+      }
+
+      if (!walletInfo?.addressHex) {
+        throw new Error("Wallet did not return a hex Cardano address for signData");
+      }
+
+      if (typeof api.signData !== "function") {
+        throw new Error("This wallet does not support CIP-30 signData");
+      }
+
+      const challengeRes = await fetch("/api/v1/auth/cardano/challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           address: walletInfo.address,
-          wallet_info: walletInfo,
+          address_hex: walletInfo.addressHex,
+          wallet_name: exactKey,
+          network_id: walletInfo.networkId,
+        }),
+      });
+
+      if (!challengeRes.ok) {
+        let errText = "";
+        try {
+          errText = await challengeRes.text();
+        } catch {}
+        throw new Error(errText || `Challenge failed (${challengeRes.status})`);
+      }
+
+      const challenge = await challengeRes.json();
+
+      if (!challenge?.challenge_id || !challenge?.message || !challenge?.message_hex) {
+        throw new Error("Invalid Cardano auth challenge response");
+      }
+
+      const signed = await api.signData(walletInfo.addressHex, challenge.message_hex);
+
+      if (!signed?.signature || !signed?.key) {
+        throw new Error("Wallet did not return a valid signature payload");
+      }
+
+      const verifyRes = await fetch("/api/v1/auth/cardano/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: walletInfo.address,
+          address_hex: walletInfo.addressHex,
+          challenge_id: challenge.challenge_id,
+          message: challenge.message,
+          signature: signed.signature,
+          key: signed.key,
+          wallet_name: exactKey,
           remember_me: true,
         }),
       });
 
-      if (!res.ok) {
+      if (!verifyRes.ok) {
         let errText = "";
         try {
-          errText = await res.text();
+          errText = await verifyRes.text();
         } catch {}
-        throw new Error(errText || `Auth failed (${res.status})`);
+        throw new Error(errText || `Auth failed (${verifyRes.status})`);
       }
 
-      const data = await res.json();
+      const data = await verifyRes.json();
+
       if (data?.access_token) {
         onLogin?.({ ...data, wallet_info: walletInfo });
         showToast?.(t("walletLoginSuccess"), "success");

@@ -51,6 +51,45 @@ class User(Base):
     # URL kept for compatibility
     avatar         = Column(String, nullable=True)
 
+
+class CardanoAuthChallenge(Base):
+    __tablename__ = "cardano_auth_challenge"
+
+    id = Column(Integer, primary_key=True)
+
+    # Public opaque ID returned to the frontend.
+    challenge_id = Column(String(64), unique=True, nullable=False, index=True)
+
+    # Wallet address that requested the challenge.
+    wallet_address = Column(String(128), nullable=False, index=True)
+
+    # Optional wallet metadata from frontend, e.g. "lace", "eternl", "nami".
+    wallet_name = Column(String(64), nullable=True)
+
+    # Random nonce included in the signed message.
+    nonce = Column(String(128), nullable=False, unique=True, index=True)
+
+    # Exact plaintext message that must be signed.
+    message = Column(Text, nullable=False)
+
+    # Hex version of message sent to CIP-30 signData.
+    message_hex = Column(Text, nullable=False)
+
+    # pending | used | expired | revoked
+    status = Column(String(32), nullable=False, server_default=text("'pending'"))
+
+    # Filled after successful verification.
+    used_at = Column(DateTime, nullable=True)
+
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+    __table_args__ = (
+        Index("idx_cardano_auth_challenge_wallet_status", "wallet_address", "status"),
+        Index("idx_cardano_auth_challenge_expires_status", "expires_at", "status"),
+    )
+
+
 class Conversation(Base):
     __tablename__ = "conversation"
 

@@ -63,6 +63,7 @@
   "connectWallet": "Connect {{wallet}} Wallet",
   "joinWaitListSubtitleWallet": "You connected a Cardano wallet. Enter your email to complete registration and join the waiting list.",
   "walletNotFound": "No Cardano wallets detected. Install <nami>Nami</nami>, <lace>Lace</lace>, <flint>Flint</flint> or <eternl>Eternl</eternl> and reload.",
+  "walletLocked": "Please unlock your wallet and try again.",
   "walletLoginSuccess": "Wallet login successful",
   "loginError": "Login failed. Please try again.",
   "tooltipAvatar": "Change your avatar",
