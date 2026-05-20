@@ -60,7 +60,7 @@
   color: rgba(226, 232, 240, 0.85);
   text-align: center;
   white-space: normal;
-  word-break: break-word;
+  /* word-break: break-word; */
 }
 
 /* Avoid fighting bootstrap global .modal-footer */
