@@ -770,8 +770,8 @@ export default function SettingsPage() {
               disabled={!billingWalletApi}
             >
               {hasPremiumAccess
-                ? t("settingsBilling.renew")
-                : t("settingsBilling.unlock")}
+                ? t("settingsBilling.extendAccess")
+                : t("settingsBilling.activateAccess")}
             </Button>
           </div>
 
@@ -903,6 +903,7 @@ export default function SettingsPage() {
             <span>{t("settingsBilling.futureDonations")}</span>
             <span>{t("settingsBilling.futurePayg")}</span>
             <span>{t("settingsBilling.futureAutoRenew")}</span>
+            <span>{t("settingsBilling.futurePlanControls")}</span>
           </div>
         </div>
 

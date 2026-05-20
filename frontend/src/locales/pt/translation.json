@@ -582,8 +582,8 @@
       "capPremiumAccess": "Acesso CAP Premium"
     },
     "modal": {
-      "title": "Desbloquear CAP Premium",
-      "subtitle": "Pague com segurança usando sua carteira Cardano conectada.",
+      "title": "Ativar CAP Premium",
+      "subtitle": "Pague com segurança usando sua carteira Cardano conectada. Renovação usando saldo virá em seguida.",
       "plan": "Plano",
       "amount": "Valor",
       "duration": "Duração",
@@ -601,8 +601,8 @@
       "walletBalance": "Saldo: {{balance}} ₳DA",
       "connectWalletToSeeBalance": "Conecte a carteira para ver o saldo.",
       "benefits": {
-        "unlimitedQueries": "Consultas ilimitadas em linguagem natural durante o período ativo.",
-        "premiumAnalytics": "Acesso à geração premium de dashboards e análises on-chain.",
+        "unlimitedQueries": "Desbloqueie consultas ilimitadas em linguagem natural durante o período ativo de 30 dias.",
+        "premiumAnalytics": "Acesse geração premium de dashboards e fluxos de análise on-chain.",
         "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta.",
         "prepaidRenewals": "Use seu saldo para futuras renovações premium.",
         "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta."
@@ -655,7 +655,7 @@
     "title": "Cobrança e Acesso",
     "subtitle": "Gerencie acesso premium, pagamentos e futuras opções de créditos.",
     "premiumPlan": "Acesso Premium por 30 dias",
-    "premiumDescription": "Acesso ilimitado a consultas enquanto o entitlement estiver ativo.",
+    "premiumDescription": "Ative análises premium por 30 dias. Renovação automática usando saldo virá em seguida.",
     "unlock": "Desbloquear",
     "renew": "Renovar",
     "connectWallet": "Conectar carteira de pagamento",
@@ -704,7 +704,10 @@
         "label": "Operar",
         "hint": "Pensado para ciclos contínuos de análise e uso intensivo."
       }
-    }
+    },
+    "activateAccess": "Ativar",
+    "extendAccess": "Estender 30 dias",
+    "futurePlanControls": "Controles de adesão/cancelamento em breve"
   },
   "connectingWallet": "Conectando {{wallet}}..."
 }

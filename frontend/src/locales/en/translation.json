@@ -581,8 +581,8 @@
       "capPremiumAccess": "CAP Premium Access"
     },
     "modal": {
-      "title": "Unlock CAP Premium",
-      "subtitle": "Pay securely with your connected Cardano wallet.",
+      "title": "Activate CAP Premium",
+      "subtitle": "Pay securely with your connected Cardano wallet. Balance-based renewal is coming next.",
       "plan": "Plan",
       "amount": "Amount",
       "duration": "Duration",
@@ -600,7 +600,7 @@
       "walletBalance": "Balance: {{balance}} ₳DA",
       "connectWalletToSeeBalance": "Connect wallet to see balance.",
       "benefits": {
-        "unlimitedQueries": "Unlimited natural-language analytics queries during the active period.",
+        "unlimitedQueries": "Unlock unlimited natural-language analytics queries during the active 30-day period.",
         "premiumAnalytics": "Access premium dashboard generation and on-chain analysis workflows.",
         "walletNative": "Pay directly from your Cardano wallet, no account handoff.",
         "prepaidRenewals": "Use your balance for future premium renewals.",
@@ -654,7 +654,7 @@
     "title": "Billing & Access",
     "subtitle": "Manage premium access, payments, and upcoming credit options.",
     "premiumPlan": "30-day Premium Access",
-    "premiumDescription": "Unlimited query access while the entitlement is active.",
+    "premiumDescription": "Activate premium analytics for 30 days. Auto-renewal from your balance is coming next.",
     "unlock": "Unlock",
     "renew": "Renew",
     "connectWallet": "Connect payment wallet",
@@ -703,7 +703,10 @@
         "label": "Operate",
         "hint": "Designed for sustained analysis cycles and power usage."
       }
-    }
+    },
+    "activateAccess": "Activate",
+    "extendAccess": "Extend 30 days",
+    "futurePlanControls": "Plan opt-in/out controls coming soon"
   },
   "connectingWallet": "Connecting {{wallet}}..."
 }
