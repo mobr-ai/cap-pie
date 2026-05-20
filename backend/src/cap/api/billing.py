@@ -18,15 +18,25 @@ from cap.database.model import (
     BillingPrice,
     PaymentSession,
     User,
+    UserCreditBalance,
+    UserCreditLedger,
     UserEntitlement,
 )
 from cap.database.session import get_db
 
 router = APIRouter(prefix="/api/v1/billing", tags=["billing"])
 
+PAYMENT_KIND_PLAN_PURCHASE = "plan_purchase"
+PAYMENT_KIND_CREDIT_DEPOSIT = "credit_deposit"
+
+MIN_CREDIT_DEPOSIT_LOVELACE = 1_000_000
+MAX_CREDIT_DEPOSIT_LOVELACE = 10_000_000_000
+
 
 class CreateCardanoPaymentSessionIn(BaseModel):
-    plan_code: str = "cap_premium_access"
+    kind: str = PAYMENT_KIND_PLAN_PURCHASE
+    plan_code: str | None = "cap_premium_access"
+    amount_lovelace: int | None = None
 
 
 class VerifyCardanoPaymentIn(BaseModel):
@@ -63,6 +73,20 @@ def _network() -> str:
     return os.getenv("CARDANO_NETWORK", "mainnet").strip().lower()
 
 
+def _active_payment_address(db: Session, network: str) -> BillingPaymentAddress:
+    payment_address = db.scalar(
+        select(BillingPaymentAddress)
+        .where(
+            BillingPaymentAddress.network == network,
+            BillingPaymentAddress.is_active.is_(True),
+        )
+        .order_by(BillingPaymentAddress.id.desc())
+    )
+    if not payment_address:
+        raise HTTPException(status_code=404, detail="billingPaymentAddressNotConfigured")
+    return payment_address
+
+
 def _active_plan_bundle(db: Session, plan_code: str, network: str):
     now = _to_db_naive_utc(_utcnow())
 
@@ -89,29 +113,21 @@ def _active_plan_bundle(db: Session, plan_code: str, network: str):
     if not price:
         raise HTTPException(status_code=404, detail="billingPriceNotConfigured")
 
-    payment_address = db.scalar(
-        select(BillingPaymentAddress)
-        .where(
-            BillingPaymentAddress.network == network,
-            BillingPaymentAddress.is_active.is_(True),
-        )
-        .order_by(BillingPaymentAddress.id.desc())
-    )
-    if not payment_address:
-        raise HTTPException(status_code=404, detail="billingPaymentAddressNotConfigured")
-
+    payment_address = _active_payment_address(db, network)
     return plan, price, payment_address
 
 
 def _session_response(session: PaymentSession):
     return {
         "session_id": session.session_id,
+        "kind": getattr(session, "kind", PAYMENT_KIND_PLAN_PURCHASE),
         "plan_code": session.plan_code_snapshot,
         "entitlement_code": session.entitlement_code_snapshot,
         "network": session.network_snapshot,
         "currency": session.currency_snapshot,
         "amount": session.amount_snapshot,
         "payment_address": session.payment_address_snapshot,
+        "duration_days": session.duration_days_snapshot,
         "status": session.status,
         "tx_hash": session.tx_hash,
         "provider": session.provider,
@@ -130,7 +146,6 @@ def _grant_entitlement(
 ) -> UserEntitlement:
     now = _utcnow()
     starts_at = now
-    expires_at = now + timedelta(days=int(duration_days))
 
     existing = db.scalar(
         select(UserEntitlement)
@@ -157,11 +172,83 @@ def _grant_entitlement(
         source="cardano_payment",
         payment_session_id=session.id,
         starts_at=_to_db_naive_utc(starts_at),
-        expires_at=_to_db_naive_utc(expires_at),
+        expires_at=_to_db_naive_utc(starts_at + timedelta(days=int(duration_days))),
         status="active",
     )
     db.add(entitlement)
     return entitlement
+
+
+def _get_or_create_credit_balance(
+    db: Session,
+    *,
+    user_id: int,
+    currency: str = "lovelace",
+) -> UserCreditBalance:
+    row = db.scalar(
+        select(UserCreditBalance).where(
+            UserCreditBalance.user_id == user_id,
+            UserCreditBalance.currency == currency,
+        )
+    )
+    if row:
+        return row
+
+    row = UserCreditBalance(
+        user_id=user_id,
+        currency=currency,
+        balance=0,
+        updated_at=_to_db_naive_utc(_utcnow()),
+    )
+    db.add(row)
+    db.flush()
+    return row
+
+
+def _credit_user_balance(
+    db: Session,
+    *,
+    user: User,
+    session: PaymentSession,
+    amount_lovelace: int,
+    reason: str = "deposit",
+) -> UserCreditBalance:
+    balance = _get_or_create_credit_balance(
+        db,
+        user_id=user.user_id,
+        currency=session.currency_snapshot,
+    )
+
+    balance.balance = int(balance.balance or 0) + int(amount_lovelace)
+    balance.updated_at = _to_db_naive_utc(_utcnow())
+    db.add(balance)
+    db.flush()
+
+    ledger = UserCreditLedger(
+        user_id=user.user_id,
+        currency=session.currency_snapshot,
+        amount=int(amount_lovelace),
+        balance_after=int(balance.balance),
+        reason=reason,
+        payment_session_id=session.id,
+        metadata_json={
+            "session_id": session.session_id,
+            "tx_hash": session.tx_hash,
+            "network": session.network_snapshot,
+        },
+    )
+    db.add(ledger)
+    return balance
+
+
+def _credit_balance_payload(row: UserCreditBalance | None):
+    balance = int(row.balance or 0) if row else 0
+    return {
+        "currency": row.currency if row else "lovelace",
+        "balance": balance,
+        "balance_lovelace": balance,
+        "updated_at": _format_utc(row.updated_at) if row else None,
+    }
 
 
 @router.get("/plans")
@@ -206,6 +293,53 @@ def list_billing_plans(db: Session = Depends(get_db)):
     return {"network": network, "plans": plans}
 
 
+@router.get("/balance/me")
+def get_my_credit_balance(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    row = db.scalar(
+        select(UserCreditBalance).where(
+            UserCreditBalance.user_id == current_user.user_id,
+            UserCreditBalance.currency == "lovelace",
+        )
+    )
+    return {"balance": _credit_balance_payload(row)}
+
+
+@router.get("/transactions/me")
+def get_my_billing_transactions(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    safe_limit = max(1, min(int(limit or 20), 100))
+
+    ledger_rows = (
+        db.query(UserCreditLedger)
+        .filter(UserCreditLedger.user_id == current_user.user_id)
+        .order_by(UserCreditLedger.created_at.desc(), UserCreditLedger.id.desc())
+        .limit(safe_limit)
+        .all()
+    )
+
+    return {
+        "transactions": [
+            {
+                "id": row.id,
+                "currency": row.currency,
+                "amount": row.amount,
+                "balance_after": row.balance_after,
+                "reason": row.reason,
+                "payment_session_id": row.payment_session_id,
+                "metadata": row.metadata_json,
+                "created_at": _format_utc(row.created_at),
+            }
+            for row in ledger_rows
+        ]
+    }
+
+
 @router.post("/cardano/session")
 def create_cardano_payment_session(
     data: CreateCardanoPaymentSessionIn,
@@ -213,32 +347,83 @@ def create_cardano_payment_session(
     current_user: User = Depends(get_current_user),
 ):
     network = _network()
-    plan_code = (data.plan_code or "").strip()
-
-    if not plan_code:
-        raise HTTPException(status_code=400, detail="missingPlanCode")
-
-    plan, price, payment_address = _active_plan_bundle(db, plan_code, network)
+    kind = (data.kind or PAYMENT_KIND_PLAN_PURCHASE).strip()
 
     now = _utcnow()
-    session = PaymentSession(
-        session_id=f"pay_{secrets.token_urlsafe(24)}",
-        user_id=current_user.user_id,
-        plan_id=plan.id,
-        price_id=price.id,
-        payment_address_id=payment_address.id,
-        plan_code_snapshot=plan.code,
-        entitlement_code_snapshot=plan.entitlement_code,
-        network_snapshot=network,
-        currency_snapshot=price.currency,
-        amount_snapshot=price.amount,
-        payment_address_snapshot=payment_address.address,
-        duration_days_snapshot=price.duration_days,
-        status="pending",
-        provider=os.getenv("CARDANO_PAYMENT_VERIFIER", "blockfrost").strip().lower(),
-        expires_at=_to_db_naive_utc(now + timedelta(minutes=30)),
-        created_at=_to_db_naive_utc(now),
-    )
+    provider = os.getenv("CARDANO_PAYMENT_VERIFIER", "blockfrost").strip().lower()
+
+    if kind == PAYMENT_KIND_PLAN_PURCHASE:
+        plan_code = (data.plan_code or "cap_premium_access").strip()
+        if not plan_code:
+            raise HTTPException(status_code=400, detail="missingPlanCode")
+
+        plan, price, payment_address = _active_plan_bundle(db, plan_code, network)
+
+        session = PaymentSession(
+            session_id=f"pay_{secrets.token_urlsafe(24)}",
+            user_id=current_user.user_id,
+            kind=PAYMENT_KIND_PLAN_PURCHASE,
+            plan_id=plan.id,
+            price_id=price.id,
+            payment_address_id=payment_address.id,
+            plan_code_snapshot=plan.code,
+            entitlement_code_snapshot=plan.entitlement_code,
+            network_snapshot=network,
+            currency_snapshot=price.currency,
+            amount_snapshot=price.amount,
+            payment_address_snapshot=payment_address.address,
+            duration_days_snapshot=price.duration_days,
+            status="pending",
+            provider=provider,
+            expires_at=_to_db_naive_utc(now + timedelta(minutes=30)),
+            created_at=_to_db_naive_utc(now),
+        )
+
+    elif kind == PAYMENT_KIND_CREDIT_DEPOSIT:
+        amount = int(data.amount_lovelace or 0)
+
+        if amount < MIN_CREDIT_DEPOSIT_LOVELACE:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "creditDepositTooSmall",
+                    "minimum_lovelace": MIN_CREDIT_DEPOSIT_LOVELACE,
+                },
+            )
+
+        if amount > MAX_CREDIT_DEPOSIT_LOVELACE:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "creditDepositTooLarge",
+                    "maximum_lovelace": MAX_CREDIT_DEPOSIT_LOVELACE,
+                },
+            )
+
+        payment_address = _active_payment_address(db, network)
+
+        session = PaymentSession(
+            session_id=f"pay_{secrets.token_urlsafe(24)}",
+            user_id=current_user.user_id,
+            kind=PAYMENT_KIND_CREDIT_DEPOSIT,
+            plan_id=None,
+            price_id=None,
+            payment_address_id=payment_address.id,
+            plan_code_snapshot="credit_deposit",
+            entitlement_code_snapshot="prepaid_balance",
+            network_snapshot=network,
+            currency_snapshot="lovelace",
+            amount_snapshot=amount,
+            payment_address_snapshot=payment_address.address,
+            duration_days_snapshot=0,
+            status="pending",
+            provider=provider,
+            expires_at=_to_db_naive_utc(now + timedelta(minutes=30)),
+            created_at=_to_db_naive_utc(now),
+        )
+
+    else:
+        raise HTTPException(status_code=400, detail="unsupportedPaymentSessionKind")
 
     db.add(session)
     db.commit()
@@ -272,7 +457,16 @@ def verify_cardano_payment(
         raise HTTPException(status_code=404, detail="paymentSessionNotFound")
 
     if session.status == "paid":
-        return {"payment": _session_response(session), "already_paid": True}
+        payload = {"payment": _session_response(session), "already_paid": True}
+        if getattr(session, "kind", PAYMENT_KIND_PLAN_PURCHASE) == PAYMENT_KIND_CREDIT_DEPOSIT:
+            balance = db.scalar(
+                select(UserCreditBalance).where(
+                    UserCreditBalance.user_id == current_user.user_id,
+                    UserCreditBalance.currency == session.currency_snapshot,
+                )
+            )
+            payload["credit_balance"] = _credit_balance_payload(balance)
+        return payload
 
     if session.status != "pending":
         raise HTTPException(status_code=400, detail="paymentSessionNotPending")
@@ -343,6 +537,26 @@ def verify_cardano_payment(
     session.paid_at = _to_db_naive_utc(now)
     db.add(session)
     db.flush()
+
+    kind = getattr(session, "kind", PAYMENT_KIND_PLAN_PURCHASE)
+
+    if kind == PAYMENT_KIND_CREDIT_DEPOSIT:
+        balance = _credit_user_balance(
+            db,
+            user=current_user,
+            session=session,
+            amount_lovelace=session.amount_snapshot,
+            reason="deposit",
+        )
+
+        db.commit()
+        db.refresh(session)
+        db.refresh(balance)
+
+        return {
+            "payment": _session_response(session),
+            "credit_balance": _credit_balance_payload(balance),
+        }
 
     entitlement = _grant_entitlement(
         db,

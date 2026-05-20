@@ -602,8 +602,15 @@
       "benefits": {
         "unlimitedQueries": "Unlimited natural-language analytics queries during the active period.",
         "premiumAnalytics": "Access premium dashboard generation and on-chain analysis workflows.",
-        "walletNative": "Pay directly from your Cardano wallet, no account handoff."
-      }
+        "walletNative": "Pay directly from your Cardano wallet, no account handoff.",
+        "prepaidRenewals": "Use your balance for future premium renewals.",
+        "payAsYouGoReady": "Prepared for upcoming pay-as-you-go query usage."
+      },
+      "depositEyebrow": "Account balance",
+      "depositTitle": "Add ADA balance",
+      "depositSubtitle": "Fund your CAP account for future renewals and pay-as-you-go analytics.",
+      "depositPlanName": "CAP Balance",
+      "prepaidCreditMeta": "Account balance"
     },
     "status": {
       "ready": "Ready",
@@ -638,7 +645,9 @@
       "paymentAddressMissing": "Payment address is missing.",
       "invalidPaymentAmount": "Invalid payment amount.",
       "txInputBuildFailed": "Could not build the transaction from this wallet UTxO set. Try refreshing the wallet, switching accounts, or using another wallet.",
-      "unsupportedTransactionBuilder": "This Cardano transaction builder version is not supported by the current payment flow."
+      "unsupportedTransactionBuilder": "This Cardano transaction builder version is not supported by the current payment flow.",
+      "creditDepositTooSmall": "Deposit amount is below the minimum.",
+      "creditDepositTooLarge": "Deposit amount is above the maximum."
     }
   },
   "settingsBilling": {
@@ -663,7 +672,37 @@
     "errors": {
       "statusFailed": "Could not load billing status.",
       "walletConnectFailed": "Could not connect this wallet.",
-      "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment."
+      "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment.",
+      "depositTooSmall": "Minimum prepaid deposit is 1 ₳DA."
+    },
+    "prepaidTitle": "Balance",
+    "prepaidDescription": "Deposit ADA now and use it later for renewals or pay-as-you-go analytics.",
+    "prepaidHint": "Your balance is tracked by CAP after on-chain verification. Pay-as-you-go debits and auto-renewal are coming next.",
+    "addBalance": "Add Balance",
+    "customDepositPlaceholder": "Custom ₳ amount",
+    "futurePayg": "Pay-as-you-go queries coming soon",
+    "futureAutoRenew": "Auto-renew from balance coming soon",
+    "depositOptions": {
+      "explore": {
+        "label": "Explore",
+        "hint": "Start with a practical balance for testing CAP workflows."
+      },
+      "analyze": {
+        "label": "Analyze",
+        "hint": "A useful balance for repeated analytics sessions."
+      },
+      "build": {
+        "label": "Build",
+        "hint": "More room for dashboards, saved outputs, and deeper analysis."
+      },
+      "scale": {
+        "label": "Scale",
+        "hint": "More runway for active research and recurring workflows."
+      },
+      "operate": {
+        "label": "Operate",
+        "hint": "Designed for sustained analysis cycles and power usage."
+      }
     }
   },
   "connectingWallet": "Connecting {{wallet}}..."

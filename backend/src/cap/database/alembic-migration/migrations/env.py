@@ -44,6 +44,8 @@ MANAGED_TABLES = {
     "billing_payment_address",
     "payment_session",
     "user_entitlement",
+    "user_credit_ledger",
+    "user_credit_balance",
 }
 
 def include_object(object, name, type_, reflected, compare_to):

@@ -27,6 +27,18 @@ async function parseJsonResponse(res) {
   return data;
 }
 
+function authHeaders(session) {
+  const token = getSessionToken(session);
+
+  if (!token) {
+    throw new Error("Missing authentication token");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function fetchBillingPlans() {
   const res = await fetch(`${API_BASE}/billing/plans`);
   return parseJsonResponse(res);
@@ -48,38 +60,60 @@ export async function fetchMyEntitlements(session) {
   return parseJsonResponse(res);
 }
 
-export async function createCardanoPaymentSession(session, planCode = "cap_premium_access") {
+export async function fetchMyCreditBalance(session) {
   const token = getSessionToken(session);
 
   if (!token) {
-    throw new Error("Missing authentication token");
+    return { balance: { currency: "lovelace", balance: 0, balance_lovelace: 0 } };
   }
+
+  const res = await fetch(`${API_BASE}/billing/balance/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse(res);
+}
+
+export async function fetchMyBillingTransactions(session, limit = 20) {
+  const res = await fetch(`${API_BASE}/billing/transactions/me?limit=${limit}`, {
+    headers: authHeaders(session),
+  });
+
+  return parseJsonResponse(res);
+}
+
+export async function createCardanoPaymentSession(
+  session,
+  options = "cap_premium_access",
+) {
+  const payload =
+    typeof options === "string"
+      ? { kind: "plan_purchase", plan_code: options }
+      : {
+          kind: options?.kind || "plan_purchase",
+          plan_code: options?.planCode || options?.plan_code || "cap_premium_access",
+          amount_lovelace: options?.amountLovelace ?? options?.amount_lovelace,
+        };
 
   const res = await fetch(`${API_BASE}/billing/cardano/session`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...authHeaders(session),
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      plan_code: planCode,
-    }),
+    body: JSON.stringify(payload),
   });
 
   return parseJsonResponse(res);
 }
 
 export async function verifyCardanoPayment(session, sessionId, txHash) {
-  const token = getSessionToken(session);
-
-  if (!token) {
-    throw new Error("Missing authentication token");
-  }
-
   const res = await fetch(`${API_BASE}/billing/cardano/verify`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      ...authHeaders(session),
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -95,6 +129,6 @@ export function hasEntitlement(entitlements, entitlementCode = "cap_premium_acce
   return (entitlements || []).some(
     (item) =>
       item?.entitlement_code === entitlementCode &&
-      item?.status === "active"
+      item?.status === "active",
   );
 }

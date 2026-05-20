@@ -153,10 +153,13 @@ export default function CardanoPaymentModal({
   walletApi,
   onPaid,
   planCode = "cap_premium_access",
+  paymentKind = "plan_purchase",
+  amountLovelace = null,
 }) {
   const { t } = useTranslation();
 
   const [planPreview, setPlanPreview] = useState(null);
+  const [catalogNetwork, setCatalogNetwork] = useState("");
   const [paymentSession, setPaymentSession] = useState(null);
   const [walletBalance, setWalletBalance] = useState(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
@@ -167,10 +170,19 @@ export default function CardanoPaymentModal({
   const displayWalletName = formatWalletName(walletName);
   const walletIcon = WALLET_ICONS[walletKey];
 
-  const amountLovelace = paymentSession?.amount ?? planPreview?.amount ?? null;
-  const amountAda = amountLovelace ? lovelaceToAda(amountLovelace) : null;
+  const resolvedAmountLovelace =
+    paymentKind === "credit_deposit"
+      ? amountLovelace
+      : planPreview?.amount;
+
+  const amountLovelaceToPay = paymentSession?.amount ?? resolvedAmountLovelace ?? null;
+  const amountAda = amountLovelaceToPay ? lovelaceToAda(amountLovelaceToPay) : null;
   const durationDays = paymentSession?.duration_days || planPreview?.durationDays || 30;
-  const network = paymentSession?.network || planPreview?.network || "mainnet";
+  const network =
+    paymentSession?.network ||
+    planPreview?.network ||
+    catalogNetwork ||
+    "mainnet";
 
   const canPay = useMemo(
     () => Boolean(session?.access_token && walletName && walletApi),
@@ -181,8 +193,8 @@ export default function CardanoPaymentModal({
     ? BigInt(walletBalance.lovelace)
     : null;
 
-  const requiredLovelace = amountLovelace
-    ? BigInt(amountLovelace) + 500000n
+  const requiredLovelace = amountLovelaceToPay
+    ? BigInt(amountLovelaceToPay) + 500000n
     : null;
 
   const hasInsufficientBalance =
@@ -204,12 +216,19 @@ export default function CardanoPaymentModal({
   const refreshPlanPreview = useCallback(async () => {
     try {
       const data = await fetchBillingPlans();
+      setCatalogNetwork(data?.network || "");
+
+      if (paymentKind === "credit_deposit") {
+        setPlanPreview(null);
+        return;
+      }
+
       const preview = getPlanPreview(data, planCode);
       setPlanPreview(preview);
     } catch (err) {
       console.error("[Billing] Failed to load billing plans:", err);
     }
-  }, [planCode]);
+  }, [paymentKind, planCode]);
 
   const refreshWalletBalance = useCallback(async () => {
     if (!walletApi) {
@@ -297,7 +316,11 @@ export default function CardanoPaymentModal({
 
     try {
       setStatus("creating_session");
-      const created = await createCardanoPaymentSession(session, planCode);
+      const created = await createCardanoPaymentSession(session, {
+        kind: paymentKind,
+        planCode,
+        amountLovelace: amountLovelaceToPay,
+      });
       setPaymentSession(created);
 
       setStatus("building_transaction");
@@ -335,6 +358,8 @@ export default function CardanoPaymentModal({
     canPay,
     hasInsufficientBalance,
     onPaid,
+    amountLovelaceToPay,
+    paymentKind,
     planCode,
     refreshWalletBalance,
     requiredLovelace,
@@ -356,11 +381,19 @@ export default function CardanoPaymentModal({
       <Modal.Header closeButton>
         <div className="CardanoPaymentModal-headerText">
           <div className="CardanoPaymentModal-eyebrow">
-            {t("billing.modal.eyebrow")}
+            {paymentKind === "credit_deposit"
+              ? t("billing.modal.depositEyebrow")
+              : t("billing.modal.eyebrow")}
           </div>
-          <Modal.Title>{t("billing.modal.title")}</Modal.Title>
+          <Modal.Title>
+            {paymentKind === "credit_deposit"
+              ? t("billing.modal.depositTitle")
+              : t("billing.modal.title")}
+          </Modal.Title>
           <div className="CardanoPaymentModal-subtitle">
-            {t("billing.modal.subtitle")}
+            {paymentKind === "credit_deposit"
+              ? t("billing.modal.depositSubtitle")
+              : t("billing.modal.subtitle")}
           </div>
         </div>
       </Modal.Header>
@@ -369,7 +402,9 @@ export default function CardanoPaymentModal({
         <div className="CardanoPaymentModal-hero">
           <div>
             <div className="CardanoPaymentModal-planName">
-              {t("billing.plans.capPremiumAccess")}
+              {paymentKind === "credit_deposit"
+                ? t("billing.modal.depositPlanName")
+                : t("billing.plans.capPremiumAccess")}
             </div>
             <div className="CardanoPaymentModal-price">
               {amountAda ? (
@@ -382,7 +417,9 @@ export default function CardanoPaymentModal({
               )}
             </div>
             <div className="CardanoPaymentModal-priceMeta">
-              {t("billing.modal.durationDays", { count: durationDays })} · {network}
+              {paymentKind === "credit_deposit"
+                ? t("billing.modal.prepaidCreditMeta")
+                : t("billing.modal.durationDays", { count: durationDays })} · {network}
             </div>
           </div>
 
@@ -393,9 +430,19 @@ export default function CardanoPaymentModal({
         </div>
 
         <div className="CardanoPaymentModal-benefits">
-          <div>{t("billing.modal.benefits.unlimitedQueries")}</div>
-          <div>{t("billing.modal.benefits.premiumAnalytics")}</div>
-          <div>{t("billing.modal.benefits.walletNative")}</div>
+          {paymentKind === "credit_deposit" ? (
+            <>
+              <div>{t("billing.modal.benefits.prepaidRenewals")}</div>
+              <div>{t("billing.modal.benefits.payAsYouGoReady")}</div>
+              <div>{t("billing.modal.benefits.walletNative")}</div>
+            </>
+          ) : (
+            <>
+              <div>{t("billing.modal.benefits.unlimitedQueries")}</div>
+              <div>{t("billing.modal.benefits.premiumAnalytics")}</div>
+              <div>{t("billing.modal.benefits.walletNative")}</div>
+            </>
+          )}
         </div>
 
         <div className="CardanoPaymentModal-walletCard">
@@ -478,7 +525,7 @@ export default function CardanoPaymentModal({
         <Button
           variant="primary"
           onClick={handlePay}
-          disabled={!canPay || busy || status === "paid" || hasInsufficientBalance || !amountLovelace}
+          disabled={!canPay || busy || status === "paid" || hasInsufficientBalance || !amountLovelaceToPay}
           className="CardanoPaymentModal-payButton"
         >
           {busy ? (

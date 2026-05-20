@@ -21,6 +21,11 @@ import {
   faPen,
   faUpload,
   faTrash,
+  faCompass,
+  faChartLine,
+  faLayerGroup,
+  faBolt,
+  faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { useAuthRequest } from "../hooks/useAuthRequest";
@@ -30,11 +35,61 @@ import useOnClickOutside from "../hooks/useOnClickOutside";
 import avatarImg from "/icons/avatar.png";
 import { SUPPORTED_WALLETS, WALLET_ICONS } from "../cardano/constants";
 import { getWalletInfo } from "../cardano/utils";
-import { fetchMyEntitlements, hasEntitlement } from "../billing/api";
+import {
+  fetchMyCreditBalance,
+  fetchMyEntitlements,
+  hasEntitlement,
+} from "../billing/api";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._]{5,29}$/;
 // Simple, friendly display name rule: 2-30 chars, trimmed, no control chars
 const DISPLAY_NAME_REGEX = /^[^\x00-\x1F\x7F]{2,30}$/;
+
+const DEPOSIT_OPTIONS_ADA = [
+  {
+    amount: 10,
+    labelKey: "settingsBilling.depositOptions.explore.label",
+    hintKey: "settingsBilling.depositOptions.explore.hint",
+    icon: faCompass,
+  },
+  {
+    amount: 25,
+    labelKey: "settingsBilling.depositOptions.analyze.label",
+    hintKey: "settingsBilling.depositOptions.analyze.hint",
+    icon: faChartLine,
+  },
+  {
+    amount: 50,
+    labelKey: "settingsBilling.depositOptions.build.label",
+    hintKey: "settingsBilling.depositOptions.build.hint",
+    icon: faLayerGroup,
+  },
+  {
+    amount: 100,
+    labelKey: "settingsBilling.depositOptions.scale.label",
+    hintKey: "settingsBilling.depositOptions.scale.hint",
+    icon: faBolt,
+  },
+  {
+    amount: 500,
+    labelKey: "settingsBilling.depositOptions.operate.label",
+    hintKey: "settingsBilling.depositOptions.operate.hint",
+    icon: faRocket,
+  },
+];
+
+function adaToLovelace(ada) {
+  const parsed = Number(ada || 0);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return Math.round(parsed * 1_000_000);
+}
+
+function lovelaceToAdaDisplay(lovelace) {
+  const n = Number(lovelace || 0);
+  return (n / 1_000_000).toLocaleString(undefined, {
+    maximumFractionDigits: 6,
+  });
+}
 
 function formatWalletName(value) {
   if (!value || typeof value !== "string") return "";
@@ -78,10 +133,14 @@ export default function SettingsPage() {
   const [language, setLanguage] = useState(i18n.language.split("-")[0] || "en");
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
 
   const [billingLoading, setBillingLoading] = useState(false);
   const [billingEntitlements, setBillingEntitlements] = useState([]);
   const [billingError, setBillingError] = useState("");
+  const [creditBalance, setCreditBalance] = useState(null);
+  const [selectedDepositAda, setSelectedDepositAda] = useState(10);
+  const [customDepositAda, setCustomDepositAda] = useState("10");
 
   const [billingWalletName, setBillingWalletName] = useState("");
   const [billingWalletApi, setBillingWalletApi] = useState(null);
@@ -111,6 +170,11 @@ export default function SettingsPage() {
     billingEntitlements,
     "cap_premium_access",
   );
+
+  const effectiveDepositAda =
+    customDepositAda !== "" ? Number(customDepositAda) : selectedDepositAda;
+
+  const effectiveDepositLovelace = adaToLovelace(effectiveDepositAda);
 
   const usernameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -156,6 +220,9 @@ export default function SettingsPage() {
     try {
       const data = await fetchMyEntitlements(outlet.session);
       setBillingEntitlements(data?.entitlements || []);
+
+      const balanceData = await fetchMyCreditBalance(outlet.session);
+      setCreditBalance(balanceData?.balance || null);
     } catch (err) {
       console.error("[Settings] Billing status failed:", err);
       setBillingError(t("settingsBilling.errors.statusFailed"));
@@ -171,7 +238,9 @@ export default function SettingsPage() {
 
   const detectWallets = () => {
     const w = window.cardano || {};
-    const allowed = new Set((SUPPORTED_WALLETS || []).map((x) => x.toLowerCase()));
+    const allowed = new Set(
+      (SUPPORTED_WALLETS || []).map((x) => x.toLowerCase()),
+    );
 
     return Object.keys(w)
       .map((key) => ({ key, norm: key.toLowerCase() }))
@@ -187,8 +256,9 @@ export default function SettingsPage() {
     try {
       const w = window.cardano || {};
       const exactKey =
-        Object.keys(w).find((k) => k.toLowerCase() === walletName.toLowerCase()) ||
-        walletName;
+        Object.keys(w).find(
+          (k) => k.toLowerCase() === walletName.toLowerCase(),
+        ) || walletName;
 
       if (!w[exactKey]) {
         throw new Error("walletNotFound");
@@ -241,9 +311,11 @@ export default function SettingsPage() {
     }
 
     connectBillingWallet(sessionWallet, { silent: true }).catch(() => {
-      setBillingError(t("settingsBilling.errors.reconnectWalletForPayment", {
-        wallet: formatWalletName(sessionWallet),
-      }));
+      setBillingError(
+        t("settingsBilling.errors.reconnectWalletForPayment", {
+          wallet: formatWalletName(sessionWallet),
+        }),
+      );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [billingWalletApi, outlet?.session?.access_token, user?.id]);
@@ -251,6 +323,21 @@ export default function SettingsPage() {
   const handleBillingPaid = async () => {
     await refreshBilling();
     showToast?.(t("settingsBilling.paymentVerified"), "success");
+  };
+
+  const handleOpenDepositModal = () => {
+    if (!billingWalletApi) {
+      setBillingError(t("settingsBilling.errors.walletConnectFailed"));
+      return;
+    }
+
+    if (!effectiveDepositLovelace || effectiveDepositLovelace < 1_000_000) {
+      setBillingError(t("settingsBilling.errors.depositTooSmall"));
+      return;
+    }
+
+    setBillingError("");
+    setShowDepositModal(true);
   };
 
   // ---- Helpers -------------------------------------------------------------
@@ -628,7 +715,10 @@ export default function SettingsPage() {
         </div>
 
         <Form onSubmit={(e) => e.preventDefault()}>
-          <Form.Group controlId="languageSelect" className="mb-3">
+          <Form.Group
+            controlId="languageSelect"
+            className="mb-3 Settings-language"
+          >
             <Form.Label>{t("languageConf")}</Form.Label>
             <Form.Select value={language} onChange={handleLanguageChange}>
               <option value="en">🇺🇸 English (US)</option>
@@ -685,6 +775,83 @@ export default function SettingsPage() {
             </Button>
           </div>
 
+          <div className="Settings-billing-card Settings-billing-credit-card">
+            <div className="Settings-billing-credit-main">
+              <div className="Settings-billing-plan">
+                {t("settingsBilling.prepaidTitle")}
+              </div>
+              <div className="Settings-billing-balance">
+                {lovelaceToAdaDisplay(
+                  creditBalance?.balance_lovelace ||
+                    creditBalance?.balance ||
+                    0,
+                )}{" "}
+                ₳DA
+              </div>
+              <div className="Settings-billing-copy">
+                {t("settingsBilling.prepaidDescription")}
+              </div>
+            </div>
+
+            <div className="Settings-deposit-panel">
+              <div className="Settings-deposit-options">
+                {DEPOSIT_OPTIONS_ADA.map((option) => (
+                  <button
+                    key={option.amount}
+                    type="button"
+                    className={
+                      Number(customDepositAda || selectedDepositAda) ===
+                      option.amount
+                        ? "Settings-deposit-chip is-selected"
+                        : "Settings-deposit-chip"
+                    }
+                    title={t(option.hintKey)}
+                    onClick={() => {
+                      setSelectedDepositAda(option.amount);
+                      setCustomDepositAda(String(option.amount));
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={option.icon}
+                      className="Settings-deposit-chip-icon"
+                    />
+                    <span className="Settings-deposit-chip-amount">
+                      {option.amount} ₳
+                    </span>
+                    <span className="Settings-deposit-chip-label">
+                      {t(option.labelKey)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="Settings-deposit-custom-row">
+                <Form.Control
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={customDepositAda}
+                  placeholder={t("settingsBilling.customDepositPlaceholder")}
+                  onChange={(e) => setCustomDepositAda(e.target.value)}
+                  className="Settings-deposit-custom-input"
+                />
+
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={handleOpenDepositModal}
+                  disabled={!billingWalletApi || !effectiveDepositLovelace}
+                >
+                  {t("settingsBilling.addBalance")}
+                </Button>
+              </div>
+
+              <div className="Settings-billing-hint">
+                {t("settingsBilling.prepaidHint")}
+              </div>
+            </div>
+          </div>
+
           <div className="Settings-billing-wallets">
             <div className="Settings-billing-wallet-title">
               {billingWalletApi
@@ -734,7 +901,8 @@ export default function SettingsPage() {
 
           <div className="Settings-billing-future">
             <span>{t("settingsBilling.futureDonations")}</span>
-            <span>{t("settingsBilling.futureCredits")}</span>
+            <span>{t("settingsBilling.futurePayg")}</span>
+            <span>{t("settingsBilling.futureAutoRenew")}</span>
           </div>
         </div>
 
@@ -758,6 +926,17 @@ export default function SettingsPage() {
         walletName={billingWalletName}
         walletApi={billingWalletApi}
         onPaid={handleBillingPaid}
+      />
+
+      <CardanoPaymentModal
+        show={showDepositModal}
+        onHide={() => setShowDepositModal(false)}
+        session={outlet.session}
+        walletName={billingWalletName}
+        walletApi={billingWalletApi}
+        onPaid={handleBillingPaid}
+        paymentKind="credit_deposit"
+        amountLovelace={effectiveDepositLovelace}
       />
 
       <ShareModal

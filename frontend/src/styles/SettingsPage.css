@@ -219,6 +219,10 @@
   margin: 0;
 }
 
+.Settings-language {
+  width: 5rem;
+}
+
 .Settings-billing-zone {
   padding: clamp(1rem, 2vw, 1.35rem) !important;
   background:
@@ -451,5 +455,131 @@
   .Settings-billing-wallet-btn {
     flex: 1 1 calc(50% - 0.55rem);
     justify-content: center;
+  }
+}
+
+.Settings-billing-credit-card {
+  margin-top: 1rem;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1.2fr);
+  align-items: stretch;
+}
+
+.Settings-billing-credit-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.Settings-billing-balance {
+  color: rgba(248, 250, 252, 0.98);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 820;
+  letter-spacing: -0.05em;
+  margin: 0.25rem 0;
+}
+
+.Settings-deposit-panel {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(47, 79, 79, 0.22),
+      transparent 40%
+    ),
+    rgba(2, 6, 23, 0.2);
+  border-radius: 16px;
+  padding: 0.9rem;
+}
+
+.Settings-deposit-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.Settings-deposit-chip {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.32);
+  color: rgba(226, 232, 240, 0.9);
+  border-radius: 14px;
+  padding: 0.65rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    transform 0.08s ease;
+}
+
+.Settings-deposit-chip:hover {
+  border-color: rgba(94, 234, 212, 0.36);
+  background: rgba(47, 79, 79, 0.24);
+}
+
+.Settings-deposit-chip:active {
+  transform: translateY(1px);
+}
+
+.Settings-deposit-chip.is-selected {
+  border-color: rgba(94, 234, 212, 0.58);
+  background:
+    radial-gradient(circle at top, rgba(94, 234, 212, 0.14), transparent 45%),
+    rgba(47, 79, 79, 0.32);
+  box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.18);
+}
+
+.Settings-deposit-chip-icon {
+  color: rgba(125, 211, 252, 0.9);
+  font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+}
+
+.Settings-deposit-chip-amount {
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.Settings-deposit-chip-label {
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.67rem;
+  line-height: 1.1;
+}
+
+.Settings-deposit-custom-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.Settings-deposit-custom-input {
+  min-height: 34px;
+}
+
+@media (max-width: 900px) {
+  .Settings-billing-credit-card {
+    grid-template-columns: 1fr;
+  }
+
+  .Settings-deposit-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .Settings-deposit-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .Settings-deposit-custom-row {
+    grid-template-columns: 1fr;
+  }
+
+  .Settings-deposit-custom-row .btn {
+    width: 100%;
   }
 }

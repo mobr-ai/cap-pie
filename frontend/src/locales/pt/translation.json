@@ -603,8 +603,15 @@
       "benefits": {
         "unlimitedQueries": "Consultas ilimitadas em linguagem natural durante o período ativo.",
         "premiumAnalytics": "Acesso à geração premium de dashboards e análises on-chain.",
-        "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta."
-      }
+        "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta.",
+        "prepaidRenewals": "Use seu saldo para futuras renovações premium.",
+        "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta."
+      },
+      "depositEyebrow": "Saldo da conta",
+      "depositTitle": "Adicionar saldo em ADA",
+      "depositSubtitle": "Adicione saldo à sua conta CAP para futuras renovações e análises pay-as-you-go.",
+      "depositPlanName": "Saldo CAP",
+      "prepaidCreditMeta": "Saldo da conta"
     },
     "status": {
       "ready": "Pronto",
@@ -639,7 +646,9 @@
       "paymentAddressMissing": "Endereço de pagamento ausente.",
       "invalidPaymentAmount": "Valor de pagamento inválido.",
       "txInputBuildFailed": "Não foi possível construir a transação com os UTxOs desta carteira. Atualize a carteira, troque de conta ou tente outra carteira.",
-      "unsupportedTransactionBuilder": "Esta versão do construtor de transações Cardano não é suportada pelo fluxo de pagamento atual."
+      "unsupportedTransactionBuilder": "Esta versão do construtor de transações Cardano não é suportada pelo fluxo de pagamento atual.",
+      "creditDepositTooSmall": "O valor do depósito está abaixo do mínimo.",
+      "creditDepositTooLarge": "O valor do depósito está acima do máximo."
     }
   },
   "settingsBilling": {
@@ -664,7 +673,37 @@
     "errors": {
       "statusFailed": "Não foi possível carregar o status de cobrança.",
       "walletConnectFailed": "Não foi possível conectar esta carteira.",
-      "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento."
+      "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento.",
+      "depositTooSmall": "O depósito pré-pago mínimo é 1 ₳DA."
+    },
+    "prepaidTitle": "Saldo",
+    "prepaidDescription": "Deposite ADA agora e use depois para renovações ou análises pay-as-you-go.",
+    "prepaidHint": "Seu saldo é registrado pelo CAP após verificação on-chain. Débitos pay-as-you-go e renovação automática virão em seguida.",
+    "addBalance": "Adicionar Saldo",
+    "customDepositPlaceholder": "Valor customizado em ₳",
+    "futurePayg": "Consultas pay-as-you-go em breve",
+    "futureAutoRenew": "Renovação automática com saldo em breve",
+    "depositOptions": {
+      "explore": {
+        "label": "Explorar",
+        "hint": "Comece com um saldo prático para testar fluxos do CAP."
+      },
+      "analyze": {
+        "label": "Analisar",
+        "hint": "Um saldo útil para sessões recorrentes de análise."
+      },
+      "build": {
+        "label": "Construir",
+        "hint": "Mais espaço para dashboards, outputs salvos e análises profundas."
+      },
+      "scale": {
+        "label": "Escalar",
+        "hint": "Mais fôlego para pesquisa ativa e fluxos recorrentes."
+      },
+      "operate": {
+        "label": "Operar",
+        "hint": "Pensado para ciclos contínuos de análise e uso intensivo."
+      }
     }
   },
   "connectingWallet": "Conectando {{wallet}}..."

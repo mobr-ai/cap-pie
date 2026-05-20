@@ -144,6 +144,8 @@ class PaymentSession(Base):
     session_id = Column(String(80), unique=True, nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
 
+    kind = Column(String(32), nullable=False, server_default=text("'plan_purchase'"), index=True)
+
     plan_id = Column(Integer, ForeignKey("billing_plan.id", ondelete="SET NULL"), nullable=True, index=True)
     price_id = Column(Integer, ForeignKey("billing_price.id", ondelete="SET NULL"), nullable=True, index=True)
     payment_address_id = Column(Integer, ForeignKey("billing_payment_address.id", ondelete="SET NULL"), nullable=True, index=True)
@@ -188,6 +190,39 @@ class UserEntitlement(Base):
     __table_args__ = (
         Index("idx_user_entitlement_user_code_status", "user_id", "entitlement_code", "status"),
         Index("idx_user_entitlement_code_status_expires", "entitlement_code", "status", "expires_at"),
+    )
+
+
+class UserCreditBalance(Base):
+    __tablename__ = "user_credit_balance"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
+    currency = Column(String(32), nullable=False, server_default=text("'lovelace'"))
+    balance = Column(BigInteger, nullable=False, server_default=text("0"))
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+    __table_args__ = (
+        Index("uq_user_credit_balance_user_currency", "user_id", "currency", unique=True),
+    )
+
+
+class UserCreditLedger(Base):
+    __tablename__ = "user_credit_ledger"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
+    currency = Column(String(32), nullable=False, server_default=text("'lovelace'"))
+    amount = Column(BigInteger, nullable=False)
+    balance_after = Column(BigInteger, nullable=False)
+    reason = Column(String(64), nullable=False, index=True)
+    payment_session_id = Column(Integer, ForeignKey("payment_session.id", ondelete="SET NULL"), nullable=True, index=True)
+    related_entitlement_id = Column(Integer, ForeignKey("user_entitlement.id", ondelete="SET NULL"), nullable=True, index=True)
+    metadata_json = Column(JSON, nullable=True)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+
+    __table_args__ = (
+        Index("idx_user_credit_ledger_user_created", "user_id", "created_at"),
     )
 
 
