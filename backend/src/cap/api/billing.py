@@ -23,6 +23,7 @@ from cap.database.model import (
     UserEntitlement,
 )
 from cap.database.session import get_db
+from cap.services.billing_access import get_billing_access_state
 
 router = APIRouter(prefix="/api/v1/billing", tags=["billing"])
 
@@ -291,6 +292,15 @@ def list_billing_plans(db: Session = Depends(get_db)):
         )
 
     return {"network": network, "plans": plans}
+
+
+
+@router.get("/access/me")
+def get_my_billing_access(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_billing_access_state(db, current_user)
 
 
 @router.get("/balance/me")

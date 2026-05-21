@@ -137,6 +137,20 @@ class BillingPaymentAddress(Base):
     )
 
 
+class BillingFeatureConfig(Base):
+    __tablename__ = "billing_feature_config"
+
+    id = Column(Integer, primary_key=True)
+    feature_code = Column(String(64), unique=True, nullable=False, index=True)
+    free_limit_count = Column(Integer, nullable=True)
+    period_days = Column(Integer, nullable=False, server_default=text("30"))
+    payg_price_lovelace = Column(BigInteger, nullable=True)
+    is_active = Column(Boolean, nullable=False, server_default=text("TRUE"), index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+
+
 class PaymentSession(Base):
     __tablename__ = "payment_session"
 
@@ -224,6 +238,32 @@ class UserCreditLedger(Base):
     __table_args__ = (
         Index("idx_user_credit_ledger_user_created", "user_id", "created_at"),
     )
+
+
+class UserUsagePeriod(Base):
+    __tablename__ = "user_usage_period"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, index=True)
+    feature_code = Column(String(64), nullable=False, index=True)
+    period_start = Column(DateTime, nullable=False, index=True)
+    period_end = Column(DateTime, nullable=False, index=True)
+    used_count = Column(Integer, nullable=False, server_default=text("0"))
+    limit_count = Column(Integer, nullable=False)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "feature_code",
+            "period_start",
+            "period_end",
+            name="uq_user_usage_period_user_feature_window",
+        ),
+        Index("idx_user_usage_period_user_feature", "user_id", "feature_code"),
+    )
+
 
 
 class Conversation(Base):

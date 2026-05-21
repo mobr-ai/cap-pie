@@ -25,6 +25,10 @@ from cap.services.conversation_persistence import (
     persist_assistant_message_and_touch,
     persist_conversation_artifact_from_raw_kv,
 )
+from cap.services.billing_access import (
+    BillingAccessDenied,
+    reserve_nl_query_access,
+)
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -189,6 +193,17 @@ async def natural_language_query(
     """
     with tracer.start_as_current_span("nl_query_pipeline") as span:
         span.set_attribute("query", request.query)
+
+        # 0) Billing access enforcement
+        if current_user is None:
+            raise HTTPException(status_code=401, detail="authenticationRequired")
+
+        try:
+            billing_access = reserve_nl_query_access(db, current_user)
+            span.set_attribute("billing.access_mode", billing_access.get("access_mode", "unknown"))
+            span.set_attribute("billing.free_query_remaining", billing_access.get("free_query_remaining", 0))
+        except BillingAccessDenied as exc:
+            raise HTTPException(status_code=402, detail=exc.payload) from exc
 
         # 1) Conversation + user message
         persist = current_user is not None
