@@ -60,6 +60,22 @@ export async function fetchMyEntitlements(session) {
   return parseJsonResponse(res);
 }
 
+export async function fetchBillingAccess(session) {
+  const token = getSessionToken(session);
+
+  if (!token) {
+    return null;
+  }
+
+  const res = await fetch(`${API_BASE}/billing/access/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse(res);
+}
+
 export async function fetchMyCreditBalance(session) {
   const token = getSessionToken(session);
 

@@ -708,5 +708,28 @@
     "extendAccess": "Extend 30 days",
     "futurePlanControls": "Plan opt-in/out controls coming soon"
   },
-  "connectingWallet": "Connecting {{wallet}}..."
+  "connectingWallet": "Connecting {{wallet}}...",
+  "billingAccess": {
+    "badge": {
+      "loading": "Billing",
+      "loadingTitle": "Loading billing status",
+      "premium": "Premium",
+      "premiumTitle": "Premium access is active",
+      "blocked": "Limit reached",
+      "blockedTitle": "Free query limit reached",
+      "freeRemaining": "Free · {{count}} left",
+      "freeTitle": "{{count}} free queries remaining"
+    },
+    "dropdown": {
+      "premium": "Premium Access",
+      "free": "Free tier",
+      "blocked": "Free limit reached",
+      "balance": "Balance",
+      "queries": "Queries",
+      "unlimited": "Unlimited",
+      "expires": "Premium active until {{date}}",
+      "paygComing": "Pay-as-you-go debits from balance are coming next.",
+      "billing": "Billing & Access"
+    }
+  }
 }

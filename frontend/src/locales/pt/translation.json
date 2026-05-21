@@ -709,5 +709,28 @@
     "extendAccess": "Estender 30 dias",
     "futurePlanControls": "Controles de adesão/cancelamento em breve"
   },
-  "connectingWallet": "Conectando {{wallet}}..."
+  "connectingWallet": "Conectando {{wallet}}...",
+  "billingAccess": {
+    "badge": {
+      "loading": "Cobrança",
+      "loadingTitle": "Carregando status de cobrança",
+      "premium": "Premium",
+      "premiumTitle": "Acesso Premium ativo",
+      "blocked": "Limite atingido",
+      "blockedTitle": "Limite de consultas grátis atingido",
+      "freeRemaining": "Grátis · {{count}} rest.",
+      "freeTitle": "{{count}} consultas grátis restantes"
+    },
+    "dropdown": {
+      "premium": "Acesso Premium",
+      "free": "Plano grátis",
+      "blocked": "Limite grátis atingido",
+      "balance": "Saldo",
+      "queries": "Consultas",
+      "unlimited": "Ilimitadas",
+      "expires": "Premium ativo até {{date}}",
+      "paygComing": "Débitos pay-as-you-go usando saldo virão em seguida.",
+      "billing": "Cobrança e Acesso"
+    }
+  }
 }
