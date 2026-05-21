@@ -156,8 +156,17 @@
 }
 
 .navbar-user-avatar {
-  width: auto;
-  height: 26px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  padding: 1px;
+  background: rgba(15, 23, 42, 0.55);
+  image-rendering: auto;
+  backface-visibility: hidden;
 }
 
 .navbar-user-name {
@@ -636,10 +645,18 @@
 }
 
 .navbar-account-avatar {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  max-width: 38px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  padding: 2px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   background: rgba(15, 23, 42, 0.6);
+  image-rendering: auto;
+  backface-visibility: hidden;
 }
 
 .navbar-account-copy {
