@@ -1,25 +1,19 @@
-# cap/src/cap/api/waitlist.py
-
-from __future__ import annotations
-
 import os
 import re
-from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
 from cap.database.model import User
+from cap.database.session import get_db
 from cap.mailing.event_triggers import on_waiting_list_joined
 from cap.services.admin_alerts_service import maybe_notify_admins_waitlist
 
 router = APIRouter(prefix="/api/v1", tags=["waitlist"])
-
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -28,10 +22,10 @@ PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL")  # i.e. "https://cap.mobr.ai"
 
 class WaitIn(BaseModel):
     email: EmailStr
-    ref: Optional[str] = None
-    language: Optional[str] = "en"
-    uid: Optional[int] = None
-    wallet: Optional[str] = None
+    ref: str | None = None
+    language: str | None = "en"
+    uid: int | None = None
+    wallet: str | None = None
 
 
 # Keep a simple injection guard
@@ -39,7 +33,7 @@ INJECTION_CHARS = set('<>"\';&(){}\\')
 EMAIL_REGEX = re.compile(r"^[\w\.-]+@[\w\.-]+\.\w+$")
 
 
-def _make_referral_link(base_url: str, user_id: Optional[int]) -> str:
+def _make_referral_link(base_url: str, user_id: int | None) -> str:
     """Build /signup?ref=u<user_id> or plain /signup if absent."""
     if user_id:
         return f"{base_url}/signup?ref=u{user_id}"
@@ -53,7 +47,7 @@ def _stable_base_url(request: Request) -> str:
     return str(request.base_url).rstrip("/")
 
 
-def _parse_ref(ref: Optional[str]) -> Optional[int]:
+def _parse_ref(ref: str | None) -> int | None:
     """
     Accepts 'u123', '123', or URLs with '?ref=...'.
     Returns the integer user_id if parseable; else None.
@@ -73,7 +67,7 @@ def _parse_ref(ref: Optional[str]) -> Optional[int]:
     return None
 
 
-def _get_or_create_user(db: Session, email: str, refer_user_id: Optional[int]) -> User:
+def _get_or_create_user(db: Session, email: str, refer_user_id: int | None) -> User:
     """
     Get the user by email, or create it. Since 'refer_id' in db model
     is a plain Integer (no FK), we can set it directly when creating.
@@ -159,7 +153,9 @@ def wait_list(data: WaitIn, request: Request, db: Session = Depends(get_db)):
         db.commit()
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(
+            status_code=500, detail=str(e)
+        ) from e
 
     # Build referral link and fire-and-forget user email
     base_url = _stable_base_url(request)

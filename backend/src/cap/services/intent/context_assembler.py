@@ -36,7 +36,7 @@ class ConversationContextAssembler:
         scored: list[tuple[float, dict[str, Any]]] = []
         qv = query_vector[0]
 
-        for item, hv in zip(candidates, history_vectors):
+        for item, hv in zip(candidates, history_vectors, strict=True):
             score = embedder.cosine_similarity(qv, hv)
             if score >= self._similarity_threshold:
                 scored.append((score, item))

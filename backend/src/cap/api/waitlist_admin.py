@@ -1,10 +1,6 @@
-# cap/src/cap/api/waitlist_admin.py
-
-from __future__ import annotations
-
 import re
 import secrets
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr
@@ -15,11 +11,9 @@ from sqlalchemy.orm import Session
 from cap.core.auth_dependencies import get_current_admin_user
 from cap.database.model import User
 from cap.database.session import get_db
-
 from cap.mailing.event_triggers import (
     on_waitlist_promoted,
 )
-
 from cap.services.admin_alerts_service import (
     maybe_notify_admins_user_confirmed,
 )
@@ -39,9 +33,9 @@ class CreateUserFromWaitlistIn(BaseModel):
 
 class WaitlistItemOut(BaseModel):
     email: EmailStr
-    ref: Optional[str] = ""
-    language: Optional[str] = "en"
-    created_at: Optional[str] = None
+    ref: str | None = ""
+    language: str | None = "en"
+    created_at: str | None = None
 
 
 class WaitlistStatsOut(BaseModel):
@@ -50,7 +44,7 @@ class WaitlistStatsOut(BaseModel):
 
 
 class WaitlistListOut(BaseModel):
-    items: List[WaitlistItemOut]
+    items: list[WaitlistItemOut]
     stats: WaitlistStatsOut
     limit: int
     offset: int
@@ -59,8 +53,8 @@ class WaitlistListOut(BaseModel):
 class CreateUserFromWaitlistOut(BaseModel):
     status: str
     removed_from_waitlist: bool
-    user: Dict[str, Any]
-    setup_url: Optional[str] = None
+    user: dict[str, Any]
+    setup_url: str | None = None
 
 
 # -----------------------------
@@ -78,7 +72,7 @@ def _normalize_email(raw: str) -> str:
     return email
 
 
-def _parse_ref_to_user_id(ref: Optional[str]) -> Optional[int]:
+def _parse_ref_to_user_id(ref: str | None) -> int | None:
     if not ref:
         return None
 
@@ -96,7 +90,7 @@ def _parse_ref_to_user_id(ref: Optional[str]) -> Optional[int]:
     return None
 
 
-def _user_to_dict(u: User) -> Dict[str, Any]:
+def _user_to_dict(u: User) -> dict[str, Any]:
     return {
         "user_id": u.user_id,
         "email": u.email,
@@ -140,7 +134,7 @@ def _ensure_username(db: Session, user: User) -> bool:
     return True
 
 
-def _get_or_create_user(db: Session, email: str, refer_user_id: Optional[int]) -> tuple[User, str]:
+def _get_or_create_user(db: Session, email: str, refer_user_id: int | None) -> tuple[User, str]:
     user = db.scalar(select(User).where(User.email == email))
     if user:
         changed = False
@@ -191,7 +185,7 @@ def _get_or_create_user(db: Session, email: str, refer_user_id: Optional[int]) -
         raise
 
 
-def _stringify_dt(dt_val: Any) -> Optional[str]:
+def _stringify_dt(dt_val: Any) -> str | None:
     if dt_val is None:
         return None
     try:
@@ -225,7 +219,7 @@ def _ensure_setup_token(db: Session, u: User) -> str:
 
 @router.get("/", response_model=WaitlistListOut)
 def list_waitlist(
-    search: Optional[str] = Query(None, description="Search by email/ref"),
+    search: str | None = Query(None, description="Search by email/ref"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -234,7 +228,7 @@ def list_waitlist(
     total_waiting = db.execute(text("SELECT COUNT(*) FROM waiting_list")).scalar() or 0
 
     where_sql = ""
-    params: Dict[str, Any] = {"limit": limit, "offset": offset}
+    params: dict[str, Any] = {"limit": limit, "offset": offset}
 
     if search and search.strip():
         s = f"%{search.strip().lower()}%"
@@ -274,7 +268,7 @@ def list_waitlist(
         ).mappings().all()
         has_created_at = False
 
-    items: List[WaitlistItemOut] = []
+    items: list[WaitlistItemOut] = []
     for r in rows:
         items.append(
             WaitlistItemOut(
@@ -335,7 +329,7 @@ def create_user_from_waitlist(
     lang = (row.get("language") or "en").strip() or "en"
     refer_user_id = _parse_ref_to_user_id(ref)
 
-    setup_url: Optional[str] = None
+    setup_url: str | None = None
 
     try:
         user, status_str = _get_or_create_user(db, normalized, refer_user_id=refer_user_id)

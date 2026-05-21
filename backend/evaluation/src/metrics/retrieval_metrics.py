@@ -7,8 +7,8 @@ the dataset example's base_id.
 The evaluator captures retrieved examples via LLMClient.nl_to_sparql(..., _eval_retrieved_out=[...])
 which contains Redis cache objects with at least "original_query" and "normalized_query".
 """
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)

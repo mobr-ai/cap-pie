@@ -1,27 +1,26 @@
 # cap/src/cap/api/user_admin.py
 import logging
-import secrets
 import re
-from datetime import datetime, timezone
-from typing import Optional
+import secrets
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from sqlalchemy import select, or_, func, delete
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
+from cap.core.auth_dependencies import get_current_admin_user
 from cap.core.security import generate_unique_username
 from cap.database.model import (
-    User,
+    Conversation,
     Dashboard,
     DashboardMetrics,
     QueryMetrics,
-    Conversation,
     SharedImage,
+    User,
 )
 from cap.database.session import get_db
-from cap.core.auth_dependencies import get_current_admin_user
 from cap.mailing.event_triggers import (
     on_user_access_granted,
     on_user_access_revoked,
@@ -63,8 +62,8 @@ class ConfirmedFlagUpdate(BaseModel):
 
 
 class AdminFlagsUpdate(BaseModel):
-    is_admin: Optional[bool] = None
-    is_confirmed: Optional[bool] = None
+    is_admin: bool | None = None
+    is_confirmed: bool | None = None
 
 
 def _needs_password_setup(u: User) -> bool:
@@ -102,7 +101,7 @@ def _user_to_dict(u: User) -> dict:
 
 
 def _generate_anonymous_username(user_id: int) -> str:
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     return f"deleted_{user_id}_{ts}"
 
 
@@ -138,7 +137,7 @@ def _anonymize_user(user: User) -> None:
 
 @router.get("/")
 def list_users(
-    search: Optional[str] = Query(None, description="Search by email/username/wallet"),
+    search: str | None = Query(None, description="Search by email/username/wallet"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -285,7 +284,7 @@ def set_user_confirmed_flag(
     db.commit()
     db.refresh(user)
 
-    setup_url: Optional[str] = None
+    setup_url: str | None = None
     if (not was_confirmed) and now_confirmed and _needs_password_setup(user):
         token = _ensure_setup_token(db, user)
         setup_url = f"{APP_URL}/login?state=setpass&token={token}"
@@ -356,7 +355,7 @@ def admin_delete_user_account(
 
     try:
         if not _is_anonymized(user):
-            ts = int(datetime.now(timezone.utc).timestamp())
+            ts = int(datetime.now(UTC).timestamp())
 
             user.email = None
             user.password_hash = None

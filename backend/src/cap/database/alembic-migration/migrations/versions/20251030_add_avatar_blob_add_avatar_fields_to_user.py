@@ -5,17 +5,16 @@ Revises: base_20251030
 Create Date: 2025-10-30 21:52:11.130898
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '20251030_add_avatar_blob'
-down_revision: Union[str, Sequence[str], None] = 'base_20251030'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = 'base_20251030'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 

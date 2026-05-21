@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 
 from cap.rdf.cache.pattern_registry import PatternRegistry
 

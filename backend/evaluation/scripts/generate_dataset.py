@@ -4,8 +4,6 @@ CLI: generate evaluation dataset JSONL.
 Example:
 python -m evaluation.scripts.generate_dataset --seed 7 --variants-per-base 6
 """
-from __future__ import annotations
-
 import argparse
 
 from evaluation.src.dataset.dataset_builder import build_dataset

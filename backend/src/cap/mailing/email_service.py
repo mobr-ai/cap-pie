@@ -1,14 +1,15 @@
 # cap/mailing/email_service.py
-import os
 import json
+import os
 import threading
-from typing import Iterable, Any, Dict
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Any
 
 import resend
+from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from dotenv import load_dotenv
 load_dotenv()
 
 
@@ -111,7 +112,7 @@ def send_async_email(
     to_email: Iterable[str] | str,
     language: str,
     template_name: str,
-    context: Dict[str, Any],
+    context: dict[str, Any],
 ) -> None:
     """
     Simple async shim (threaded) so FastAPI endpoints don't block.

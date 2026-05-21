@@ -9,7 +9,7 @@ Knows nothing about Redis, regeneration policy, or the NL pipeline.
 """
 import asyncio
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import chromadb
 from chromadb.api import ClientAPI
@@ -54,7 +54,7 @@ class EmbeddingService:
         self._chroma_path = chroma_path
         self._collection_name = collection_name
 
-        self._model: Optional[SentenceTransformer] = None
+        self._model: SentenceTransformer | None = None
         self._chroma_client: ClientAPI = None
         self._collections: dict[str, Any] = {}
         self._rebuild_lock = asyncio.Lock()
@@ -202,6 +202,7 @@ class EmbeddingService:
                 for meta, distance in zip(
                     raw.get("metadatas", [[]])[0],
                     raw.get("distances", [[]])[0],
+                    strict=False,
                 ):
                     similarity = float(1.0 - distance)
                     if similarity < min_similarity:
@@ -247,7 +248,7 @@ class EmbeddingService:
 
     @staticmethod
     def cosine_similarity(a: list[float], b: list[float]) -> float:
-        return float(sum(x * y for x, y in zip(a, b)))
+        return float(sum(x * y for x, y in zip(a, b, strict=True)))
 
     async def rebuild_dataset_collection(
         self,
@@ -299,6 +300,7 @@ class EmbeddingService:
             raw.get("documents", [[]])[0],
             raw.get("metadatas", [[]])[0],
             raw.get("distances", [[]])[0],
+            strict=False,
         ):
             results.append(
                 {
@@ -314,7 +316,7 @@ class EmbeddingService:
 # ---------------------------------------------------------------------------
 # Module-level singleton
 # ---------------------------------------------------------------------------
-_embedding_service: Optional[EmbeddingService] = None
+_embedding_service: EmbeddingService | None = None
 
 
 def get_embedding_service() -> EmbeddingService:

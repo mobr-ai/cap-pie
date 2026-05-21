@@ -1,8 +1,8 @@
-import re
 import logging
-from opentelemetry import trace
+import re
 from pathlib import Path
-from typing import Tuple
+
+from opentelemetry import trace
 
 from cap.config import settings
 
@@ -11,7 +11,7 @@ _PRESERVED_EXPRESSIONS = []
 
 _ENTITIES = []
 
-def _load_ontology_labels(onto_path: str) -> Tuple[list, list]:
+def _load_ontology_labels(onto_path: str) -> tuple[list, list]:
     """Load rdfs:label values from the Turtle ontology file."""
     entity_labels = []
     reserved_labels = []
@@ -21,7 +21,7 @@ def _load_ontology_labels(onto_path: str) -> Tuple[list, list]:
             logger.warning(f"Ontology file not found at {onto_path}")
             return reserved_labels, entity_labels
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             content = f.read()
 
         # Match rdfs:label patterns in Turtle format

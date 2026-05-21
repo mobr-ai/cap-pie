@@ -1,6 +1,6 @@
 # cap/api/demo/sse.py
 import re
-from typing import Iterator
+from collections.abc import Iterator
 
 from cap.api.demo.schemas import NL_TOKEN
 
@@ -50,7 +50,6 @@ def iter_sse_markdown_events(text: str, max_len: int = 32) -> Iterator[str]:
     lines = raw.split("\n")
 
     for idx, line in enumerate(lines):
-        for chunk in _iter_safe_line_chunks(line, max_len=max_len):
-            yield chunk
+        yield from _iter_safe_line_chunks(line, max_len=max_len)
         if idx < len(lines) - 1:
             yield NL_TOKEN

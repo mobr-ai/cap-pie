@@ -9,20 +9,23 @@ Purpose:
 - Dedupe per user via sha256 (same bytes => same record).
 """
 
-import hashlib, os, secrets, tempfile, json, re
+import hashlib
+import json
+import os
+import re
+import secrets
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Tuple
-from urllib.parse import quote
-from string import Template
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
-from cap.database.model import SharedImage, User
 from cap.core.auth_dependencies import get_current_user_unconfirmed
+from cap.database.model import SharedImage, User
+from cap.database.session import get_db
 
 router = APIRouter(prefix="/api/v1/share", tags=["share"])
 
@@ -34,7 +37,6 @@ try:
 except Exception:
     SHARE_I18N = {}
 
-from dotenv import load_dotenv
 load_dotenv()
 
 # ---------------------------------------------------------------------
@@ -48,11 +50,11 @@ ALLOWED_MIMES_DEFAULT = "image/png,image/jpeg,image/webp"
 MAX_BYTES = int(os.getenv("SHARE_IMAGE_MAX_BYTES", str(DEFAULT_MAX_BYTES)))
 TTL_DAYS = int(os.getenv("SHARE_IMAGE_TTL_DAYS", str(DEFAULT_TTL_DAYS)))
 
-ALLOWED_MIMES = set(
+ALLOWED_MIMES = {
     m.strip().lower()
     for m in os.getenv("SHARE_IMAGE_ALLOWED_MIMES", ALLOWED_MIMES_DEFAULT).split(",")
     if m.strip()
-)
+}
 
 # Where files are stored inside the container (bind-mounted on server)
 SHARE_IMAGE_DIR = Path(os.getenv("SHARE_IMAGE_DIR", "/var/lib/cap/share-images")).resolve()
@@ -104,7 +106,7 @@ def _safe_mime(upload: UploadFile) -> str:
 
 def _read_stream_to_tempfile_and_hash(
     upload: UploadFile, max_bytes: int, tmp_dir: Path
-) -> Tuple[str, int, str]:
+) -> tuple[str, int, str]:
     """
     Stream the upload to a temp file (inside tmp_dir) while computing sha256.
     Returns: (tmp_path, total_bytes, sha256_hex)
@@ -204,7 +206,7 @@ def upload_share_image(
     _ensure_storage_dir()
     mime = _safe_mime(file)
 
-    tmp_path: Optional[str] = None
+    tmp_path: str | None = None
     try:
         tmp_path, total_bytes, sha256_hex = _read_stream_to_tempfile_and_hash(
             file, MAX_BYTES, SHARE_IMAGE_DIR
@@ -331,8 +333,10 @@ def get_share_image(
 
     try:
         file_path.relative_to(SHARE_IMAGE_DIR)
-    except Exception:
-        raise HTTPException(status_code=500, detail="Invalid storage path")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail="Invalid storage path"
+        ) from e
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Not found")
@@ -360,9 +364,9 @@ def get_shared_page(
     t: str,
     db: Session = Depends(get_db),
     # Optional display params (frontend may pass; safe defaults otherwise)
-    title: Optional[str] = Query(default=None),
-    description: Optional[str] = Query(default=None),
-    target_url: Optional[str] = Query(default=None),
+    title: str | None = Query(default=None),
+    description: str | None = Query(default=None),
+    target_url: str | None = Query(default=None),
     preview: bool = Query(default=False),
 
 ):
@@ -428,7 +432,7 @@ def get_shared_page(
         "image_url": og_image_e,
         "target_url": target_e,
         "page_url": og_url_e,
-        "css_url": f"/share-static/shared_page.css",
+        "css_url": "/share-static/shared_page.css",
         "default_title": i18n.get("default_title"),
         "default_description": i18n.get("default_description"),
         "t_shared_from_cap": i18n.get("shared_from_cap"),

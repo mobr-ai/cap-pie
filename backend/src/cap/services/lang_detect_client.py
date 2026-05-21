@@ -1,8 +1,9 @@
 """
 Language detection service using langdetect library.
 """
-from langdetect import detect, LangDetectException
 import logging
+
+from langdetect import LangDetectException, detect
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,8 @@
 # src/tests/test_api.py
-import pytest
 import logging
 
-from httpx import AsyncClient
-from urllib.parse import quote_plus
+import pytest
+
 from cap.rdf.triplestore import TriplestoreClient
 
 logging.basicConfig(level=logging.DEBUG)

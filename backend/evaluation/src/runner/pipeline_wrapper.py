@@ -9,18 +9,18 @@ This wrapper is intentionally small and mirrors the production flow:
 
 We keep this independent from FastAPI endpoints to run as a CLI.
 """
-import time
 import json
+import time
 from dataclasses import dataclass
 from typing import Any
 
 from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.services.llm_client import get_llm_client
 from cap.services.redis_nl_client import get_redis_nl_client
-from cap.services.llm_client import get_llm_client, cleanup_llm_client
 from cap.services.similarity_service import SearchStrategy
 from cap.services.sparql_service import execute_sparql
-from cap.util.sparql_util import detect_and_parse_sparql
 from cap.util.sparql_result_processor import convert_sparql_to_kv, format_for_llm
+from cap.util.sparql_util import detect_and_parse_sparql
 
 
 @dataclass

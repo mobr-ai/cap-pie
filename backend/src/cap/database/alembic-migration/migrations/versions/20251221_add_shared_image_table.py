@@ -8,7 +8,6 @@ Create Date: 2025-12-21
 """
 
 from alembic import op
-import sqlalchemy as sa
 
 revision = "20251221_add_shared_image_table"
 down_revision = "2b63a71b2da0"

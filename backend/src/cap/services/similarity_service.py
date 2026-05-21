@@ -11,17 +11,18 @@ consumer of the policy. Neither RedisNLClient nor nl_service know it exists.
 """
 import json
 import logging
+from enum import StrEnum
 from typing import Any
-from enum import Enum
+
 from opentelemetry import trace
 
 from cap.rdf.cache.query_normalizer import QueryNormalizer
-from cap.services.redis_nl_client import get_redis_nl_client
-from cap.services.embedding_service import get_embedding_service
 from cap.services.embedding_regeneration_policy import (
     EmbeddingRegenerationPolicy,
     RegenerationState,
 )
+from cap.services.embedding_service import get_embedding_service
+from cap.services.redis_nl_client import get_redis_nl_client
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -30,7 +31,7 @@ tracer = trace.get_tracer(__name__)
 _regen_state = RegenerationState()
 
 
-class SearchStrategy(str, Enum):
+class SearchStrategy(StrEnum):
     auto = "auto"
     embeddings = "embeddings"
     jaccard = "jaccard"

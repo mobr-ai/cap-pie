@@ -3,17 +3,17 @@ Test script for the Natural Language Query Pipeline.
 Run this to verify nl components are working correctly.
 Not for pytest
 """
-import logging
-import asyncio
 import argparse
-import httpx
+import asyncio
 import json
+import logging
 import time
 from pathlib import Path
 
+import httpx
 
-from cap.services.nl_service import query_with_stream_response
 from cap.services.llm_client import LLMClient
+from cap.services.nl_service import query_with_stream_response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.ERROR)
@@ -59,13 +59,13 @@ class NLQueryTester:
             print(f"\nTotal Queries: {total_queries}")
             print(f"Successful: {successful}")
             print(f"Failed: {failed}")
-            print(f"\nExecution Times:")
+            print("\nExecution Times:")
             print(f"  Average: {avg_time:.2f}s")
             print(f"  Minimum: {min_time:.2f}s")
             print(f"  Maximum: {max_time:.2f}s")
             print(f"  Total: {sum(execution_times):.2f}s")
 
-            print(f"\nPer-Query Breakdown:")
+            print("\nPer-Query Breakdown:")
             for m in self.metrics:
                 status_icon = "v" if m['status'] == 'success' else "x"
                 print(f"  {status_icon} {m['execution_time']:.2f}s - {m['query'][:60]}...")
@@ -193,11 +193,11 @@ class NLQueryTester:
                         result = await self.test_query(query)
 
                     except Exception as e:
-                        print(f"Test failed!")
+                        print("Test failed!")
                         print(f"    exception: {e}")
                         exit()
 
-                    assert result, f"Query failed"
+                    assert result, "Query failed"
 
                     print(f"✓ Test passed for query\n    {query}")
 

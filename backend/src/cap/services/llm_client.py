@@ -2,28 +2,30 @@
 llm client for interacting with models
 """
 import asyncio
-import os
-import logging
 import json
-from datetime import datetime, timezone
-from typing import AsyncIterator, Optional, Any, Union
+import logging
+import os
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any
+
 import httpx
 from opentelemetry import trace
 
 from cap.config import settings
-from cap.util.tag_filter import TagFilter
-from cap.util.str_util import get_file_content
-from cap.util.vega_util import VegaUtil
-from cap.util.cardano_scan import convert_sparql_results_to_links
-from cap.util.sparql_util import detect_and_parse_sparql
-from cap.services.msg_formatter import MessageFormatter
-from cap.services.similarity_service import SimilarityService, SearchStrategy
+from cap.federated.models import FederatedQuery
+from cap.federated.planner import FederatedPlanner
+from cap.rdf.cache.semantic_matcher import SemanticMatcher
 from cap.services.intent.context_assembler import ConversationContextAssembler
 from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
-from cap.rdf.cache.semantic_matcher import SemanticMatcher
-from cap.federated.planner import FederatedPlanner
-from cap.federated.models import FederatedQuery, QuerySource
+from cap.services.msg_formatter import MessageFormatter
+from cap.services.similarity_service import SearchStrategy, SimilarityService
+from cap.util.cardano_scan import convert_sparql_results_to_links
+from cap.util.sparql_util import detect_and_parse_sparql
+from cap.util.str_util import get_file_content
+from cap.util.tag_filter import TagFilter
+from cap.util.vega_util import VegaUtil
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -46,7 +48,7 @@ class LLMClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         llm_model: str = None,
         timeout: float = 360.0
     ):
@@ -72,7 +74,7 @@ class LLMClient:
             or 3
         )
 
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
         self._context_assembler = ConversationContextAssembler()
         self._refer_classifier = ReferClassifier(
@@ -191,7 +193,7 @@ class LLMClient:
         self,
         prompt: str,
         model: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.1
     ) -> AsyncIterator[str]:
         """
@@ -494,10 +496,10 @@ User Question: {natural_query}
         self,
         user_query: str,
         sparql_query: str,
-        sparql_results: Union[str, dict[str, Any]],
+        sparql_results: str | dict[str, Any],
         kv_results: dict[str, Any],
         system_prompt: str = None,
-        conversation_history: Optional[list[dict]] = None
+        conversation_history: list[dict] | None = None
     ) -> AsyncIterator[str]:
         """
         Generate contextualized answer based on SPARQL results.
@@ -528,7 +530,7 @@ User Question: {natural_query}
                     logger.warning(f"KV results formatting failed: {e}")
                     yield f"kv_results: {str(kv_results)}\n\n"
 
-                yield f"_kv_results_end_\n\n"
+                yield "_kv_results_end_\n\n"
 
             context_res = ""
             try:
@@ -549,7 +551,7 @@ User Question: {natural_query}
                 logger.warning(f"Result formatting failed: {e}")
                 context_res = str(sparql_results)
 
-            current_date = f"Current utc date and time: {datetime.now(timezone.utc)}."
+            current_date = f"Current utc date and time: {datetime.now(UTC)}."
             current_his = None
             known_info = ""
             temperature = 0.1
@@ -572,7 +574,7 @@ User Question: {natural_query}
                 current_his = conversation_history
 
             else:
-                known_info = f"""
+                known_info = """
                     Answer with a text similar to the following message:
                     I do not have this information or I was not capable of retrieving it correctly.
                     We would appreciate it if you could specify here what you wanted to do as a feature and we will try to make your prompt work asap.
@@ -648,7 +650,7 @@ User Question: {natural_query}
     def _add_history(
         self,
         prompt: str,
-        conversation_history: Optional[list[dict]] = None
+        conversation_history: list[dict] | None = None
     ) -> list[dict]:
         """
         Prepare messages for chat API with token limit.
@@ -684,7 +686,7 @@ User Question: {natural_query}
 
 
 # Global client instance
-_llm_client: Optional[LLMClient] = None
+_llm_client: LLMClient | None = None
 
 
 def get_llm_client() -> LLMClient:

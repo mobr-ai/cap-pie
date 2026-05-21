@@ -3,7 +3,7 @@ Redis client for caching SPARQL queries and natural language mappings.
 """
 import logging
 import re
-from typing import Optional, Tuple
+
 from opentelemetry import trace
 
 from cap.rdf.cache.pattern_registry import PatternRegistry
@@ -67,7 +67,7 @@ class PlaceholderRestorer:
         return restored
 
     @staticmethod
-    def _extract_prefixes(sparql: str) -> Tuple[str, str]:
+    def _extract_prefixes(sparql: str) -> tuple[str, str]:
         """Extract PREFIX declarations."""
         prefix_pattern = r'^((?:PREFIX\s+\w+:\s*<[^>]+>\s*)+)'
         prefix_match = re.match(prefix_pattern, sparql, re.MULTILINE | re.IGNORECASE)
@@ -82,7 +82,7 @@ class PlaceholderRestorer:
         cached_value: str,
         placeholder_map: dict[str, str],
         current_values: dict[str, list[str]]
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get replacement value for a placeholder."""
 
         if placeholder.startswith("<<INJECT_"):
@@ -248,7 +248,7 @@ class PlaceholderRestorer:
     @staticmethod
     def _get_cyclic_value(
         placeholder: str,
-        value_list: Optional[list[str]],
+        value_list: list[str] | None,
         cached_value: str,
         default: str
     ) -> str:

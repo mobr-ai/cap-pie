@@ -1,8 +1,10 @@
 # src/tests/conftest.py
+import logging
+from collections.abc import AsyncGenerator
+
 import pytest
 from httpx import AsyncClient
-from typing import AsyncGenerator
-import logging
+
 from cap.config import settings
 from cap.rdf.triplestore import TriplestoreClient
 

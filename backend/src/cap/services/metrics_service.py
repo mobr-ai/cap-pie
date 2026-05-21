@@ -1,14 +1,15 @@
 """
 Centralized metrics collection service.
 """
-import re
-from typing import Optional, Dict, Any
-from sqlalchemy.orm import Session
-from opentelemetry import trace
 import logging
+import re
+from typing import Any
 
+from opentelemetry import trace
+from sqlalchemy.orm import Session
+
+from cap.database.model import DashboardMetrics, KGMetrics, QueryMetrics
 from cap.rdf.cache.pattern_registry import PatternRegistry
-from cap.database.model import QueryMetrics, KGMetrics, DashboardMetrics
 from cap.services.lang_detect_client import LanguageDetector
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class MetricsService:
     """Centralized service for collecting and storing metrics."""
 
     @staticmethod
-    def calculate_complexity(sparql_query: str, kv_results: Optional[Dict] = None) -> Dict[str, Any]:
+    def calculate_complexity(sparql_query: str, kv_results: dict | None = None) -> dict[str, Any]:
         """Calculate query complexity indicators."""
         temporal_terms = (PatternRegistry.YEARLY_TERMS +
                           PatternRegistry.MONTHLY_TERMS +
@@ -58,15 +59,15 @@ class MetricsService:
         nl_query: str,
         normalized_query: str,
         sparql_query: str,
-        kv_results: Optional[Dict[str, Any]],
+        kv_results: dict[str, Any] | None,
         is_sequential: bool,
         sparql_valid: bool,
         query_succeeded: bool,
         llm_latency_ms: int,
         sparql_latency_ms: int,
         total_latency_ms: int,
-        user_id: Optional[int] = None,
-        error_message: Optional[str] = None
+        user_id: int | None = None,
+        error_message: str | None = None
     ) -> QueryMetrics:
         """Record query execution metrics."""
 
@@ -167,7 +168,7 @@ class MetricsService:
         user_id: int,
         dashboard_id: int,
         action_type: str,
-        artifact_type: Optional[str] = None,
+        artifact_type: str | None = None,
         total_items: int = 0,
         unique_artifact_types: int = 0
     ) -> DashboardMetrics:

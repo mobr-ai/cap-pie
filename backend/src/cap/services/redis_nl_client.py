@@ -5,16 +5,16 @@ import json
 import logging
 import os
 import re
-from typing import Optional, Any, Tuple
+from typing import Any
 
 import redis.asyncio as redis
 from opentelemetry import trace
 
-from cap.federated.models import FederatedQuery, QuerySource
+from cap.federated.models import QuerySource
 from cap.rdf.cache.placeholder_counters import PlaceholderCounters
 from cap.rdf.cache.placeholder_restorer import PlaceholderRestorer
-from cap.rdf.cache.query_normalizer import QueryNormalizer
 from cap.rdf.cache.query_file_parser import QueryFileParser
+from cap.rdf.cache.query_normalizer import QueryNormalizer
 from cap.rdf.cache.sparql_normalizer import SPARQLNormalizer
 from cap.rdf.cache.value_extractor import ValueExtractor
 
@@ -26,7 +26,7 @@ class RedisNLClient:
 
     def __init__(
         self,
-        host: Optional[str] = None,
+        host: str | None = None,
         port: int = 6379,
         db: int = 0,
         ttl: int = 86400 * 365
@@ -36,7 +36,7 @@ class RedisNLClient:
         self.port = int(os.getenv("REDIS_PORT", port))
         self.db = db
         self.ttl = ttl
-        self._client: Optional[redis.Redis] = None
+        self._client: redis.Redis | None = None
 
     async def _get_nlr_client(self) -> redis.Redis:
         """Get or create Redis client."""
@@ -69,7 +69,7 @@ class RedisNLClient:
         self,
         nl_query: str,
         sparql_query: str,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
         normalize: bool = True
     ) -> int:
         """Cache query with placeholder normalization."""
@@ -120,7 +120,7 @@ class RedisNLClient:
     async def precache_from_file(
         self,
         file_path: str,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
         normalize: bool = True
     ) -> dict[str, Any]:
         """Pre-cache natural language to SPARQL mappings from a file."""
@@ -136,7 +136,7 @@ class RedisNLClient:
             }
 
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding='utf-8') as f:
                     content = f.read()
 
                 queries = QueryFileParser.parse(content)
@@ -163,7 +163,7 @@ class RedisNLClient:
                                 await client.setex(cache_key, ttl_value, json.dumps(data))
                                 cached_keys.append(cache_key)
 
-                            logger.debug (f"query cached ")
+                            logger.debug ("query cached ")
                             logger.debug (f"    nl query {nl_query} ")
                             logger.debug (f"    sparql query {sparql_query} ")
                             logger.debug (f"    ttl {ttl_value} ")
@@ -274,7 +274,7 @@ class RedisNLClient:
         return normalized_payload, placeholder_map, query_type
 
 
-    def _normalize_sequential_sparql(self, queries: list[dict], normalize_query: bool = True) -> Tuple[str, dict[str, str]]:
+    def _normalize_sequential_sparql(self, queries: list[dict], normalize_query: bool = True) -> tuple[str, dict[str, str]]:
         """Normalize sequential SPARQL queries with global counters."""
         normalized_queries = []
         all_placeholders = {}
@@ -304,7 +304,7 @@ class RedisNLClient:
         self,
         normalized_query: str,
         original_query: str
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Retrieve cached query and restore placeholders."""
         with tracer.start_as_current_span("get_cached_query_with_original") as span:
             try:
@@ -464,7 +464,7 @@ class RedisNLClient:
 
 
 # Global client instance
-_redis_nl_client: Optional[RedisNLClient] = None
+_redis_nl_client: RedisNLClient | None = None
 
 
 def get_redis_nl_client() -> RedisNLClient:

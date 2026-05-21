@@ -1,8 +1,8 @@
 """
 Aggregate metrics and write a readable summary.
 """
-from collections import defaultdict
 import json
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -20,11 +20,13 @@ def aggregate(results: list[dict]) -> dict:
         if n == 0:
             continue
 
-        def avg(field: str) -> float:
+        def avg(field: str, rows=rows, n=n) -> float:
             return sum(float(x.get(field, 0.0)) for x in rows) / n
 
-        def rate(field: str) -> float:
+
+        def rate(field: str, rows=rows, n=n) -> float:
             return sum(1.0 for x in rows if x.get(field)) / n
+
 
         summary[cfg] = {
             "n": n,
@@ -79,9 +81,15 @@ def _to_markdown(summary: dict) -> str:
         lines.append(f"- N: {s['n']}\n")
         r = s["retrieval"]
         g = s["generation"]
-        l = s["latency_ms"]
-        lines.append(f"**Retrieval**: P@5={r['precision@5']:.3f}, R@5={r['recall@5']:.3f}, MRR@5={r['mrr@5']:.3f}, nDCG@5={r['ndcg@5']:.3f}\n")
-        lines.append(f"**Gen/Exec**: parseable={g['sparql_parseable_rate']:.3f}, exact={g['sparql_exact_match_rate']:.3f}, exec_ok={g['execution_success_rate']:.3f}, non_empty={g['result_non_empty_rate']:.3f}, final={g['final_answer_non_empty_rate']:.3f}, e2e={g['e2e_success_rate']:.3f}\n")
-        lines.append(f"**Latency (ms avg)**: retrieval={l['retrieval_avg']:.1f}, nl2sparql={l['nl_to_sparql_avg']:.1f}, exec={l['sparql_exec_avg']:.1f}, final={l['final_answer_avg']:.1f}, e2e={l['end_to_end_avg']:.1f}\n")
+        lat = s["latency_ms"]
+        lines.append(
+            f"**Retrieval**: P@5={r['precision@5']:.3f}, R@5={r['recall@5']:.3f}, MRR@5={r['mrr@5']:.3f}, nDCG@5={r['ndcg@5']:.3f}\n"
+        )
+        lines.append(
+            f"**Gen/Exec**: parseable={g['sparql_parseable_rate']:.3f}, exact={g['sparql_exact_match_rate']:.3f}, exec_ok={g['execution_success_rate']:.3f}, non_empty={g['result_non_empty_rate']:.3f}, final={g['final_answer_non_empty_rate']:.3f}, e2e={g['e2e_success_rate']:.3f}\n"
+        )
+        lines.append(
+            f"**Latency (ms avg)**: retrieval={lat['retrieval_avg']:.1f}, nl2sparql={lat['nl_to_sparql_avg']:.1f}, exec={lat['sparql_exec_avg']:.1f}, final={lat['final_answer_avg']:.1f}, e2e={lat['end_to_end_avg']:.1f}\n"
+        )
         lines.append("\n---\n")
     return "\n".join(lines)

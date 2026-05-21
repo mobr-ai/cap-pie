@@ -1,23 +1,24 @@
 # cap/database/model.py
 # cap/database/model.py
 import uuid
-from sqlalchemy.orm import declarative_base
+
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
+    JSON,
+    BigInteger,
     Boolean,
-    LargeBinary,
+    Column,
     DateTime,
     ForeignKey,
-    JSON,
-    Text,
     Index,
-    text,
-    BigInteger,
+    Integer,
+    LargeBinary,
     Numeric,
+    String,
+    Text,
     UniqueConstraint,
+    text,
 )
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
