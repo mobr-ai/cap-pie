@@ -730,6 +730,10 @@
       "expires": "Premium active until {{date}}",
       "paygComing": "Pay-as-you-go debits from balance are coming next.",
       "billing": "Billing & Access"
+    },
+    "paywall": {
+      "message": "You reached your free query limit. Open Billing & Access to activate Premium or add Balance.",
+      "toast": "Free query limit reached. Open Billing & Access to continue."
     }
   }
 }

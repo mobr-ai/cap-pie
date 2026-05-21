@@ -731,6 +731,10 @@
       "expires": "Premium ativo até {{date}}",
       "paygComing": "Débitos pay-as-you-go usando saldo virão em seguida.",
       "billing": "Cobrança e Acesso"
+    },
+    "paywall": {
+      "message": "Você atingiu o limite de consultas grátis. Abra Cobrança e Acesso para ativar Premium ou adicionar Saldo.",
+      "toast": "Limite de consultas grátis atingido. Abra Cobrança e Acesso para continuar."
     }
   }
 }

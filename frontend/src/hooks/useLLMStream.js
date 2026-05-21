@@ -191,9 +191,32 @@ export function useLLMStream({
         });
 
         if (!response.ok) {
+          let errorPayload = null;
+          let errorText = "";
+
+          try {
+            errorText = await response.text();
+            errorPayload = errorText ? JSON.parse(errorText) : null;
+          } catch {
+            errorPayload = errorText ? { detail: errorText } : null;
+          }
+
+          const detail = errorPayload?.detail || errorPayload || null;
+          const code =
+            detail?.code ||
+            errorPayload?.code ||
+            (typeof detail === "string" ? detail : null) ||
+            response.statusText;
+
           const err = new Error(
-            `Streaming request failed: ${response.status} ${response.statusText}`,
+            code || `Streaming request failed: ${response.status} ${response.statusText}`,
           );
+
+          err.status = response.status;
+          err.payload = errorPayload;
+          err.detail = detail;
+          err.code = code;
+
           onError?.(err, { ...streamMeta });
           return;
         }
