@@ -1,16 +1,15 @@
 # cap/api/conversation.py
 
 from datetime import datetime
-from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
-from cap.database.model import Conversation, ConversationMessage
-from cap.services.conversation_persistence import list_conversation_artifacts
 from cap.core.auth_dependencies import get_current_user
+from cap.database.model import Conversation, ConversationMessage
+from cap.database.session import get_db
+from cap.services.conversation_persistence import list_conversation_artifacts
 
 router = APIRouter(
     prefix="/api/v1/conversations",
@@ -22,25 +21,25 @@ router = APIRouter(
 
 class ConversationSummary(BaseModel):
     id: int
-    title: Optional[str]
+    title: str | None
     created_at: datetime
-    updated_at: Optional[datetime]
-    last_message_preview: Optional[str] = None
+    updated_at: datetime | None
+    last_message_preview: str | None = None
 
     model_config = {"from_attributes": True}
 
 
 class ConversationCreate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
+    title: str | None = Field(None, max_length=255)
 
 
 class ConversationMessageOut(BaseModel):
     id: int
     conversation_id: int
-    user_id: Optional[int]
+    user_id: int | None
     role: str
     content: str
-    nl_query_id: Optional[int]
+    nl_query_id: int | None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -49,16 +48,16 @@ class ConversationMessageOut(BaseModel):
 class ConversationMessageCreate(BaseModel):
     role: str = Field(..., pattern="^(user|assistant|system)$")
     content: str = Field(..., min_length=1)
-    nl_query_id: Optional[int] = None
+    nl_query_id: int | None = None
 
 
 class ConversationArtifactOut(BaseModel):
     id: int
     conversation_id: int
-    nl_query_id: Optional[int] = None
-    conversation_message_id: Optional[int] = None
+    nl_query_id: int | None = None
+    conversation_message_id: int | None = None
     artifact_type: str
-    kv_type: Optional[str] = None
+    kv_type: str | None = None
     config: dict
     artifact_hash: str
     created_at: datetime
@@ -68,23 +67,23 @@ class ConversationArtifactOut(BaseModel):
 
 class ConversationArtifactCreate(BaseModel):
     artifact_type: str = Field(..., pattern="^(chart|table)$")
-    kv_type: Optional[str] = None
+    kv_type: str | None = None
     config: dict
-    nl_query_id: Optional[int] = None
-    conversation_message_id: Optional[int] = None
+    nl_query_id: int | None = None
+    conversation_message_id: int | None = None
 
 
 class ConversationDetail(BaseModel):
     id: int
-    title: Optional[str]
+    title: str | None
     created_at: datetime
-    updated_at: Optional[datetime]
-    messages: List[ConversationMessageOut]
-    artifacts: List[ConversationArtifactOut] = []
+    updated_at: datetime | None
+    messages: list[ConversationMessageOut]
+    artifacts: list[ConversationArtifactOut] = []
 
 
 class ConversationUpdate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
+    title: str | None = Field(None, max_length=255)
 
 
 # ---------- Helpers ----------
@@ -104,7 +103,7 @@ def _ensure_owns_conversation(
     return convo
 
 
-def _last_message_preview(db: Session, conversation_id: int) -> Optional[str]:
+def _last_message_preview(db: Session, conversation_id: int) -> str | None:
     last_msg = (
         db.query(ConversationMessage)
         .filter(ConversationMessage.conversation_id == conversation_id)
@@ -118,7 +117,7 @@ def _last_message_preview(db: Session, conversation_id: int) -> Optional[str]:
 
 # ---------- Routes ----------
 
-@router.get("/", response_model=List[ConversationSummary])
+@router.get("/", response_model=list[ConversationSummary])
 def list_conversations(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
@@ -135,7 +134,7 @@ def list_conversations(
         .all()
     )
 
-    summaries: List[ConversationSummary] = []
+    summaries: list[ConversationSummary] = []
     for c in conversations:
         preview = _last_message_preview(db, c.id)
 
@@ -285,7 +284,7 @@ def delete_conversation(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get("/{conversation_id}/artifacts", response_model=List[ConversationArtifactOut])
+@router.get("/{conversation_id}/artifacts", response_model=list[ConversationArtifactOut])
 def get_conversation_artifacts(
     conversation_id: int,
     db: Session = Depends(get_db),

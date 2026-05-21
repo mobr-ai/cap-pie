@@ -7,8 +7,8 @@ No LLM-as-judge. We rely on:
 - Execution success + non-empty results (from execute_sparql()).
 - Final answer non-empty.
 """
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)

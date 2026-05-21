@@ -1,33 +1,31 @@
 """
 Metrics reporting API.
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_, cast, Float, Integer, select, case
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any, List
+from datetime import UTC, datetime, timedelta
 
-from cap.database.session import get_db
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import Float, Integer, and_, case, cast, func, or_, select
+from sqlalchemy.orm import Session
+
+from cap.core.auth_dependencies import get_current_admin_user
 from cap.database.model import (
+    ConversationMessage,
     Dashboard,
     DashboardItem,
-    QueryMetrics,
     KGMetrics,
-    DashboardMetrics,
+    QueryMetrics,
     User,
-    ConversationMessage,
 )
+from cap.database.session import get_db
 from cap.services.lang_detect_client import LanguageDetector
-from cap.core.auth_dependencies import get_current_admin_user
-
 
 router = APIRouter(prefix="/api/v1/metrics", tags=["metrics"])
 
 
 @router.get("/report")
 def get_aggregated_metrics(
-    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
-    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    start_date: str | None = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="End date (YYYY-MM-DD)"),
     db: Session = Depends(get_db),
 ):
     """Get aggregated metrics for all success dimensions."""
@@ -183,7 +181,7 @@ def get_aggregated_metrics(
     }
 
     # Dimension 5: Ecosystem Engagement (daily languages)
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     last_7_days = today - timedelta(days=7)
 
     daily_langs = (
@@ -272,8 +270,8 @@ def _query_metrics_to_dict(r: QueryMetrics) -> dict:
 
 
 def _locator_map_for_query_ids(
-    db: Session, query_ids: List[int]
-) -> Dict[int, Dict[str, Optional[int]]]:
+    db: Session, query_ids: list[int]
+) -> dict[int, dict[str, int | None]]:
     """
     Returns: { query_id: {"conversation_id": int|None, "conversation_message_id": int|None} }
 
@@ -317,7 +315,7 @@ def _locator_map_for_query_ids(
         .all()
     )
 
-    out: Dict[int, Dict[str, Optional[int]]] = {}
+    out: dict[int, dict[str, int | None]] = {}
     for r in rows:
         if r.qid is None:
             continue
@@ -453,9 +451,9 @@ def get_query_details_admin(
 def get_user_queries_admin(
     user_id: int,
     limit: int = Query(200, ge=1, le=1000),
-    q: Optional[str] = Query(None, description="Search text in nl_query (case-insensitive)"),
-    start_date: Optional[str] = Query(None, description="Start date (ISO or YYYY-MM-DD)"),
-    end_date: Optional[str] = Query(None, description="End date (ISO or YYYY-MM-DD)"),
+    q: str | None = Query(None, description="Search text in nl_query (case-insensitive)"),
+    start_date: str | None = Query(None, description="Start date (ISO or YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="End date (ISO or YYYY-MM-DD)"),
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin_user),
 ):
@@ -524,7 +522,7 @@ def get_user_query_summary_admin(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.now(UTC) - timedelta(days=days)
 
     stats = (
         db.query(

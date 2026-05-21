@@ -1,7 +1,7 @@
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 
 # Mainnet genesis / system start
-SYSTEM_START = datetime(2017, 9, 23, 21, 44, 51, tzinfo=timezone.utc)
+SYSTEM_START = datetime(2017, 9, 23, 21, 44, 51, tzinfo=UTC)
 
 # Byron-era parameters (mainnet)
 BYRON_SLOTS_PER_EPOCH = 21_600    # slots per epoch in Byron-era sources

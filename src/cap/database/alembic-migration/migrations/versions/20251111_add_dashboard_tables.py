@@ -5,9 +5,8 @@ Revises: 20251030_add_avatar_blob
 Create Date: 2025-11-11
 
 """
-from sqlalchemy import text
 from alembic import op
-import sqlalchemy as sa
+from sqlalchemy import text
 
 # revision identifiers, used by Alembic.
 revision = "20251111_add_dashboard_tables"

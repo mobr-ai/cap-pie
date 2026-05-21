@@ -13,15 +13,14 @@ Output format: one JSON object per line (no CSV), fields:
 - variant_type
 - cache_expected_hit (bool)  # mostly false by design
 """
-from pathlib import Path
 import json
 import random
+from pathlib import Path
 
 from cap.rdf.cache.query_normalizer import QueryNormalizer
-
 from evaluation.src.dataset.query_mapping_parser import parse_msgs_file
-from evaluation.src.dataset.variant_generators import generate_variants
 from evaluation.src.dataset.tag_inferer import infer_tags
+from evaluation.src.dataset.variant_generators import generate_variants
 
 
 def build_dataset(

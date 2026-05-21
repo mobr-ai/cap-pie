@@ -2,13 +2,13 @@
 SPARQL Results to Key-Value Converter for Blockchain Data
 Handles large integers (ADA amounts in lovelace) and nested structures
 """
-import logging
 import copy
-from typing import Any
-from decimal import Decimal, InvalidOperation
+import logging
 import re
+from decimal import Decimal, InvalidOperation
+from typing import Any
 
-from cap.util.str_util import is_hex_string, hex_to_string
+from cap.util.str_util import hex_to_string, is_hex_string
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def _detect_ada_variables(sparql_query: str) -> set[str]:
     )
 
     # Find value variables associated with these currencies
-    for currency_var, token_name_var in token_name_bindings:
+    for currency_var, _token_name_var in token_name_bindings:
         # Look for hasValue patterns with this currency variable
         # Pattern: ?tokenState b:hasCurrency ?currency ; b:hasValue ?value
         value_pattern = rf'\?(\w+)\s+(?:b:)?hasCurrency\s+\?{currency_var}\s*[;,]\s*(?:b:)?hasValue\s+\?(\w+)'
@@ -279,13 +279,6 @@ def _flatten_binding(binding: dict[str, Any], ada_variables: set[str] = None,
     if not binding:
         return result
 
-    # Check once if this binding has "Cardano ADA" as tokenName
-    has_cardano_ada_token = False
-    if 'tokenName' in binding:
-        token_name_obj = binding['tokenName']
-        token_name_value = token_name_obj.get('value', '') if isinstance(token_name_obj, dict) else str(token_name_obj)
-        has_cardano_ada_token = token_name_value.strip().lower() == 'cardano ada'
-
     for var_name, value_obj in binding.items():
         if not isinstance(value_obj, dict):
             result[var_name] = value_obj
@@ -399,7 +392,7 @@ def format_for_llm(kv_data: dict[str, Any], max_items: int = 10000) -> str:
         lines = [f"{count} records:"]
 
         for idx, item in enumerate(display_data, 1):
-            lines.append(f"\{idx}:")
+            lines.append(rf"\{idx}:")
             for key, value in item.items():
                 lines.append(f"  {key}: {_format_value(value)}")
 

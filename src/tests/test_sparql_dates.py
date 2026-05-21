@@ -1,12 +1,12 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from cap.util.sparql_util import force_limit_cap
 from cap.util.sparql_date_processor import SparqlDateProcessor
+from cap.util.sparql_util import force_limit_cap
 
 # Test suite
 if __name__ == "__main__":
     # Set a fixed reference time for consistent testing
-    test_time = datetime.now(timezone.utc)
+    test_time = datetime.now(UTC)
     processor = SparqlDateProcessor(reference_time=test_time)
 
     print("="*80)

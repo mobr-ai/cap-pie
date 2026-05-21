@@ -1,16 +1,13 @@
 # cap/src/services/admin_alerts_service.py
 
-from __future__ import annotations
-
-from typing import List, Optional
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from cap.database.model import AdminSetting, User
 from cap.mailing.event_triggers import (
+    on_admin_user_confirmed,
     on_admin_user_created,
     on_admin_waitlist_created,
-    on_admin_user_confirmed,
 )
 
 NEW_USER_CONFIG_KEY = "new_user_notifications"
@@ -41,9 +38,9 @@ def _set_config(db: Session, key: str, cfg: dict) -> dict:
     return row.value
 
 
-def _normalize_recipients(recipients: List[str]) -> List[str]:
+def _normalize_recipients(recipients: list[str]) -> list[str]:
     # Normalize recipients: strip, dedupe, drop empties
-    norm: List[str] = []
+    norm: list[str] = []
     seen = set()
     for r in recipients:
         r = (r or "").strip()
@@ -62,7 +59,7 @@ def get_new_user_notification_config(db: Session) -> dict:
     return _get_config(db, NEW_USER_CONFIG_KEY)
 
 
-def update_new_user_notification_config(db: Session, enabled: bool, recipients: List[str]) -> dict:
+def update_new_user_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
     cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
     return _set_config(db, NEW_USER_CONFIG_KEY, cfg)
 
@@ -101,7 +98,7 @@ def get_waitlist_notification_config(db: Session) -> dict:
     return _get_config(db, WAITLIST_CONFIG_KEY)
 
 
-def update_waitlist_notification_config(db: Session, enabled: bool, recipients: List[str]) -> dict:
+def update_waitlist_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
     cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
     return _set_config(db, WAITLIST_CONFIG_KEY, cfg)
 
@@ -109,8 +106,8 @@ def update_waitlist_notification_config(db: Session, enabled: bool, recipients: 
 def maybe_notify_admins_waitlist(
     db: Session,
     email: str,
-    ref: Optional[str] = None,
-    language: Optional[str] = None,
+    ref: str | None = None,
+    language: str | None = None,
     source: str = "waitlist",
 ) -> None:
     """
@@ -144,7 +141,7 @@ def get_user_confirmed_notification_config(db: Session) -> dict:
     return _get_config(db, USER_CONFIRMED_CONFIG_KEY)
 
 
-def update_user_confirmed_notification_config(db: Session, enabled: bool, recipients: List[str]) -> dict:
+def update_user_confirmed_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
     cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
     return _set_config(db, USER_CONFIRMED_CONFIG_KEY, cfg)
 
@@ -153,7 +150,7 @@ def maybe_notify_admins_user_confirmed(
     db: Session,
     user: User,
     source: str,
-    language: Optional[str] = None,
+    language: str | None = None,
 ) -> None:
     """
     Call this right after a user is confirmed (admin approval / access granted).

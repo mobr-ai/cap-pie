@@ -3,7 +3,7 @@ Redis client for caching SPARQL queries and natural language mappings.
 """
 import logging
 import re
-from typing import Optional, Tuple
+
 from opentelemetry import trace
 
 from cap.rdf.cache.placeholder_counters import PlaceholderCounters
@@ -21,9 +21,9 @@ class SPARQLNormalizer:
     def normalize(
         self,
         sparql_query: str,
-        counters: Optional[PlaceholderCounters] = None,
+        counters: PlaceholderCounters | None = None,
         normalize_query: bool = True
-    ) -> Tuple[str, dict[str, str]]:
+    ) -> tuple[str, dict[str, str]]:
         """Extract literals and instances from SPARQL, replace with typed placeholders."""
 
         if counters:
@@ -50,7 +50,7 @@ class SPARQLNormalizer:
         sparql_query: str,
         shared_counters: PlaceholderCounters,
         normalize_query: bool = True
-    ) -> Tuple[str, dict[str, str]]:
+    ) -> tuple[str, dict[str, str]]:
         """Normalize using externally managed counters for sequential queries."""
 
         self.counters = shared_counters  # Use shared counters
@@ -66,7 +66,7 @@ class SPARQLNormalizer:
 
         return sparql_spec, self.placeholder_map
 
-    def _extract_prefixes(self, sparql_query: str) -> Tuple[str, str]:
+    def _extract_prefixes(self, sparql_query: str) -> tuple[str, str]:
         """Extract PREFIX declarations from SPARQL."""
         prefix_pattern = r'^((?:PREFIX\s+\w+:\s*<[^>]+>\s*)+)'
         prefix_match = re.match(prefix_pattern, sparql_query, re.MULTILINE | re.IGNORECASE)

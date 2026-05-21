@@ -4,14 +4,12 @@ CLI: run evaluation with ablations, write a run folder.
 Example:
 python -m evaluation.scripts.run_evaluation --dataset evaluation/datasets/generated/nlq_eval_dataset.jsonl --outdir evaluation/runs/run_001
 """
-from __future__ import annotations
-
 import argparse
 import asyncio
 
+from evaluation.src.metrics.report import write_run_artifacts
 from evaluation.src.runner.ablations import default_configs
 from evaluation.src.runner.evaluate import evaluate_dataset
-from evaluation.src.metrics.report import write_run_artifacts
 
 
 def main():

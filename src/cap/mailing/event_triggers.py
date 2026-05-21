@@ -4,14 +4,11 @@ Mailing triggers for CAP.
 
 Thin wrappers around send_async_email so API/business code stays tidy.
 """
-
-from __future__ import annotations
-
 import os
-from typing import Iterable, Mapping, Any
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 from .email_service import send_async_email
-
 
 # -------------------------
 # Helpers / defaults

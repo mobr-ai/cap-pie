@@ -10,8 +10,7 @@ No I/O. No app dependencies. Trivially unit-testable.
 """
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +20,14 @@ _NEW_QUERIES_THRESHOLD: int = 100
 
 @dataclass
 class RegenerationState:
-    last_regenerated_at: Optional[datetime] = field(default=None)
+    last_regenerated_at: datetime | None = field(default=None)
     cached_since_last_regen: int = field(default=0)
 
     def record_new_cache(self) -> None:
         self.cached_since_last_regen += 1
 
     def record_regenerated(self) -> None:
-        self.last_regenerated_at = datetime.now(timezone.utc)
+        self.last_regenerated_at = datetime.now(UTC)
         self.cached_since_last_regen = 0
 
 
@@ -42,7 +41,7 @@ class EmbeddingRegenerationPolicy:
             return True
 
         elapsed_hours = (
-            datetime.now(timezone.utc) - state.last_regenerated_at
+            datetime.now(UTC) - state.last_regenerated_at
         ).total_seconds() / 3600
 
         if elapsed_hours >= _REGENERATION_INTERVAL_HOURS:

@@ -1,12 +1,14 @@
 # cap/core/auth_dependencies.py
-from typing import Optional, Callable, Dict, Any
-from fastapi import Depends, HTTPException, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
-from sqlalchemy import select
+from collections.abc import Callable
+from typing import Any
 
-from cap.database.session import get_db
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from cap.database.model import User
+from cap.database.session import get_db
 
 try:
     from cap.core.security import decode_access_token as _decode_token
@@ -17,7 +19,7 @@ except Exception:
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-def _extract_token(request: Request, creds: Optional[HTTPAuthorizationCredentials]) -> Optional[str]:
+def _extract_token(request: Request, creds: HTTPAuthorizationCredentials | None) -> str | None:
     """Get access token from Authorization header, cookie, or query string."""
     if creds and creds.scheme.lower() == "bearer" and creds.credentials:
         return creds.credentials
@@ -35,7 +37,7 @@ def _extract_token(request: Request, creds: Optional[HTTPAuthorizationCredential
     return None
 
 
-def _decode(token: str) -> Dict[str, Any]:
+def _decode(token: str) -> dict[str, Any]:
     """Decode/verify a JWT using whatever helper your project exposes."""
     if not token:
         raise HTTPException(
@@ -54,7 +56,7 @@ def _decode(token: str) -> Dict[str, Any]:
     )
 
 
-def _extract_user_id(payload: Dict[str, Any]) -> int:
+def _extract_user_id(payload: dict[str, Any]) -> int:
     """
     Pull the user id from common JWT shapes:
     - {"sub": "123"}  (string)
@@ -62,12 +64,16 @@ def _extract_user_id(payload: Dict[str, Any]) -> int:
     """
     uid = payload.get("sub") or payload.get("uid") or payload.get("user_id")
     if uid is None:
-        raise HTTPException(401, detail="invalidToken")
+        raise HTTPException(
+            401, detail="invalidToken"
+        )
 
     try:
         return int(uid)
-    except Exception:
-        raise HTTPException(401, detail="invalidToken")
+    except Exception as e:
+        raise HTTPException(
+            401, detail="invalidToken"
+        ) from e
 
 
 def _current_user_factory(require_confirmed: bool = True) -> Callable:
@@ -80,7 +86,7 @@ def _current_user_factory(require_confirmed: bool = True) -> Callable:
     def _dep(
         request: Request,
         db: Session = Depends(get_db),
-        creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+        creds: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     ) -> User:
         token = _extract_token(request, creds)
         if not token:

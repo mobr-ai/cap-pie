@@ -1,14 +1,14 @@
 """
 Cache administration endpoints for pre-caching and management.
 """
-import logging
-from typing import Optional
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from pydantic import BaseModel, Field
-from opentelemetry import trace
-import tempfile
-import os
 import json
+import logging
+import os
+import tempfile
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from opentelemetry import trace
+from pydantic import BaseModel, Field
 
 from cap.services.redis_nl_client import get_redis_nl_client
 
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/v1/admin/cache", tags=["cache"])
 class PrecacheRequest(BaseModel):
     """Request model for pre-caching from file path."""
     file_path: str = Field(..., description="Path to the query mappings file")
-    ttl: Optional[int] = Field(None, description="TTL in seconds (optional)")
+    ttl: int | None = Field(None, description="TTL in seconds (optional)")
 
 
 class PrecacheStats(BaseModel):
@@ -75,12 +75,14 @@ async def precache_from_file_path(request: PrecacheRequest):
             raise
         except Exception as e:
             logger.error(f"Pre-caching error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e
 
 @router.post("/precache/upload", response_model=PrecacheStats)
 async def precache_from_upload(
     file: UploadFile = File(..., description="Query mappings file"),
-    ttl: Optional[int] = None
+    ttl: int | None = None
 ):
     """
     Pre-cache natural language queries from an uploaded file.
@@ -127,7 +129,9 @@ async def precache_from_upload(
 
         except Exception as e:
             logger.error(f"Upload pre-caching error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e
 
 
 @router.delete("/clear")
@@ -173,7 +177,9 @@ async def clear_cache():
 
         except Exception as e:
             logger.error(f"Cache clear error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e
 
 @router.get("/info")
 async def get_cache_info():
@@ -223,18 +229,20 @@ async def get_cache_info():
 
         except Exception as e:
             logger.error(f"Cache info error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e
 
 
 @router.get("/info/nl")
-async def get_cache_info():
+async def get_nl_cache_info():
     """
     Get all cached natural language queries.
 
     Returns:
         Cached queries
     """
-    with tracer.start_as_current_span("cache_info_nl") as span:
+    with tracer.start_as_current_span("cache_info_nl"):
         try:
             redis_client = get_redis_nl_client()
 
@@ -249,4 +257,6 @@ async def get_cache_info():
 
         except Exception as e:
             logger.error(f"Cache nl error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e

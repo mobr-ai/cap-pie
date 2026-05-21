@@ -1,15 +1,14 @@
-from typing import Any, Dict, Literal, Optional, List
-
 from datetime import datetime
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from cap.core.auth_dependencies import get_current_user
+from cap.database.model import Conversation, Dashboard, DashboardItem
 from cap.database.session import get_db
 from cap.services.metrics_service import MetricsService
-from cap.database.model import Dashboard, DashboardItem, Conversation
-from cap.core.auth_dependencies import get_current_user
 
 router = APIRouter(
     prefix="/api/v1/dashboard",
@@ -20,7 +19,7 @@ router = APIRouter(
 
 class DashboardBase(BaseModel):
     name: str = Field(..., max_length=100)
-    description: Optional[str] = Field(None, max_length=255)
+    description: str | None = Field(None, max_length=255)
 
 
 class DashboardOut(DashboardBase):
@@ -36,14 +35,14 @@ class DashboardCreate(DashboardBase):
 class DashboardItemBase(BaseModel):
     artifact_type: str = Field(..., pattern="^(table|chart)$")
     title: str = Field(..., max_length=150)
-    source_query: Optional[str] = Field(None, max_length=1000)
+    source_query: str | None = Field(None, max_length=1000)
     config: dict
 
-    conversation_message_id: Optional[int] = Field(
+    conversation_message_id: int | None = Field(
         None, description="Originating conversation message id"
     )
 
-    conversation_id: Optional[int] = Field(
+    conversation_id: int | None = Field(
         None, description="Originating conversation id"
     )
 
@@ -54,29 +53,29 @@ class DashboardItemOut(DashboardItemBase):
     position: int
 
     # index-of-total, only valid when order=position (manual)
-    position_min: Optional[int] = None
-    position_max: Optional[int] = None
+    position_min: int | None = None
+    position_max: int | None = None
 
     # tells frontend whether move up/down should be enabled
     can_reorder: bool = False
 
     created_at: datetime
-    conversation_title: Optional[str] = None
+    conversation_title: str | None = None
     model_config = {"from_attributes": True}
 
 
 class PinRequest(DashboardItemBase):
-    dashboard_id: Optional[int] = None  # null → use/create default
+    dashboard_id: int | None = None  # null → use/create default
 
 
 class DashboardItemUpdate(BaseModel):
-    title: Optional[str] = Field(None, max_length=150)
-    config_patch: Optional[Dict[str, Any]] = Field(default=None)
+    title: str | None = Field(None, max_length=150)
+    config_patch: dict[str, Any] | None = Field(default=None)
     # legacy
-    move: Optional[Literal["up", "down"]] = None
+    move: Literal["up", "down"] | None = None
     # explicit swap target (visual order)
-    swap_with_id: Optional[int] = None
-    order: Optional[str] = None
+    swap_with_id: int | None = None
+    order: str | None = None
 
 # ---------- Helpers ----------
 def _item_position_index(
@@ -189,8 +188,8 @@ def _deep_merge(dst: dict, src: dict) -> dict:
 
 # ---------- Routes: Dashboards ----------
 
-@router.get("/", response_model=List[DashboardOut])
-@router.get("", response_model=List[DashboardOut])
+@router.get("/", response_model=list[DashboardOut])
+@router.get("", response_model=list[DashboardOut])
 def list_dashboards(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
@@ -204,10 +203,10 @@ def list_dashboards(
 
 # ---------- Routes: Items ----------
 
-@router.get("/{dashboard_id}/items", response_model=List[DashboardItemOut])
+@router.get("/{dashboard_id}/items", response_model=list[DashboardItemOut])
 def list_items(
     dashboard_id: int,
-    order: Optional[str] = "position",
+    order: str | None = "position",
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
@@ -237,7 +236,7 @@ def list_items(
     manual = (order == "position")
     total = len(rows)
 
-    out: List[DashboardItemOut] = []
+    out: list[DashboardItemOut] = []
     for i, (item, convo_title) in enumerate(rows, start=1):
         out.append(
             DashboardItemOut(

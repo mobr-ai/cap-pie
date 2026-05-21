@@ -12,10 +12,9 @@ This preprocessor handles:
 - Preserves query structure and formatting
 """
 
-import re
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple
 import logging
+import re
+from datetime import UTC, datetime, timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -63,7 +62,7 @@ class SparqlDateProcessor:
         re.IGNORECASE | re.MULTILINE
     )
 
-    def __init__(self, reference_time: Optional[datetime] = None):
+    def __init__(self, reference_time: datetime | None = None):
         """
         Initialize the processor.
 
@@ -77,7 +76,7 @@ class SparqlDateProcessor:
         """Get the current time or reference time for calculations"""
         if self.reference_time:
             return self.reference_time
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
 
     def _parse_duration(self, duration_str: str) -> timedelta:
         """
@@ -163,7 +162,9 @@ class SparqlDateProcessor:
         try:
             return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
         except Exception as e:
-            raise DurationParseError(f"Failed to create timedelta: {e}")
+            raise DurationParseError(
+                f"Failed to create timedelta: {e}"
+            ) from e
 
     def _parse_datetime_literal(self, datetime_str: str) -> datetime:
         """
@@ -229,7 +230,7 @@ class SparqlDateProcessor:
             datetime_expr = match.group(2)  # NOW() or dateTime literal
             operator = match.group(3)  # '+' or '-'
             duration_str = match.group(4)  # e.g., "P7D"
-            duration_type = match.group(5)  # dayTimeDuration, duration, etc.
+            #duration_type = match.group(5)  # dayTimeDuration, duration, etc.
             suffix = match.group(6)  # Everything after the duration
 
             # Determine base datetime
@@ -287,7 +288,7 @@ class SparqlDateProcessor:
             datetime_expr = match.group(1)  # NOW() or dateTime literal
             operator = match.group(2)  # '+' or '-'
             duration_str = match.group(3)  # e.g., "P7D"
-            duration_type = match.group(4)  # dayTimeDuration, duration, etc.
+            #duration_type = match.group(4)  # dayTimeDuration, duration, etc.
             variable = match.group(5)  # e.g., ?oneWeekAgo
 
             # Determine base datetime
@@ -332,7 +333,7 @@ class SparqlDateProcessor:
             logger.error(f"Original: {match.group(0)}")
             return match.group(0)
 
-    def process(self, query: str) -> Tuple[str, int]:
+    def process(self, query: str) -> tuple[str, int]:
         """
         Process a SPARQL query and resolve all date arithmetic in BIND and FILTER statements.
 

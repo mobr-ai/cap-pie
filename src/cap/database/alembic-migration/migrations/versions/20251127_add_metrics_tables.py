@@ -4,8 +4,8 @@ Revision ID: 20251127_add_metrics_tables
 Revises: 20251111_add_dashboard_tables
 Create Date: 2025-11-27
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "20251127_add_metrics_tables"

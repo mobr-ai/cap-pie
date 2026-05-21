@@ -1,7 +1,6 @@
 """Formatter for converting cached queries into LLM message format."""
-import json
-from typing import List, Dict, Any, Optional
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -11,9 +10,9 @@ class MessageFormatter:
 
     @staticmethod
     def format_similar_queries_to_examples(
-        similar_queries: List[Dict[str, Any]],
+        similar_queries: list[dict[str, Any]],
         max_examples: int = 3
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """
         Format similar queries as few-shot examples.
 
@@ -37,7 +36,7 @@ class MessageFormatter:
 
     @staticmethod
     def append_examples_to_prompt(
-        examples: List[Dict[str, str]],
+        examples: list[dict[str, str]],
         existing_prompt: str,
         include_separator: bool = True
     ) -> str:

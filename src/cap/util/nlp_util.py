@@ -1,5 +1,6 @@
-import simplemma
 import logging
+
+import simplemma
 from opentelemetry import trace
 
 logger = logging.getLogger(__name__)

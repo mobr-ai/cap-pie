@@ -1,13 +1,14 @@
 """
 llm client tests
 """
-import logging
-import json
-import sys
 import asyncio
+import json
+import logging
+import sys
 
 from cap.services.llm_client import LLMClient
 from cap.util.sparql_util import _clean_sparql
+
 
 async def test_health_check():
     """Test 1: Health Check - Verify llm service is running."""

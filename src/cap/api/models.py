@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field
-from enum import Enum
-from typing import Optional, Any
+from enum import StrEnum
+from typing import Any
 
-class QueryType(str, Enum):
+from pydantic import BaseModel, Field
+
+
+class QueryType(StrEnum):
     SELECT = "SELECT"
     ASK = "ASK"
     CONSTRUCT = "CONSTRUCT"
@@ -20,9 +22,9 @@ class GraphCreateRequest(BaseModel):
     turtle_data: str = Field(..., description="RDF data in Turtle format")
 
 class GraphUpdateRequest(BaseModel):
-    insert_data: Optional[str] = Field(None, description="Triples to insert in Turtle format")
-    delete_data: Optional[str] = Field(None, description="Triples to delete in Turtle format")
-    prefixes: Optional[dict[str, str]] = Field(None, description="Prefix mappings")
+    insert_data: str | None = Field(None, description="Triples to insert in Turtle format")
+    delete_data: str | None = Field(None, description="Triples to delete in Turtle format")
+    prefixes: dict[str, str] | None = Field(None, description="Prefix mappings")
 
 class GraphResponse(BaseModel):
     data: dict[str, Any]

@@ -3,14 +3,14 @@ Test script for the Natural Language Query Pipeline.
 Run this to verify nl components are working correctly.
 Not for pytest
 """
-import logging
-import asyncio
 import argparse
+import asyncio
+import logging
 import time
 from pathlib import Path
 
-from cap.services.llm_client import LLMClient
 from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.services.llm_client import LLMClient
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.ERROR)
@@ -56,13 +56,13 @@ class NLNormalizationTester:
             print(f"\nTotal Queries: {total_queries}")
             print(f"Successful: {successful}")
             print(f"Failed: {failed}")
-            print(f"\nExecution Times:")
+            print("\nExecution Times:")
             print(f"  Average: {avg_time:.2f}s")
             print(f"  Minimum: {min_time:.2f}s")
             print(f"  Maximum: {max_time:.2f}s")
             print(f"  Total: {sum(execution_times):.2f}s")
 
-            print(f"\nPer-Query Breakdown:")
+            print("\nPer-Query Breakdown:")
             for m in self.metrics:
                 status_icon = "v" if m['status'] == 'success' else "x"
                 print(f"  {status_icon} {m['execution_time']:.2f}s - {m['query'][:60]}...")
@@ -75,29 +75,29 @@ class NLNormalizationTester:
         print(f"Testing normalization of: {query}")
         print("="*60)
 
-#        try:
-        normalized = QueryNormalizer.normalize(query)
-        # Store the query pair
-        self.query_pairs.append((query, normalized))
+        try:
+            normalized = QueryNormalizer.normalize(query)
+            # Store the query pair
+            self.query_pairs.append((query, normalized))
 
-        if expected:
-            assert normalized == expected
+            if expected:
+                assert normalized == expected
 
-        query_category = LLMClient._categorize_query(query, "multiple")
-        print(f"{query} normalizes to '{normalized}' on category {query_category}")
-        return True
+            query_category = LLMClient._categorize_query(query, "multiple")
+            print(f"{query} normalizes to '{normalized}' on category {query_category}")
+            return True
 
-#        except Exception as e:
-        execution_time = time.time() - start_time
-        print(f"\nx Query failed: {e}")
-        print(f"Time before failure: {execution_time:.2f} seconds")
+        except Exception as e:
+            execution_time = time.time() - start_time
+            print(f"\nx Query failed: {e}")
+            print(f"Time before failure: {execution_time:.2f} seconds")
 
-        self.metrics.append({
-            'query': query,
-            'execution_time': execution_time,
-            'status': 'failed',
-            'error': str(e)
-        })
+            self.metrics.append({
+                'query': query,
+                'execution_time': execution_time,
+                'status': 'failed',
+                'error': str(e)
+            })
 
         return False
 
@@ -121,7 +121,7 @@ class NLNormalizationTester:
             for query in nl_queries:
                 if query.strip() and not query.strip().startswith("#"):
                     result = await self.test_query(query)
-                    assert result, f"Query failed"
+                    assert result, "Query failed"
 
                     print(f"✓ Test passed for query\n    {query}")
 

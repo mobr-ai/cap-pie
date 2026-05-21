@@ -8,12 +8,12 @@ Design goals:
 
 We intentionally keep synonym selection deterministic under a random seed.
 """
-from dataclasses import dataclass
 import random
 import re
+from dataclasses import dataclass
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
 from cap.rdf.cache.pattern_registry import PatternRegistry
+from cap.rdf.cache.query_normalizer import QueryNormalizer
 
 
 @dataclass(frozen=True)

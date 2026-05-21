@@ -5,8 +5,8 @@ Revises: 20251205_admin_settings
 Create Date: 2025-12-11
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "20251211_add_user_conversations"

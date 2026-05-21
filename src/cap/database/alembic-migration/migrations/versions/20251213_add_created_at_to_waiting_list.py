@@ -5,8 +5,8 @@ Revises: 20251205_add_admin_settings_table
 Create Date: 2025-12-13
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "20251213_add_created_at_to_waiting_list"

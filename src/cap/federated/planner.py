@@ -90,12 +90,14 @@ User Question:
     def _parse_json(raw: str) -> dict[str, Any]:
         try:
             return json.loads(raw)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             start = raw.find("{")
             end = raw.rfind("}")
             if start >= 0 and end > start:
                 return json.loads(raw[start:end + 1])
-            raise ValueError(f"LLM did not return valid federated JSON: {raw[:500]}")
+            raise ValueError(
+                f"LLM did not return valid federated JSON: {raw[:500]}"
+            ) from e
 
     @staticmethod
     def _infer_source(sparql: str, sql: str) -> str:

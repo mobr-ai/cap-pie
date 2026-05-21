@@ -1,18 +1,17 @@
 # cap/src/cap/api/user.py
 import hashlib
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response, Header
-from starlette.responses import StreamingResponse
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Response, UploadFile
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+from starlette.responses import StreamingResponse
 
-from cap.database.session import get_db
-from cap.database.model import User
 from cap.core.auth_dependencies import get_current_user
 from cap.core.security import generate_unique_username
+from cap.database.model import User
+from cap.database.session import get_db
 
 router = APIRouter(prefix="/api/v1/user", tags=["user"])
 
@@ -175,7 +174,7 @@ async def upload_avatar(
 def get_avatar(
     user_id: int,
     db: Session = Depends(get_db),
-    if_none_match: Optional[str] = Header(default=None),
+    if_none_match: str | None = Header(default=None),
 ):
     user = db.scalar(select(User).where(User.user_id == user_id))
     if not user or not getattr(user, "avatar_blob", None) or not getattr(user, "avatar_mime", None):
@@ -225,7 +224,7 @@ def delete_avatar(
 def _generate_anonymous_username(user_id: int) -> str:
     # Unique, stable-ish placeholder that satisfies USERNAME_REGEX
     # e.g. deleted_12345_20251031
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d")
+    ts = datetime.now(UTC).strftime("%Y%m%d")
     return f"deleted_{user_id}_{ts}"
 
 
@@ -278,4 +277,6 @@ def delete_user_account(
         return {"message": "User deleted, content preserved", "username": anon_username}
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500, detail=str(e)
+        ) from e

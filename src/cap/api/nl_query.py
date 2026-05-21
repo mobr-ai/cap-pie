@@ -5,26 +5,26 @@ Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
 """
 import logging
 import re
-from typing import Optional, AsyncGenerator, Tuple
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from opentelemetry import trace
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from opentelemetry import trace
 
-from cap.database.session import get_db
-from cap.database.model import User, ConversationMessage, QueryMetrics
 from cap.core.auth_dependencies import get_current_user_unconfirmed
-from cap.services.nl_service import query_with_stream_response
-from cap.services.redis_nl_client import get_redis_nl_client
-from cap.services.llm_client import get_llm_client
+from cap.database.model import ConversationMessage, QueryMetrics, User
+from cap.database.session import get_db
 from cap.services.conversation_persistence import (
-    start_conversation_and_persist_user,
     persist_assistant_message_and_touch,
     persist_conversation_artifact_from_raw_kv,
+    start_conversation_and_persist_user,
 )
+from cap.services.llm_client import get_llm_client
+from cap.services.nl_service import query_with_stream_response
+from cap.services.redis_nl_client import get_redis_nl_client
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -37,8 +37,8 @@ router = APIRouter(prefix="/api/v1/nl", tags=["llm"])
 
 class NLQueryRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000)
-    context: Optional[str] = None
-    conversation_id: Optional[int] = Field(
+    context: str | None = None
+    conversation_id: int | None = Field(
         None,
         description="Existing conversation id (omit/null to start a new one)",
     )
@@ -55,7 +55,7 @@ class NLQueryRequest(BaseModel):
 _INLINE_DONE_RE = re.compile(r"(?:data:\s*)?\[DONE\]")
 
 
-def split_inline_done(payload: str) -> Tuple[str, bool]:
+def split_inline_done(payload: str) -> tuple[str, bool]:
     """
     Upstream streams (or proxies) may accidentally concatenate `data: [DONE]`
     onto the end of a normal payload without a newline, e.g.:
@@ -78,7 +78,7 @@ def split_inline_done(payload: str) -> Tuple[str, bool]:
     before = re.sub(r"(?:\s*data:\s*)$", "", before)
     return before, True
 
-def strip_any_done_markers(text: str) -> Tuple[str, bool]:
+def strip_any_done_markers(text: str) -> tuple[str, bool]:
     before, hit = split_inline_done(text)
     return before, hit
 
@@ -92,7 +92,7 @@ def sse_data(payload: str) -> bytes:
     return ("data: " + str(payload) + "\n").encode("utf-8")
 
 def iter_word_safe_chunks(text: str, max_len: int = 96):
-    """
+    r"""
     Yield chunks without splitting inside words.
 
     Consumes tokens as: non-space + trailing whitespace (\S+\s*).
@@ -166,7 +166,9 @@ async def get_top_queries(limit: int = 5):
             }
         except Exception as e:
             logger.error(f"Error fetching top queries: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(
+                status_code=500, detail=str(e)
+            ) from e
 
 
 # ---------------------------------------------------------------------
@@ -177,7 +179,7 @@ async def get_top_queries(limit: int = 5):
 async def natural_language_query(
     request: NLQueryRequest,
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user_unconfirmed),
+    current_user: User | None = Depends(get_current_user_unconfirmed),
 ):
     """
     Process natural language query with streaming + unified conversation persistence.
@@ -228,7 +230,7 @@ async def natural_language_query(
         # -----------------------------------------------------------------
         # 2) Stream + persist artifacts + assistant message
         # -----------------------------------------------------------------
-        def _find_recent_query_metrics_id() -> Optional[int]:
+        def _find_recent_query_metrics_id() -> int | None:
             if current_user is None:
                 return None
 
@@ -310,17 +312,17 @@ async def natural_language_query(
                 # We'll handle this by accumulating into a local buffer per-iteration.
                 # (Keep it inside generator state.)
                 if not hasattr(stream_and_persist, "_carry"):
-                    setattr(stream_and_persist, "_carry", "")
-                carry = getattr(stream_and_persist, "_carry")
+                    stream_and_persist._carry = ""
+                carry = stream_and_persist._carry
                 carry += text
                 lines = carry.splitlines(keepends=False)
 
                 # If the chunk did not end in a newline, last element is incomplete.
                 # Keep it in carry for next iteration.
                 if carry and not carry.endswith("\n") and not carry.endswith("\r\n"):
-                    setattr(stream_and_persist, "_carry", lines.pop() if lines else carry)
+                    stream_and_persist._carry = lines.pop() if lines else carry
                 else:
-                    setattr(stream_and_persist, "_carry", "")
+                    stream_and_persist._carry = ""
 
                 for raw_line in lines:
                     line = raw_line.rstrip("\r")
