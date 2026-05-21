@@ -27,7 +27,8 @@ from cap.services.conversation_persistence import (
 )
 from cap.services.billing_access import (
     BillingAccessDenied,
-    reserve_nl_query_access,
+    check_nl_query_access,
+    consume_nl_query_success,
 )
 
 logger = logging.getLogger(__name__)
@@ -99,7 +100,7 @@ def iter_word_safe_chunks(text: str, max_len: int = 96):
     """
     Yield chunks without splitting inside words.
 
-    Consumes tokens as: non-space + trailing whitespace (\S+\s*).
+    Consumes tokens as: non-space + trailing whitespace (\\S+\\s*).
     Preserves spaces exactly; avoids 'thiswould' / 'mint ed' regressions
     caused by fixed-width slicing or trimming.
     """
@@ -130,6 +131,29 @@ def iter_word_safe_chunks(text: str, max_len: int = 96):
 
     if buf:
         yield buf
+
+def is_billable_assistant_text(text: str) -> bool:
+    value = (text or "").strip()
+    if not value:
+        return False
+
+    lowered = value.lower()
+
+    non_billable_markers = (
+        "error:",
+        "error generating answer",
+        "client error",
+        "server error",
+        "http error",
+        "unauthorized",
+        "for more information check:",
+        "failed to generate",
+        "failed to execute",
+    )
+
+    return not any(marker in lowered for marker in non_billable_markers)
+
+
 
 def parse_sse_payload_from_line(line: str) -> str:
     """
@@ -199,7 +223,7 @@ async def natural_language_query(
             raise HTTPException(status_code=401, detail="authenticationRequired")
 
         try:
-            billing_access = reserve_nl_query_access(db, current_user)
+            billing_access = check_nl_query_access(db, current_user)
             span.set_attribute("billing.access_mode", billing_access.get("access_mode", "unknown"))
             span.set_attribute("billing.free_query_remaining", billing_access.get("free_query_remaining", 0))
         except BillingAccessDenied as exc:
@@ -518,6 +542,19 @@ async def natural_language_query(
                         )
 
                     db.commit()
+
+                    if current_user is not None and is_billable_assistant_text(assistant_text):
+                        try:
+                            next_access = consume_nl_query_success(db, current_user)
+                            span.set_attribute(
+                                "billing.free_query_remaining_after",
+                                next_access.get("free_query_remaining", 0),
+                            )
+                        except Exception as billing_err:
+                            logger.error(
+                                "Failed to consume successful NL query usage: %s",
+                                billing_err,
+                            )
                 except Exception as e:
                     db.rollback()
                     logger.error(f"Failed to persist assistant message: {e}")

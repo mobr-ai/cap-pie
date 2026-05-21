@@ -234,6 +234,56 @@ def get_billing_access_state(
     }
 
 
+
+def check_nl_query_access(db: Session, user: User) -> dict[str, Any]:
+    state = get_billing_access_state(db, user, create_usage_period=False)
+
+    if not state.get("can_query"):
+        raise BillingAccessDenied(
+            {
+                "code": state.get("blocked_reason") or "billingAccessDenied",
+                "message": "Query access is not available.",
+                "access": state,
+            }
+        )
+
+    return state
+
+
+def consume_nl_query_success(db: Session, user: User) -> dict[str, Any]:
+    config = _feature_config(db, FEATURE_NL_QUERY)
+    now = _utcnow()
+    period_start, period_end = _period_window(now, config.period_days)
+
+    entitlement = _active_premium_entitlement(db, user.user_id)
+
+    if entitlement is not None:
+        return get_billing_access_state(db, user, create_usage_period=False)
+
+    usage = _usage_row(
+        db,
+        user_id=user.user_id,
+        feature_code=config.feature_code,
+        period_start=period_start,
+        period_end=period_end,
+        limit_count=config.free_limit_count,
+        create=True,
+        lock=True,
+    )
+
+    used_count = int(usage.used_count or 0)
+    limit_count = int(usage.limit_count or config.free_limit_count)
+
+    if used_count < limit_count:
+        usage.used_count = used_count + 1
+        usage.limit_count = limit_count
+        usage.updated_at = _to_db_naive_utc(now)
+        db.add(usage)
+        db.commit()
+
+    return get_billing_access_state(db, user, create_usage_period=False)
+
+
 def reserve_nl_query_access(db: Session, user: User) -> dict[str, Any]:
     config = _feature_config(db, FEATURE_NL_QUERY)
     now = _utcnow()
