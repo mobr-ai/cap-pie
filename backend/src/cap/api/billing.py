@@ -45,6 +45,10 @@ class VerifyCardanoPaymentIn(BaseModel):
     tx_hash: str
 
 
+class ActivatePlanFromBalanceIn(BaseModel):
+    plan_code: str = "cap_premium_access"
+
+
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -178,6 +182,102 @@ def _grant_entitlement(
     )
     db.add(entitlement)
     return entitlement
+
+
+def _grant_entitlement_from_balance(
+    db: Session,
+    *,
+    user: User,
+    entitlement_code: str,
+    duration_days: int,
+) -> UserEntitlement:
+    now = _utcnow()
+    starts_at = now
+
+    existing = db.scalar(
+        select(UserEntitlement)
+        .where(
+            UserEntitlement.user_id == user.user_id,
+            UserEntitlement.entitlement_code == entitlement_code,
+            UserEntitlement.status == "active",
+        )
+        .order_by(UserEntitlement.expires_at.desc(), UserEntitlement.id.desc())
+    )
+
+    if existing:
+        existing_expires = _from_db_naive_utc(existing.expires_at)
+        base = existing_expires if existing_expires and existing_expires > now else now
+        existing.expires_at = _to_db_naive_utc(base + timedelta(days=int(duration_days)))
+        existing.source = "balance_purchase"
+        existing.payment_session_id = None
+        db.add(existing)
+        db.flush()
+        return existing
+
+    entitlement = UserEntitlement(
+        user_id=user.user_id,
+        entitlement_code=entitlement_code,
+        source="balance_purchase",
+        payment_session_id=None,
+        starts_at=_to_db_naive_utc(starts_at),
+        expires_at=_to_db_naive_utc(starts_at + timedelta(days=int(duration_days))),
+        status="active",
+    )
+    db.add(entitlement)
+    db.flush()
+    return entitlement
+
+
+def _debit_user_balance_for_entitlement(
+    db: Session,
+    *,
+    user: User,
+    amount_lovelace: int,
+    reason: str,
+    entitlement: UserEntitlement,
+    metadata: dict | None = None,
+) -> UserCreditBalance:
+    balance = db.scalar(
+        select(UserCreditBalance)
+        .where(
+            UserCreditBalance.user_id == user.user_id,
+            UserCreditBalance.currency == "lovelace",
+        )
+        .with_for_update()
+    )
+
+    current_balance = int(balance.balance or 0) if balance else 0
+
+    if current_balance < int(amount_lovelace):
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "code": "insufficientBalance",
+                "balance_lovelace": current_balance,
+                "required_lovelace": int(amount_lovelace),
+                "missing_lovelace": int(amount_lovelace) - current_balance,
+            },
+        )
+
+    balance.balance = current_balance - int(amount_lovelace)
+    balance.updated_at = _to_db_naive_utc(_utcnow())
+    db.add(balance)
+    db.flush()
+
+    ledger = UserCreditLedger(
+        user_id=user.user_id,
+        currency="lovelace",
+        amount=-int(amount_lovelace),
+        balance_after=int(balance.balance),
+        reason=reason,
+        related_entitlement_id=entitlement.id,
+        metadata_json=metadata or {},
+    )
+    db.add(ledger)
+    db.flush()
+
+    return balance
+
 
 
 def _get_or_create_credit_balance(
@@ -587,6 +687,66 @@ def verify_cardano_payment(
             "starts_at": _format_utc(entitlement.starts_at),
             "expires_at": _format_utc(entitlement.expires_at),
         },
+    }
+
+
+
+@router.post("/balance/activate-plan")
+def activate_plan_from_balance(
+    data: ActivatePlanFromBalanceIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    plan_code = data.plan_code or "cap_premium_access"
+    plan, price, _payment_address = _active_plan_bundle(db, plan_code, _network())
+
+    if price.currency != "lovelace":
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "unsupportedBalanceCurrency",
+                "currency": price.currency,
+            },
+        )
+
+    entitlement = _grant_entitlement_from_balance(
+        db,
+        user=current_user,
+        entitlement_code=plan.entitlement_code,
+        duration_days=price.duration_days,
+    )
+
+    balance = _debit_user_balance_for_entitlement(
+        db,
+        user=current_user,
+        amount_lovelace=price.amount,
+        reason="premium_activation",
+        entitlement=entitlement,
+        metadata={
+            "plan_code": plan.code,
+            "entitlement_code": plan.entitlement_code,
+            "duration_days": price.duration_days,
+            "network": price.network,
+            "currency": price.currency,
+            "amount_lovelace": price.amount,
+            "source": "balance",
+        },
+    )
+
+    db.commit()
+    db.refresh(entitlement)
+    db.refresh(balance)
+
+    return {
+        "entitlement": {
+            "entitlement_code": entitlement.entitlement_code,
+            "source": entitlement.source,
+            "status": entitlement.status,
+            "starts_at": _format_utc(entitlement.starts_at),
+            "expires_at": _format_utc(entitlement.expires_at),
+        },
+        "credit_balance": _credit_balance_payload(balance),
+        "access": get_billing_access_state(db, current_user),
     }
 
 
