@@ -258,10 +258,14 @@ export function useLandingStreamManager({
 
       if (viewing) {
         landing.clearStatus();
-        const msg = billingLimitDetail
-          ? t("billingAccess.paywall.message")
-          : err?.message || t("landing.unexpectedError");
-        addMessage("error", msg);
+
+        if (billingLimitDetail) {
+          landing.dropAllStreamingAssistants();
+          addMessage("assistant", t("billingAccess.paywall.message"));
+        } else {
+          const msg = err?.message || t("landing.unexpectedError");
+          addMessage("error", msg);
+        }
       } else {
         landing.dropAllStreamingAssistants();
       }

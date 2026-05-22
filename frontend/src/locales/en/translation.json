@@ -743,7 +743,7 @@
       "billing": "Billing & Access"
     },
     "paywall": {
-      "message": "You reached your free query limit. Open Billing & Access to activate Premium or add Balance.",
+      "message": "You reached your free query limit. Open [Billing & Access](/settings) to add Balance and activate Premium.",
       "toast": "Free query limit reached. Open Billing & Access to continue."
     }
   }
