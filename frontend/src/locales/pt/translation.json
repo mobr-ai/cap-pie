@@ -658,7 +658,7 @@
     "premiumDescription": "Ative análises premium por 30 dias. Renovação automática usando saldo virá em seguida.",
     "unlock": "Desbloquear",
     "renew": "Renovar",
-    "connectWallet": "Conectar carteira de pagamento",
+    "connectWallet": "Conectar carteira",
     "connectedWallet": "Conectada: {{wallet}}",
     "connectHint": "Conecte uma carteira Cardano para iniciar o fluxo de pagamento.",
     "walletConnected": "{{wallet}} conectada para pagamento.",
@@ -674,7 +674,9 @@
       "statusFailed": "Não foi possível carregar o status de cobrança.",
       "walletConnectFailed": "Não foi possível conectar esta carteira.",
       "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento.",
-      "depositTooSmall": "O depósito pré-pago mínimo é 1 ₳DA."
+      "depositTooSmall": "O depósito pré-pago mínimo é 1 ₳DA.",
+      "balanceActivationFailed": "Não foi possível ativar o Premium com Saldo. Tente novamente.",
+      "connectWalletToAddBalance": "Conecte uma carteira de pagamento para adicionar Saldo."
     },
     "prepaidTitle": "Saldo",
     "prepaidDescription": "Deposite ADA agora e use depois para renovações ou análises pay-as-you-go.",
@@ -707,7 +709,16 @@
     },
     "activateAccess": "Ativar",
     "extendAccess": "Estender 30 dias",
-    "futurePlanControls": "Controles de adesão/cancelamento em breve"
+    "futurePlanControls": "Controles de adesão/cancelamento em breve",
+    "activateWithBalance": "Ativar com Saldo",
+    "extendWithBalance": "Estender com Saldo",
+    "activating": "Ativando...",
+    "balanceActionHint": "Use seu Saldo atual para ativar ou estender o Premium.",
+    "addBalanceActionHint": "Adicione Saldo suficiente para ativar o Premium.",
+    "balanceActivationSuccess": "Acesso Premium ativado com Saldo.",
+    "connectWalletActionHint": "Conecte uma carteira Cardano para adicionar Saldo.",
+    "topUpMissingBalance": "Completar {{amount}} ₳",
+    "balancePrefilledHint": "{{amount}} ₳ está pronto no campo de Saldo. Revise e clique em Adicionar Saldo."
   },
   "connectingWallet": "Conectando {{wallet}}...",
   "billingAccess": {

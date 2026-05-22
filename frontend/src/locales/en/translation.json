@@ -657,7 +657,7 @@
     "premiumDescription": "Activate premium analytics for 30 days. Auto-renewal from your balance is coming next.",
     "unlock": "Unlock",
     "renew": "Renew",
-    "connectWallet": "Connect payment wallet",
+    "connectWallet": "Connect wallet",
     "connectedWallet": "Connected: {{wallet}}",
     "connectHint": "Connect a Cardano wallet to start the payment flow.",
     "walletConnected": "{{wallet}} connected for payment.",
@@ -673,7 +673,9 @@
       "statusFailed": "Could not load billing status.",
       "walletConnectFailed": "Could not connect this wallet.",
       "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment.",
-      "depositTooSmall": "Minimum prepaid deposit is 1 ₳DA."
+      "depositTooSmall": "Minimum prepaid deposit is 1 ₳DA.",
+      "balanceActivationFailed": "Could not activate Premium from Balance. Please try again.",
+      "connectWalletToAddBalance": "Connect a payment wallet to add Balance."
     },
     "prepaidTitle": "Balance",
     "prepaidDescription": "Deposit ADA now and use it later for renewals or pay-as-you-go analytics.",
@@ -706,7 +708,16 @@
     },
     "activateAccess": "Activate",
     "extendAccess": "Extend 30 days",
-    "futurePlanControls": "Plan opt-in/out controls coming soon"
+    "futurePlanControls": "Plan opt-in/out controls coming soon",
+    "activateWithBalance": "Activate with Balance",
+    "extendWithBalance": "Extend with Balance",
+    "activating": "Activating...",
+    "balanceActionHint": "Use your current Balance to activate or extend Premium.",
+    "addBalanceActionHint": "Add enough Balance to activate Premium.",
+    "balanceActivationSuccess": "Premium access activated from Balance.",
+    "connectWalletActionHint": "Connect a Cardano wallet to add Balance.",
+    "topUpMissingBalance": "Top up {{amount}} ₳",
+    "balancePrefilledHint": "{{amount}} ₳ is ready in the Balance input. Review it and click Add Balance."
   },
   "connectingWallet": "Connecting {{wallet}}...",
   "billingAccess": {

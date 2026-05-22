@@ -36,6 +36,8 @@ import avatarImg from "/icons/avatar.png";
 import { SUPPORTED_WALLETS, WALLET_ICONS } from "../cardano/constants";
 import { getWalletInfo } from "../cardano/utils";
 import {
+  activatePlanFromBalance,
+  fetchBillingPlans,
   fetchMyCreditBalance,
   fetchMyEntitlements,
   hasEntitlement,
@@ -138,9 +140,11 @@ export default function SettingsPage() {
   const [billingLoading, setBillingLoading] = useState(false);
   const [billingEntitlements, setBillingEntitlements] = useState([]);
   const [billingError, setBillingError] = useState("");
+  const [billingPlans, setBillingPlans] = useState([]);
   const [creditBalance, setCreditBalance] = useState(null);
   const [selectedDepositAda, setSelectedDepositAda] = useState(10);
   const [customDepositAda, setCustomDepositAda] = useState("10");
+  const [isActivatingFromBalance, setIsActivatingFromBalance] = useState(false);
 
   const [billingWalletName, setBillingWalletName] = useState("");
   const [billingWalletApi, setBillingWalletApi] = useState(null);
@@ -175,6 +179,24 @@ export default function SettingsPage() {
     customDepositAda !== "" ? Number(customDepositAda) : selectedDepositAda;
 
   const effectiveDepositLovelace = adaToLovelace(effectiveDepositAda);
+
+  const premiumPlan =
+    billingPlans.find((plan) => plan?.code === "cap_premium_access") || null;
+  const premiumPriceLovelace = Number(premiumPlan?.amount || 0);
+  const balanceLovelace = Number(
+    creditBalance?.balance_lovelace || creditBalance?.balance || 0,
+  );
+  const missingPremiumLovelace = Math.max(
+    0,
+    premiumPriceLovelace - balanceLovelace,
+  );
+  const hasEnoughBalanceForPremium =
+    premiumPriceLovelace > 0 && balanceLovelace >= premiumPriceLovelace;
+
+  const missingPremiumAda = Math.max(
+    1,
+    Math.ceil(Number(lovelaceToAdaDisplay(missingPremiumLovelace || premiumPriceLovelace))),
+  );
 
   const usernameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -223,6 +245,9 @@ export default function SettingsPage() {
 
       const balanceData = await fetchMyCreditBalance(outlet.session);
       setCreditBalance(balanceData?.balance || null);
+
+      const plansData = await fetchBillingPlans();
+      setBillingPlans(plansData?.plans || []);
     } catch (err) {
       console.error("[Settings] Billing status failed:", err);
       setBillingError(t("settingsBilling.errors.statusFailed"));
@@ -338,6 +363,53 @@ export default function SettingsPage() {
 
     setBillingError("");
     setShowDepositModal(true);
+  };
+
+  const handlePremiumAccessAction = async () => {
+    setBillingError("");
+
+    if (hasEnoughBalanceForPremium) {
+      try {
+        setIsActivatingFromBalance(true);
+        await activatePlanFromBalance(outlet.session, "cap_premium_access");
+        await refreshBilling();
+        await outlet.refreshBillingAccess?.();
+        showToast?.(t("settingsBilling.balanceActivationSuccess"), "success");
+      } catch (err) {
+        console.error("[Settings] Balance-funded premium activation failed:", err);
+        setBillingError(t("settingsBilling.errors.balanceActivationFailed"));
+      } finally {
+        setIsActivatingFromBalance(false);
+      }
+      return;
+    }
+
+    setSelectedDepositAda(missingPremiumAda);
+    setCustomDepositAda(String(missingPremiumAda));
+
+    window.requestAnimationFrame(() => {
+      const input = document.querySelector(".Settings-deposit-custom-input");
+      const balanceBlock = document.querySelector(".Settings-balance-card");
+      const walletBlock = document.querySelector(".Settings-wallet-card");
+
+      const target = balanceBlock || walletBlock;
+
+      if (target && typeof target.scrollIntoView === "function") {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      if (input && typeof input.focus === "function") {
+        input.focus();
+        input.select?.();
+      }
+    });
+
+    if (!billingWalletApi) {
+      setBillingError(t("settingsBilling.errors.connectWalletToAddBalance"));
+      return;
+    }
+
+    setBillingError(t("settingsBilling.balancePrefilledHint", { amount: missingPremiumAda }));
   };
 
   // ---- Helpers -------------------------------------------------------------
@@ -766,12 +838,25 @@ export default function SettingsPage() {
             <Button
               size="sm"
               variant={hasPremiumAccess ? "outline-light" : "primary"}
-              onClick={() => setShowPaymentModal(true)}
-              disabled={!billingWalletApi}
+              onClick={handlePremiumAccessAction}
+              disabled={billingLoading || isActivatingFromBalance || !premiumPriceLovelace}
+              title={
+                hasEnoughBalanceForPremium
+                  ? t("settingsBilling.balanceActionHint")
+                  : billingWalletApi
+                    ? t("settingsBilling.addBalanceActionHint")
+                    : t("settingsBilling.connectWalletActionHint")
+              }
             >
-              {hasPremiumAccess
-                ? t("settingsBilling.extendAccess")
-                : t("settingsBilling.activateAccess")}
+              {isActivatingFromBalance
+                ? t("settingsBilling.activating")
+                : hasEnoughBalanceForPremium
+                  ? hasPremiumAccess
+                    ? t("settingsBilling.extendWithBalance")
+                    : t("settingsBilling.activateWithBalance")
+                  : billingWalletApi
+                    ? t("settingsBilling.topUpMissingBalance", { amount: missingPremiumAda })
+                    : t("settingsBilling.connectWallet")}
             </Button>
           </div>
 

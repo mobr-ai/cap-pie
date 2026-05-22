@@ -125,6 +125,21 @@ export async function createCardanoPaymentSession(
   return parseJsonResponse(res);
 }
 
+export async function activatePlanFromBalance(session, planCode = "cap_premium_access") {
+  const res = await fetch(`${API_BASE}/billing/balance/activate-plan`, {
+    method: "POST",
+    headers: {
+      ...authHeaders(session),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      plan_code: planCode,
+    }),
+  });
+
+  return parseJsonResponse(res);
+}
+
 export async function verifyCardanoPayment(session, sessionId, txHash) {
   const res = await fetch(`${API_BASE}/billing/cardano/verify`, {
     method: "POST",
