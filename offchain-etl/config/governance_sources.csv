@@ -1,0 +1,4 @@
+metadata_type,external_id,url
+# Optional manual offchain governance metadata sources. GovTool discovery works without entries here.
+# governance_action,example,https://example.org/governance-action.json
+# drep,example-drep,https://example.org/drep.jsonld
