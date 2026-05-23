@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: cap
+    ports:
+      - "5433:5432"
+    volumes:
+      - cap_offchain_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cap"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  cap-offchain-etl:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      CAP_ETL_CONFIG: /app/config/config.example.json
+    restart: unless-stopped
+
+volumes:
+  cap_offchain_pgdata:
