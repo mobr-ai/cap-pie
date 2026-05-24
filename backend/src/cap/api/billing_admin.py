@@ -428,3 +428,100 @@ def admin_adjust_balance(
         "action": "adjust_balance",
         "item": _billing_user_payload(db, user),
     }
+
+
+@router.get("/overview")
+def get_admin_billing_overview(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user),
+):
+    now = _utcnow()
+    now_db = _to_db_naive_utc(now)
+
+    total_users = db.scalar(select(func.count()).select_from(User)) or 0
+
+    premium_users = (
+        db.scalar(
+            select(func.count(func.distinct(UserEntitlement.user_id))).where(
+                UserEntitlement.entitlement_code == ENTITLEMENT_PREMIUM,
+                UserEntitlement.status == "active",
+                UserEntitlement.starts_at <= now_db,
+                UserEntitlement.expires_at > now_db,
+            )
+        )
+        or 0
+    )
+
+    total_balance_lovelace = (
+        db.scalar(
+            select(func.coalesce(func.sum(UserCreditBalance.balance), 0)).where(
+                UserCreditBalance.currency == "lovelace"
+            )
+        )
+        or 0
+    )
+
+    paid_payments = (
+        db.scalar(
+            select(func.count()).select_from(PaymentSession).where(
+                PaymentSession.status == "paid"
+            )
+        )
+        or 0
+    )
+
+    pending_payments = (
+        db.scalar(
+            select(func.count()).select_from(PaymentSession).where(
+                PaymentSession.status == "pending"
+            )
+        )
+        or 0
+    )
+
+    expired_payments = (
+        db.scalar(
+            select(func.count()).select_from(PaymentSession).where(
+                PaymentSession.status == "expired"
+            )
+        )
+        or 0
+    )
+
+    config = _feature_config(db, FEATURE_NL_QUERY)
+    period_start, period_end = _period_window(now, config.period_days)
+
+    usage_rows = db.scalars(
+        select(UserUsagePeriod).where(
+            UserUsagePeriod.feature_code == FEATURE_NL_QUERY,
+            UserUsagePeriod.period_start == _to_db_naive_utc(period_start),
+            UserUsagePeriod.period_end == _to_db_naive_utc(period_end),
+        )
+    ).all()
+
+    free_query_used = sum(int(row.used_count or 0) for row in usage_rows)
+    free_query_limit_recorded = sum(int(row.limit_count or 0) for row in usage_rows)
+    free_query_limit_estimated = int(total_users) * int(config.free_limit_count or 0)
+
+    blocked_users = 0
+    for user in db.scalars(select(User)).all():
+        state = get_billing_access_state(db, user, create_usage_period=False)
+        if state.get("access_mode") == "blocked":
+            blocked_users += 1
+
+    return {
+        "total_users": int(total_users),
+        "premium_users": int(premium_users),
+        "blocked_users": int(blocked_users),
+        "free_users": max(0, int(total_users) - int(premium_users)),
+        "total_balance_lovelace": int(total_balance_lovelace or 0),
+        "total_balance_ada": _lovelace_to_ada(total_balance_lovelace),
+        "paid_payments": int(paid_payments),
+        "pending_payments": int(pending_payments),
+        "expired_payments": int(expired_payments),
+        "free_query_used": int(free_query_used),
+        "free_query_limit_recorded": int(free_query_limit_recorded),
+        "free_query_limit_estimated": int(free_query_limit_estimated),
+        "free_query_period_start": _format_utc(period_start),
+        "free_query_period_end": _format_utc(period_end),
+    }
