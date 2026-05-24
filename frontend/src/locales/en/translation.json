@@ -622,7 +622,22 @@
       "expired": "Expired",
       "failed": "Failed",
       "cancelled": "Cancelled"
-    }
+    },
+    "billingOverviewTitle": "Billing & Access Overview",
+    "billingOverviewSubtitle": "High-level metrics about Premium access, free-query limits, and user balances.",
+    "billingOverviewLoading": "Loading billing overview…",
+    "billingOverviewPremiumUsers": "Premium users",
+    "billingOverviewPremiumUsersCaption": "Users with active Premium entitlement",
+    "billingOverviewBlockedUsers": "Blocked users",
+    "billingOverviewBlockedUsersCaption": "Users who reached the free query limit",
+    "billingOverviewTotalBalance": "Total Balance",
+    "billingOverviewTotalBalanceCaption": "Prepaid CAP Balance held by users",
+    "billingOverviewPaidPayments": "Paid payments",
+    "billingOverviewPaidPaymentsCaption": "Verified Cardano payment sessions",
+    "billingOverviewPendingPayments": "Pending payments",
+    "billingOverviewPendingPaymentsCaption": "Open sessions awaiting verification",
+    "billingOverviewFreeQuotaUsed": "Free quota usage",
+    "billingOverviewFreeQuotaUsedCaption": "Free queries used in the current period"
   },
   "common": {
     "yes": "Yes",

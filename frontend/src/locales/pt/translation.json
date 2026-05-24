@@ -623,7 +623,22 @@
       "expired": "Expirado",
       "failed": "Falhou",
       "cancelled": "Cancelado"
-    }
+    },
+    "billingOverviewTitle": "Visão geral de cobrança e acesso",
+    "billingOverviewSubtitle": "Métricas de alto nível sobre acesso Premium, limites de consultas grátis e saldos dos usuários.",
+    "billingOverviewLoading": "Carregando visão geral de cobrança…",
+    "billingOverviewPremiumUsers": "Usuários Premium",
+    "billingOverviewPremiumUsersCaption": "Usuários com entitlement Premium ativo",
+    "billingOverviewBlockedUsers": "Usuários bloqueados",
+    "billingOverviewBlockedUsersCaption": "Usuários que atingiram o limite grátis",
+    "billingOverviewTotalBalance": "Saldo total",
+    "billingOverviewTotalBalanceCaption": "Saldo CAP pré-pago mantido pelos usuários",
+    "billingOverviewPaidPayments": "Pagamentos confirmados",
+    "billingOverviewPaidPaymentsCaption": "Sessões de pagamento Cardano verificadas",
+    "billingOverviewPendingPayments": "Pagamentos pendentes",
+    "billingOverviewPendingPaymentsCaption": "Sessões abertas aguardando verificação",
+    "billingOverviewFreeQuotaUsed": "Uso da cota grátis",
+    "billingOverviewFreeQuotaUsedCaption": "Consultas grátis usadas no período atual"
   },
   "common": {
     "yes": "Sim",
