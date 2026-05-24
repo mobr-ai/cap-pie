@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, Optional
-
+from typing import Literal
 
 ReferLabel = Literal["refer", "not_refer"]
 RenderFamily = Literal["chart", "table", "text"]
@@ -24,7 +23,7 @@ class ReferDecision:
 
 @dataclass(frozen=True)
 class RenderDecision:
-    family: Optional[RenderFamily]
+    family: RenderFamily | None
     confidence: float
-    chart_subtype: Optional[str] = None
-    matched_example: Optional[str] = None
+    chart_subtype: str | None = None
+    matched_example: str | None = None

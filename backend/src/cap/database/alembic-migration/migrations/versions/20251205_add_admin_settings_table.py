@@ -5,9 +5,8 @@ Revises: 20251204_add_is_admin_flag_to_user
 Create Date: 2025-12-05
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "20251205_admin_settings"

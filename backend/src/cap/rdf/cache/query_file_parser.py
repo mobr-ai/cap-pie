@@ -4,7 +4,7 @@ Redis client for caching SPARQL queries and natural language mappings.
 import json
 import logging
 import re
-from typing import Tuple
+
 from opentelemetry import trace
 
 from cap.util.sparql_util import ensure_validity
@@ -16,7 +16,7 @@ class QueryFileParser:
     """Parse query files with NL-SPARQL pairs."""
 
     @staticmethod
-    def parse(content: str) -> list[Tuple[str, str]]:
+    def parse(content: str) -> list[tuple[str, str]]:
         """Parse query file content into (natural_language, sparql) pairs."""
         queries = []
         lines = content.strip().split('\n')

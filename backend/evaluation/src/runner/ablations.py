@@ -10,6 +10,7 @@ We vary:
 Note: `auto` will attempt embeddings and fall back to jaccard.
 """
 from dataclasses import dataclass
+
 from cap.services.similarity_service import SearchStrategy
 
 

@@ -3,10 +3,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
-from cap.database.model import Conversation, ConversationMessage
-from cap.services.conversation_persistence import list_conversation_artifacts
 from cap.core.auth_dependencies import get_current_admin_user
+from cap.database.model import Conversation, ConversationMessage
+from cap.database.session import get_db
+from cap.services.conversation_persistence import list_conversation_artifacts
 
 router = APIRouter(
     prefix="/api/v1/admin/conversations",

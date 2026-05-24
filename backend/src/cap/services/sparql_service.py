@@ -4,9 +4,10 @@ Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
 """
 import logging
 import re
-from opentelemetry import trace
 from typing import Any
+
 from fastapi.exceptions import HTTPException
+from opentelemetry import trace
 
 from cap.rdf.triplestore import TriplestoreClient
 

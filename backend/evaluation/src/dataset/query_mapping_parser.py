@@ -3,9 +3,9 @@ Parse the cached NL/SPARQL pairs from a chat-style export like `msgs.txt`.
 
 This module is intentionally independent from Redis and from the runtime pipeline.
 """
+import re
 from dataclasses import dataclass
 from pathlib import Path
-import re
 
 
 @dataclass(frozen=True)

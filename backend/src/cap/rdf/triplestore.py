@@ -1,18 +1,17 @@
-from dataclasses import dataclass
-from typing import Optional
-from SPARQLWrapper import SPARQLWrapper, JSON
-from opentelemetry import trace
-from fastapi import HTTPException
-
-import httpx
 import asyncio
 import logging
 import urllib
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 
-from cap.util.sparql_util import force_limit_cap
-from cap.util.sparql_date_processor import SparqlDateProcessor
+import httpx
+from fastapi import HTTPException
+from opentelemetry import trace
+from SPARQLWrapper import JSON, SPARQLWrapper
+
 from cap.config import settings
+from cap.util.sparql_date_processor import SparqlDateProcessor
+from cap.util.sparql_util import force_limit_cap
 
 DEFAULT_PREFIX = """
     PREFIX c: <https://mobr.ai/ont/cardano#>
@@ -89,9 +88,11 @@ class TriplestoreClient:
             self._sparql_wrapper.setTimeout(self.config.query_timeout)
         except Exception as e:
             logger.error(f"Failed to initialize SPARQL wrapper: {e}")
-            raise RuntimeError(f"SPARQL wrapper initialization failed: {e}")
+            raise RuntimeError(
+                f"SPARQL wrapper initialization failed: {e}"
+            ) from e
 
-    def _build_prefixes(self, prefix_statement, default_prefixes, additional_prefixes: Optional[dict[str, str]] = None) -> str:
+    def _build_prefixes(self, prefix_statement, default_prefixes, additional_prefixes: dict[str, str] | None = None) -> str:
         """Build prefix declarations including any additional prefixes."""
         prefix_str = default_prefixes
         if additional_prefixes:
@@ -99,17 +100,17 @@ class TriplestoreClient:
                 prefix_str += f"\n    {prefix_statement} {prefix}: <{uri}>"
         return prefix_str
 
-    def _build_turtle_prefixes(self, additional_prefixes: Optional[dict[str, str]] = None) -> str:
+    def _build_turtle_prefixes(self, additional_prefixes: dict[str, str] | None = None) -> str:
         return self._build_prefixes("@prefix", "", additional_prefixes)
 
-    def _build_sparql_prefixes(self, additional_prefixes: Optional[dict[str, str]] = None) -> str:
+    def _build_sparql_prefixes(self, additional_prefixes: dict[str, str] | None = None) -> str:
         return self._build_prefixes("PREFIX", DEFAULT_PREFIX, additional_prefixes)
 
     async def _execute_sparql_query_async(self, sparql_query: str) -> dict:
         """Execute SPARQL query asynchronously."""
 
         async with self._query_lock:
-            test_time = datetime.now(timezone.utc)
+            test_time = datetime.now(UTC)
             processor = SparqlDateProcessor(reference_time=test_time)
             query = force_limit_cap(sparql_query)
             query, _ = processor.process(query)
@@ -140,17 +141,23 @@ class TriplestoreClient:
                     # Try to extract error details from response
                     try:
                         error_detail = e.response.json()
-                        raise HTTPException(status_code=e.response.status_code, detail=error_detail)
+                        raise HTTPException(
+                            status_code=e.response.status_code, detail=error_detail
+                        ) from e
 
-                    except Exception:
+                    except Exception as hE:
                         # If we can't parse JSON, use the text response
-                        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+                        raise HTTPException(
+                            status_code=e.response.status_code, detail=e.response.text
+                        ) from hE
 
                 except Exception as e:
                     logger.error(f"SPARQL query failed: {e}")
                     logger.error(f"Query: {query}")
                     await self._close()
-                    raise HTTPException(status_code=500, detail=str(e))
+                    raise HTTPException(
+                        status_code=500, detail=str(e)
+                    ) from e
 
             def _execute_sync():
                 try:
@@ -161,7 +168,7 @@ class TriplestoreClient:
                     result = self._sparql_wrapper.query()
                     return result.convert()
                 except Exception as e:
-                    logger.error(f"SPARQL query execution failed!")
+                    logger.error("SPARQL query execution failed!")
                     logger.error(f"     query: {query}")
                     logger.error(f"     exception: {e}")
                     raise
@@ -171,7 +178,9 @@ class TriplestoreClient:
                 return await loop.run_in_executor(None, _execute_sync)
             except Exception as e:
                 logger.error(f"Async SPARQL execution error: {e}")
-                raise HTTPException(status_code=500, detail=f"SPARQL query failed: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"SPARQL query failed: {str(e)}"
+                ) from e
 
     async def execute_query(self, query: str) -> dict:
         """Execute a SPARQL query."""
@@ -181,7 +190,7 @@ class TriplestoreClient:
             try:
                 return await self._execute_sparql_query_async(query)
             except HTTPException:
-                logger.error(f"Error HTTPException")
+                logger.error("Error HTTPException")
                 raise
             except Exception as e:
                 logger.error(f"Error executing SPARQL query: {e}")
@@ -191,9 +200,9 @@ class TriplestoreClient:
         self,
         method: str,
         graph_uri: str,
-        data: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
-        additional_prefixes: Optional[dict[str, str]] = None
+        data: str | None = None,
+        headers: dict[str, str] | None = None,
+        additional_prefixes: dict[str, str] | None = None
     ) -> bool:
         """Make a CRUD request to the Virtuoso endpoint."""
         with tracer.start_as_current_span("_make_crud_request") as span:
@@ -219,7 +228,7 @@ class TriplestoreClient:
                     raise HTTPException(
                         status_code=400,
                         detail=f"Failed to delete graph: {str(e)}"
-                    )
+                    ) from e
 
             client = await self._get_http_client()
 
@@ -262,7 +271,7 @@ class TriplestoreClient:
                         await self._close()
                         return True
 
-                    except httpx.TimeoutException:
+                    except httpx.TimeoutException as tE:
                         if attempt < max_retries - 1:
                             await asyncio.sleep(retry_delay * (attempt + 1))
                             continue
@@ -270,7 +279,9 @@ class TriplestoreClient:
                         error_msg = f"Timeout during {method} operation on graph {graph_uri} after {max_retries} attempts"
                         span.set_attribute("error", error_msg)
                         logger.error(error_msg)
-                        raise HTTPException(status_code=504, detail=error_msg)
+                        raise HTTPException(
+                            status_code=504, detail=error_msg
+                        ) from tE
 
                     except httpx.RequestError as e:
                         if attempt < max_retries - 1:
@@ -280,7 +291,9 @@ class TriplestoreClient:
                         error_msg = f"Request error during {method} operation: {str(e)}"
                         span.set_attribute("error", error_msg)
                         logger.error(error_msg)
-                        raise HTTPException(status_code=503, detail=error_msg)
+                        raise HTTPException(
+                            status_code=503, detail=error_msg
+                        ) from e
 
                 await self._close()
 
@@ -292,14 +305,16 @@ class TriplestoreClient:
                 span.set_attribute("error", error_msg)
                 logger.error(error_msg)
                 await self._close()
-                raise HTTPException(status_code=500, detail=error_msg)
+                raise HTTPException(
+                    status_code=500, detail=error_msg
+                ) from e
 
 
     async def create_graph(
             self,
             graph_uri: str,
             turtle_data: str,
-            additional_prefixes: Optional[dict[str, str]] = None
+            additional_prefixes: dict[str, str] | None = None
     ) -> bool:
         """Create a new graph with the provided Turtle data."""
         with tracer.start_as_current_span("create_graph") as span:
@@ -351,9 +366,9 @@ class TriplestoreClient:
     async def update_graph(
         self,
         graph_uri: str,
-        insert_data: Optional[str] = None,
-        delete_data: Optional[str] = None,
-        additional_prefixes: Optional[dict[str, str]] = None
+        insert_data: str | None = None,
+        delete_data: str | None = None,
+        additional_prefixes: dict[str, str] | None = None
     ) -> bool:
         """Update a graph with INSERT and DELETE operations."""
         with tracer.start_as_current_span("update_graph") as span:

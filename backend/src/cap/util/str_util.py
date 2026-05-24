@@ -66,7 +66,7 @@ def hex_to_string(hex_value: str) -> str:
             decoded = byte_data.decode('ascii', errors='ignore')
             if decoded.strip():
                 return decoded.strip()
-        except:
+        except Exception:
             pass
 
         # If all decoding fails, return original
@@ -85,7 +85,7 @@ def get_file_content(file_path: str) -> str:
         logger.warning(f"-- file not found: {file_path}")
         return ""
 
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         content = f.read()
 
     return content

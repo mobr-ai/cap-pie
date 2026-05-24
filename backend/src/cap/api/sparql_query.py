@@ -1,19 +1,20 @@
-from fastapi import APIRouter, HTTPException
-from opentelemetry import trace
-from urllib.parse import unquote_plus
 import logging
 import re
+from urllib.parse import unquote_plus
+
+from fastapi import APIRouter, HTTPException
+from opentelemetry import trace
 
 from cap.api.models import (
+    GraphCreateRequest,
+    GraphResponse,
+    GraphUpdateRequest,
     QueryRequest,
     QueryResponse,
-    GraphCreateRequest,
-    GraphUpdateRequest,
-    GraphResponse,
-    SuccessResponse
+    SuccessResponse,
 )
-from cap.services.redis_sparql_client import get_redis_sparql_client
 from cap.rdf.triplestore import TriplestoreClient
+from cap.services.redis_sparql_client import get_redis_sparql_client
 
 router = APIRouter(prefix="/api/v1")
 tracer = trace.get_tracer(__name__)
@@ -24,29 +25,30 @@ logging.basicConfig(level=logging.DEBUG)
 @router.get("/query/sync_data", response_model=QueryResponse)
 async def get_sync_data():
     """Execute a SPARQL query to get current sync status."""
-    with tracer.start_as_current_span("get_sync_data") as span:
-        try:
-            sync_query = """
-                PREFIX b: <https://mobr.ai/ont/blockchain#>
-                PREFIX c: <https://mobr.ai/ont/cardano#>
-                SELECT ?currentCardanoHeight (MAX(?blockNum) AS ?capBlockNum) (COUNT(?block) AS ?count)
-                WHERE {
-                  c:Cardano c:hasBlockNumber ?currentCardanoHeight .
-                  ?block a b:Block .
-                  ?block c:hasBlockNumber ?blockNum .
-                }
-                GROUP BY (?currentCardanoHeight)
-                LIMIT 1
-            """
+    try:
+        sync_query = """
+            PREFIX b: <https://mobr.ai/ont/blockchain#>
+            PREFIX c: <https://mobr.ai/ont/cardano#>
+            SELECT ?currentCardanoHeight (MAX(?blockNum) AS ?capBlockNum) (COUNT(?block) AS ?count)
+            WHERE {
+                c:Cardano c:hasBlockNumber ?currentCardanoHeight .
+                ?block a b:Block .
+                ?block c:hasBlockNumber ?blockNum .
+            }
+            GROUP BY (?currentCardanoHeight)
+            LIMIT 1
+        """
 
-            request = QueryRequest(query=sync_query)
-            return await execute_query(request)
+        request = QueryRequest(query=sync_query)
+        return await execute_query(request)
 
-        except HTTPException as e:
-            raise e
-        except Exception as e:
-            logger.error(f"get_sync_data execution error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"get_sync_data execution error: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=str(e)
+        ) from e
 
 @router.post("/query", response_model=QueryResponse)
 async def execute_query(request: QueryRequest):
@@ -83,7 +85,9 @@ async def execute_query(request: QueryRequest):
             raise e
         except Exception as e:
             logger.error(f"SPARQL query execution error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(
+                status_code=400, detail=str(e)
+            ) from e
 
 @router.post("/graphs", response_model=SuccessResponse)
 async def create_graph(request: GraphCreateRequest):
@@ -98,7 +102,9 @@ async def create_graph(request: GraphCreateRequest):
             raise e
         except Exception as e:
             logger.error(f"Graph creation error: {str(e)}")
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(
+                status_code=400, detail=str(e)
+            ) from e
 
 @router.get("/graphs/{graph_uri:path}")
 async def read_graph(graph_uri: str):
@@ -122,7 +128,9 @@ async def read_graph(graph_uri: str):
         raise
     except Exception as e:
         logger.error(f"[READ] Unexpected error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=400, detail=str(e)
+        ) from e
 
 @router.patch("/graphs/{graph_uri:path}")
 async def update_graph(graph_uri: str, update_request: GraphUpdateRequest):
@@ -157,7 +165,9 @@ async def update_graph(graph_uri: str, update_request: GraphUpdateRequest):
         raise
     except Exception as e:
         logger.error(f"[UPDATE] Unexpected error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=400, detail=str(e)
+        ) from e
 
 @router.delete("/graphs/{graph_uri:path}")
 async def delete_graph(graph_uri: str):
@@ -181,4 +191,6 @@ async def delete_graph(graph_uri: str):
         raise
     except Exception as e:
         logger.error(f"[DELETE] Unexpected error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(
+            status_code=400, detail=str(e)
+        ) from e

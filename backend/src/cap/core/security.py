@@ -1,10 +1,14 @@
 # cap/core/security.py
 import os
-from fastapi import HTTPException
+import re
+import secrets
+import unicodedata
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import bcrypt
 import jwt  # PyJWT
-import os, re, bcrypt, jwt, secrets, unicodedata
-from datetime import datetime, timedelta, timezone
-from typing import Dict, Any
+from fastapi import HTTPException
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")
@@ -22,7 +26,7 @@ def verify_password(pw: str, hashed: str) -> bool:
     return bcrypt.checkpw(pw.encode(), hashed.encode())
 
 def make_access_token(sub: str, remember: bool) -> str:
-    exp = datetime.now(timezone.utc) + timedelta(days=7 if remember else 1)
+    exp = datetime.now(UTC) + timedelta(days=7 if remember else 1)
     return jwt.encode({"sub": sub, "exp": exp}, JWT_SECRET, algorithm=JWT_ALG)
 
 USERNAME_REGEX = re.compile(r'^[a-zA-Z][a-zA-Z0-9._]{5,29}$')
@@ -87,7 +91,7 @@ def new_confirmation_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-def decode_access_token(token: str) -> Dict[str, Any]:
+def decode_access_token(token: str) -> dict[str, Any]:
     """
     Decode & validate JWT; raise HTTPException on invalid token.
     """
@@ -95,7 +99,13 @@ def decode_access_token(token: str) -> Dict[str, Any]:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
         # Optional: basic exp/nbf/iat checks handled by PyJWT if present
         return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="tokenExpired", headers={"WWW-Authenticate": "Bearer"})
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="invalidToken", headers={"WWW-Authenticate": "Bearer"})
+
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(
+            status_code=401, detail="tokenExpired", headers={"WWW-Authenticate": "Bearer"}
+        ) from e
+
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(
+            status_code=401, detail="invalidToken", headers={"WWW-Authenticate": "Bearer"}
+        ) from e

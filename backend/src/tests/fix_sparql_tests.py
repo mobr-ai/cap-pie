@@ -3,14 +3,14 @@ Test script for the Natural Language Query Pipeline.
 Run this to verify nl components are working correctly.
 Not for pytest
 """
-import asyncio
 import argparse
-import httpx
+import asyncio
 from pathlib import Path
 from pprint import pprint
 
-from cap.util.sparql_util import _validate_and_fix_sparql
 from cap.rdf.cache.sparql_normalizer import SPARQLNormalizer
+from cap.util.sparql_util import _validate_and_fix_sparql
+
 
 def _read_content_sparql_file(path: str | Path) -> str:
     """Read and return the content of a SPARQL file."""

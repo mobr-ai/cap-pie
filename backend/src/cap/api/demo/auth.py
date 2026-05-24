@@ -1,24 +1,24 @@
 # cap/api/demo/auth.py
-from typing import Optional
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
-from cap.database.model import User
 from cap.core.auth_dependencies import (
-    bearer_scheme,
-    _extract_token,
     _decode,
+    _extract_token,
     _extract_user_id,
+    bearer_scheme,
 )
+from cap.database.model import User
+from cap.database.session import get_db
+
 
 def get_optional_user(
     request: Request,
     db: Session = Depends(get_db),
-    creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
-) -> Optional[User]:
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> User | None:
     token = _extract_token(request, creds)
     if not token:
         return None

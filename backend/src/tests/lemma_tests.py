@@ -3,10 +3,9 @@ Test script for the Natural Language Query Pipeline.
 Run this to verify nl components are working correctly.
 Not for pytest
 """
-import logging
-import asyncio
 import argparse
-import time
+import asyncio
+import logging
 from pathlib import Path
 
 from cap.util.nlp_util import lemmatize_text
@@ -68,11 +67,11 @@ class LemmatizeTester:
                         result = await self.test_text(text)
 
                     except Exception as e:
-                        print(f"Test failed!")
+                        print("Test failed!")
                         print(f"    exception: {e}")
                         exit()
 
-                    assert result, f"Text failed"
+                    assert result, "Text failed"
 
                     print(f"✓ Test passed for text\n    {text}")
 

@@ -1,44 +1,41 @@
-import logging
-import uvloop
 import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 
-from starlette.responses import FileResponse
+import uvloop
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from opentelemetry import trace
 from sqlalchemy import text
-
-from cap.api.sparql_query import router as api_router
-from cap.api.nl_query import router as nl_router
-from cap.telemetry import setup_telemetry, instrument_app
-from cap.rdf.triplestore import TriplestoreClient
-from cap.config import settings
-from cap.services.llm_client import get_llm_client, cleanup_llm_client
-from cap.services.redis_nl_client import cleanup_redis_nl_client
-
-from cap.database.session import engine
-from cap.database.model import Base
+from starlette.responses import FileResponse
 
 from cap.api.auth import router as auth_router
 from cap.api.billing import router as billing_router
-from cap.api.waitlist import router as wait_router
-from cap.api.waitlist_admin import router as wait_admin_router
 from cap.api.cache_admin import router as cache_router
-from cap.api.user import router as user_router
-from cap.api.user_admin import router as user_admin_router
 from cap.api.conversation import router as conversation_router
 from cap.api.conversation_admin import router as conversation_admin_router
-from cap.api.system_admin import router as system_router
 from cap.api.dashboard import router as dashboard_router
-from cap.api.share import router as share_router
 from cap.api.demo_nl import router as demo_router
 from cap.api.metrics import router as metrics_router
+from cap.api.nl_query import router as nl_router
 from cap.api.notifications_admin import router as notif_admin_router
-
-from dotenv import load_dotenv
+from cap.api.share import router as share_router
+from cap.api.sparql_query import router as api_router
+from cap.api.system_admin import router as system_router
+from cap.api.user import router as user_router
+from cap.api.user_admin import router as user_admin_router
+from cap.api.waitlist import router as wait_router
+from cap.api.waitlist_admin import router as wait_admin_router
+from cap.config import settings
+from cap.database.model import Base
+from cap.database.session import engine
+from cap.rdf.triplestore import TriplestoreClient
+from cap.services.llm_client import cleanup_llm_client, get_llm_client
+from cap.services.redis_nl_client import cleanup_redis_nl_client
+from cap.telemetry import instrument_app, setup_telemetry
 
 load_dotenv()
 
@@ -75,7 +72,7 @@ async def initialize_graph(client: TriplestoreClient, graph_uri: str, ontology_p
                 span.set_attribute("creating_new_graph", True)
 
                 if ontology_path != "":
-                    with open(ontology_path, "r") as f:
+                    with open(ontology_path) as f:
                         turtle_data = f.read()
                 else:
                     turtle_data = ""
@@ -95,7 +92,9 @@ async def initialize_graph(client: TriplestoreClient, graph_uri: str, ontology_p
         except Exception as e:
             span.set_attribute("error", str(e))
             logger.error(f"Failed to initialize graph {graph_uri}: {e}")
-            raise RuntimeError(f"Failed to initialize graph {graph_uri}: {e}")
+            raise RuntimeError(
+                f"Failed to initialize graph {graph_uri}: {e}"
+            ) from e
 
 
 async def initialize_required_graphs(client: TriplestoreClient) -> None:
@@ -124,7 +123,9 @@ async def initialize_required_graphs(client: TriplestoreClient) -> None:
                 initialization_results.append((graph_uri, result))
             except Exception as e:
                 logger.error(f"Failed to initialize graph {graph_uri}: {e}")
-                raise RuntimeError(f"Application startup failed: {e}")
+                raise RuntimeError(
+                    f"Application startup failed: {e}"
+                ) from e
 
         span.set_attribute("initialization_results", str(initialization_results))
         logger.info("Graph initialization completed successfully")

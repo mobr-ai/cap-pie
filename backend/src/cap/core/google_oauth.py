@@ -1,8 +1,9 @@
 # cap/core/google_oauth.py
-import requests
-from google.oauth2 import id_token
-from google.auth.transport import requests as grequests
 import os
+
+import requests
+from google.auth.transport import requests as grequests
+from google.oauth2 import id_token
 
 GOOGLE_USERINFO = "https://openidconnect.googleapis.com/v1/userinfo"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -27,7 +28,9 @@ def get_userinfo_from_access_token_or_idtoken(token: str, token_type: str = None
                 "picture": claims.get("picture", ""),
             }
         except Exception as e:
-            raise Exception(f"invalid_id_token: {e}")
+            raise Exception(
+                f"invalid_id_token: {e}"
+            ) from e
 
     # Case 2: Access Token (OAuth implicit flow)
     try:
@@ -46,4 +49,6 @@ def get_userinfo_from_access_token_or_idtoken(token: str, token_type: str = None
             "picture": data.get("picture", ""),
         }
     except Exception as e:
-        raise Exception(f"userinfo_error: {e}")
+        raise Exception(
+            f"userinfo_error: {e}"
+        ) from e

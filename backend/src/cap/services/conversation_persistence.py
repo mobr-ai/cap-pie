@@ -1,14 +1,13 @@
-# cap/services/conversation_persistence.py
-
-from __future__ import annotations
 import hashlib
-import json, re
+import json
+import re
 from datetime import datetime
-from typing import Optional, Tuple, Any, Dict, List
+from typing import Any
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from cap.database.model import Conversation, ConversationMessage, User, ConversationArtifact
+from cap.database.model import Conversation, ConversationArtifact, ConversationMessage, User
 
 _WS_RE = re.compile(r"[ \t]+")
 _SPACE_BEFORE_PUNCT_RE = re.compile(r"[ \t]+([,.;:!?])")
@@ -18,11 +17,11 @@ _MARKDOWN_PREFIX_RE = re.compile(r"^(\s{0,3}(?:```|~~~|>|\* |- |\d+\. ))")
 # Split on fenced code blocks and inline code, keep delimiters
 _CODE_SPLIT_RE = re.compile(r"(```[\s\S]*?```|`[^`]*`)")
 
-def _artifact_hash(payload: Dict[str, Any]) -> str:
+def _artifact_hash(payload: dict[str, Any]) -> str:
     s = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
-def _normalize_kv_type(result_type: Optional[str]) -> Optional[str]:
+def _normalize_kv_type(result_type: str | None) -> str | None:
     s = (result_type or "").strip().lower()
     if not s:
         return None
@@ -42,9 +41,9 @@ def persist_conversation_artifact_from_raw_kv(
     db: Session,
     conversation: Conversation,
     raw_kv_payload: str,
-    nl_query_id: Optional[int] = None,
-    conversation_message_id: Optional[int] = None,
-) -> Optional[ConversationArtifact]:
+    nl_query_id: int | None = None,
+    conversation_message_id: int | None = None,
+) -> ConversationArtifact | None:
     if not conversation:
         return None
 
@@ -55,7 +54,7 @@ def persist_conversation_artifact_from_raw_kv(
     if raw.startswith("kv_results:"):
         raw = raw[len("kv_results:") :].strip()
 
-    kv: Optional[Dict[str, Any]] = None
+    kv: dict[str, Any] | None = None
     try:
         kv = json.loads(raw)
     except Exception:
@@ -69,7 +68,7 @@ def persist_conversation_artifact_from_raw_kv(
     result_type = kv.get("result_type") or kv.get("resultType")
     kv_type = _normalize_kv_type(result_type)
     artifact_type = "table" if kv_type == "table" else "chart"
-    config: Dict[str, Any] = {"kv": kv}
+    config: dict[str, Any] = {"kv": kv}
 
     return persist_conversation_artifact(
         db=db,
@@ -85,11 +84,11 @@ def persist_conversation_artifact(
     db: Session,
     conversation: Conversation,
     artifact_type: str,
-    config: Dict[str, Any],
-    kv_type: Optional[str] = None,
-    nl_query_id: Optional[int] = None,
-    conversation_message_id: Optional[int] = None,
-) -> Optional[ConversationArtifact]:
+    config: dict[str, Any],
+    kv_type: str | None = None,
+    nl_query_id: int | None = None,
+    conversation_message_id: int | None = None,
+) -> ConversationArtifact | None:
     if not conversation:
         return None
 
@@ -133,7 +132,7 @@ def persist_conversation_artifact(
 def list_conversation_artifacts(
     db: Session,
     conversation_id: int,
-) -> List[ConversationArtifact]:
+) -> list[ConversationArtifact]:
     return (
         db.query(ConversationArtifact)
         .filter(ConversationArtifact.conversation_id == conversation_id)
@@ -141,7 +140,7 @@ def list_conversation_artifacts(
         .all()
     )
 
-def _title_from_query(query: str) -> Optional[str]:
+def _title_from_query(query: str) -> str | None:
     title = (query or "").strip()
     if not title:
         return None
@@ -244,7 +243,7 @@ def normalize_assistant_content(text: str) -> str:
 def get_or_create_conversation(
     db: Session,
     user: User,
-    conversation_id: Optional[int],
+    conversation_id: int | None,
     query_for_title: str,
 ) -> Conversation:
     if conversation_id is not None:
@@ -271,7 +270,7 @@ def persist_user_message(
     conversation_id: int,
     user_id: int,
     content: str,
-    nl_query_id: Optional[int] = None,
+    nl_query_id: int | None = None,
 ) -> ConversationMessage:
     msg = ConversationMessage(
         conversation_id=conversation_id,
@@ -289,7 +288,7 @@ def persist_assistant_message_and_touch(
     db: Session,
     conversation: Conversation,
     content: str,
-    nl_query_id: Optional[int] = None,
+    nl_query_id: int | None = None,
 ) -> ConversationMessage:
     safe = normalize_assistant_content(content or "")
 
@@ -308,11 +307,11 @@ def persist_assistant_message_and_touch(
 
 def start_conversation_and_persist_user(
     db: Session,
-    user: Optional[User],
-    conversation_id: Optional[int],
+    user: User | None,
+    conversation_id: int | None,
     query: str,
-    nl_query_id: Optional[int] = None,
-) -> Tuple[Optional[Conversation], Optional[ConversationMessage]]:
+    nl_query_id: int | None = None,
+) -> tuple[Conversation | None, ConversationMessage | None]:
     if user is None:
         return None, None
 

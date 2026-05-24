@@ -1,11 +1,12 @@
 """
 Vega util to convert data to vega format.
 """
-import re
 import logging
-from typing import Any, Tuple, List, Optional
-from opentelemetry import trace
+import re
 from collections import Counter
+from typing import Any
+
+from opentelemetry import trace
 
 from cap.util.cardano_scan import convert_entity_to_cardanoscan_link
 from cap.util.epoch_util import epoch_to_date
@@ -65,7 +66,7 @@ class VegaUtil:
         return False
 
     @staticmethod
-    def _classify_fields(data: list[dict]) -> Tuple[List[str], List[str]]:
+    def _classify_fields(data: list[dict]) -> tuple[list[str], list[str]]:
         """
         Classify all fields in the data as either categorical or numeric.
 
@@ -109,7 +110,7 @@ class VegaUtil:
         return x_candidates
 
     @staticmethod
-    def _parse_coordinate_assignments(user_query: str, data: list[dict]) -> dict[str, Optional[str]]:
+    def _parse_coordinate_assignments(user_query: str, data: list[dict]) -> dict[str, str | None]:
         """
         Parse user query to extract explicit coordinate assignments (x, y, z, size, color, etc.).
 
@@ -201,7 +202,7 @@ class VegaUtil:
 
     @staticmethod
     def _match_coordinate_to_field(coordinate_desc: str, data: list[dict],
-                                   exclude_keys: Optional[List[str]] = None) -> Optional[str]:
+                                   exclude_keys: list[str] | None = None) -> str | None:
         """
         Match a coordinate description from the query to an actual field in the data.
 
@@ -673,7 +674,7 @@ class VegaUtil:
     def _convert_line_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to line chart format with multi-series support."""
         if not isinstance(data, list) or len(data) == 0:
-            logger.warning(f"cant serialize trend if it is not a list")
+            logger.warning("cant serialize trend if it is not a list")
             return {"values": []}
 
         first_item = data[0]
@@ -706,7 +707,7 @@ class VegaUtil:
 
         # If no series keys found, skip this conversion
         if not series_keys:
-            logger.warning(f"No numeric series found in data for line chart")
+            logger.warning("No numeric series found in data for line chart")
             return {"values": []}
 
         # Build line chart data with series index

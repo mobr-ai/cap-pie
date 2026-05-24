@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class QuerySource(str, Enum):
+class QuerySource(StrEnum):
     ONCHAIN = "onchain"
     ASSET = "asset"
     FEDERATED = "federated"

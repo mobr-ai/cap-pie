@@ -5,10 +5,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+from evaluation.src.metrics.generation_metrics import score_generation
+from evaluation.src.metrics.retrieval_metrics import score_retrieval
 from evaluation.src.runner.ablations import EvalConfig
 from evaluation.src.runner.pipeline_wrapper import run_pipeline
-from evaluation.src.metrics.retrieval_metrics import score_retrieval
-from evaluation.src.metrics.generation_metrics import score_generation
 
 
 def load_jsonl(path: str) -> list[dict[str, Any]]:

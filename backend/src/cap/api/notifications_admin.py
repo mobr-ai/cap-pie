@@ -1,26 +1,25 @@
 # cap/src/cap/api/notifications_admin.py
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
+from cap.core.auth_dependencies import get_current_admin_user
 from cap.database.model import User
 from cap.database.session import get_db
-from cap.core.auth_dependencies import get_current_admin_user
 from cap.services.admin_alerts_service import (
     # existing
     get_new_user_notification_config,
-    update_new_user_notification_config,
-    maybe_notify_admins_new_user,
-    # existing (waitlist)
-    get_waitlist_notification_config,
-    update_waitlist_notification_config,
-    maybe_notify_admins_waitlist,
     # NEW (user confirmed)
     get_user_confirmed_notification_config,
-    update_user_confirmed_notification_config,
+    # existing (waitlist)
+    get_waitlist_notification_config,
+    maybe_notify_admins_new_user,
     maybe_notify_admins_user_confirmed,
+    maybe_notify_admins_waitlist,
+    update_new_user_notification_config,
+    update_user_confirmed_notification_config,
+    update_waitlist_notification_config,
 )
 
 router = APIRouter(prefix="/api/v1/admin/notifications", tags=["notifications_admin"])
@@ -30,12 +29,12 @@ router = APIRouter(prefix="/api/v1/admin/notifications", tags=["notifications_ad
 
 class NotificationConfigIn(BaseModel):
     enabled: bool
-    recipients: List[EmailStr]
+    recipients: list[EmailStr]
 
 
 class NotificationConfigOut(BaseModel):
     enabled: bool
-    recipients: List[EmailStr]
+    recipients: list[EmailStr]
 
 
 # ---------- New user notifications (existing) ----------

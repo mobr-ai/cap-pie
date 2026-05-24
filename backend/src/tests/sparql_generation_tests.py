@@ -3,14 +3,15 @@ Test script for the Natural Language Query Pipeline.
 Run this to verify nl components are working correctly.
 Not for pytest
 """
-import asyncio
 import argparse
+import asyncio
 import json
 from pathlib import Path
 
-from cap.util.sparql_util import detect_and_parse_sparql, force_limit_cap
 from cap.rdf.triplestore import TriplestoreClient
 from cap.services.llm_client import LLMClient
+from cap.util.sparql_util import detect_and_parse_sparql, force_limit_cap
+
 
 def _read_content_nl_file(path: str | Path) -> str:
     """Read and return the content of a txt file with nl queries."""
@@ -48,7 +49,7 @@ class SPARQLGenerationTester:
                         res = await self.tc.execute_query(query_to_validate)
 
                     except Exception as e:
-                        print(f"Test failed!")
+                        print("Test failed!")
                         raw = str(e)
 
                         try:
@@ -70,14 +71,14 @@ class SPARQLGenerationTester:
 
                         exit()
 
-                    assert "SELECT" in llm_resp, f"Failed with invalid sparql"
+                    assert "SELECT" in llm_resp, "Failed with invalid sparql"
 
                     print(f"✓ Test passed for query\n    {query}")
-                    print(f"====GENERATED SPARQL====")
+                    print("====GENERATED SPARQL====")
                     print(f"{llm_resp}")
-                    print(f"validation: ")
+                    print("validation: ")
                     print(f"    {res}")
-                    print(f"========================")
+                    print("========================")
 
 
 async def main():

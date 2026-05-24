@@ -3,10 +3,11 @@ SPARQL Results to Key-Value Converter for Blockchain Data
 Handles large integers (ADA amounts in lovelace) and nested structures
 """
 import logging
-from typing import Any, Union
 import re
-from rdflib.plugins.sparql.parser import parseQuery
+from typing import Any
+
 from pyparsing import ParseException
+from rdflib.plugins.sparql.parser import parseQuery
 
 logger = logging.getLogger(__name__)
 
@@ -554,7 +555,7 @@ def _parse_sequential_sparql(sparql_text: str) -> list[dict[str, Any]]:
 
     return queries
 
-def detect_and_parse_sparql(sparql_text: str, nl_query) -> tuple[bool, Union[str, list[dict[str, Any]]]]:
+def detect_and_parse_sparql(sparql_text: str, nl_query) -> tuple[bool, str | list[dict[str, Any]]]:
     """
     Detect if the SPARQL text contains sequential queries and parse accordingly.
 

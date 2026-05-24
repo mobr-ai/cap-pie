@@ -3,16 +3,17 @@ Redis client for caching SPARQL queries.
 """
 import json
 import os
-from typing import Optional, Any
+from typing import Any
 
 import redis.asyncio as redis
+
 
 class RedisSPARQLClient:
     """Client for Redis SPARQL caching operations."""
 
     def __init__(
         self,
-        host: Optional[str] = None,
+        host: str | None = None,
         port: int = 6379,
         db: int = 0,
         ttl: int = 60 * 6
@@ -22,7 +23,7 @@ class RedisSPARQLClient:
         self.port = int(os.getenv("REDIS_PORT", port))
         self.db = db
         self.ttl = ttl
-        self._client: Optional[redis.Redis] = None
+        self._client: redis.Redis | None = None
 
     async def _get_sparql_client(self) -> redis.Redis:
         """Get or create Redis client."""
@@ -55,7 +56,7 @@ class RedisSPARQLClient:
         self,
         sparql_query: str,
         results: dict,
-        ttl: Optional[int] = None
+        ttl: int | None = None
     ) -> int:
         """Cache query with placeholder normalization."""
         try:
@@ -80,13 +81,13 @@ class RedisSPARQLClient:
 
             return 1  # Successfully cached
 
-        except Exception as e:
+        except Exception:
             return -1  # cache error
 
     async def get_cached_results(
         self,
         sparql_query: str
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Retrieve cached query and restore placeholders."""
         try:
             client = await self._get_sparql_client()
@@ -101,7 +102,7 @@ class RedisSPARQLClient:
             data = json.loads(cached)
             return data
 
-        except Exception as e:
+        except Exception:
             return None
 
     async def get_query_count(self, sparql_query: str) -> int:
@@ -111,7 +112,7 @@ class RedisSPARQLClient:
             count_key = self._make_count_key(sparql_query)
             count = await client.get(count_key)
             return int(count) if count else 0
-        except Exception as e:
+        except Exception:
             return 0
 
     async def health_check(self) -> bool:
@@ -120,11 +121,11 @@ class RedisSPARQLClient:
             client = await self._get_sparql_client()
             await client.ping()
             return True
-        except Exception as e:
+        except Exception:
             return False
 
 # Global client instance
-_redis_sparql_client: Optional[RedisSPARQLClient] = None
+_redis_sparql_client: RedisSPARQLClient | None = None
 
 
 def get_redis_sparql_client() -> RedisSPARQLClient:

@@ -1,13 +1,13 @@
 import os
 import subprocess
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from cap.database.session import get_db
-from cap.database.model import User
 from cap.core.auth_dependencies import get_current_admin_user
+from cap.database.model import User
+from cap.database.session import get_db
 
 try:
     import psutil  # type: ignore

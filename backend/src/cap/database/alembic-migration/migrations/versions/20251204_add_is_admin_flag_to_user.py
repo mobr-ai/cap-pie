@@ -5,9 +5,8 @@ Revises: 20251127_add_metrics_tables
 Create Date: 2025-12-04 00:00:00.000000
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # Revision identifiers, used by Alembic.
 revision = "20251204_add_is_admin_flag"

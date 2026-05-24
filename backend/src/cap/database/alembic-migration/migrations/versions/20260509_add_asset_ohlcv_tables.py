@@ -5,9 +5,8 @@ Revises: 20251213_add_created_at_to_waiting_list
 Create Date: 2026-05-09
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "20260509_add_asset_ohlcv"
 down_revision = "20251213_add_created_at_to_waiting_list"

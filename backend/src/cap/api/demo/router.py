@@ -1,29 +1,26 @@
-# cap/api/demo/router.py
-from __future__ import annotations
-
+import asyncio
 import json
 import logging
 import time
-import asyncio
-from typing import AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from cap.database.model import QueryMetrics, User
 from cap.database.session import get_db
-from cap.database.model import User, QueryMetrics
-from cap.services.metrics_service import MetricsService
 from cap.services.conversation_persistence import (
-    start_conversation_and_persist_user,
     persist_assistant_message_and_touch,
     persist_conversation_artifact_from_raw_kv,
+    start_conversation_and_persist_user,
 )
+from cap.services.metrics_service import MetricsService
 
-from .schemas import DemoQueryRequest, BreakSSEMode
 from .auth import get_optional_user
-from .sse import NL_TOKEN, DONE_SSE, iter_sse_markdown_events
 from .scenes import pick_scene
+from .schemas import BreakSSEMode, DemoQueryRequest
+from .sse import DONE_SSE, NL_TOKEN, iter_sse_markdown_events
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +37,7 @@ def _truthy(v) -> bool:
     return bool(v)
 
 
-def _scene_break_mode(req: DemoQueryRequest, scene: Optional[dict]) -> BreakSSEMode:
+def _scene_break_mode(req: DemoQueryRequest, scene: dict | None) -> BreakSSEMode:
     if req.break_sse_mode in ("concat_payload", "concat_raw"):
         return req.break_sse_mode
 
@@ -57,7 +54,7 @@ def _scene_break_mode(req: DemoQueryRequest, scene: Optional[dict]) -> BreakSSEM
     return None
 
 
-def _find_recent_demo_query_metrics_id(db: Session, user_id: Optional[int], nl_query: str) -> Optional[int]:
+def _find_recent_demo_query_metrics_id(db: Session, user_id: int | None, nl_query: str) -> int | None:
     if not user_id:
         return None
     q = (
@@ -74,7 +71,7 @@ async def demo_nl_query(
     req: DemoQueryRequest,
     request: Request,
     db: Session = Depends(get_db),
-    user: Optional[User] = Depends(get_optional_user),
+    user: User | None = Depends(get_optional_user),
 ):
     scene = pick_scene(req.query)
 
@@ -82,7 +79,7 @@ async def demo_nl_query(
     user_msg = None
     persist = user is not None
     kv_results_dict = None
-    deferred_raw_kv: Optional[str] = None
+    deferred_raw_kv: str | None = None
 
     if persist:
         conversation, user_msg = start_conversation_and_persist_user(
@@ -147,26 +144,26 @@ async def demo_nl_query(
 
             if carrier_idx is None:
                 for payload in payloads:
-                    yield f"data: {payload}\n".encode("utf-8")
+                    yield f"data: {payload}\n".encode()
             else:
                 for i, payload in enumerate(payloads):
                     if i == carrier_idx:
                         continue
-                    yield f"data: {payload}\n".encode("utf-8")
+                    yield f"data: {payload}\n".encode()
                     await _sleep(max(0, int(delay_ms / 3)))
 
                 carrier = payloads[carrier_idx]
 
                 if break_mode == "concat_payload":
-                    yield f"data: {carrier}{DONE_SSE}\n".encode("utf-8")
+                    yield f"data: {carrier}{DONE_SSE}\n".encode()
                 else:
-                    yield f"{carrier}{DONE_SSE}\n".encode("utf-8")
+                    yield f"{carrier}{DONE_SSE}\n".encode()
         else:
             for payload in payloads:
-                yield f"data: {payload}\n".encode("utf-8")
+                yield f"data: {payload}\n".encode()
 
         # Metrics (best-effort)
-        qid: Optional[int] = None
+        qid: int | None = None
         try:
             total_ms = int((time.perf_counter() - t0) * 1000)
 

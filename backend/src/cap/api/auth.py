@@ -1,35 +1,38 @@
 # cap/src/cap/api/auth.py
-import hashlib, os, secrets
-from datetime import datetime, timezone, timedelta
+import hashlib
+import os
+import secrets
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, EmailStr
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
+from cap.core.cardano_signature import verify_cardano_data_signature
+from cap.core.google_oauth import get_userinfo_from_access_token_or_idtoken
+from cap.core.security import (
+    generate_unique_username,
+    hash_password,
+    make_access_token,
+    new_confirmation_token,
+    verify_password,
+)
+from cap.database.model import CardanoAuthChallenge, User
 from cap.database.session import get_db
-from cap.database.model import User, CardanoAuthChallenge
 from cap.mailing.event_triggers import on_user_access_granted
 from cap.services.admin_alerts_service import maybe_notify_admins_new_user
-from cap.core.cardano_signature import verify_cardano_data_signature
-from cap.core.security import (
-    hash_password,
-    verify_password,
-    make_access_token,
-    generate_unique_username,
-    new_confirmation_token,
-)
-from cap.core.google_oauth import get_userinfo_from_access_token_or_idtoken
 
 # --- Event triggers (mailer) ---
 try:
     from cap.mailing.event_triggers import (
-        on_user_registered,        # existing in CAP (confirm-your-email)
-        on_waiting_list_joined,    # notify user joined waiting list
-        on_confirmation_resent,    # notify user that a new confirmation email was sent
-        on_user_confirmed,         # notify / log that user confirmed their email
-        on_oauth_login,            # notify / log OAuth login
-        on_wallet_login,           # notify / log Cardano wallet login
+        on_confirmation_resent,  # notify user that a new confirmation email was sent
+        on_oauth_login,  # notify / log OAuth login
+        on_user_confirmed,  # notify / log that user confirmed their email
+        on_user_registered,  # existing in CAP (confirm-your-email)
+        on_waiting_list_joined,  # notify user joined waiting list
+        on_wallet_login,  # notify / log Cardano wallet login
     )
 except Exception:
     # Fallbacks to avoid breaking imports if optional triggers aren't defined yet.
@@ -537,7 +540,9 @@ def auth_google(data: GoogleIn, request: Request, db: Session = Depends(get_db))
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(400, detail=str(e))
+        raise HTTPException(
+            400, detail=str(e)
+        ) from e
 
 
 # ---- Cardano wallet auth with signed CIP-30 / CIP-8 challenge ----

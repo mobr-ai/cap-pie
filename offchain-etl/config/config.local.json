@@ -1,0 +1,44 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 5433,
+    "user": "postgres",
+    "password": "mysecretpassword",
+    "database": "cap",
+    "schema_file": "sql/schema.sql"
+  },
+  "runtime": {
+    "run_once": false,
+    "bootstrap_schema": true,
+    "enabled_sources": ["ohlcv", "governance"],
+    "loop_sleep_seconds": 300
+  },
+  "ohlcv": {
+    "enabled": true,
+    "provider": "binance_spot",
+    "base_url": "https://api.binance.com",
+    "quote_asset": "USDT",
+    "interval": "1h",
+    "bootstrap_from": "2018-04-16T00:00:00Z",
+    "request_limit": 1000,
+    "request_pause_ms": 250,
+    "empty_window_max_advances_per_cycle": 50,
+    "binance_data_base_url": "https://data.binance.vision",
+    "archive_bootstrap_enabled": true,
+    "archive_tmp_dir": "/tmp/cap-offchain-etl/binance-klines",
+    "mapping_file": "config/asset_mapping.csv"
+  },
+  "governance": {
+    "enabled": true,
+    "provider": "govtool_public",
+    "discovery_urls": [
+      "https://gov.tools/proposal_discussion",
+      "https://gov.tools/budget_discussion",
+      "https://gov.tools/outcomes/governance_actions"
+    ],
+    "manual_source_file": "config/governance_sources.csv",
+    "request_pause_ms": 500,
+    "max_discovered_links_per_cycle": 500,
+    "refetch_after_hours": 24
+  }
+}
