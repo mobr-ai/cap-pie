@@ -336,12 +336,27 @@ export function BillingAccessDirectory({
           <div className="admin-stat-value">
             {billingStats?.total_users ?? "—"}
           </div>
+          <div
+            className="admin-stat-caption"
+            style={{
+              visibility: billingSearch.trim().length > 0 ? "visible" : "hidden",
+            }}
+          >
+            {t("admin.billingStatsFilteredCaption", {
+              count: billingStats?.filtered_total ?? 0,
+            })}
+          </div>
         </div>
 
-        <div className="admin-stat-card admin-stat-card--confirmed">
-          <div className="admin-stat-label">{t("admin.billingStatsFiltered")}</div>
+        <div className="admin-stat-card status-red">
+          <div className="admin-stat-label">
+            {t("admin.billingStatsBlockedShown")}
+          </div>
           <div className="admin-stat-value">
-            {billingStats?.filtered_total ?? "—"}
+            {billingStats?.shown_blocked ?? "—"}
+          </div>
+          <div className="admin-stat-caption">
+            {t("admin.billingStatsBlockedShownCaption")}
           </div>
         </div>
 
@@ -352,6 +367,9 @@ export function BillingAccessDirectory({
           <div className="admin-stat-value">
             {billingStats?.shown_premium ?? "—"}
           </div>
+          <div className="admin-stat-caption">
+            {t("admin.billingStatsPremiumShownCaption")}
+          </div>
         </div>
 
         <div className="admin-stat-card status-green">
@@ -360,6 +378,9 @@ export function BillingAccessDirectory({
           </div>
           <div className="admin-stat-value">
             {formatAda(billingStats?.shown_balance_ada || 0)}
+          </div>
+          <div className="admin-stat-caption">
+            {t("admin.billingStatsBalanceShownCaption")}
           </div>
         </div>
       </div>

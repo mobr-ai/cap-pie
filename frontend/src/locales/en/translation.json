@@ -637,7 +637,12 @@
     "billingOverviewPendingPayments": "Pending payments",
     "billingOverviewPendingPaymentsCaption": "Open sessions awaiting verification",
     "billingOverviewFreeQuotaUsed": "Free quota usage",
-    "billingOverviewFreeQuotaUsedCaption": "Free queries used in the current period"
+    "billingOverviewFreeQuotaUsedCaption": "Free queries used in the current period",
+    "billingStatsFilteredCaption": "Filtered: {{count}}",
+    "billingStatsBlockedShown": "Blocked shown",
+    "billingStatsBlockedShownCaption": "Users who reached the free query limit",
+    "billingStatsPremiumShownCaption": "Users with active Premium",
+    "billingStatsBalanceShownCaption": "Total Balance in current results"
   },
   "common": {
     "yes": "Yes",

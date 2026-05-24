@@ -638,7 +638,12 @@
     "billingOverviewPendingPayments": "Pagamentos pendentes",
     "billingOverviewPendingPaymentsCaption": "Sessões abertas aguardando verificação",
     "billingOverviewFreeQuotaUsed": "Uso da cota grátis",
-    "billingOverviewFreeQuotaUsedCaption": "Consultas grátis usadas no período atual"
+    "billingOverviewFreeQuotaUsedCaption": "Consultas grátis usadas no período atual",
+    "billingStatsFilteredCaption": "Filtrados: {{count}}",
+    "billingStatsBlockedShown": "Bloqueados exibidos",
+    "billingStatsBlockedShownCaption": "Usuários que atingiram o limite grátis",
+    "billingStatsPremiumShownCaption": "Usuários com Premium ativo",
+    "billingStatsBalanceShownCaption": "Saldo total nos resultados atuais"
   },
   "common": {
     "yes": "Sim",
