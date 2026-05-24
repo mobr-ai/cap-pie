@@ -614,7 +614,15 @@
     "billingGrantPremiumModalBody": "Grant or extend Premium access for this user. If the user already has active Premium, the selected number of days is added after the current expiration.",
     "billingRevokePremiumModalBody": "Revoke active Premium access for this user. This will mark the current active Premium entitlement as revoked.",
     "billingResetQuotaModalBody": "Reset this user's free query usage for the current period back to zero.",
-    "billingAdjustBalanceModalBody": "Adjust this user's CAP Balance. This creates a ledger entry and updates the lovelace balance."
+    "billingAdjustBalanceModalBody": "Adjust this user's CAP Balance. This creates a ledger entry and updates the lovelace balance.",
+    "billingQuotaUsage": "{{used}}/{{limit}} ({{remaining}} left)",
+    "billingPaymentStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "expired": "Expired",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    }
   },
   "common": {
     "yes": "Yes",

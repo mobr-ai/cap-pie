@@ -290,12 +290,26 @@ export function BillingAccessDirectory({
     return t("admin.billingPlanFree");
   };
 
+  const paymentStatusLabel = (status) => {
+    const normalized = String(status || "").trim().toLowerCase();
+    if (!normalized) return "—";
+
+    const key = `admin.billingPaymentStatus.${normalized}`;
+    const translated = t(key);
+    return translated === key ? status : translated;
+  };
+
   const quotaLabel = (row) => {
     if (row?.premium_active) return t("admin.billingUnlimited");
     const used = Number(row?.free_query_used || 0);
     const limit = Number(row?.free_query_limit || 0);
     const remaining = Number(row?.free_query_remaining || 0);
-    return `${used}/${limit} (${remaining} left)`;
+
+    return t("admin.billingQuotaUsage", {
+      used,
+      limit,
+      remaining,
+    });
   };
 
   const paymentLabel = (row) => {
@@ -304,7 +318,7 @@ export function BillingAccessDirectory({
 
     const amount = formatAda(p.amount_ada);
     const date = formatDate(p.paid_at || p.created_at);
-    return `${p.status || "—"} · ${amount} · ${date}`;
+    return `${paymentStatusLabel(p.status)} · ${amount} · ${date}`;
   };
 
   return (
