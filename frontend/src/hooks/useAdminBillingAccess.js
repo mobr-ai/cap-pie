@@ -161,6 +161,108 @@ export function useAdminBillingAccess(authFetch, showToast, t, enabled = true) {
     return arr;
   }, [items, sortField, sortDirection]);
 
+  const replaceBillingUser = useCallback((item) => {
+    if (!item?.user_id) return;
+    setItems((prev) =>
+      prev.map((row) => (row.user_id === item.user_id ? item : row))
+    );
+  }, []);
+
+  const runBillingAction = useCallback(
+    async (row, actionPath, body, successKey) => {
+      const af = authFetchRef.current;
+      const toast = showToastRef.current;
+      const tr = tRef.current;
+      if (!af || !row?.user_id) return false;
+
+      try {
+        const res = await af(`/api/v1/admin/billing/users/${row.user_id}/${actionPath}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body || {}),
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const detail = data?.detail?.code || data?.detail || tr("admin.toastActionError");
+          toast && toast(String(detail), "danger");
+          return false;
+        }
+
+        if (data?.item) replaceBillingUser(data.item);
+        toast && toast(tr(successKey), "success");
+        await reloadBillingUsers();
+        return true;
+      } catch (err) {
+        console.error(err);
+        toast && toast(`${tr("admin.toastActionError")}: ${err.message}`, "danger");
+        return false;
+      }
+    },
+    [reloadBillingUsers, replaceBillingUser]
+  );
+
+  const grantPremium = useCallback(
+    async (row, { days, note } = {}) => {
+      const safeDays = Number.parseInt(days, 10);
+      if (!Number.isFinite(safeDays) || safeDays < 1) return false;
+
+      return runBillingAction(
+        row,
+        "grant-premium",
+        { days: safeDays, note: note || null },
+        "admin.billingToastPremiumGranted"
+      );
+    },
+    [runBillingAction]
+  );
+
+  const revokePremium = useCallback(
+    async (row, { note } = {}) => {
+      return runBillingAction(
+        row,
+        "revoke-premium",
+        { note: note || null },
+        "admin.billingToastPremiumRevoked"
+      );
+    },
+    [runBillingAction]
+  );
+
+  const resetFreeQuota = useCallback(
+    async (row, { note } = {}) => {
+      return runBillingAction(
+        row,
+        "reset-free-quota",
+        { note: note || null },
+        "admin.billingToastQuotaReset"
+      );
+    },
+    [runBillingAction]
+  );
+
+  const adjustBalance = useCallback(
+    async (row, { amountAda, note } = {}) => {
+      const ada = Number.parseFloat(String(amountAda || "").replace(",", "."));
+      if (!Number.isFinite(ada) || ada === 0) return false;
+
+      const amountLovelace = Math.round(ada * 1_000_000);
+
+      return runBillingAction(
+        row,
+        "adjust-balance",
+        {
+          amount_lovelace: amountLovelace,
+          reason: "admin_adjustment",
+          note: note || null,
+        },
+        "admin.billingToastBalanceAdjusted"
+      );
+    },
+    [runBillingAction]
+  );
+
   return {
     billingUsers: items,
     billingStats: stats,
@@ -173,5 +275,9 @@ export function useAdminBillingAccess(authFetch, showToast, t, enabled = true) {
     handleBillingSort,
     sortedBillingUsers: sortedItems,
     reloadBillingUsers,
+    grantPremium,
+    revokePremium,
+    resetFreeQuota,
+    adjustBalance,
   };
 }
