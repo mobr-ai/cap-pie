@@ -199,6 +199,17 @@ export default function SettingsPage() {
   );
   const hasEnoughBalanceForPremium =
     premiumPriceLovelace > 0 && balanceLovelace >= premiumPriceLovelace;
+  const premiumPriceLabel = formatBillingAmountFromMinor(premiumPriceLovelace, {
+    currency: "lovelace",
+  });
+  const balanceLabel = formatBillingAmountFromMinor(balanceLovelace, {
+    currency: "lovelace",
+  });
+  const premiumBalanceActionDisabled =
+    billingLoading ||
+    isActivatingFromBalance ||
+    !premiumPriceLovelace ||
+    !hasEnoughBalanceForPremium;
 
   const missingPremiumAda = Math.max(
     1,
@@ -402,7 +413,7 @@ export default function SettingsPage() {
     window.requestAnimationFrame(() => {
       const input = document.querySelector(".Settings-deposit-custom-input");
       const balanceBlock = document.querySelector(".Settings-balance-card");
-      const walletBlock = document.querySelector(".Settings-wallet-card");
+      const walletBlock = document.querySelector(".Settings-payment-methods");
 
       const target = balanceBlock || walletBlock;
 
@@ -883,47 +894,57 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="Settings-billing-card">
-            <div>
-              <div className="Settings-billing-plan">
-                {t("settingsBilling.premiumPlan")}
-              </div>
-              <div className="Settings-billing-copy">
-                {t("settingsBilling.premiumDescription")}
-              </div>
+          <div className="Settings-payment-methods">
+            <div className="Settings-payment-methods-title">
+              {billingWalletApi
+                ? t("settingsBilling.connectedWallet", {
+                    wallet: formatWalletName(billingWalletName),
+                  })
+                : t("settingsBilling.connectWallet")}
             </div>
 
-            <Button
-              size="sm"
-              variant={hasPremiumAccess ? "outline-light" : "primary"}
-              onClick={handlePremiumAccessAction}
-              disabled={billingLoading || isActivatingFromBalance || !premiumPriceLovelace}
-              title={
-                hasEnoughBalanceForPremium
-                  ? t("settingsBilling.balanceActionHint")
-                  : billingWalletApi
-                    ? t("settingsBilling.addBalanceActionHint")
-                    : t("settingsBilling.connectWalletActionHint")
-              }
-            >
-              {isActivatingFromBalance
-                ? t("settingsBilling.activating")
-                : hasEnoughBalanceForPremium
-                  ? hasPremiumAccess
-                    ? t("settingsBilling.extendWithBalance")
-                    : t("settingsBilling.activateWithBalance")
-                  : billingWalletApi
-                    ? t("settingsBilling.topUpMissingBalance", {
-                        amount: missingPremiumAmountLabel,
-                      })
-                    : t("settingsBilling.connectWallet")}
-            </Button>
+            {billingWalletInfo?.address ? (
+              <div className="Settings-payment-address">
+                {billingWalletInfo.address}
+              </div>
+            ) : null}
+
+            <div className="Settings-payment-method-row">
+              {detectWallets().map(({ key, norm }) => (
+                <Button
+                  key={formatWalletName(key)}
+                  size="sm"
+                  variant="outline-light"
+                  className="Settings-payment-method-btn"
+                  onClick={() => connectBillingWallet(key)}
+                >
+                  {WALLET_ICONS[norm] ? (
+                    <img
+                      src={WALLET_ICONS[norm]}
+                      alt=""
+                      className="Settings-payment-method-icon"
+                    />
+                  ) : null}
+                  {formatWalletName(key)}
+                </Button>
+              ))}
+            </div>
+
+            {!billingWalletApi ? (
+              <div className="Settings-billing-hint">
+                {t("settingsBilling.connectHint")}
+              </div>
+            ) : null}
+
+            {billingError ? (
+              <div className="Settings-billing-error">{billingError}</div>
+            ) : null}
           </div>
 
-          <div className="Settings-billing-card Settings-billing-credit-card">
-            <div className="Settings-billing-credit-main">
+          <div className="Settings-billing-panel Settings-balance-panel">
+            <div className="Settings-balance-main">
               <div className="Settings-billing-plan">
-                {t("settingsBilling.prepaidTitle")}
+                {t("settingsBilling.currentBalanceTitle")}
               </div>
               <div className="Settings-billing-balance">
                 {formatBillingAmountFromMinor(
@@ -999,51 +1020,71 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="Settings-billing-wallets">
-            <div className="Settings-billing-wallet-title">
-              {billingWalletApi
-                ? t("settingsBilling.connectedWallet", {
-                    wallet: formatWalletName(billingWalletName),
-                  })
-                : t("settingsBilling.connectWallet")}
+          <div className="Settings-billing-panel Settings-premium-card">
+            <div className="Settings-premium-main">
+              <div className="Settings-billing-plan">
+                {t("settingsBilling.premiumPlan")}
+              </div>
+              <div className="Settings-billing-copy">
+                {t("settingsBilling.premiumDescription")}
+              </div>
+
+              <div className="Settings-premium-metrics Settings-premium-metrics-single">
+                <div>
+                  <span>{t("settingsBilling.planPrice")}</span>
+                  <strong>{premiumPriceLabel}</strong>
+                </div>
+              </div>
             </div>
 
-            {billingWalletInfo?.address ? (
-              <div className="Settings-billing-address">
-                {billingWalletInfo.address}
-              </div>
-            ) : null}
+            <div className="Settings-premium-actions">
+              <Button
+                size="sm"
+                variant={hasPremiumAccess ? "outline-light" : "primary"}
+                onClick={handlePremiumAccessAction}
+                disabled={premiumBalanceActionDisabled}
+                title={
+                  hasEnoughBalanceForPremium
+                    ? t("settingsBilling.balanceActionHint")
+                    : t("settingsBilling.addBalanceBeforePremiumHint", {
+                        amount: missingPremiumAmountLabel,
+                      })
+                }
+              >
+                {isActivatingFromBalance
+                  ? t("settingsBilling.activating")
+                  : hasPremiumAccess
+                    ? t("settingsBilling.extendWithBalance")
+                    : t("settingsBilling.activateWithBalance")}
+              </Button>
 
-            <div className="Settings-billing-wallet-row">
-              {detectWallets().map(({ key, norm }) => (
-                <Button
-                  key={formatWalletName(key)}
-                  size="sm"
-                  variant="outline-light"
-                  className="Settings-billing-wallet-btn"
-                  onClick={() => connectBillingWallet(key)}
+              <div className="Settings-premium-action-hint">
+                {hasEnoughBalanceForPremium
+                  ? t("settingsBilling.activateWithBalanceHint")
+                  : t("settingsBilling.addBalanceBeforePremiumHint", {
+                      amount: missingPremiumAmountLabel,
+                    })}
+              </div>
+
+              <div className="Settings-premium-optin-row">
+                <button
+                  type="button"
+                  className="Settings-premium-optin-chip"
+                  disabled
+                  title={t("settingsBilling.autoRenewHint")}
                 >
-                  {WALLET_ICONS[norm] ? (
-                    <img
-                      src={WALLET_ICONS[norm]}
-                      alt=""
-                      className="Settings-billing-wallet-icon"
-                    />
-                  ) : null}
-                  {formatWalletName(key)}
-                </Button>
-              ))}
-            </div>
-
-            {!billingWalletApi ? (
-              <div className="Settings-billing-hint">
-                {t("settingsBilling.connectHint")}
+                  {t("settingsBilling.autoRenewOptIn")}
+                </button>
+                <button
+                  type="button"
+                  className="Settings-premium-optin-chip"
+                  disabled
+                  title={t("settingsBilling.paygHint")}
+                >
+                  {t("settingsBilling.paygOptIn")}
+                </button>
               </div>
-            ) : null}
-
-            {billingError ? (
-              <div className="Settings-billing-error">{billingError}</div>
-            ) : null}
+            </div>
           </div>
 
           <div className="Settings-billing-future">

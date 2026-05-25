@@ -262,18 +262,19 @@
   color: rgba(187, 247, 208, 0.96);
 }
 
-.Settings-billing-card {
+.Settings-billing-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1.1rem;
+  margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(2, 6, 23, 0.24);
   border-radius: 16px;
 }
 
-.Settings-billing-card .btn {
+.Settings-billing-panel .btn {
   min-width: 104px;
   padding-inline: 0.8rem;
 }
@@ -292,7 +293,7 @@
   line-height: 1.45;
 }
 
-.Settings-billing-wallets {
+.Settings-payment-methods {
   margin-top: 1.05rem;
   padding: 1rem;
   border-radius: 16px;
@@ -300,14 +301,14 @@
   background: rgba(15, 23, 42, 0.22);
 }
 
-.Settings-billing-wallet-title {
+.Settings-payment-methods-title {
   color: rgba(226, 232, 240, 0.92);
   font-size: 0.84rem;
   font-weight: 700;
   margin-bottom: 0.55rem;
 }
 
-.Settings-billing-address {
+.Settings-payment-address {
   color: rgba(169, 194, 255, 0.95);
   font-family:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
@@ -317,20 +318,20 @@
   overflow-wrap: anywhere;
 }
 
-.Settings-billing-wallet-row {
+.Settings-payment-method-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
 }
 
-.Settings-billing-wallet-btn {
+.Settings-payment-method-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   min-height: 34px;
 }
 
-.Settings-billing-wallet-icon {
+.Settings-payment-method-icon {
   width: 16px;
   height: 16px;
   object-fit: contain;
@@ -423,7 +424,7 @@
   }
 
   .Settings-billing-header,
-  .Settings-billing-card {
+  .Settings-billing-panel {
     align-items: stretch;
     grid-template-columns: 1fr;
   }
@@ -432,7 +433,7 @@
     align-self: flex-start;
   }
 
-  .Settings-billing-card .btn {
+  .Settings-billing-panel .btn {
     width: 100%;
   }
 }
@@ -452,19 +453,19 @@
     border-radius: 14px;
   }
 
-  .Settings-billing-wallet-btn {
+  .Settings-payment-method-btn {
     flex: 1 1 calc(50% - 0.55rem);
     justify-content: center;
   }
 }
 
-.Settings-billing-credit-card {
+.Settings-balance-panel {
   margin-top: 1rem;
   grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1.2fr);
   align-items: stretch;
 }
 
-.Settings-billing-credit-main {
+.Settings-balance-main {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -561,7 +562,7 @@
 }
 
 @media (max-width: 900px) {
-  .Settings-billing-credit-card {
+  .Settings-balance-panel {
     grid-template-columns: 1fr;
   }
 
@@ -581,5 +582,117 @@
 
   .Settings-deposit-custom-row .btn {
     width: 100%;
+  }
+}
+
+
+.Settings-premium-card {
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.Settings-premium-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.Settings-premium-actions {
+  display: flex;
+  flex: 0 0 260px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.Settings-premium-actions .btn {
+  width: 100%;
+}
+
+.Settings-premium-action-hint {
+  color: rgba(203, 213, 225, 0.68);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.Settings-premium-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.Settings-premium-metrics-single {
+  grid-template-columns: minmax(0, 180px);
+}
+
+.Settings-premium-metrics > div {
+  min-width: 0;
+  padding: 0.65rem 0.7rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(2, 6, 23, 0.24);
+}
+
+.Settings-premium-metrics span {
+  display: block;
+  color: rgba(148, 163, 184, 0.82);
+  font-size: 0.68rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.Settings-premium-metrics strong {
+  display: block;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 0.86rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.Settings-premium-optin-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.Settings-premium-optin-chip {
+  padding: 0.38rem 0.58rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(2, 6, 23, 0.24);
+  color: rgba(203, 213, 225, 0.62);
+  font-size: 0.68rem;
+  line-height: 1.1;
+  cursor: not-allowed;
+}
+
+.Settings-premium-optin-chip:disabled {
+  opacity: 0.75;
+}
+
+@media (max-width: 760px) {
+  .Settings-premium-card {
+    flex-direction: column;
+  }
+
+  .Settings-premium-actions {
+    flex-basis: auto;
+  }
+
+  .Settings-premium-action-hint {
+    text-align: left;
+  }
+
+  .Settings-premium-metrics,
+  .Settings-premium-metrics-single {
+    grid-template-columns: 1fr;
+  }
+
+  .Settings-premium-optin-row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }

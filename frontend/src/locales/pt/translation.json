@@ -800,7 +800,16 @@
     "balanceActivationSuccess": "Acesso Premium ativado com Saldo.",
     "connectWalletActionHint": "Conecte uma carteira Cardano para adicionar Saldo.",
     "topUpMissingBalance": "Completar {{amount}}",
-    "balancePrefilledHint": "{{amount}} está pronto no campo de Saldo. Revise e clique em Adicionar Saldo."
+    "balancePrefilledHint": "{{amount}} está pronto no campo de Saldo. Revise e clique em Adicionar Saldo.",
+    "planPrice": "Preço do plano",
+    "ready": "Pronto",
+    "activateWithBalanceHint": "Seu Saldo cobre este plano. Ative ou estenda o Premium diretamente.",
+    "currentBalanceTitle": "Saldo atual",
+    "addBalanceBeforePremiumHint": "Adicione {{amount}} ao Saldo antes de ativar o Premium.",
+    "autoRenewOptIn": "Opt-in de renovação",
+    "autoRenewHint": "Os controles de renovação automática serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer renovação pelo Saldo.",
+    "paygOptIn": "Opt-in PAYG",
+    "paygHint": "Os controles pay-as-you-go serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer débito no Saldo."
   },
   "connectingWallet": "Conectando {{wallet}}...",
   "billingAccess": {

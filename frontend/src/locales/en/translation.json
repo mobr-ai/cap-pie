@@ -799,7 +799,16 @@
     "balanceActivationSuccess": "Premium access activated from Balance.",
     "connectWalletActionHint": "Connect a Cardano wallet to add Balance.",
     "topUpMissingBalance": "Top up {{amount}}",
-    "balancePrefilledHint": "{{amount}} is ready in the Balance input. Review it and click Add Balance."
+    "balancePrefilledHint": "{{amount}} is ready in the Balance input. Review it and click Add Balance.",
+    "planPrice": "Plan price",
+    "ready": "Ready",
+    "activateWithBalanceHint": "Your Balance covers this plan. Activate or extend Premium directly.",
+    "currentBalanceTitle": "Current Balance",
+    "addBalanceBeforePremiumHint": "Add {{amount}} to Balance before activating Premium.",
+    "autoRenewOptIn": "Auto-renew opt-in",
+    "autoRenewHint": "Auto-renew controls are coming soon. They will require explicit opt-in before any Balance renewal.",
+    "paygOptIn": "PAYG opt-in",
+    "paygHint": "Pay-as-you-go controls are coming soon. They will require explicit opt-in before any Balance debit."
   },
   "connectingWallet": "Connecting {{wallet}}...",
   "billingAccess": {
