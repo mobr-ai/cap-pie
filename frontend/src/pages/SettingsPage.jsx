@@ -422,7 +422,7 @@ export default function SettingsPage() {
     setShowDepositModal(true);
   };
 
-  const handlePremiumAccessAction = async () => {
+  const handlePremiumAccessAction = async ({ skipScroll = false } = {}) => {
     setBillingError("");
 
     if (hasEnoughBalanceForPremium) {
@@ -446,17 +446,17 @@ export default function SettingsPage() {
 
     window.requestAnimationFrame(() => {
       const input = document.querySelector(".Settings-deposit-custom-input");
-      const balanceBlock = document.querySelector(".Settings-balance-card");
+      const balanceBlock = document.querySelector(".Settings-balance-panel");
       const walletBlock = document.querySelector(".Settings-payment-methods");
 
       const target = balanceBlock || walletBlock;
 
-      if (target && typeof target.scrollIntoView === "function") {
-        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!skipScroll && target && typeof target.scrollIntoView === "function") {
+        target.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
 
       if (input && typeof input.focus === "function") {
-        input.focus();
+        input.focus({ preventScroll: true });
         input.select?.();
       }
     });
@@ -491,13 +491,13 @@ export default function SettingsPage() {
     window.requestAnimationFrame(() => {
       billingRef.current?.scrollIntoView?.({
         behavior: "smooth",
-        block: "center",
+        block: "start",
       });
     });
 
     if (action === "premium") {
       window.setTimeout(() => {
-        handlePremiumAccessAction();
+        handlePremiumAccessAction({ skipScroll: true });
       }, 300);
     }
 
