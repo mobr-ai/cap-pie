@@ -826,7 +826,7 @@
       "billing": "Cobrança e Acesso"
     },
     "paywall": {
-      "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/settings) para adicionar Saldo e ativar Premium.",
+      "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/settings?billing=1&action=premium) para adicionar Saldo e ativar Premium.",
       "toast": "Limite de consultas grátis atingido. Abra Cobrança e Acesso para continuar."
     }
   }

@@ -127,7 +127,7 @@ export default function LandingPage() {
   const handleBillingAccessBlocked = useCallback(
     () => {
       showToast?.(t("billingAccess.paywall.toast"), "warning", {
-        onClick: () => navigate("/settings"),
+        onClick: () => navigate("/settings?billing=1&action=premium"),
       });
     },
     [navigate, showToast, t],

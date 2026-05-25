@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Form,
@@ -173,7 +173,10 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const avatarInputRef = useRef(null);
+  const billingRef = useRef(null);
+  const billingDeepLinkHandledRef = useRef("");
   const hasPremiumAccess = hasEntitlement(
     billingEntitlements,
     "cap_premium_access",
@@ -422,6 +425,46 @@ export default function SettingsPage() {
       amount: missingPremiumAmountLabel,
     }));
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search || "");
+    const shouldFocusBilling =
+      params.get("billing") === "1" ||
+      params.get("tab") === "billing" ||
+      location.hash === "#billing-access";
+
+    if (!shouldFocusBilling) return;
+
+    const action = params.get("action") || "";
+    const deepLinkKey = `${location.search || ""}${location.hash || ""}`;
+
+    if (billingDeepLinkHandledRef.current === deepLinkKey) return;
+    if (billingLoading && action === "premium") return;
+
+    billingDeepLinkHandledRef.current = deepLinkKey;
+
+    window.requestAnimationFrame(() => {
+      billingRef.current?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+
+    if (action === "premium") {
+      window.setTimeout(() => {
+        handlePremiumAccessAction();
+      }, 300);
+    }
+
+    if (action === "balance") {
+      window.setTimeout(() => {
+        const input = document.querySelector(".Settings-deposit-custom-input");
+        input?.focus?.();
+        input?.select?.();
+      }, 350);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, location.hash, billingLoading]);
 
   // ---- Helpers -------------------------------------------------------------
 
@@ -810,7 +853,11 @@ export default function SettingsPage() {
           </Form.Group>
         </Form>
 
-        <div className="mt-4 p-3 Settings-billing-zone">
+        <div
+          ref={billingRef}
+          id="billing-access"
+          className="mt-4 p-3 Settings-billing-zone"
+        >
           <div className="Settings-billing-header">
             <div>
               <h5 className="Settings-section-title">
