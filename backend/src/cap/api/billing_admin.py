@@ -345,6 +345,8 @@ def admin_reset_free_quota(
     if row:
         row.used_count = 0
         row.limit_count = config.free_limit_count
+        row.free_query_tokens = float(config.free_limit_count or 0)
+        row.free_query_refilled_at = _to_db_naive_utc(now)
         row.updated_at = _to_db_naive_utc(now)
         db.add(row)
     else:
@@ -355,6 +357,8 @@ def admin_reset_free_quota(
             period_end=_to_db_naive_utc(period_end),
             used_count=0,
             limit_count=config.free_limit_count,
+            free_query_tokens=float(config.free_limit_count or 0),
+            free_query_refilled_at=_to_db_naive_utc(now),
             created_at=_to_db_naive_utc(now),
             updated_at=_to_db_naive_utc(now),
         )

@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -251,6 +252,8 @@ class UserUsagePeriod(Base):
     period_end = Column(DateTime, nullable=False, index=True)
     used_count = Column(Integer, nullable=False, server_default=text("0"))
     limit_count = Column(Integer, nullable=False)
+    free_query_tokens = Column(Float, nullable=True)
+    free_query_refilled_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=text("NOW()"), index=True)
     updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
 
