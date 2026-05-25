@@ -585,7 +585,6 @@
   }
 }
 
-
 .Settings-premium-card {
   align-items: stretch;
   gap: 1rem;
@@ -836,17 +835,15 @@
 }
 
 .Settings-topbar .Settings-language {
-  width: 6.25rem;
+  /* width: 6.25rem; */
   margin-bottom: 0;
 }
 
 .Settings-topbar .form-label {
-  display: block;
+  display: none;
   margin-bottom: 0.35rem;
   text-align: right;
 }
-
-
 
 @media (max-width: 620px) {
   .Settings-topbar {
