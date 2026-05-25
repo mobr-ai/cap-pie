@@ -38,6 +38,7 @@ import { getWalletInfo } from "../cardano/utils";
 import {
   activatePlanFromBalance,
   fetchBillingPlans,
+  fetchMyBillingTransactions,
   fetchMyCreditBalance,
   fetchMyEntitlements,
   hasEntitlement,
@@ -102,6 +103,35 @@ function formatWalletName(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function formatBillingActivityDate(value) {
+  if (!value) return "";
+  try {
+    return new Date(value).toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
+
+function getBillingActivityReasonKey(reason) {
+  const key = String(reason || "").trim();
+
+  if (key === "credit_deposit") return "creditDeposit";
+  if (key === "plan_activation") return "planActivation";
+  if (key === "plan_purchase") return "planPurchase";
+  if (key === "admin_adjustment") return "adminAdjustment";
+  if (key === "premium_grant") return "premiumGrant";
+  if (key === "premium_revoke") return "premiumRevoke";
+
+  return "other";
+}
+
+
 function getSessionWalletName(session, user) {
   return (
     session?.wallet_info?.wallet ||
@@ -145,6 +175,7 @@ export default function SettingsPage() {
   const [billingEntitlements, setBillingEntitlements] = useState([]);
   const [billingError, setBillingError] = useState("");
   const [billingPlans, setBillingPlans] = useState([]);
+  const [billingTransactions, setBillingTransactions] = useState([]);
   const [creditBalance, setCreditBalance] = useState(null);
   const [selectedDepositAda, setSelectedDepositAda] = useState(10);
   const [customDepositAda, setCustomDepositAda] = useState("10");
@@ -269,6 +300,9 @@ export default function SettingsPage() {
 
       const plansData = await fetchBillingPlans();
       setBillingPlans(plansData?.plans || []);
+
+      const transactionsData = await fetchMyBillingTransactions(outlet.session, 12);
+      setBillingTransactions(transactionsData?.transactions || []);
     } catch (err) {
       console.error("[Settings] Billing status failed:", err);
       setBillingError(t("settingsBilling.errors.statusFailed"));
@@ -680,7 +714,22 @@ export default function SettingsPage() {
   return (
     <div className="Settings-body">
       <Container className="Settings-container">
-        <h2 className="Settings-title">{t("settings")}</h2>
+        <div className="Settings-topbar">
+          <h2 className="Settings-title">{t("settings")}</h2>
+
+          <Form onSubmit={(e) => e.preventDefault()} className="Settings-language-form">
+            <Form.Group
+              controlId="languageSelect"
+              className="Settings-language"
+            >
+              <Form.Label>{t("languageConf")}</Form.Label>
+              <Form.Select value={language} onChange={handleLanguageChange}>
+                <option value="en">🇺🇸 English (US)</option>
+                <option value="pt">🇧🇷 Português (BR)</option>
+              </Form.Select>
+            </Form.Group>
+          </Form>
+        </div>
 
         <div className="Settings-user-box">
           <Row className="align-items-center">
@@ -850,19 +899,6 @@ export default function SettingsPage() {
             </Col>
           </Row>
         </div>
-
-        <Form onSubmit={(e) => e.preventDefault()}>
-          <Form.Group
-            controlId="languageSelect"
-            className="mb-3 Settings-language"
-          >
-            <Form.Label>{t("languageConf")}</Form.Label>
-            <Form.Select value={language} onChange={handleLanguageChange}>
-              <option value="en">🇺🇸 English (US)</option>
-              <option value="pt">🇧🇷 Português (BR)</option>
-            </Form.Select>
-          </Form.Group>
-        </Form>
 
         <div
           ref={billingRef}
@@ -1085,6 +1121,67 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="Settings-billing-panel Settings-activity-panel">
+            <div className="Settings-activity-header">
+              <div>
+                <div className="Settings-billing-plan">
+                  {t("settingsBilling.activityTitle")}
+                </div>
+                <div className="Settings-billing-copy">
+                  {t("settingsBilling.activityDescription")}
+                </div>
+              </div>
+            </div>
+
+            {billingTransactions.length > 0 ? (
+              <div className="Settings-activity-list">
+                {billingTransactions.map((item) => {
+                  const amount = Number(item?.amount || 0);
+                  const isPositive = amount > 0;
+                  const isNegative = amount < 0;
+                  const reasonKey = getBillingActivityReasonKey(item?.reason);
+
+                  return (
+                    <div
+                      key={`${item?.id || item?.created_at || "tx"}-${item?.reason || "item"}`}
+                      className="Settings-activity-row"
+                    >
+                      <div className="Settings-activity-main">
+                        <div className="Settings-activity-reason">
+                          {t(`settingsBilling.activityReasons.${reasonKey}`)}
+                        </div>
+                        <div className="Settings-activity-date">
+                          {formatBillingActivityDate(item?.created_at)}
+                        </div>
+                      </div>
+
+                      <div className="Settings-activity-amount" data-direction={
+                        isPositive ? "credit" : isNegative ? "debit" : "neutral"
+                      }>
+                        {formatBillingAmountFromMinor(amount, {
+                          currency: item?.currency || "lovelace",
+                        })}
+                      </div>
+
+                      <div className="Settings-activity-balance">
+                        <span>{t("settingsBilling.activityBalanceAfter")}</span>
+                        <strong>
+                          {formatBillingAmountFromMinor(item?.balance_after || 0, {
+                            currency: item?.currency || "lovelace",
+                          })}
+                        </strong>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="Settings-activity-empty">
+                {t("settingsBilling.activityEmpty")}
+              </div>
+            )}
           </div>
 
           <div className="Settings-billing-future">

@@ -808,7 +808,20 @@
     "autoRenewOptIn": "Auto-renew opt-in",
     "autoRenewHint": "Auto-renew controls are coming soon. They will require explicit opt-in before any Balance renewal.",
     "paygOptIn": "PAYG opt-in",
-    "paygHint": "Pay-as-you-go controls are coming soon. They will require explicit opt-in before any Balance debit."
+    "paygHint": "Pay-as-you-go controls are coming soon. They will require explicit opt-in before any Balance debit.",
+    "activityTitle": "Recent billing activity",
+    "activityDescription": "Track Balance deposits, Premium activations, and account adjustments.",
+    "activityEmpty": "No billing activity yet.",
+    "activityBalanceAfter": "Balance after",
+    "activityReasons": {
+      "creditDeposit": "Balance deposit",
+      "planActivation": "Premium activated from Balance",
+      "planPurchase": "Premium payment",
+      "adminAdjustment": "Admin Balance adjustment",
+      "premiumGrant": "Premium granted",
+      "premiumRevoke": "Premium revoked",
+      "other": "Billing activity"
+    }
   },
   "connectingWallet": "Connecting {{wallet}}...",
   "billingAccess": {

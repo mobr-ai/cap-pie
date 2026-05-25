@@ -696,3 +696,173 @@
     flex-wrap: wrap;
   }
 }
+
+.Settings-activity-panel {
+  display: block;
+}
+
+.Settings-activity-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.Settings-activity-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.Settings-activity-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.Settings-activity-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.Settings-activity-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.Settings-activity-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.62);
+}
+
+.Settings-activity-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.72rem 0.78rem;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.2);
+}
+
+.Settings-activity-main {
+  min-width: 0;
+}
+
+.Settings-activity-reason {
+  color: rgba(248, 250, 252, 0.94);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.Settings-activity-date {
+  color: rgba(148, 163, 184, 0.78);
+  font-size: 0.72rem;
+  margin-top: 0.12rem;
+}
+
+.Settings-activity-amount {
+  color: rgba(226, 232, 240, 0.94);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.Settings-activity-amount[data-direction="credit"] {
+  color: rgba(134, 239, 172, 0.95);
+}
+
+.Settings-activity-amount[data-direction="debit"] {
+  color: rgba(253, 186, 116, 0.95);
+}
+
+.Settings-activity-balance {
+  min-width: 110px;
+  text-align: right;
+}
+
+.Settings-activity-balance span {
+  display: block;
+  color: rgba(148, 163, 184, 0.7);
+  font-size: 0.66rem;
+  line-height: 1.1;
+}
+
+.Settings-activity-balance strong {
+  display: block;
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 0.78rem;
+  margin-top: 0.18rem;
+  white-space: nowrap;
+}
+
+.Settings-activity-empty {
+  padding: 0.75rem 0.8rem;
+  border: 1px dashed rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  color: rgba(203, 213, 225, 0.7);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 760px) {
+  .Settings-activity-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+
+  .Settings-activity-amount,
+  .Settings-activity-balance {
+    text-align: left;
+  }
+}
+
+.Settings-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.Settings-topbar .Settings-title {
+  margin-bottom: 0;
+}
+
+.Settings-language-form {
+  flex: 0 0 auto;
+}
+
+.Settings-topbar .Settings-language {
+  width: 6.25rem;
+  margin-bottom: 0;
+}
+
+.Settings-topbar .form-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  text-align: right;
+}
+
+
+
+@media (max-width: 620px) {
+  .Settings-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .Settings-topbar .Settings-language {
+    width: 100%;
+  }
+
+  .Settings-topbar .form-label {
+    text-align: left;
+  }
+
+  .Settings-activity-list {
+    max-height: 240px;
+  }
+}

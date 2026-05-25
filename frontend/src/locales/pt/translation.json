@@ -809,7 +809,20 @@
     "autoRenewOptIn": "Opt-in de renovação",
     "autoRenewHint": "Os controles de renovação automática serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer renovação pelo Saldo.",
     "paygOptIn": "Opt-in PAYG",
-    "paygHint": "Os controles pay-as-you-go serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer débito no Saldo."
+    "paygHint": "Os controles pay-as-you-go serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer débito no Saldo.",
+    "activityTitle": "Atividade recente de cobrança",
+    "activityDescription": "Acompanhe depósitos de Saldo, ativações Premium e ajustes da conta.",
+    "activityEmpty": "Nenhuma atividade de cobrança ainda.",
+    "activityBalanceAfter": "Saldo após",
+    "activityReasons": {
+      "creditDeposit": "Depósito de Saldo",
+      "planActivation": "Premium ativado pelo Saldo",
+      "planPurchase": "Pagamento Premium",
+      "adminAdjustment": "Ajuste de Saldo pelo admin",
+      "premiumGrant": "Premium concedido",
+      "premiumRevoke": "Premium revogado",
+      "other": "Atividade de cobrança"
+    }
   },
   "connectingWallet": "Conectando {{wallet}}...",
   "billingAccess": {
