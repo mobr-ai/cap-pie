@@ -1,3 +1,4 @@
+import { formatBillingAmountFromMajor } from "../../billing/currency";
 import React, { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,12 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function formatAda(value) {
-  const n = Number(value || 0);
-  if (!Number.isFinite(n)) return "0 ₳";
-  return `${n.toLocaleString(undefined, {
-    minimumFractionDigits: n > 0 && n < 1 ? 6 : 0,
-    maximumFractionDigits: 6,
-  })} ₳`;
+  return formatBillingAmountFromMajor(value, { currency: "lovelace" });
 }
 
 function formatDate(value) {

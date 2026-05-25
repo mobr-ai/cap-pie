@@ -17,6 +17,11 @@ import {
 import { getWalletInfo } from "../../cardano/utils";
 import { WALLET_ICONS } from "../../cardano/constants";
 import "../../styles/CardanoPaymentModal.css";
+import {
+  formatBillingAmountFromMinor,
+  formatBillingCurrencyCode,
+  formatBillingNetworkLabel,
+} from "../../billing/currency";
 
 function formatWalletName(value) {
   if (!value || typeof value !== "string") return "";
@@ -126,6 +131,7 @@ function getPlanPreview(data, planCode) {
     amount,
     durationDays,
     network: price?.network || plan?.network || "mainnet",
+    currency: price?.currency || plan?.currency || "lovelace",
   };
 }
 
@@ -140,8 +146,12 @@ function getErrorMessage(t, err) {
 
   return t(`billing.errors.${code}`, {
     defaultValue: t("billing.errors.paymentFailed"),
-    balance: err?.balanceLovelace ? lovelaceToAda(err.balanceLovelace) : undefined,
-    required: err?.requiredLovelace ? lovelaceToAda(err.requiredLovelace) : undefined,
+    balance: err?.balanceLovelace
+      ? formatBillingAmountFromMinor(err.balanceLovelace, { currency: "lovelace" })
+      : undefined,
+    required: err?.requiredLovelace
+      ? formatBillingAmountFromMinor(err.requiredLovelace, { currency: "lovelace" })
+      : undefined,
   });
 }
 
@@ -177,6 +187,11 @@ export default function CardanoPaymentModal({
 
   const amountLovelaceToPay = paymentSession?.amount ?? resolvedAmountLovelace ?? null;
   const amountAda = amountLovelaceToPay ? lovelaceToAda(amountLovelaceToPay) : null;
+  const paymentCurrency =
+    paymentSession?.currency ||
+    planPreview?.currency ||
+    "lovelace";
+  const paymentCurrencyCode = formatBillingCurrencyCode(paymentCurrency);
   const durationDays = paymentSession?.duration_days || planPreview?.durationDays || 30;
   const network =
     paymentSession?.network ||
@@ -267,8 +282,8 @@ export default function CardanoPaymentModal({
 
     if (hasInsufficientBalance) {
       setError(t("billing.errors.insufficientWalletBalance", {
-        balance: lovelaceToAda(balanceLovelace),
-        required: lovelaceToAda(requiredLovelace),
+        balance: formatBillingAmountFromMinor(balanceLovelace, { currency: paymentCurrency }),
+        required: formatBillingAmountFromMinor(requiredLovelace, { currency: paymentCurrency }),
       }));
     } else if (error === t("billing.errors.insufficientWalletBalance", {
       balance: walletBalance?.ada || "0",
@@ -306,8 +321,12 @@ export default function CardanoPaymentModal({
 
     if (hasInsufficientBalance) {
       setError(t("billing.errors.insufficientWalletBalance", {
-        balance: walletBalance?.ada || "0",
-        required: requiredLovelace ? lovelaceToAda(requiredLovelace) : amountAda || "0",
+        balance: walletBalance?.lovelace
+          ? formatBillingAmountFromMinor(walletBalance.lovelace, { currency: paymentCurrency })
+          : formatBillingAmountFromMinor(0, { currency: paymentCurrency }),
+        required: requiredLovelace
+          ? formatBillingAmountFromMinor(requiredLovelace, { currency: paymentCurrency })
+          : amountAda || "0",
       }));
       return;
     }
@@ -410,7 +429,7 @@ export default function CardanoPaymentModal({
               {amountAda ? (
                 <>
                   <span>{amountAda}</span>
-                  <small>₳DA</small>
+                  <small>{paymentCurrencyCode}</small>
                 </>
               ) : (
                 <span>{t("billing.modal.loadingPrice")}</span>
@@ -419,7 +438,7 @@ export default function CardanoPaymentModal({
             <div className="CardanoPaymentModal-priceMeta">
               {paymentKind === "credit_deposit"
                 ? t("billing.modal.prepaidCreditMeta")
-                : t("billing.modal.durationDays", { count: durationDays })} · {network}
+                : t("billing.modal.durationDays", { count: durationDays })} · {formatBillingNetworkLabel(network)}
             </div>
           </div>
 

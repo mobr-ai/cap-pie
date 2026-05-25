@@ -42,6 +42,10 @@ import {
   fetchMyEntitlements,
   hasEntitlement,
 } from "../billing/api";
+import {
+  formatBillingAmountFromMajor,
+  formatBillingAmountFromMinor,
+} from "../billing/currency";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._]{5,29}$/;
 // Simple, friendly display name rule: 2-30 chars, trimmed, no control chars
@@ -197,6 +201,9 @@ export default function SettingsPage() {
     1,
     Math.ceil(Number(lovelaceToAdaDisplay(missingPremiumLovelace || premiumPriceLovelace))),
   );
+  const missingPremiumAmountLabel = formatBillingAmountFromMajor(missingPremiumAda, {
+    currency: "lovelace",
+  });
 
   const usernameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -357,7 +364,9 @@ export default function SettingsPage() {
     }
 
     if (!effectiveDepositLovelace || effectiveDepositLovelace < 1_000_000) {
-      setBillingError(t("settingsBilling.errors.depositTooSmall"));
+      setBillingError(t("settingsBilling.errors.depositTooSmall", {
+        amount: formatBillingAmountFromMajor(1, { currency: "lovelace" }),
+      }));
       return;
     }
 
@@ -409,7 +418,9 @@ export default function SettingsPage() {
       return;
     }
 
-    setBillingError(t("settingsBilling.balancePrefilledHint", { amount: missingPremiumAda }));
+    setBillingError(t("settingsBilling.balancePrefilledHint", {
+      amount: missingPremiumAmountLabel,
+    }));
   };
 
   // ---- Helpers -------------------------------------------------------------
@@ -855,7 +866,9 @@ export default function SettingsPage() {
                     ? t("settingsBilling.extendWithBalance")
                     : t("settingsBilling.activateWithBalance")
                   : billingWalletApi
-                    ? t("settingsBilling.topUpMissingBalance", { amount: missingPremiumAda })
+                    ? t("settingsBilling.topUpMissingBalance", {
+                        amount: missingPremiumAmountLabel,
+                      })
                     : t("settingsBilling.connectWallet")}
             </Button>
           </div>
@@ -866,12 +879,12 @@ export default function SettingsPage() {
                 {t("settingsBilling.prepaidTitle")}
               </div>
               <div className="Settings-billing-balance">
-                {lovelaceToAdaDisplay(
+                {formatBillingAmountFromMinor(
                   creditBalance?.balance_lovelace ||
                     creditBalance?.balance ||
                     0,
-                )}{" "}
-                ₳DA
+                  { currency: "lovelace" },
+                )}
               </div>
               <div className="Settings-billing-copy">
                 {t("settingsBilling.prepaidDescription")}
@@ -901,7 +914,9 @@ export default function SettingsPage() {
                       className="Settings-deposit-chip-icon"
                     />
                     <span className="Settings-deposit-chip-amount">
-                      {option.amount} ₳
+                      {formatBillingAmountFromMajor(option.amount, {
+                        currency: "lovelace",
+                      })}
                     </span>
                     <span className="Settings-deposit-chip-label">
                       {t(option.labelKey)}

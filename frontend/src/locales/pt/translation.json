@@ -596,8 +596,8 @@
     "billingInvalidDays": "Informe um número válido de dias.",
     "billingConfirmRevokePremium": "Revogar o acesso Premium ativo deste usuário?",
     "billingConfirmResetQuota": "Zerar o uso de consultas grátis deste usuário no período atual?",
-    "billingAdjustBalancePrompt": "Informe o valor em ADA para adicionar ou subtrair. Use valores negativos para remover saldo.",
-    "billingInvalidBalanceAmount": "Informe um valor em ADA válido e diferente de zero.",
+    "billingAdjustBalancePrompt": "Informe o valor para adicionar ou subtrair. Use valores negativos para remover saldo.",
+    "billingInvalidBalanceAmount": "Informe um valor válido e diferente de zero.",
     "billingToastPremiumGranted": "Acesso Premium atualizado.",
     "billingToastPremiumRevoked": "Acesso Premium revogado.",
     "billingToastQuotaReset": "Cota de consultas grátis zerada.",
@@ -605,7 +605,7 @@
     "billingSelectedUser": "Usuário selecionado",
     "billingActionDetails": "Detalhes da ação",
     "billingPremiumDaysLabel": "Dias de Premium",
-    "billingBalanceAdaLabel": "Valor em ADA",
+    "billingBalanceAdaLabel": "Valor do Saldo",
     "billingBalanceAdaHelp": "Use um valor positivo para adicionar Saldo ou negativo para remover Saldo.",
     "billingNoteLabel": "Nota admin",
     "billingNotePlaceholder": "Nota interna opcional...",
@@ -615,7 +615,7 @@
     "billingGrantPremiumModalBody": "Conceda ou estenda o acesso Premium deste usuário. Se ele já tiver Premium ativo, os dias selecionados serão adicionados após a expiração atual.",
     "billingRevokePremiumModalBody": "Revogue o acesso Premium ativo deste usuário. O entitlement Premium ativo será marcado como revogado.",
     "billingResetQuotaModalBody": "Zere o uso de consultas grátis deste usuário no período atual.",
-    "billingAdjustBalanceModalBody": "Ajuste o Saldo CAP deste usuário. Isso cria um lançamento no ledger e atualiza o saldo em lovelace.",
+    "billingAdjustBalanceModalBody": "Ajuste o Saldo CAP deste usuário. Isso cria um lançamento no ledger e atualiza o saldo da conta.",
     "billingQuotaUsage": "{{used}}/{{limit}} ({{remaining}} rest.)",
     "billingPaymentStatus": {
       "pending": "Pendente",
@@ -680,7 +680,7 @@
       "eyebrow": "Acesso premium",
       "loadingPrice": "Carregando",
       "balanceLoading": "Lendo saldo...",
-      "walletBalance": "Saldo: {{balance}} ₳DA",
+      "walletBalance": "Saldo: {{balance}}",
       "connectWalletToSeeBalance": "Conecte a carteira para ver o saldo.",
       "benefits": {
         "unlimitedQueries": "Desbloqueie consultas ilimitadas em linguagem natural durante o período ativo de 30 dias.",
@@ -690,7 +690,7 @@
         "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta."
       },
       "depositEyebrow": "Saldo da conta",
-      "depositTitle": "Adicionar saldo em ADA",
+      "depositTitle": "Adicionar Saldo",
       "depositSubtitle": "Adicione saldo à sua conta CAP para futuras renovações e análises pay-as-you-go.",
       "depositPlanName": "Saldo CAP",
       "prepaidCreditMeta": "Saldo da conta"
@@ -720,8 +720,8 @@
       "missingTxHash": "Hash da transação ausente.",
       "walletChangeAddressMissing": "A carteira não retornou um endereço de troco válido.",
       "unsupportedCardanoNetwork": "Esta rede Cardano não é suportada para pagamento.",
-      "noSpendableUtxos": "Esta carteira não possui UTxOs disponíveis. Adicione ADA a esta carteira ou escolha outra carteira.",
-      "insufficientWalletBalance": "Saldo insuficiente. Disponível: {{balance}} ₳DA. Necessário: {{required}} ₳DA incluindo uma estimativa de taxa.",
+      "noSpendableUtxos": "Esta carteira não possui UTxOs disponíveis. Adicione fundos a esta carteira ou escolha outra carteira.",
+      "insufficientWalletBalance": "Saldo insuficiente. Disponível: {{balance}}. Necessário: {{required}} incluindo uma estimativa de taxa.",
       "walletBalanceUnavailable": "O saldo da carteira não está disponível. Verifique se a carteira está desbloqueada e conectada.",
       "walletSignTxUnavailable": "Esta carteira não suporta assinatura de transações.",
       "walletSubmitTxUnavailable": "Esta carteira não suporta envio de transações.",
@@ -756,15 +756,15 @@
       "statusFailed": "Não foi possível carregar o status de cobrança.",
       "walletConnectFailed": "Não foi possível conectar esta carteira.",
       "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento.",
-      "depositTooSmall": "O depósito pré-pago mínimo é 1 ₳DA.",
+      "depositTooSmall": "O depósito pré-pago mínimo é {{amount}}.",
       "balanceActivationFailed": "Não foi possível ativar o Premium com Saldo. Tente novamente.",
       "connectWalletToAddBalance": "Conecte uma carteira de pagamento para adicionar Saldo."
     },
     "prepaidTitle": "Saldo",
-    "prepaidDescription": "Deposite ADA agora e use depois para renovações ou análises pay-as-you-go.",
+    "prepaidDescription": "Adicione ₳DA agora e use depois para renovações ou análises pay-as-you-go.",
     "prepaidHint": "Seu saldo é registrado pelo CAP após verificação on-chain. Débitos pay-as-you-go e renovação automática virão em seguida.",
     "addBalance": "Adicionar Saldo",
-    "customDepositPlaceholder": "Valor customizado em ₳",
+    "customDepositPlaceholder": "Valor customizado",
     "futurePayg": "Consultas pay-as-you-go em breve",
     "futureAutoRenew": "Renovação automática com saldo em breve",
     "depositOptions": {
@@ -799,8 +799,8 @@
     "addBalanceActionHint": "Adicione Saldo suficiente para ativar o Premium.",
     "balanceActivationSuccess": "Acesso Premium ativado com Saldo.",
     "connectWalletActionHint": "Conecte uma carteira Cardano para adicionar Saldo.",
-    "topUpMissingBalance": "Completar {{amount}} ₳",
-    "balancePrefilledHint": "{{amount}} ₳ está pronto no campo de Saldo. Revise e clique em Adicionar Saldo."
+    "topUpMissingBalance": "Completar {{amount}}",
+    "balancePrefilledHint": "{{amount}} está pronto no campo de Saldo. Revise e clique em Adicionar Saldo."
   },
   "connectingWallet": "Conectando {{wallet}}...",
   "billingAccess": {

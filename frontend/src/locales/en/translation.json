@@ -595,8 +595,8 @@
     "billingInvalidDays": "Enter a valid number of days.",
     "billingConfirmRevokePremium": "Revoke active Premium access for this user?",
     "billingConfirmResetQuota": "Reset this user's free query usage for the current period?",
-    "billingAdjustBalancePrompt": "Enter ADA amount to add or subtract. Use negative values to remove balance.",
-    "billingInvalidBalanceAmount": "Enter a valid non-zero ADA amount.",
+    "billingAdjustBalancePrompt": "Enter the amount to add or subtract. Use negative values to remove balance.",
+    "billingInvalidBalanceAmount": "Enter a valid non-zero amount.",
     "billingToastPremiumGranted": "Premium access updated.",
     "billingToastPremiumRevoked": "Premium access revoked.",
     "billingToastQuotaReset": "Free query quota reset.",
@@ -604,7 +604,7 @@
     "billingSelectedUser": "Selected user",
     "billingActionDetails": "Action details",
     "billingPremiumDaysLabel": "Premium days",
-    "billingBalanceAdaLabel": "ADA amount",
+    "billingBalanceAdaLabel": "Balance amount",
     "billingBalanceAdaHelp": "Use a positive amount to add Balance or a negative amount to remove Balance.",
     "billingNoteLabel": "Admin note",
     "billingNotePlaceholder": "Optional internal note...",
@@ -614,7 +614,7 @@
     "billingGrantPremiumModalBody": "Grant or extend Premium access for this user. If the user already has active Premium, the selected number of days is added after the current expiration.",
     "billingRevokePremiumModalBody": "Revoke active Premium access for this user. This will mark the current active Premium entitlement as revoked.",
     "billingResetQuotaModalBody": "Reset this user's free query usage for the current period back to zero.",
-    "billingAdjustBalanceModalBody": "Adjust this user's CAP Balance. This creates a ledger entry and updates the lovelace balance.",
+    "billingAdjustBalanceModalBody": "Adjust this user's CAP Balance. This creates a ledger entry and updates the account balance.",
     "billingQuotaUsage": "{{used}}/{{limit}} ({{remaining}} left)",
     "billingPaymentStatus": {
       "pending": "Pending",
@@ -679,7 +679,7 @@
       "eyebrow": "Premium access",
       "loadingPrice": "Loading",
       "balanceLoading": "Reading balance...",
-      "walletBalance": "Balance: {{balance}} ₳DA",
+      "walletBalance": "Balance: {{balance}}",
       "connectWalletToSeeBalance": "Connect wallet to see balance.",
       "benefits": {
         "unlimitedQueries": "Unlock unlimited natural-language analytics queries during the active 30-day period.",
@@ -689,7 +689,7 @@
         "payAsYouGoReady": "Prepared for upcoming pay-as-you-go query usage."
       },
       "depositEyebrow": "Account balance",
-      "depositTitle": "Add ADA balance",
+      "depositTitle": "Add Balance",
       "depositSubtitle": "Fund your CAP account for future renewals and pay-as-you-go analytics.",
       "depositPlanName": "CAP Balance",
       "prepaidCreditMeta": "Account balance"
@@ -719,8 +719,8 @@
       "missingTxHash": "Missing transaction hash.",
       "walletChangeAddressMissing": "Wallet did not return a valid change address.",
       "unsupportedCardanoNetwork": "This Cardano network is not supported for payment.",
-      "noSpendableUtxos": "This wallet has no spendable UTxOs. Add ADA to this wallet or choose another wallet.",
-      "insufficientWalletBalance": "Insufficient wallet balance. Available: {{balance}} ₳DA. Required: {{required}} ₳DA including an estimated fee buffer.",
+      "noSpendableUtxos": "This wallet has no spendable UTxOs. Add funds to this wallet or choose another wallet.",
+      "insufficientWalletBalance": "Insufficient wallet balance. Available: {{balance}}. Required: {{required}} including an estimated fee buffer.",
       "walletBalanceUnavailable": "Wallet balance is not available. Make sure the wallet is unlocked and connected.",
       "walletSignTxUnavailable": "This wallet does not support transaction signing.",
       "walletSubmitTxUnavailable": "This wallet does not support transaction submission.",
@@ -755,15 +755,15 @@
       "statusFailed": "Could not load billing status.",
       "walletConnectFailed": "Could not connect this wallet.",
       "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment.",
-      "depositTooSmall": "Minimum prepaid deposit is 1 ₳DA.",
+      "depositTooSmall": "Minimum prepaid deposit is {{amount}}.",
       "balanceActivationFailed": "Could not activate Premium from Balance. Please try again.",
       "connectWalletToAddBalance": "Connect a payment wallet to add Balance."
     },
     "prepaidTitle": "Balance",
-    "prepaidDescription": "Deposit ADA now and use it later for renewals or pay-as-you-go analytics.",
+    "prepaidDescription": "Deposit ₳DA now and use it later for renewals or pay-as-you-go analytics.",
     "prepaidHint": "Your balance is tracked by CAP after on-chain verification. Pay-as-you-go debits and auto-renewal are coming next.",
     "addBalance": "Add Balance",
-    "customDepositPlaceholder": "Custom ₳ amount",
+    "customDepositPlaceholder": "Custom amount",
     "futurePayg": "Pay-as-you-go queries coming soon",
     "futureAutoRenew": "Auto-renew from balance coming soon",
     "depositOptions": {
@@ -798,8 +798,8 @@
     "addBalanceActionHint": "Add enough Balance to activate Premium.",
     "balanceActivationSuccess": "Premium access activated from Balance.",
     "connectWalletActionHint": "Connect a Cardano wallet to add Balance.",
-    "topUpMissingBalance": "Top up {{amount}} ₳",
-    "balancePrefilledHint": "{{amount}} ₳ is ready in the Balance input. Review it and click Add Balance."
+    "topUpMissingBalance": "Top up {{amount}}",
+    "balancePrefilledHint": "{{amount}} is ready in the Balance input. Review it and click Add Balance."
   },
   "connectingWallet": "Connecting {{wallet}}...",
   "billingAccess": {

@@ -8,16 +8,9 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import i18n from "./../i18n";
 import { useTranslation } from "react-i18next";
+import { formatBillingAmountFromMinor } from "./../billing/currency";
 
 import avatarImg from "/icons/avatar.png";
-
-function lovelaceToAdaLabel(lovelace) {
-  const n = Number(lovelace || 0);
-  if (!Number.isFinite(n) || n <= 0) return "0";
-  return (n / 1_000_000).toLocaleString(undefined, {
-    maximumFractionDigits: 2,
-  });
-}
 
 function getBillingBadge(access, loading, t) {
   if (loading && !access) {
@@ -143,7 +136,7 @@ function NavBar({
     displayName.length > 20 ? displayName.slice(0, 17) + "…" : displayName;
 
   const billingBadge = getBillingBadge(billingAccess, billingAccessLoading, t);
-  const balanceAda = lovelaceToAdaLabel(billingAccess?.balance_lovelace);
+  const balanceAmount = formatBillingAmountFromMinor(billingAccess?.balance_lovelace, { currency: "lovelace" });
   const freeUsed = Number(billingAccess?.free_query_used ?? 0);
   const freeLimit = Number(billingAccess?.free_query_limit ?? 0);
   const freeRemaining = Number(billingAccess?.free_query_remaining ?? 0);
@@ -448,7 +441,7 @@ function NavBar({
                     <div className="navbar-account-metrics">
                       <div>
                         <span>{t("billingAccess.dropdown.balance")}</span>
-                        <strong>{balanceAda} ₳</strong>
+                        <strong>{balanceAmount}</strong>
                       </div>
                       <div>
                         <span>{t("billingAccess.dropdown.queries")}</span>
