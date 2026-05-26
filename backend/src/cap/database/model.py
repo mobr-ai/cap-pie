@@ -242,6 +242,18 @@ class UserCreditLedger(Base):
     )
 
 
+class UserBillingPreference(Base):
+    __tablename__ = "user_billing_preference"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.user_id"), nullable=False, unique=True, index=True)
+    auto_renew_premium_enabled = Column(Boolean, nullable=False, server_default=text("false"), default=False)
+    auto_renew_plan_code = Column(String(64), nullable=False, server_default=text("'cap_premium_access'"))
+    payg_enabled = Column(Boolean, nullable=False, server_default=text("false"), default=False)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+
 class UserUsagePeriod(Base):
     __tablename__ = "user_usage_period"
 

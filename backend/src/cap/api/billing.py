@@ -21,6 +21,7 @@ from cap.database.model import (
     UserCreditBalance,
     UserCreditLedger,
     UserEntitlement,
+    UserBillingPreference,
 )
 from cap.database.session import get_db
 from cap.services.billing_access import get_billing_access_state
@@ -50,6 +51,12 @@ class VerifyCardanoPaymentIn(BaseModel):
 
 class ActivatePlanFromBalanceIn(BaseModel):
     plan_code: str = "cap_premium_access"
+
+
+class UpdateBillingPreferencesIn(BaseModel):
+    auto_renew_premium_enabled: bool | None = None
+    auto_renew_plan_code: str | None = None
+    payg_enabled: bool | None = None
 
 
 def _utcnow() -> datetime:
@@ -435,6 +442,43 @@ def _credit_balance_payload(row: UserCreditBalance | None):
     }
 
 
+def _get_or_create_billing_preferences(
+    db: Session,
+    *,
+    user: User,
+) -> UserBillingPreference:
+    row = db.scalar(
+        select(UserBillingPreference).where(
+            UserBillingPreference.user_id == user.user_id,
+        )
+    )
+
+    if row:
+        return row
+
+    row = UserBillingPreference(
+        user_id=user.user_id,
+        auto_renew_premium_enabled=False,
+        auto_renew_plan_code="cap_premium_access",
+        payg_enabled=False,
+        created_at=_to_db_naive_utc(_utcnow()),
+        updated_at=_to_db_naive_utc(_utcnow()),
+    )
+    db.add(row)
+    db.flush()
+    return row
+
+
+def _billing_preferences_payload(row: UserBillingPreference) -> dict:
+    return {
+        "auto_renew_premium_enabled": bool(row.auto_renew_premium_enabled),
+        "auto_renew_plan_code": row.auto_renew_plan_code or "cap_premium_access",
+        "payg_enabled": bool(row.payg_enabled),
+        "created_at": _format_utc(row.created_at),
+        "updated_at": _format_utc(row.updated_at),
+    }
+
+
 @router.get("/plans")
 def list_billing_plans(db: Session = Depends(get_db)):
     network = _network()
@@ -484,6 +528,43 @@ def get_my_billing_access(
     current_user: User = Depends(get_current_user),
 ):
     return get_billing_access_state(db, current_user)
+
+
+@router.get("/preferences/me")
+def get_my_billing_preferences(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    row = _get_or_create_billing_preferences(db, user=current_user)
+    db.commit()
+    db.refresh(row)
+    return {"preferences": _billing_preferences_payload(row)}
+
+
+@router.put("/preferences/me")
+def update_my_billing_preferences(
+    data: UpdateBillingPreferencesIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    row = _get_or_create_billing_preferences(db, user=current_user)
+
+    if data.auto_renew_premium_enabled is not None:
+        row.auto_renew_premium_enabled = bool(data.auto_renew_premium_enabled)
+
+    if data.auto_renew_plan_code is not None:
+        plan_code = (data.auto_renew_plan_code or "").strip() or "cap_premium_access"
+        row.auto_renew_plan_code = plan_code
+
+    if data.payg_enabled is not None:
+        row.payg_enabled = bool(data.payg_enabled)
+
+    row.updated_at = _to_db_naive_utc(_utcnow())
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+
+    return {"preferences": _billing_preferences_payload(row)}
 
 
 @router.get("/balance/me")
