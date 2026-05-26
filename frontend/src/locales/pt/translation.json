@@ -687,13 +687,21 @@
         "premiumAnalytics": "Acesse geração premium de dashboards e fluxos de análise on-chain.",
         "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta.",
         "prepaidRenewals": "Use seu saldo para futuras renovações premium.",
-        "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta."
+        "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta.",
+        "supportOpenInfrastructure": "Apoia infraestrutura pública de analytics",
+        "supportKnowledgeGraphs": "Ajuda a manter knowledge graph e ferramentas de IA"
       },
       "depositEyebrow": "Saldo da conta",
       "depositTitle": "Adicionar Saldo",
       "depositSubtitle": "Adicione saldo à sua conta CAP para futuras renovações e análises pay-as-you-go.",
       "depositPlanName": "Saldo CAP",
-      "prepaidCreditMeta": "Saldo da conta"
+      "prepaidCreditMeta": "Saldo da conta",
+      "supportEyebrow": "Apoiar o CAP",
+      "supportTitle": "Apoiar o desenvolvimento do CAP",
+      "supportSubtitle": "Ajude a financiar infraestrutura aberta de analytics para Cardano.",
+      "supportPlanName": "Contribuição voluntária",
+      "supportMeta": "Contribuição de apoio",
+      "supportNote": "Esta é uma contribuição voluntária. Ela não adiciona Saldo nem ativa o Premium."
     },
     "status": {
       "ready": "Pronto",
@@ -821,7 +829,23 @@
       "adminAdjustment": "Ajuste de Saldo pelo admin",
       "premiumGrant": "Premium concedido",
       "premiumRevoke": "Premium revogado",
-      "other": "Atividade de cobrança"
+      "other": "Atividade de cobrança",
+      "supportContribution": "Contribuição de apoio"
+    },
+    "supportTitle": "Apoiar o CAP",
+    "supportDescription": "Ajude a financiar infraestrutura aberta de analytics para Cardano, incluindo pipelines de dados, infraestrutura de knowledge graph, ferramentas de IA e recursos de acesso público.",
+    "supportDisclaimer": "Contribuição voluntária. Isso não adiciona Saldo nem ativa o Premium.",
+    "supportAmountLabel": "Valor de apoio",
+    "supportCustomAmount": "Valor customizado em ₳DA",
+    "supportAction": "Apoiar com ₳DA",
+    "supportActionHint": "Continuar com sua carteira Cardano conectada.",
+    "supportCardTitle": "Apoiar analytics aberto para Cardano",
+    "supportCardDescription": "Sua contribuição ajuda a manter o desenvolvimento, a infraestrutura e os recursos públicos de analytics do CAP.",
+    "activityStatus": {
+      "pending": "Pendente",
+      "paid": "Pago",
+      "expired": "Expirado",
+      "failed": "Falhou"
     }
   },
   "connectingWallet": "Conectando {{wallet}}...",

@@ -686,13 +686,21 @@
         "premiumAnalytics": "Access premium dashboard generation and on-chain analysis workflows.",
         "walletNative": "Pay directly from your Cardano wallet, no account handoff.",
         "prepaidRenewals": "Use your balance for future premium renewals.",
-        "payAsYouGoReady": "Prepared for upcoming pay-as-you-go query usage."
+        "payAsYouGoReady": "Prepared for upcoming pay-as-you-go query usage.",
+        "supportOpenInfrastructure": "Supports public analytics infrastructure",
+        "supportKnowledgeGraphs": "Helps maintain knowledge graph and AI tooling"
       },
       "depositEyebrow": "Account balance",
       "depositTitle": "Add Balance",
       "depositSubtitle": "Fund your CAP account for future renewals and pay-as-you-go analytics.",
       "depositPlanName": "CAP Balance",
-      "prepaidCreditMeta": "Account balance"
+      "prepaidCreditMeta": "Account balance",
+      "supportEyebrow": "Support CAP",
+      "supportTitle": "Support CAP development",
+      "supportSubtitle": "Help fund open analytics infrastructure for Cardano.",
+      "supportPlanName": "Voluntary contribution",
+      "supportMeta": "Support contribution",
+      "supportNote": "This is a voluntary contribution. It does not add Balance or activate Premium."
     },
     "status": {
       "ready": "Ready",
@@ -820,7 +828,23 @@
       "adminAdjustment": "Admin Balance adjustment",
       "premiumGrant": "Premium granted",
       "premiumRevoke": "Premium revoked",
-      "other": "Billing activity"
+      "other": "Billing activity",
+      "supportContribution": "Support contribution"
+    },
+    "supportTitle": "Support CAP",
+    "supportDescription": "Help fund open analytics infrastructure for Cardano, including data pipelines, knowledge graph infrastructure, AI tooling, and public-access features.",
+    "supportDisclaimer": "Voluntary contribution. This does not add Balance or activate Premium.",
+    "supportAmountLabel": "Support amount",
+    "supportCustomAmount": "Custom amount in ₳DA",
+    "supportAction": "Support with ₳DA",
+    "supportActionHint": "Continue with your connected Cardano wallet.",
+    "supportCardTitle": "Support open Cardano analytics",
+    "supportCardDescription": "Your contribution helps keep CAP development, infrastructure, and public-access analytics moving.",
+    "activityStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "expired": "Expired",
+      "failed": "Failed"
     }
   },
   "connectingWallet": "Connecting {{wallet}}...",

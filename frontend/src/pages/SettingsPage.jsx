@@ -124,6 +124,7 @@ function getBillingActivityReasonKey(reason) {
   if (key === "credit_deposit") return "creditDeposit";
   if (key === "plan_activation") return "planActivation";
   if (key === "plan_purchase") return "planPurchase";
+  if (key === "support_contribution") return "supportContribution";
   if (key === "admin_adjustment") return "adminAdjustment";
   if (key === "premium_grant") return "premiumGrant";
   if (key === "premium_revoke") return "premiumRevoke";
@@ -170,6 +171,7 @@ export default function SettingsPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   const [billingLoading, setBillingLoading] = useState(false);
   const [billingEntitlements, setBillingEntitlements] = useState([]);
@@ -179,6 +181,8 @@ export default function SettingsPage() {
   const [creditBalance, setCreditBalance] = useState(null);
   const [selectedDepositAda, setSelectedDepositAda] = useState(10);
   const [customDepositAda, setCustomDepositAda] = useState("10");
+  const [selectedSupportAda, setSelectedSupportAda] = useState(25);
+  const [customSupportAda, setCustomSupportAda] = useState("25");
   const [isActivatingFromBalance, setIsActivatingFromBalance] = useState(false);
 
   const [billingWalletName, setBillingWalletName] = useState("");
@@ -217,6 +221,13 @@ export default function SettingsPage() {
     customDepositAda !== "" ? Number(customDepositAda) : selectedDepositAda;
 
   const effectiveDepositLovelace = adaToLovelace(effectiveDepositAda);
+
+  const parsedSupportAda = Number.parseFloat(String(customSupportAda || "").replace(",", "."));
+  const effectiveSupportAda =
+    Number.isFinite(parsedSupportAda) && parsedSupportAda > 0
+      ? parsedSupportAda
+      : selectedSupportAda;
+  const effectiveSupportLovelace = Math.max(0, Math.round(effectiveSupportAda * 1_000_000));
 
   const premiumPlan =
     billingPlans.find((plan) => plan?.code === "cap_premium_access") || null;
@@ -420,6 +431,16 @@ export default function SettingsPage() {
 
     setBillingError("");
     setShowDepositModal(true);
+  };
+
+  const handleSupportPresetClick = (amountAda) => {
+    setSelectedSupportAda(amountAda);
+    setCustomSupportAda(String(amountAda));
+  };
+
+  const handleSupportAction = () => {
+    setBillingError("");
+    setShowSupportModal(true);
   };
 
   const handlePremiumAccessAction = async ({ skipScroll = false } = {}) => {
@@ -1151,9 +1172,19 @@ export default function SettingsPage() {
                       <div className="Settings-activity-main">
                         <div className="Settings-activity-reason">
                           {t(`settingsBilling.activityReasons.${reasonKey}`)}
+                          {item?.status && item.status !== "posted" ? (
+                            <span className="Settings-activity-status" data-status={item.status}>
+                              {t(`settingsBilling.activityStatus.${item.status}`, item.status)}
+                            </span>
+                          ) : null}
                         </div>
                         <div className="Settings-activity-date">
                           {formatBillingActivityDate(item?.created_at)}
+                          {item?.metadata?.tx_hash ? (
+                            <span className="Settings-activity-hash">
+                              {item.metadata.tx_hash.slice(0, 10)}...
+                            </span>
+                          ) : null}
                         </div>
                       </div>
 
@@ -1185,10 +1216,77 @@ export default function SettingsPage() {
           </div>
 
           <div className="Settings-billing-future">
-            <span>{t("settingsBilling.futureDonations")}</span>
             <span>{t("settingsBilling.futurePayg")}</span>
             <span>{t("settingsBilling.futureAutoRenew")}</span>
             <span>{t("settingsBilling.futurePlanControls")}</span>
+          </div>
+        </div>
+
+        <div className="mt-4 Settings-support-section">
+          <div className="Settings-support-section-header">
+            <div>
+              <h5>{t("settingsBilling.supportTitle")}</h5>
+              <p>{t("settingsBilling.supportDescription")}</p>
+            </div>
+          </div>
+
+          <div className="Settings-billing-panel Settings-support-panel">
+            <div className="Settings-support-main">
+              <div>
+                <div className="Settings-billing-plan">
+                  {t("settingsBilling.supportCardTitle")}
+                </div>
+                <div className="Settings-billing-copy">
+                  {t("settingsBilling.supportCardDescription")}
+                </div>
+                <div className="Settings-support-disclaimer">
+                  {t("settingsBilling.supportDisclaimer")}
+                </div>
+              </div>
+
+              <div className="Settings-support-actions">
+                <div className="Settings-support-presets" aria-label={t("settingsBilling.supportAmountLabel")}>
+                  {[10, 25, 50].map((amount) => (
+                    <button
+                      key={amount}
+                      type="button"
+                      className="Settings-support-preset"
+                      data-active={Number(selectedSupportAda) === amount && String(customSupportAda) === String(amount)}
+                      onClick={() => handleSupportPresetClick(amount)}
+                    >
+                      ₳{amount}
+                    </button>
+                  ))}
+                </div>
+
+                <label className="Settings-support-custom">
+                  <span>{t("settingsBilling.supportCustomAmount")}</span>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={customSupportAda}
+                    onChange={(event) => setCustomSupportAda(event.target.value)}
+                    aria-label={t("settingsBilling.supportCustomAmount")}
+                  />
+                </label>
+
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="Settings-premium-action-btn"
+                  onClick={handleSupportAction}
+                  disabled={!billingWalletApi || effectiveSupportLovelace < 1_000_000}
+                  title={
+                    billingWalletApi
+                      ? t("settingsBilling.supportActionHint")
+                      : t("settingsBilling.errors.connectWalletToAddBalance")
+                  }
+                >
+                  {t("settingsBilling.supportAction")}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1224,6 +1322,18 @@ export default function SettingsPage() {
         paymentKind="credit_deposit"
         amountLovelace={effectiveDepositLovelace}
       />
+
+      <CardanoPaymentModal
+        show={showSupportModal}
+        onHide={() => setShowSupportModal(false)}
+        session={outlet.session}
+        walletName={billingWalletName}
+        walletApi={billingWalletApi}
+        onPaid={handleBillingPaid}
+        paymentKind="support_contribution"
+        amountLovelace={effectiveSupportLovelace}
+      />
+
 
       <ShareModal
         show={showShareModal}

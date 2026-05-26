@@ -180,8 +180,11 @@ export default function CardanoPaymentModal({
   const displayWalletName = formatWalletName(walletName);
   const walletIcon = WALLET_ICONS[walletKey];
 
+  const isDepositPayment = paymentKind === "credit_deposit";
+  const isSupportPayment = paymentKind === "support_contribution";
+
   const resolvedAmountLovelace =
-    paymentKind === "credit_deposit"
+    isDepositPayment || isSupportPayment
       ? amountLovelace
       : planPreview?.amount;
 
@@ -233,7 +236,7 @@ export default function CardanoPaymentModal({
       const data = await fetchBillingPlans();
       setCatalogNetwork(data?.network || "");
 
-      if (paymentKind === "credit_deposit") {
+      if (isDepositPayment || isSupportPayment) {
         setPlanPreview(null);
         return;
       }
@@ -243,7 +246,7 @@ export default function CardanoPaymentModal({
     } catch (err) {
       console.error("[Billing] Failed to load billing plans:", err);
     }
-  }, [paymentKind, planCode]);
+  }, [isDepositPayment, isSupportPayment, planCode]);
 
   const refreshWalletBalance = useCallback(async () => {
     if (!walletApi) {
@@ -400,19 +403,25 @@ export default function CardanoPaymentModal({
       <Modal.Header closeButton>
         <div className="CardanoPaymentModal-headerText">
           <div className="CardanoPaymentModal-eyebrow">
-            {paymentKind === "credit_deposit"
-              ? t("billing.modal.depositEyebrow")
-              : t("billing.modal.eyebrow")}
+            {isSupportPayment
+              ? t("billing.modal.supportEyebrow")
+              : isDepositPayment
+                ? t("billing.modal.depositEyebrow")
+                : t("billing.modal.eyebrow")}
           </div>
           <Modal.Title>
-            {paymentKind === "credit_deposit"
-              ? t("billing.modal.depositTitle")
-              : t("billing.modal.title")}
+            {isSupportPayment
+              ? t("billing.modal.supportTitle")
+              : isDepositPayment
+                ? t("billing.modal.depositTitle")
+                : t("billing.modal.title")}
           </Modal.Title>
           <div className="CardanoPaymentModal-subtitle">
-            {paymentKind === "credit_deposit"
-              ? t("billing.modal.depositSubtitle")
-              : t("billing.modal.subtitle")}
+            {isSupportPayment
+              ? t("billing.modal.supportSubtitle")
+              : isDepositPayment
+                ? t("billing.modal.depositSubtitle")
+                : t("billing.modal.subtitle")}
           </div>
         </div>
       </Modal.Header>
@@ -421,9 +430,11 @@ export default function CardanoPaymentModal({
         <div className="CardanoPaymentModal-hero">
           <div>
             <div className="CardanoPaymentModal-planName">
-              {paymentKind === "credit_deposit"
-                ? t("billing.modal.depositPlanName")
-                : t("billing.plans.capPremiumAccess")}
+              {isSupportPayment
+                ? t("billing.modal.supportPlanName")
+                : isDepositPayment
+                  ? t("billing.modal.depositPlanName")
+                  : t("billing.plans.capPremiumAccess")}
             </div>
             <div className="CardanoPaymentModal-price">
               {amountAda ? (
@@ -436,9 +447,11 @@ export default function CardanoPaymentModal({
               )}
             </div>
             <div className="CardanoPaymentModal-priceMeta">
-              {paymentKind === "credit_deposit"
-                ? t("billing.modal.prepaidCreditMeta")
-                : t("billing.modal.durationDays", { count: durationDays })} · {formatBillingNetworkLabel(network)}
+              {isSupportPayment
+                ? t("billing.modal.supportMeta")
+                : isDepositPayment
+                  ? t("billing.modal.prepaidCreditMeta")
+                  : t("billing.modal.durationDays", { count: durationDays })} · {formatBillingNetworkLabel(network)}
             </div>
           </div>
 
@@ -449,7 +462,13 @@ export default function CardanoPaymentModal({
         </div>
 
         <div className="CardanoPaymentModal-benefits">
-          {paymentKind === "credit_deposit" ? (
+          {isSupportPayment ? (
+            <>
+              <div>{t("billing.modal.benefits.supportOpenInfrastructure")}</div>
+              <div>{t("billing.modal.benefits.supportKnowledgeGraphs")}</div>
+              <div>{t("billing.modal.benefits.walletNative")}</div>
+            </>
+          ) : isDepositPayment ? (
             <>
               <div>{t("billing.modal.benefits.prepaidRenewals")}</div>
               <div>{t("billing.modal.benefits.payAsYouGoReady")}</div>
@@ -532,7 +551,7 @@ export default function CardanoPaymentModal({
         ) : null}
 
         <div className="CardanoPaymentModal-note">
-          {t("billing.modal.note")}
+          {isSupportPayment ? t("billing.modal.supportNote") : t("billing.modal.note")}
         </div>
       </Modal.Body>
 
