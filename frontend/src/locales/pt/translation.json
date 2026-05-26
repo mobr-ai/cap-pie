@@ -753,7 +753,6 @@
     "connectHint": "Conecte uma carteira Cardano para iniciar o fluxo de pagamento.",
     "walletConnected": "{{wallet}} conectada para pagamento.",
     "paymentVerified": "Pagamento verificado e acesso atualizado.",
-    "futureDonations": "Doações em breve",
     "futureCredits": "Créditos pré-pagos em breve",
     "status": {
       "loading": "Verificando",

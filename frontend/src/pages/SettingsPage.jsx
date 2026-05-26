@@ -4,6 +4,7 @@ import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
 import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
+import { getCardanoTxExplorerUrl } from "../billing/explorers";
 import {
   Container,
   Form,
@@ -118,23 +119,6 @@ function formatBillingActivityDate(value) {
   }
 }
 
-function getCardanoTxExplorerUrl(txHash, network) {
-  const hash = String(txHash || "").trim();
-  if (!hash) return "";
-
-  const normalizedNetwork = String(network || "").trim().toLowerCase();
-
-  if (normalizedNetwork === "preview") {
-    return `https://preview.cardanoscan.io/transaction/${hash}`;
-  }
-
-  if (normalizedNetwork === "preprod") {
-    return `https://preprod.cardanoscan.io/transaction/${hash}`;
-  }
-
-  return `https://cardanoscan.io/transaction/${hash}`;
-}
-
 function getBillingActivityReasonKey(reason) {
   const key = String(reason || "").trim();
 
@@ -171,6 +155,8 @@ function getSessionWalletAddress(session, user) {
     ""
   );
 }
+
+const SUPPORT_CONTRIBUTION_PRESETS_ADA = [10, 25, 50];
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -1272,7 +1258,7 @@ export default function SettingsPage() {
 
               <div className="Settings-support-actions">
                 <div className="Settings-support-presets" aria-label={t("settingsBilling.supportAmountLabel")}>
-                  {[10, 25, 50].map((amount) => (
+                  {SUPPORT_CONTRIBUTION_PRESETS_ADA.map((amount) => (
                     <button
                       key={amount}
                       type="button"

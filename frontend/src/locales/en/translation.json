@@ -752,7 +752,6 @@
     "connectHint": "Connect a Cardano wallet to start the payment flow.",
     "walletConnected": "{{wallet}} connected for payment.",
     "paymentVerified": "Payment verified and access refreshed.",
-    "futureDonations": "Donations coming soon",
     "futureCredits": "Prepaid credits coming soon",
     "status": {
       "loading": "Checking",
