@@ -29,9 +29,12 @@ router = APIRouter(prefix="/api/v1/billing", tags=["billing"])
 
 PAYMENT_KIND_PLAN_PURCHASE = "plan_purchase"
 PAYMENT_KIND_CREDIT_DEPOSIT = "credit_deposit"
+PAYMENT_KIND_SUPPORT_CONTRIBUTION = "support_contribution"
 
 MIN_CREDIT_DEPOSIT_LOVELACE = 1_000_000
 MAX_CREDIT_DEPOSIT_LOVELACE = 10_000_000_000
+MIN_SUPPORT_CONTRIBUTION_LOVELACE = 1_000_000
+MAX_SUPPORT_CONTRIBUTION_LOVELACE = 10_000_000_000
 
 
 class CreateCardanoPaymentSessionIn(BaseModel):
@@ -532,6 +535,49 @@ def create_cardano_payment_session(
             created_at=_to_db_naive_utc(now),
         )
 
+    elif kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION:
+        amount = int(data.amount_lovelace or 0)
+
+        if amount < MIN_SUPPORT_CONTRIBUTION_LOVELACE:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "supportContributionTooSmall",
+                    "minimum_lovelace": MIN_SUPPORT_CONTRIBUTION_LOVELACE,
+                },
+            )
+
+        if amount > MAX_SUPPORT_CONTRIBUTION_LOVELACE:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "supportContributionTooLarge",
+                    "maximum_lovelace": MAX_SUPPORT_CONTRIBUTION_LOVELACE,
+                },
+            )
+
+        payment_address = _active_payment_address(db, network)
+
+        session = PaymentSession(
+            session_id=f"pay_{secrets.token_urlsafe(24)}",
+            user_id=current_user.user_id,
+            kind=PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            plan_id=None,
+            price_id=None,
+            payment_address_id=payment_address.id,
+            plan_code_snapshot="support_contribution",
+            entitlement_code_snapshot="support_contribution",
+            network_snapshot=network,
+            currency_snapshot="lovelace",
+            amount_snapshot=amount,
+            payment_address_snapshot=payment_address.address,
+            duration_days_snapshot=0,
+            status="pending",
+            provider=provider,
+            expires_at=_to_db_naive_utc(now + timedelta(minutes=30)),
+            created_at=_to_db_naive_utc(now),
+        )
+
     else:
         raise HTTPException(status_code=400, detail="unsupportedPaymentSessionKind")
 
@@ -666,6 +712,43 @@ def verify_cardano_payment(
         return {
             "payment": _session_response(session),
             "credit_balance": _credit_balance_payload(balance),
+        }
+
+    if kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION:
+        balance = db.scalar(
+            select(UserCreditBalance).where(
+                UserCreditBalance.user_id == current_user.user_id,
+                UserCreditBalance.currency == session.currency_snapshot,
+            )
+        )
+        balance_after = int(balance.balance or 0) if balance else 0
+
+        ledger = UserCreditLedger(
+            user_id=current_user.user_id,
+            currency=session.currency_snapshot,
+            amount=0,
+            balance_after=balance_after,
+            reason="support_contribution",
+            payment_session_id=session.id,
+            metadata_json={
+                "kind": "support_contribution",
+                "amount_lovelace": int(session.amount_snapshot or 0),
+                "tx_hash": session.tx_hash,
+            },
+            created_at=_to_db_naive_utc(now),
+        )
+        db.add(ledger)
+
+        db.commit()
+        db.refresh(session)
+
+        return {
+            "payment": _session_response(session),
+            "support_contribution": {
+                "amount": int(session.amount_snapshot or 0),
+                "currency": session.currency_snapshot,
+                "tx_hash": session.tx_hash,
+            },
         }
 
     entitlement = _grant_entitlement(
