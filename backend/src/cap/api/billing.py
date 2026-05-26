@@ -145,6 +145,86 @@ def _session_response(session: PaymentSession):
     }
 
 
+def _reconcile_pending_support_contributions(
+    db: Session,
+    *,
+    user: User,
+    limit: int = 25,
+) -> int:
+    now = _utcnow()
+
+    sessions = (
+        db.query(PaymentSession)
+        .filter(
+            PaymentSession.user_id == user.user_id,
+            PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            PaymentSession.status == "pending",
+            PaymentSession.tx_hash.isnot(None),
+        )
+        .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
+        .limit(max(1, min(int(limit or 25), 100)))
+        .all()
+    )
+
+    if not sessions:
+        return 0
+
+    verifier = get_cardano_payment_verifier()
+    updated = 0
+
+    for session in sessions:
+        expires_at = _from_db_naive_utc(session.expires_at)
+
+        if expires_at and expires_at <= now:
+            session.status = "expired"
+            db.add(session)
+            updated += 1
+            continue
+
+        tx_hash = (session.tx_hash or "").strip()
+        if not tx_hash:
+            continue
+
+        try:
+            result = verifier.verify_payment_tx(
+                tx_hash=tx_hash,
+                expected_address=session.payment_address_snapshot,
+                expected_lovelace=session.amount_snapshot,
+                network=session.network_snapshot,
+            )
+        except Exception as err:
+            session.provider_response = {
+                "ok": False,
+                "error": "reconciliationException",
+                "message": str(err),
+            }
+            db.add(session)
+            updated += 1
+            continue
+
+        session.provider = result.provider
+        session.provider_response = {
+            "ok": result.ok,
+            "expected_address": result.expected_address,
+            "expected_lovelace": result.expected_lovelace,
+            "received_lovelace": result.received_lovelace,
+            "error": result.error,
+            "reconciled_at": _format_utc(now),
+        }
+
+        if result.ok:
+            session.status = "paid"
+            session.paid_at = _to_db_naive_utc(now)
+
+        db.add(session)
+        updated += 1
+
+    if updated:
+        db.commit()
+
+    return updated
+
+
 def _grant_entitlement(
     db: Session,
     *,
@@ -428,6 +508,12 @@ def get_my_billing_transactions(
 ):
     safe_limit = max(1, min(int(limit or 20), 100))
 
+    _reconcile_pending_support_contributions(
+        db,
+        user=current_user,
+        limit=safe_limit,
+    )
+
     ledger_rows = (
         db.query(UserCreditLedger)
         .filter(UserCreditLedger.user_id == current_user.user_id)
@@ -455,21 +541,56 @@ def get_my_billing_transactions(
     )
     balance_after = int(balance.balance or 0) if balance else 0
 
-    transactions = [
-        {
+    ledger_payment_session_ids = [
+        int(row.payment_session_id)
+        for row in ledger_rows
+        if row.payment_session_id is not None
+    ]
+
+    ledger_payment_sessions = {}
+    if ledger_payment_session_ids:
+        payment_rows = (
+            db.query(PaymentSession)
+            .filter(
+                PaymentSession.user_id == current_user.user_id,
+                PaymentSession.id.in_(ledger_payment_session_ids),
+            )
+            .all()
+        )
+        ledger_payment_sessions = {int(row.id): row for row in payment_rows}
+
+    transactions = []
+    for row in ledger_rows:
+        linked_session = (
+            ledger_payment_sessions.get(int(row.payment_session_id))
+            if row.payment_session_id is not None
+            else None
+        )
+
+        metadata = dict(row.metadata_json or {})
+        if linked_session:
+            metadata.update({
+                "kind": getattr(linked_session, "kind", None),
+                "session_id": linked_session.session_id,
+                "tx_hash": linked_session.tx_hash,
+                "network": linked_session.network_snapshot,
+                "provider": linked_session.provider,
+                "paid_at": _format_utc(linked_session.paid_at),
+                "expires_at": _format_utc(linked_session.expires_at),
+            })
+
+        transactions.append({
             "id": f"ledger:{row.id}",
             "currency": row.currency,
             "amount": row.amount,
             "balance_after": row.balance_after,
-            "reason": row.reason,
-            "status": "posted",
+            "reason": getattr(linked_session, "kind", None) or row.reason,
+            "status": linked_session.status if linked_session else "posted",
             "payment_session_id": row.payment_session_id,
-            "metadata": row.metadata_json,
+            "metadata": metadata,
             "created_at": _format_utc(row.created_at),
             "_sort_at": _from_db_naive_utc(row.created_at),
-        }
-        for row in ledger_rows
-    ]
+        })
 
     transactions.extend(
         {
@@ -484,6 +605,7 @@ def get_my_billing_transactions(
                 "kind": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
                 "session_id": row.session_id,
                 "tx_hash": row.tx_hash,
+                "network": row.network_snapshot,
                 "provider": row.provider,
                 "paid_at": _format_utc(row.paid_at),
                 "expires_at": _format_utc(row.expires_at),
