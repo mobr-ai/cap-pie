@@ -145,7 +145,7 @@ def _session_response(session: PaymentSession):
     }
 
 
-def _reconcile_pending_support_contributions(
+def _reconcile_pending_payment_sessions(
     db: Session,
     *,
     user: User,
@@ -508,7 +508,7 @@ def get_my_billing_transactions(
 ):
     safe_limit = max(1, min(int(limit or 20), 100))
 
-    _reconcile_pending_support_contributions(
+    _reconcile_pending_payment_sessions(
         db,
         user=current_user,
         limit=safe_limit,
