@@ -118,6 +118,23 @@ function formatBillingActivityDate(value) {
   }
 }
 
+function getCardanoTxExplorerUrl(txHash, network) {
+  const hash = String(txHash || "").trim();
+  if (!hash) return "";
+
+  const normalizedNetwork = String(network || "").trim().toLowerCase();
+
+  if (normalizedNetwork === "preview") {
+    return `https://preview.cardanoscan.io/transaction/${hash}`;
+  }
+
+  if (normalizedNetwork === "preprod") {
+    return `https://preprod.cardanoscan.io/transaction/${hash}`;
+  }
+
+  return `https://cardanoscan.io/transaction/${hash}`;
+}
+
 function getBillingActivityReasonKey(reason) {
   const key = String(reason || "").trim();
 
@@ -1181,9 +1198,18 @@ export default function SettingsPage() {
                         <div className="Settings-activity-date">
                           {formatBillingActivityDate(item?.created_at)}
                           {item?.metadata?.tx_hash ? (
-                            <span className="Settings-activity-hash">
+                            <a
+                              className="Settings-activity-hash"
+                              href={getCardanoTxExplorerUrl(
+                                item.metadata.tx_hash,
+                                item.metadata.network,
+                              )}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={item.metadata.tx_hash}
+                            >
                               {item.metadata.tx_hash.slice(0, 10)}...
-                            </span>
+                            </a>
                           ) : null}
                         </div>
                       </div>
