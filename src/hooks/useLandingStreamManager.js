@@ -9,7 +9,26 @@ import { kvToChartSpec } from "@/utils/kvCharts";
 import { normalizeKvResultType } from "@/utils/landingMessageOps";
 import { isValidKVTable } from "@/components/artifacts/KVTable";
 
+function getBillingLimitErrorDetail(err) {
+  const detail = err?.detail;
+  const nested = detail?.detail;
+
+  if (detail?.code === "freeQueryLimitReached") return detail;
+  if (nested?.code === "freeQueryLimitReached") return nested;
+  if (err?.code === "freeQueryLimitReached") return detail || nested || err;
+
+  return null;
+}
+
+function getBillingAccessFromError(err) {
+  const detail = getBillingLimitErrorDetail(err);
+  return detail?.access || null;
+}
+
 export function useLandingStreamManager({
+  billingAccess,
+  refreshBillingAccess,
+  onBillingAccessBlocked,
   NL_ENDPOINT,
   routeConversationId,
   isDev,
@@ -226,12 +245,27 @@ export function useLandingStreamManager({
 
       setProcessingForKey(streamConvoKey(), false);
 
+      const billingLimitDetail = getBillingLimitErrorDetail(err);
+      const billingAccessFromError = getBillingAccessFromError(err);
+
+      if (billingLimitDetail) {
+        onBillingAccessBlocked?.(billingAccessFromError || billingAccess || null);
+      }
+
+      refreshBillingAccess?.();
+
       const viewing = isViewingStreamConversation();
 
       if (viewing) {
         landing.clearStatus();
-        const msg = err?.message || t("landing.unexpectedError");
-        addMessage("error", msg);
+
+        if (billingLimitDetail) {
+          landing.dropAllStreamingAssistants();
+          addMessage("assistant", t("billingAccess.paywall.message"));
+        } else {
+          const msg = err?.message || t("landing.unexpectedError");
+          addMessage("error", msg);
+        }
       } else {
         landing.dropAllStreamingAssistants();
       }
@@ -252,6 +286,9 @@ export function useLandingStreamManager({
       landing,
       setProcessingForKey,
       streamConvoKey,
+      billingAccess,
+      onBillingAccessBlocked,
+      refreshBillingAccess,
       t,
     ],
   );
@@ -266,6 +303,7 @@ export function useLandingStreamManager({
     acceptBareStatusLines: isDev && isDemoEndpoint,
     onDone: () => {
       handleDone();
+      refreshBillingAccess?.();
 
       const convId = conversationMetaRef?.current?.conversationId;
       if (!routeConversationId && convId) {

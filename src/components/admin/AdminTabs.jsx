@@ -12,6 +12,7 @@ export function AdminTabs({ activeTab, onChange, t }) {
     () => [
       { key: "overview", label: t("admin.tabOverview") },
       { key: "users", label: t("admin.tabUsers") },
+      { key: "billing", label: t("admin.tabBilling") },
       { key: "metrics", label: t("admin.tabMetrics") },
       { key: "system", label: t("admin.tabSystem") },
       { key: "alerts", label: t("admin.tabAlerts") },
