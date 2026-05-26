@@ -436,19 +436,70 @@ def get_my_billing_transactions(
         .all()
     )
 
+    support_sessions = (
+        db.query(PaymentSession)
+        .filter(
+            PaymentSession.user_id == current_user.user_id,
+            PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+        )
+        .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
+        .limit(safe_limit)
+        .all()
+    )
+
+    balance = db.scalar(
+        select(UserCreditBalance).where(
+            UserCreditBalance.user_id == current_user.user_id,
+            UserCreditBalance.currency == "lovelace",
+        )
+    )
+    balance_after = int(balance.balance or 0) if balance else 0
+
+    transactions = [
+        {
+            "id": f"ledger:{row.id}",
+            "currency": row.currency,
+            "amount": row.amount,
+            "balance_after": row.balance_after,
+            "reason": row.reason,
+            "status": "posted",
+            "payment_session_id": row.payment_session_id,
+            "metadata": row.metadata_json,
+            "created_at": _format_utc(row.created_at),
+            "_sort_at": _from_db_naive_utc(row.created_at),
+        }
+        for row in ledger_rows
+    ]
+
+    transactions.extend(
+        {
+            "id": f"payment:{row.id}",
+            "currency": row.currency_snapshot,
+            "amount": int(row.amount_snapshot or 0),
+            "balance_after": balance_after,
+            "reason": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            "status": row.status,
+            "payment_session_id": row.id,
+            "metadata": {
+                "kind": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+                "session_id": row.session_id,
+                "tx_hash": row.tx_hash,
+                "provider": row.provider,
+                "paid_at": _format_utc(row.paid_at),
+                "expires_at": _format_utc(row.expires_at),
+            },
+            "created_at": _format_utc(row.paid_at or row.created_at),
+            "_sort_at": _from_db_naive_utc(row.paid_at or row.created_at),
+        }
+        for row in support_sessions
+    )
+
+    transactions.sort(key=lambda item: item.get("_sort_at") or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+
     return {
         "transactions": [
-            {
-                "id": row.id,
-                "currency": row.currency,
-                "amount": row.amount,
-                "balance_after": row.balance_after,
-                "reason": row.reason,
-                "payment_session_id": row.payment_session_id,
-                "metadata": row.metadata_json,
-                "created_at": _format_utc(row.created_at),
-            }
-            for row in ledger_rows
+            {key: value for key, value in item.items() if key != "_sort_at"}
+            for item in transactions[:safe_limit]
         ]
     }
 
@@ -715,30 +766,6 @@ def verify_cardano_payment(
         }
 
     if kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION:
-        balance = db.scalar(
-            select(UserCreditBalance).where(
-                UserCreditBalance.user_id == current_user.user_id,
-                UserCreditBalance.currency == session.currency_snapshot,
-            )
-        )
-        balance_after = int(balance.balance or 0) if balance else 0
-
-        ledger = UserCreditLedger(
-            user_id=current_user.user_id,
-            currency=session.currency_snapshot,
-            amount=0,
-            balance_after=balance_after,
-            reason="support_contribution",
-            payment_session_id=session.id,
-            metadata_json={
-                "kind": "support_contribution",
-                "amount_lovelace": int(session.amount_snapshot or 0),
-                "tx_hash": session.tx_hash,
-            },
-            created_at=_to_db_naive_utc(now),
-        )
-        db.add(ledger)
-
         db.commit()
         db.refresh(session)
 
