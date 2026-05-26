@@ -36,6 +36,7 @@ MIN_CREDIT_DEPOSIT_LOVELACE = 1_000_000
 MAX_CREDIT_DEPOSIT_LOVELACE = 10_000_000_000
 MIN_SUPPORT_CONTRIBUTION_LOVELACE = 1_000_000
 MAX_SUPPORT_CONTRIBUTION_LOVELACE = 10_000_000_000
+AUTO_RENEWAL_WINDOW_SECONDS = int(os.getenv("BILLING_AUTO_RENEWAL_WINDOW_SECONDS", "3600"))
 
 
 class CreateCardanoPaymentSessionIn(BaseModel):
@@ -280,6 +281,7 @@ def _grant_entitlement_from_balance(
     user: User,
     entitlement_code: str,
     duration_days: int,
+    source: str = "balance_purchase",
 ) -> UserEntitlement:
     now = _utcnow()
     starts_at = now
@@ -298,7 +300,7 @@ def _grant_entitlement_from_balance(
         existing_expires = _from_db_naive_utc(existing.expires_at)
         base = existing_expires if existing_expires and existing_expires > now else now
         existing.expires_at = _to_db_naive_utc(base + timedelta(days=int(duration_days)))
-        existing.source = "balance_purchase"
+        existing.source = source
         existing.payment_session_id = None
         db.add(existing)
         db.flush()
@@ -307,7 +309,7 @@ def _grant_entitlement_from_balance(
     entitlement = UserEntitlement(
         user_id=user.user_id,
         entitlement_code=entitlement_code,
-        source="balance_purchase",
+        source=source,
         payment_session_id=None,
         starts_at=_to_db_naive_utc(starts_at),
         expires_at=_to_db_naive_utc(starts_at + timedelta(days=int(duration_days))),
@@ -479,6 +481,131 @@ def _billing_preferences_payload(row: UserBillingPreference) -> dict:
     }
 
 
+def _latest_premium_entitlement(
+    db: Session,
+    *,
+    user: User,
+    entitlement_code: str,
+) -> UserEntitlement | None:
+    return db.scalar(
+        select(UserEntitlement)
+        .where(
+            UserEntitlement.user_id == user.user_id,
+            UserEntitlement.entitlement_code == entitlement_code,
+            UserEntitlement.status == "active",
+        )
+        .order_by(UserEntitlement.expires_at.desc(), UserEntitlement.id.desc())
+    )
+
+
+def _maybe_auto_renew_premium_from_balance(
+    db: Session,
+    *,
+    user: User,
+) -> dict:
+    preferences = db.scalar(
+        select(UserBillingPreference).where(
+            UserBillingPreference.user_id == user.user_id,
+        )
+    )
+
+    if not preferences or not preferences.auto_renew_premium_enabled:
+        return {"attempted": False, "renewed": False, "reason": "disabled"}
+
+    plan_code = (preferences.auto_renew_plan_code or "cap_premium_access").strip() or "cap_premium_access"
+    network = _network()
+    plan, price, _payment_address = _active_plan_bundle(db, plan_code, network)
+
+    if price.currency != "lovelace":
+        return {
+            "attempted": False,
+            "renewed": False,
+            "reason": "unsupported_currency",
+            "currency": price.currency,
+        }
+
+    now = _utcnow()
+    renewal_threshold = now + timedelta(seconds=max(0, AUTO_RENEWAL_WINDOW_SECONDS))
+
+    entitlement = _latest_premium_entitlement(
+        db,
+        user=user,
+        entitlement_code=plan.entitlement_code,
+    )
+
+    if entitlement is None:
+        return {"attempted": False, "renewed": False, "reason": "no_existing_entitlement"}
+
+    expires_at = _from_db_naive_utc(entitlement.expires_at)
+
+    if expires_at and expires_at > renewal_threshold:
+        return {
+            "attempted": False,
+            "renewed": False,
+            "reason": "not_due",
+            "expires_at": _format_utc(expires_at),
+        }
+
+    balance = db.scalar(
+        select(UserCreditBalance)
+        .where(
+            UserCreditBalance.user_id == user.user_id,
+            UserCreditBalance.currency == "lovelace",
+        )
+        .with_for_update()
+    )
+    current_balance = int(balance.balance or 0) if balance else 0
+    required = int(price.amount or 0)
+
+    if current_balance < required:
+        return {
+            "attempted": True,
+            "renewed": False,
+            "reason": "insufficient_balance",
+            "balance_lovelace": current_balance,
+            "required_lovelace": required,
+            "missing_lovelace": required - current_balance,
+        }
+
+    renewed_entitlement = _grant_entitlement_from_balance(
+        db,
+        user=user,
+        entitlement_code=plan.entitlement_code,
+        duration_days=price.duration_days,
+        source="auto_renewal",
+    )
+
+    renewed_balance = _debit_user_balance_for_entitlement(
+        db,
+        user=user,
+        amount_lovelace=required,
+        reason="auto_renewal",
+        entitlement=renewed_entitlement,
+        metadata={
+            "plan_code": plan.code,
+            "entitlement_code": plan.entitlement_code,
+            "duration_days": price.duration_days,
+            "network": price.network,
+            "currency": price.currency,
+            "amount_lovelace": required,
+            "source": "auto_renewal",
+        },
+    )
+
+    db.commit()
+    db.refresh(renewed_entitlement)
+    db.refresh(renewed_balance)
+
+    return {
+        "attempted": True,
+        "renewed": True,
+        "reason": "renewed",
+        "entitlement_code": renewed_entitlement.entitlement_code,
+        "expires_at": _format_utc(renewed_entitlement.expires_at),
+        "balance_lovelace": int(renewed_balance.balance or 0),
+    }
+
+
 @router.get("/plans")
 def list_billing_plans(db: Session = Depends(get_db)):
     network = _network()
@@ -527,7 +654,15 @@ def get_my_billing_access(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_billing_access_state(db, current_user)
+    auto_renewal = _maybe_auto_renew_premium_from_balance(db, user=current_user)
+
+    state = get_billing_access_state(db, current_user)
+    preferences = _get_or_create_billing_preferences(db, user=current_user)
+
+    state["billing_preferences"] = _billing_preferences_payload(preferences)
+    state["auto_renewal"] = auto_renewal
+
+    return state
 
 
 @router.get("/preferences/me")
