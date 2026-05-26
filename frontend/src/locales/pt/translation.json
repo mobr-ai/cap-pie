@@ -765,15 +765,16 @@
       "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento.",
       "depositTooSmall": "O depósito pré-pago mínimo é {{amount}}.",
       "balanceActivationFailed": "Não foi possível ativar o Premium com Saldo. Tente novamente.",
-      "connectWalletToAddBalance": "Conecte uma carteira de pagamento para adicionar Saldo."
+      "connectWalletToAddBalance": "Conecte uma carteira de pagamento para adicionar Saldo.",
+      "autoRenewSaveFailed": "Não foi possível atualizar a preferência de renovação automática. Tente novamente."
     },
     "prepaidTitle": "Saldo",
     "prepaidDescription": "Adicione ₳DA agora e use depois para renovações ou análises pay-as-you-go.",
-    "prepaidHint": "Seu saldo é registrado pelo CAP após verificação on-chain. Débitos pay-as-you-go e renovação automática virão em seguida.",
+    "prepaidHint": "Seu saldo é rastreado pelo CAP após a verificação on-chain. Ele pode ser usado para renovações Premium e futuras análises pay-as-you-go.",
     "addBalance": "Adicionar Saldo",
     "customDepositPlaceholder": "Valor customizado",
     "futurePayg": "Consultas pay-as-you-go em breve",
-    "futureAutoRenew": "Renovação automática com saldo em breve",
+    "futureAutoRenew": "Renovação automática pelo Saldo já disponível",
     "depositOptions": {
       "explore": {
         "label": "Explorar",
@@ -810,11 +811,11 @@
     "balancePrefilledHint": "{{amount}} está pronto no campo de Saldo. Revise e clique em Adicionar Saldo.",
     "planPrice": "Preço do plano",
     "ready": "Pronto",
-    "activateWithBalanceHint": "Seu Saldo cobre este plano. Ative ou estenda o Premium diretamente.",
+    "activateWithBalanceHint": "Use seu Saldo CAP para ativar ou estender o Premium.",
     "currentBalanceTitle": "Saldo atual",
     "addBalanceBeforePremiumHint": "Adicione {{amount}} ao Saldo antes de ativar o Premium.",
-    "autoRenewOptIn": "Opt-in de renovação",
-    "autoRenewHint": "Os controles de renovação automática serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer renovação pelo Saldo.",
+    "autoRenewOptIn": "Renovar Premium automaticamente pelo Saldo",
+    "autoRenewHint": "Quando ativado, o CAP renova o Premium usando seu Saldo CAP quando o acesso estiver perto de expirar.",
     "paygOptIn": "Opt-in PAYG",
     "paygHint": "Os controles pay-as-you-go serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer débito no Saldo.",
     "activityTitle": "Atividade recente de cobrança",
@@ -829,7 +830,8 @@
       "premiumGrant": "Premium concedido",
       "premiumRevoke": "Premium revogado",
       "other": "Atividade de cobrança",
-      "supportContribution": "Contribuição de apoio"
+      "supportContribution": "Contribuição de apoio",
+      "autoRenewal": "Renovação automática Premium"
     },
     "supportTitle": "Apoiar o CAP",
     "supportDescription": "Ajude a financiar infraestrutura aberta de analytics para Cardano, incluindo pipelines de dados, infraestrutura de knowledge graph, ferramentas de IA e recursos de acesso público.",
@@ -845,7 +847,12 @@
       "paid": "Pago",
       "expired": "Expirado",
       "failed": "Falhou"
-    }
+    },
+    "autoRenewWalletNote": "A renovação automática nunca cobra sua carteira automaticamente. Ela usa apenas o Saldo já adicionado à sua conta CAP.",
+    "autoRenewEnabled": "Renovação automática do Premium ativada.",
+    "autoRenewDisabled": "Renovação automática do Premium desativada.",
+    "premiumExtendThrough": "Estende o Premium até {{date}}.",
+    "premiumActivateForDays": "Ativa o Premium por {{days}} dias."
   },
   "connectingWallet": "Conectando {{wallet}}...",
   "billingAccess": {

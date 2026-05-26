@@ -764,15 +764,16 @@
       "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment.",
       "depositTooSmall": "Minimum prepaid deposit is {{amount}}.",
       "balanceActivationFailed": "Could not activate Premium from Balance. Please try again.",
-      "connectWalletToAddBalance": "Connect a payment wallet to add Balance."
+      "connectWalletToAddBalance": "Connect a payment wallet to add Balance.",
+      "autoRenewSaveFailed": "Could not update auto-renew preference. Please try again."
     },
     "prepaidTitle": "Balance",
     "prepaidDescription": "Deposit ₳DA now and use it later for renewals or pay-as-you-go analytics.",
-    "prepaidHint": "Your balance is tracked by CAP after on-chain verification. Pay-as-you-go debits and auto-renewal are coming next.",
+    "prepaidHint": "Your balance is tracked by CAP after on-chain verification. It can be used for Premium renewals and future pay-as-you-go analytics.",
     "addBalance": "Add Balance",
     "customDepositPlaceholder": "Custom amount",
     "futurePayg": "Pay-as-you-go queries coming soon",
-    "futureAutoRenew": "Auto-renew from balance coming soon",
+    "futureAutoRenew": "Auto-renew from Balance is now available",
     "depositOptions": {
       "explore": {
         "label": "Explore",
@@ -809,11 +810,11 @@
     "balancePrefilledHint": "{{amount}} is ready in the Balance input. Review it and click Add Balance.",
     "planPrice": "Plan price",
     "ready": "Ready",
-    "activateWithBalanceHint": "Your Balance covers this plan. Activate or extend Premium directly.",
+    "activateWithBalanceHint": "Use your CAP Balance to activate or extend Premium.",
     "currentBalanceTitle": "Current Balance",
     "addBalanceBeforePremiumHint": "Add {{amount}} to Balance before activating Premium.",
-    "autoRenewOptIn": "Auto-renew opt-in",
-    "autoRenewHint": "Auto-renew controls are coming soon. They will require explicit opt-in before any Balance renewal.",
+    "autoRenewOptIn": "Auto-renew Premium from Balance",
+    "autoRenewHint": "When enabled, CAP renews Premium with your CAP Balance when your access is about to expire.",
     "paygOptIn": "PAYG opt-in",
     "paygHint": "Pay-as-you-go controls are coming soon. They will require explicit opt-in before any Balance debit.",
     "activityTitle": "Recent billing activity",
@@ -828,7 +829,8 @@
       "premiumGrant": "Premium granted",
       "premiumRevoke": "Premium revoked",
       "other": "Billing activity",
-      "supportContribution": "Support contribution"
+      "supportContribution": "Support contribution",
+      "autoRenewal": "Premium auto-renewal"
     },
     "supportTitle": "Support CAP",
     "supportDescription": "Help fund open analytics infrastructure for Cardano, including data pipelines, knowledge graph infrastructure, AI tooling, and public-access features.",
@@ -844,7 +846,12 @@
       "paid": "Paid",
       "expired": "Expired",
       "failed": "Failed"
-    }
+    },
+    "autoRenewWalletNote": "Auto-renew never charges your wallet automatically. It only uses Balance already added to your CAP account.",
+    "autoRenewEnabled": "Premium auto-renew enabled.",
+    "autoRenewDisabled": "Premium auto-renew disabled.",
+    "premiumExtendThrough": "Extends Premium through {{date}}.",
+    "premiumActivateForDays": "Activates Premium for {{days}} days."
   },
   "connectingWallet": "Connecting {{wallet}}...",
   "billingAccess": {

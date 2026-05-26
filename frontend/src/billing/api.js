@@ -100,6 +100,27 @@ export async function fetchMyBillingTransactions(session, limit = 20) {
   return parseJsonResponse(res);
 }
 
+export async function fetchBillingPreferences(session) {
+  const res = await fetch(`${API_BASE}/billing/preferences/me`, {
+    headers: authHeaders(session),
+  });
+
+  return parseJsonResponse(res);
+}
+
+export async function updateBillingPreferences(session, preferences = {}) {
+  const res = await fetch(`${API_BASE}/billing/preferences/me`, {
+    method: "PUT",
+    headers: {
+      ...authHeaders(session),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(preferences),
+  });
+
+  return parseJsonResponse(res);
+}
+
 export async function createCardanoPaymentSession(
   session,
   options = "cap_premium_access",

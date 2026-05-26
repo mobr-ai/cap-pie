@@ -57,6 +57,22 @@ export function billingMinorToMajorString(value, currency = "lovelace") {
     .replace(/0+$/, "")}`;
 }
 
+export function billingMajorToMinor(value, currency = "lovelace") {
+  const meta = getBillingCurrencyMeta(currency);
+  const decimals = Number(meta.decimals || 0);
+  const numeric = Number(value);
+
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return 0;
+  }
+
+  return Math.round(numeric * Number(10n ** BigInt(decimals)));
+}
+
+export function adaToLovelace(value) {
+  return billingMajorToMinor(value, "lovelace");
+}
+
 export function formatBillingAmountFromMinor(
   value,
   {

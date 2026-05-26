@@ -43,10 +43,13 @@ import {
   fetchMyCreditBalance,
   fetchMyEntitlements,
   hasEntitlement,
+  fetchBillingPreferences,
+  updateBillingPreferences,
 } from "../billing/api";
 import {
   formatBillingAmountFromMajor,
   formatBillingAmountFromMinor,
+  adaToLovelace,
 } from "../billing/currency";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._]{5,29}$/;
@@ -86,11 +89,6 @@ const DEPOSIT_OPTIONS_ADA = [
   },
 ];
 
-function adaToLovelace(ada) {
-  const parsed = Number(ada || 0);
-  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
-  return Math.round(parsed * 1_000_000);
-}
 
 function lovelaceToAdaDisplay(lovelace) {
   const n = Number(lovelace || 0);
@@ -126,13 +124,13 @@ function getBillingActivityReasonKey(reason) {
   if (key === "plan_activation") return "planActivation";
   if (key === "plan_purchase") return "planPurchase";
   if (key === "support_contribution") return "supportContribution";
+  if (key === "auto_renewal") return "autoRenewal";
   if (key === "admin_adjustment") return "adminAdjustment";
   if (key === "premium_grant") return "premiumGrant";
   if (key === "premium_revoke") return "premiumRevoke";
 
   return "other";
 }
-
 
 function getSessionWalletName(session, user) {
   return (
@@ -187,6 +185,9 @@ export default function SettingsPage() {
   const [selectedSupportAda, setSelectedSupportAda] = useState(25);
   const [customSupportAda, setCustomSupportAda] = useState("25");
   const [isActivatingFromBalance, setIsActivatingFromBalance] = useState(false);
+  const [billingPreferences, setBillingPreferences] = useState(null);
+  const [isSavingBillingPreferences, setIsSavingBillingPreferences] =
+    useState(false);
 
   const [billingWalletName, setBillingWalletName] = useState("");
   const [billingWalletApi, setBillingWalletApi] = useState(null);
@@ -219,18 +220,26 @@ export default function SettingsPage() {
     billingEntitlements,
     "cap_premium_access",
   );
+  const autoRenewPremiumEnabled = Boolean(
+    billingPreferences?.auto_renew_premium_enabled,
+  );
 
   const effectiveDepositAda =
     customDepositAda !== "" ? Number(customDepositAda) : selectedDepositAda;
 
   const effectiveDepositLovelace = adaToLovelace(effectiveDepositAda);
 
-  const parsedSupportAda = Number.parseFloat(String(customSupportAda || "").replace(",", "."));
+  const parsedSupportAda = Number.parseFloat(
+    String(customSupportAda || "").replace(",", "."),
+  );
   const effectiveSupportAda =
     Number.isFinite(parsedSupportAda) && parsedSupportAda > 0
       ? parsedSupportAda
       : selectedSupportAda;
-  const effectiveSupportLovelace = Math.max(0, Math.round(effectiveSupportAda * 1_000_000));
+  const effectiveSupportLovelace = Math.max(
+    0,
+    Math.round(effectiveSupportAda * 1_000_000),
+  );
 
   const premiumPlan =
     billingPlans.find((plan) => plan?.code === "cap_premium_access") || null;
@@ -250,6 +259,44 @@ export default function SettingsPage() {
   const balanceLabel = formatBillingAmountFromMinor(balanceLovelace, {
     currency: "lovelace",
   });
+
+  const premiumExtensionBaseEntitlement = (billingEntitlements || []).find(
+    (item) =>
+      item?.entitlement_code === "cap_premium_access" &&
+      item?.status === "active" &&
+      item?.expires_at,
+  );
+
+  const premiumExtensionBaseDate = premiumExtensionBaseEntitlement?.expires_at
+    ? new Date(premiumExtensionBaseEntitlement.expires_at)
+    : null;
+
+  const premiumExtensionStartsFrom =
+    premiumExtensionBaseDate instanceof Date &&
+    Number.isFinite(premiumExtensionBaseDate.getTime()) &&
+    premiumExtensionBaseDate.getTime() > Date.now()
+      ? premiumExtensionBaseDate
+      : new Date();
+
+  const premiumExtensionTargetDate = new Date(
+    premiumExtensionStartsFrom.getTime(),
+  );
+  premiumExtensionTargetDate.setDate(premiumExtensionTargetDate.getDate() + 30);
+
+  const premiumExtensionDateLabel =
+    premiumExtensionTargetDate.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+  const premiumExtensionHint = hasPremiumAccess
+    ? t("settingsBilling.premiumExtendThrough", {
+        date: premiumExtensionDateLabel,
+      })
+    : t("settingsBilling.premiumActivateForDays", {
+        days: 30,
+      });
   const premiumBalanceActionDisabled =
     billingLoading ||
     isActivatingFromBalance ||
@@ -258,11 +305,18 @@ export default function SettingsPage() {
 
   const missingPremiumAda = Math.max(
     1,
-    Math.ceil(Number(lovelaceToAdaDisplay(missingPremiumLovelace || premiumPriceLovelace))),
+    Math.ceil(
+      Number(
+        lovelaceToAdaDisplay(missingPremiumLovelace || premiumPriceLovelace),
+      ),
+    ),
   );
-  const missingPremiumAmountLabel = formatBillingAmountFromMajor(missingPremiumAda, {
-    currency: "lovelace",
-  });
+  const missingPremiumAmountLabel = formatBillingAmountFromMajor(
+    missingPremiumAda,
+    {
+      currency: "lovelace",
+    },
+  );
 
   const usernameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -312,10 +366,16 @@ export default function SettingsPage() {
       const balanceData = await fetchMyCreditBalance(outlet.session);
       setCreditBalance(balanceData?.balance || null);
 
+      const preferencesData = await fetchBillingPreferences(outlet.session);
+      setBillingPreferences(preferencesData?.preferences || null);
+
       const plansData = await fetchBillingPlans();
       setBillingPlans(plansData?.plans || []);
 
-      const transactionsData = await fetchMyBillingTransactions(outlet.session, 12);
+      const transactionsData = await fetchMyBillingTransactions(
+        outlet.session,
+        12,
+      );
       setBillingTransactions(transactionsData?.transactions || []);
     } catch (err) {
       console.error("[Settings] Billing status failed:", err);
@@ -426,9 +486,11 @@ export default function SettingsPage() {
     }
 
     if (!effectiveDepositLovelace || effectiveDepositLovelace < 1_000_000) {
-      setBillingError(t("settingsBilling.errors.depositTooSmall", {
-        amount: formatBillingAmountFromMajor(1, { currency: "lovelace" }),
-      }));
+      setBillingError(
+        t("settingsBilling.errors.depositTooSmall", {
+          amount: formatBillingAmountFromMajor(1, { currency: "lovelace" }),
+        }),
+      );
       return;
     }
 
@@ -457,7 +519,10 @@ export default function SettingsPage() {
         await outlet.refreshBillingAccess?.();
         showToast?.(t("settingsBilling.balanceActivationSuccess"), "success");
       } catch (err) {
-        console.error("[Settings] Balance-funded premium activation failed:", err);
+        console.error(
+          "[Settings] Balance-funded premium activation failed:",
+          err,
+        );
         setBillingError(t("settingsBilling.errors.balanceActivationFailed"));
       } finally {
         setIsActivatingFromBalance(false);
@@ -475,7 +540,11 @@ export default function SettingsPage() {
 
       const target = balanceBlock || walletBlock;
 
-      if (!skipScroll && target && typeof target.scrollIntoView === "function") {
+      if (
+        !skipScroll &&
+        target &&
+        typeof target.scrollIntoView === "function"
+      ) {
         target.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
 
@@ -490,9 +559,11 @@ export default function SettingsPage() {
       return;
     }
 
-    setBillingError(t("settingsBilling.balancePrefilledHint", {
-      amount: missingPremiumAmountLabel,
-    }));
+    setBillingError(
+      t("settingsBilling.balancePrefilledHint", {
+        amount: missingPremiumAmountLabel,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -735,13 +806,56 @@ export default function SettingsPage() {
   if (!user) return null;
 
   // ---- UI ------------------------------------------------------------------
+  const handleAutoRenewToggle = async (event) => {
+    const enabled = Boolean(event.target.checked);
+    const previousPreferences = billingPreferences;
+
+    const optimisticPreferences = {
+      ...(previousPreferences || {}),
+      auto_renew_premium_enabled: enabled,
+      auto_renew_plan_code:
+        previousPreferences?.auto_renew_plan_code || "cap_premium_access",
+      payg_enabled: Boolean(previousPreferences?.payg_enabled),
+    };
+
+    setBillingError("");
+    setBillingPreferences(optimisticPreferences);
+    setIsSavingBillingPreferences(true);
+
+    try {
+      const data = await updateBillingPreferences(outlet.session, {
+        auto_renew_premium_enabled: enabled,
+        auto_renew_plan_code: "cap_premium_access",
+      });
+
+      setBillingPreferences(data?.preferences || optimisticPreferences);
+      await outlet.refreshBillingAccess?.();
+
+      showToast?.(
+        enabled
+          ? t("settingsBilling.autoRenewEnabled")
+          : t("settingsBilling.autoRenewDisabled"),
+        "success",
+      );
+    } catch (err) {
+      console.error("[Settings] Auto-renew preference update failed:", err);
+      setBillingPreferences(previousPreferences || null);
+      setBillingError(t("settingsBilling.errors.autoRenewSaveFailed"));
+    } finally {
+      setIsSavingBillingPreferences(false);
+    }
+  };
+
   return (
     <div className="Settings-body">
       <Container className="Settings-container">
         <div className="Settings-topbar">
           <h2 className="Settings-title">{t("settings")}</h2>
 
-          <Form onSubmit={(e) => e.preventDefault()} className="Settings-language-form">
+          <Form
+            onSubmit={(e) => e.preventDefault()}
+            className="Settings-language-form"
+          >
             <Form.Group
               controlId="languageSelect"
               className="Settings-language"
@@ -1119,22 +1233,27 @@ export default function SettingsPage() {
               </Button>
 
               <div className="Settings-premium-action-hint">
-                {hasEnoughBalanceForPremium
-                  ? t("settingsBilling.activateWithBalanceHint")
-                  : t("settingsBilling.addBalanceBeforePremiumHint", {
-                      amount: missingPremiumAmountLabel,
-                    })}
+                {premiumExtensionHint}
               </div>
 
               <div className="Settings-premium-optin-row">
-                <button
-                  type="button"
-                  className="Settings-premium-optin-chip"
-                  disabled
-                  title={t("settingsBilling.autoRenewHint")}
-                >
-                  {t("settingsBilling.autoRenewOptIn")}
-                </button>
+                <label className="Settings-billing-toggle">
+                  <input
+                    type="checkbox"
+                    checked={autoRenewPremiumEnabled}
+                    disabled={isSavingBillingPreferences}
+                    onChange={handleAutoRenewToggle}
+                  />
+                  <span
+                    className="Settings-billing-toggle-ui"
+                    aria-hidden="true"
+                  />
+                  <span className="Settings-billing-toggle-copy">
+                    <strong>{t("settingsBilling.autoRenewOptIn")}</strong>
+                    <span>{t("settingsBilling.autoRenewHint")}</span>
+                    <small>{t("settingsBilling.autoRenewWalletNote")}</small>
+                  </span>
+                </label>
                 <button
                   type="button"
                   className="Settings-premium-optin-chip"
@@ -1176,8 +1295,14 @@ export default function SettingsPage() {
                         <div className="Settings-activity-reason">
                           {t(`settingsBilling.activityReasons.${reasonKey}`)}
                           {item?.status && item.status !== "posted" ? (
-                            <span className="Settings-activity-status" data-status={item.status}>
-                              {t(`settingsBilling.activityStatus.${item.status}`, item.status)}
+                            <span
+                              className="Settings-activity-status"
+                              data-status={item.status}
+                            >
+                              {t(
+                                `settingsBilling.activityStatus.${item.status}`,
+                                item.status,
+                              )}
                             </span>
                           ) : null}
                         </div>
@@ -1200,9 +1325,16 @@ export default function SettingsPage() {
                         </div>
                       </div>
 
-                      <div className="Settings-activity-amount" data-direction={
-                        isPositive ? "credit" : isNegative ? "debit" : "neutral"
-                      }>
+                      <div
+                        className="Settings-activity-amount"
+                        data-direction={
+                          isPositive
+                            ? "credit"
+                            : isNegative
+                              ? "debit"
+                              : "neutral"
+                        }
+                      >
                         {formatBillingAmountFromMinor(amount, {
                           currency: item?.currency || "lovelace",
                         })}
@@ -1211,9 +1343,12 @@ export default function SettingsPage() {
                       <div className="Settings-activity-balance">
                         <span>{t("settingsBilling.activityBalanceAfter")}</span>
                         <strong>
-                          {formatBillingAmountFromMinor(item?.balance_after || 0, {
-                            currency: item?.currency || "lovelace",
-                          })}
+                          {formatBillingAmountFromMinor(
+                            item?.balance_after || 0,
+                            {
+                              currency: item?.currency || "lovelace",
+                            },
+                          )}
                         </strong>
                       </div>
                     </div>
@@ -1229,7 +1364,6 @@ export default function SettingsPage() {
 
           <div className="Settings-billing-future">
             <span>{t("settingsBilling.futurePayg")}</span>
-            <span>{t("settingsBilling.futureAutoRenew")}</span>
             <span>{t("settingsBilling.futurePlanControls")}</span>
           </div>
         </div>
@@ -1257,13 +1391,19 @@ export default function SettingsPage() {
               </div>
 
               <div className="Settings-support-actions">
-                <div className="Settings-support-presets" aria-label={t("settingsBilling.supportAmountLabel")}>
+                <div
+                  className="Settings-support-presets"
+                  aria-label={t("settingsBilling.supportAmountLabel")}
+                >
                   {SUPPORT_CONTRIBUTION_PRESETS_ADA.map((amount) => (
                     <button
                       key={amount}
                       type="button"
                       className="Settings-support-preset"
-                      data-active={Number(selectedSupportAda) === amount && String(customSupportAda) === String(amount)}
+                      data-active={
+                        Number(selectedSupportAda) === amount &&
+                        String(customSupportAda) === String(amount)
+                      }
                       onClick={() => handleSupportPresetClick(amount)}
                     >
                       ₳{amount}
@@ -1278,7 +1418,9 @@ export default function SettingsPage() {
                     min="1"
                     step="1"
                     value={customSupportAda}
-                    onChange={(event) => setCustomSupportAda(event.target.value)}
+                    onChange={(event) =>
+                      setCustomSupportAda(event.target.value)
+                    }
                     aria-label={t("settingsBilling.supportCustomAmount")}
                   />
                 </label>
@@ -1288,7 +1430,9 @@ export default function SettingsPage() {
                   variant="primary"
                   className="Settings-premium-action-btn"
                   onClick={handleSupportAction}
-                  disabled={!billingWalletApi || effectiveSupportLovelace < 1_000_000}
+                  disabled={
+                    !billingWalletApi || effectiveSupportLovelace < 1_000_000
+                  }
                   title={
                     billingWalletApi
                       ? t("settingsBilling.supportActionHint")
@@ -1345,7 +1489,6 @@ export default function SettingsPage() {
         paymentKind="support_contribution"
         amountLovelace={effectiveSupportLovelace}
       />
-
 
       <ShareModal
         show={showShareModal}
