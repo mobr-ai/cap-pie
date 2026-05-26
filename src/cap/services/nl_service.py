@@ -93,4 +93,3 @@ async def query_with_stream_response(
             )
         except Exception as metrics_error:
             logger.error("Failed to record metrics: %s", metrics_error)
-

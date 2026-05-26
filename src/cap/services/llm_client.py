@@ -69,10 +69,7 @@ class LLMClient:
         )
         self.api_key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY", "")
         self.timeout = timeout
-        self.fewshot_top_n = (
-            os.getenv("FEWSHOT_TOP_N")
-            or 3
-        )
+        self.fewshot_top_n = int(os.getenv("FEWSHOT_TOP_N") or "3")
 
         self._client: httpx.AsyncClient | None = None
 

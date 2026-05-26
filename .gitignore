@@ -139,6 +139,7 @@ docker-compose.yml
 
 # project specific
 .env
+.env.billing
 .env.docker
 .env.eval
 .DS_Store

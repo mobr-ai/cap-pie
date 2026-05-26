@@ -35,7 +35,19 @@ if config.config_file_name is not None:
 
 # --- Import model metadata for autogenerate ---
 # Only manage these tables with Alembic
-MANAGED_TABLES = {"user"}
+MANAGED_TABLES = {
+    "user",
+    "cardano_auth_challenge",
+    "billing_plan",
+    "billing_price",
+    "billing_payment_address",
+    "payment_session",
+    "user_entitlement",
+    "user_credit_ledger",
+    "user_credit_balance",
+    "user_usage_period",
+    "billing_feature_config",
+}
 
 def include_object(object, name, type_, reflected, compare_to):
     # Ignore all tables not in MANAGED_TABLES
