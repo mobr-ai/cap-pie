@@ -16,6 +16,9 @@ export default function Header({
   sidebarIsOpen,
   setSidebarOpen,
   authFetch,
+  billingAccess,
+  billingAccessLoading,
+  refreshBillingAccess,
 }) {
   const showSidebar = !!user && !!setSidebarOpen;
 
@@ -47,6 +50,9 @@ export default function Header({
           syncLag={syncLag}
           syncPct={syncPct}
           healthOnline={healthOnline}
+          billingAccess={billingAccess}
+          billingAccessLoading={billingAccessLoading}
+          refreshBillingAccess={refreshBillingAccess}
         />
       </div>
     </>

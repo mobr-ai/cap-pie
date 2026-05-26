@@ -6,6 +6,8 @@ import { useAuthRequest } from "@/hooks/useAuthRequest";
 
 import { useAdminSystemMetrics } from "@/hooks/useAdminSystemMetrics";
 import { useAdminUsers } from "@/hooks/useAdminUsers";
+import { useAdminBillingAccess } from "@/hooks/useAdminBillingAccess";
+import { useAdminBillingOverview } from "@/hooks/useAdminBillingOverview";
 import { useAdminWaitlist } from "@/hooks/useAdminWaitlist";
 import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { useAdminMetrics } from "@/hooks/useAdminMetrics";
@@ -17,6 +19,8 @@ import { SystemDetails } from "@/components/admin/SystemDetails";
 import { WaitlistStatsSummary } from "@/components/admin/WaitlistStatsSummary";
 import { UserStatsSummary } from "@/components/admin/UserStatsSummary";
 import { UserDirectory } from "@/components/admin/UserDirectory";
+import { BillingAccessDirectory } from "@/components/admin/BillingAccessDirectory";
+import { BillingOverviewSummary } from "@/components/admin/BillingOverviewSummary";
 import { WaitlistDirectory } from "@/components/admin/WaitlistDirectory";
 import { NewUserAlertsPanel } from "@/components/admin/NewUserAlertsPanel";
 import { WaitlistAlertsPanel } from "@/components/admin/WaitlistAlertsPanel";
@@ -63,6 +67,8 @@ export default function AdminPage() {
 
   const system = useAdminSystemMetrics(authFetch);
   const users = useAdminUsers(authFetch, showToast, t);
+  const billing = useAdminBillingAccess(authFetch, showToast, t, activeTab === "billing");
+  const billingOverview = useAdminBillingOverview(authFetch, activeTab === "overview" || activeTab === "billing");
   const waitlist = useAdminWaitlist(authFetch, showToast, t, {
     refreshUsers: users.reloadUsers,
   });
@@ -72,6 +78,7 @@ export default function AdminPage() {
   const tabs = [
     { key: "overview" },
     { key: "users" },
+    { key: "billing" },
     { key: "metrics" },
     { key: "system" },
     { key: "alerts" },
@@ -162,6 +169,7 @@ export default function AdminPage() {
           <>
             <SystemOverview t={t} {...system} />
             <UserStatsSummary t={t} {...users} />
+            <BillingOverviewSummary t={t} {...billingOverview} />
             <WaitlistStatsSummary t={t} {...waitlist} />
           </>
         )}
@@ -175,6 +183,12 @@ export default function AdminPage() {
               <WaitlistDirectory t={t} showToast={showToast} {...waitlist} />
             </div>
           </>
+        )}
+
+        {activeTab === "billing" && (
+          <div data-swipe-tabs-disabled="true">
+            <BillingAccessDirectory t={t} {...billing} />
+          </div>
         )}
 
         {activeTab === "metrics" && (

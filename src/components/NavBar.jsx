@@ -8,8 +8,47 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import i18n from "./../i18n";
 import { useTranslation } from "react-i18next";
+import { formatBillingAmountFromMinor } from "./../billing/currency";
 
 import avatarImg from "/icons/avatar.png";
+
+function getBillingBadge(access, loading, t) {
+  if (loading && !access) {
+    return {
+      className: "is-loading",
+      label: t("billingAccess.badge.loading"),
+      title: t("billingAccess.badge.loadingTitle"),
+    };
+  }
+
+  if (!access) {
+    return null;
+  }
+
+  if (access.access_mode === "premium" || access.premium_active) {
+    return {
+      className: "is-premium",
+      label: t("billingAccess.badge.premium"),
+      title: t("billingAccess.badge.premiumTitle"),
+    };
+  }
+
+  if (access.access_mode === "blocked" || access.can_query === false) {
+    return {
+      className: "is-blocked",
+      label: t("billingAccess.badge.blocked"),
+      title: t("billingAccess.badge.blockedTitle"),
+    };
+  }
+
+  const remaining = Number(access.free_query_remaining ?? 0);
+
+  return {
+    className: "is-free",
+    label: t("billingAccess.badge.freeRemaining", { count: remaining }),
+    title: t("billingAccess.badge.freeTitle", { count: remaining }),
+  };
+}
 
 function NavBar({
   userData,
@@ -20,6 +59,9 @@ function NavBar({
   syncLag,
   syncPct,
   healthOnline,
+  billingAccess,
+  billingAccessLoading,
+  refreshBillingAccess,
 }) {
   const [expanded, setExpanded] = useState(false);
   const [brand, setBrand] = useState("");
@@ -93,6 +135,12 @@ function NavBar({
   const shortName =
     displayName.length > 20 ? displayName.slice(0, 17) + "…" : displayName;
 
+  const billingBadge = getBillingBadge(billingAccess, billingAccessLoading, t);
+  const balanceAmount = formatBillingAmountFromMinor(billingAccess?.balance_lovelace, { currency: "lovelace" });
+  const freeUsed = Number(billingAccess?.free_query_used ?? 0);
+  const freeLimit = Number(billingAccess?.free_query_limit ?? 0);
+  const freeRemaining = Number(billingAccess?.free_query_remaining ?? 0);
+
   const userMenuTitle = (
     <span className="navbar-user-title nav-text">
       <Image
@@ -103,6 +151,14 @@ function NavBar({
         className="navbar-user-avatar"
       />
       <span className="navbar-user-name">{shortName}</span>
+      {billingBadge ? (
+        <span
+          className={`navbar-billing-badge ${billingBadge.className}`}
+          title={billingBadge.title}
+        >
+          {billingBadge.label}
+        </span>
+      ) : null}
       <span className="navbar-user-caret" aria-hidden="true">
         ▾
       </span>
@@ -361,6 +417,59 @@ function NavBar({
                   menuVariant="dark"
                   className="navbar-user-dropdown"
                 >
+                  <div className="navbar-account-summary">
+                    <div className="navbar-account-row">
+                      <Image
+                        src={userData?.avatar || avatarImg}
+                        alt="Profile avatar"
+                        onError={(e) => (e.currentTarget.src = avatarImg)}
+                        roundedCircle
+                        className="navbar-account-avatar"
+                      />
+                      <div className="navbar-account-copy">
+                        <div className="navbar-account-name">{shortName}</div>
+                        <div className="navbar-account-plan">
+                          {billingAccess?.premium_active
+                            ? t("billingAccess.dropdown.premium")
+                            : billingAccess?.access_mode === "blocked"
+                              ? t("billingAccess.dropdown.blocked")
+                              : t("billingAccess.dropdown.free")}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="navbar-account-metrics">
+                      <div>
+                        <span>{t("billingAccess.dropdown.balance")}</span>
+                        <strong>{balanceAmount}</strong>
+                      </div>
+                      <div>
+                        <span>{t("billingAccess.dropdown.queries")}</span>
+                        <strong>
+                          {billingAccess?.premium_active
+                            ? t("billingAccess.dropdown.unlimited")
+                            : `${freeRemaining}/${freeLimit}`}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {billingAccess?.premium_entitlement?.expires_at ? (
+                      <div className="navbar-account-note">
+                        {t("billingAccess.dropdown.expires", {
+                          date: new Date(
+                            billingAccess.premium_entitlement.expires_at,
+                          ).toLocaleDateString(),
+                        })}
+                      </div>
+                    ) : (
+                      <div className="navbar-account-note">
+                        {t("billingAccess.dropdown.paygComing")}
+                      </div>
+                    )}
+                  </div>
+
+                  <NavDropdown.Divider />
+
                   <NavDropdown.Item
                     className="nav-text"
                     onClick={() => {
@@ -372,6 +481,7 @@ function NavBar({
                   </NavDropdown.Item>
 
                   <NavDropdown.Divider />
+
                   <NavDropdown.Item
                     className="nav-text"
                     onClick={() => {

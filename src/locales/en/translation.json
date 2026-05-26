@@ -63,6 +63,7 @@
   "connectWallet": "Connect {{wallet}} Wallet",
   "joinWaitListSubtitleWallet": "You connected a Cardano wallet. Enter your email to complete registration and join the waiting list.",
   "walletNotFound": "No Cardano wallets detected. Install <nami>Nami</nami>, <lace>Lace</lace>, <flint>Flint</flint> or <eternl>Eternl</eternl> and reload.",
+  "walletLocked": "Please unlock your wallet and try again.",
   "walletLoginSuccess": "Wallet login successful",
   "loginError": "Login failed. Please try again.",
   "tooltipAvatar": "Change your avatar",
@@ -100,11 +101,8 @@
   "welcome": {
     "cap": {
       "scrollHint": "Discover CAP",
-
       "headline": "Welcome to CAP: Cardano Analytics Powered by AI",
-
       "lead": "Simplifying Cardano blockchain data exploration through natural language, bridging complex on-chain data with user-friendly insights via a custom LLM and a Semantic Knowledge Graph.",
-
       "cta": {
         "primary": "Explore CAP",
         "secondary": "Join the Waitlist",
@@ -112,7 +110,6 @@
         "title": "Ready to explore Cardano data the fast way?",
         "description": "Sign in above to access your workspace and start pinning insights."
       },
-
       "pillars": {
         "title": "Our Roadmap: The Three Pillars of Innovation",
         "llm": {
@@ -128,7 +125,6 @@
           "desc": "Interactive, customizable workspaces where users pin AI-generated charts and tables for real-time monitoring and exploration."
         }
       },
-
       "flow": {
         "title": "From Question to Insight",
         "step1": {
@@ -144,16 +140,20 @@
           "desc": "Results are automatically rendered into interactive Vega-Lite charts or structured tables."
         }
       },
-
       "kpis": {
-        "ask": { "title": "Ask", "subtitle": "in plain language" },
+        "ask": {
+          "title": "Ask",
+          "subtitle": "in plain language"
+        },
         "federate": {
           "title": "Federate (planned)",
           "subtitle": "on-chain + off-chain"
         },
-        "visualize": { "title": "Visualize", "subtitle": "instantly" }
+        "visualize": {
+          "title": "Visualize",
+          "subtitle": "instantly"
+        }
       },
-
       "examples": {
         "body": "Examples of advanced queries the platform targets",
         "colQuery": "User Query Example",
@@ -175,7 +175,6 @@
         ]
       }
     },
-
     "footer": {
       "tagline": "Building advanced data and AI infrastructure for decentralized ecosystems.",
       "followUs": "Follow Us",
@@ -561,7 +560,89 @@
       "copied": "Copied",
       "copySparql": "Copy SPARQL to clipboard",
       "copyNl": "Copy query to clipboard"
-    }
+    },
+    "tabBilling": "Billing & Access",
+    "billingSectionTitle": "Billing & Access",
+    "billingSectionSubtitle": "Review user plans, access status, balances, quota usage, premium expiration, and latest payments.",
+    "billingSearchPlaceholder": "Search by email, username, display name, or wallet…",
+    "billingLoading": "Loading billing access data…",
+    "billingLoadError": "Error loading billing access data",
+    "billingNoRows": "No billing access records found for this query.",
+    "billingColUser": "User",
+    "billingColWallet": "Wallet",
+    "billingColPlan": "Plan",
+    "billingColAccess": "Access",
+    "billingColBalance": "Balance",
+    "billingColFreeQuota": "Free quota",
+    "billingColPremiumUntil": "Premium until",
+    "billingColLastPayment": "Last payment",
+    "billingPlanPremium": "Premium",
+    "billingPlanFree": "Free",
+    "billingAccessPremium": "Premium",
+    "billingAccessFree": "Free",
+    "billingAccessBlocked": "Blocked",
+    "billingUnlimited": "Unlimited",
+    "billingNeverPaid": "Never paid",
+    "billingStatsTotal": "Total users",
+    "billingStatsFiltered": "Filtered",
+    "billingStatsPremiumShown": "Premium shown",
+    "billingStatsBalanceShown": "Balance shown",
+    "billingActionGrantPremium": "Grant or extend Premium",
+    "billingActionRevokePremium": "Revoke Premium",
+    "billingActionResetQuota": "Reset free query quota",
+    "billingActionAdjustBalance": "Adjust Balance",
+    "billingGrantPremiumPrompt": "How many Premium days should be granted or added?",
+    "billingInvalidDays": "Enter a valid number of days.",
+    "billingConfirmRevokePremium": "Revoke active Premium access for this user?",
+    "billingConfirmResetQuota": "Reset this user's free query usage for the current period?",
+    "billingAdjustBalancePrompt": "Enter the amount to add or subtract. Use negative values to remove balance.",
+    "billingInvalidBalanceAmount": "Enter a valid non-zero amount.",
+    "billingToastPremiumGranted": "Premium access updated.",
+    "billingToastPremiumRevoked": "Premium access revoked.",
+    "billingToastQuotaReset": "Free query quota reset.",
+    "billingToastBalanceAdjusted": "Balance adjusted.",
+    "billingSelectedUser": "Selected user",
+    "billingActionDetails": "Action details",
+    "billingPremiumDaysLabel": "Premium days",
+    "billingBalanceAdaLabel": "Balance amount",
+    "billingBalanceAdaHelp": "Use a positive amount to add Balance or a negative amount to remove Balance.",
+    "billingNoteLabel": "Admin note",
+    "billingNotePlaceholder": "Optional internal note...",
+    "billingSubmitting": "Applying...",
+    "billingConfirmAction": "Confirm",
+    "billingConfirmGrantPremium": "Grant Premium",
+    "billingGrantPremiumModalBody": "Grant or extend Premium access for this user. If the user already has active Premium, the selected number of days is added after the current expiration.",
+    "billingRevokePremiumModalBody": "Revoke active Premium access for this user. This will mark the current active Premium entitlement as revoked.",
+    "billingResetQuotaModalBody": "Reset this user's free query usage for the current period back to zero.",
+    "billingAdjustBalanceModalBody": "Adjust this user's CAP Balance. This creates a ledger entry and updates the account balance.",
+    "billingQuotaUsage": "{{used}}/{{limit}} ({{remaining}} left)",
+    "billingPaymentStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "expired": "Expired",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "billingOverviewTitle": "Billing & Access Overview",
+    "billingOverviewSubtitle": "High-level metrics about Premium access, free-query limits, and user balances.",
+    "billingOverviewLoading": "Loading billing overview…",
+    "billingOverviewPremiumUsers": "Premium users",
+    "billingOverviewPremiumUsersCaption": "Users with active Premium entitlement",
+    "billingOverviewBlockedUsers": "Blocked users",
+    "billingOverviewBlockedUsersCaption": "Users who reached the free query limit",
+    "billingOverviewTotalBalance": "Total Balance",
+    "billingOverviewTotalBalanceCaption": "Prepaid CAP Balance held by users",
+    "billingOverviewPaidPayments": "Paid payments",
+    "billingOverviewPaidPaymentsCaption": "Verified Cardano payment sessions",
+    "billingOverviewPendingPayments": "Pending payments",
+    "billingOverviewPendingPaymentsCaption": "Open sessions awaiting verification",
+    "billingOverviewFreeQuotaUsed": "Free quota usage",
+    "billingOverviewFreeQuotaUsedCaption": "Free queries used in the current period",
+    "billingStatsFilteredCaption": "Filtered: {{count}}",
+    "billingStatsBlockedShown": "Blocked shown",
+    "billingStatsBlockedShownCaption": "Users who reached the free query limit",
+    "billingStatsPremiumShownCaption": "Users with active Premium",
+    "billingStatsBalanceShownCaption": "Total Balance in current results"
   },
   "common": {
     "yes": "Yes",
@@ -575,6 +656,230 @@
     "storageRequired": {
       "title": "Storage is blocked",
       "body": "CAP needs browser storage (cookies/local storage) to keep you signed in. Please enable storage for this site, disable strict privacy mode, or free up storage space, then reload."
+    }
+  },
+  "billing": {
+    "plans": {
+      "capPremiumAccess": "CAP Premium Access"
+    },
+    "modal": {
+      "title": "Activate CAP Premium",
+      "subtitle": "Pay securely with your connected Cardano wallet. Balance-based renewal is coming next.",
+      "plan": "Plan",
+      "amount": "Amount",
+      "duration": "Duration",
+      "durationDays": "{{count}} days",
+      "network": "Network",
+      "wallet": "Wallet",
+      "noWallet": "Not connected",
+      "paymentAddress": "Payment address",
+      "loadedAfterStart": "Loaded when payment starts",
+      "success": "Payment verified. Premium access is now active.",
+      "note": "The payment amount and address are generated by CAP before the transaction is built. Access is granted only after backend verification.",
+      "eyebrow": "Premium access",
+      "loadingPrice": "Loading",
+      "balanceLoading": "Reading balance...",
+      "walletBalance": "Balance: {{balance}}",
+      "connectWalletToSeeBalance": "Connect wallet to see balance.",
+      "benefits": {
+        "unlimitedQueries": "Unlock unlimited natural-language analytics queries during the active 30-day period.",
+        "premiumAnalytics": "Access premium dashboard generation and on-chain analysis workflows.",
+        "walletNative": "Pay directly from your Cardano wallet, no account handoff.",
+        "prepaidRenewals": "Use your balance for future premium renewals.",
+        "payAsYouGoReady": "Prepared for upcoming pay-as-you-go query usage.",
+        "supportOpenInfrastructure": "Supports public analytics infrastructure",
+        "supportKnowledgeGraphs": "Helps maintain knowledge graph and AI tooling"
+      },
+      "depositEyebrow": "Account balance",
+      "depositTitle": "Add Balance",
+      "depositSubtitle": "Fund your CAP account for future renewals and pay-as-you-go analytics.",
+      "depositPlanName": "CAP Balance",
+      "prepaidCreditMeta": "Account balance",
+      "supportEyebrow": "Support CAP",
+      "supportTitle": "Support CAP development",
+      "supportSubtitle": "Help fund open analytics infrastructure for Cardano.",
+      "supportPlanName": "Voluntary contribution",
+      "supportMeta": "Support contribution",
+      "supportNote": "This is a voluntary contribution. It does not add Balance or activate Premium."
+    },
+    "status": {
+      "ready": "Ready",
+      "creatingSession": "Preparing",
+      "buildingTransaction": "Wallet approval",
+      "verifying": "Waiting on-chain",
+      "paid": "Paid",
+      "error": "Needs attention"
+    },
+    "actions": {
+      "close": "Close",
+      "done": "Done",
+      "processing": "Processing...",
+      "payWithCardano": "Pay with Cardano",
+      "refresh": "Refresh",
+      "payWithAda": "Pay with ₳DA"
+    },
+    "errors": {
+      "walletRequired": "Connect a Cardano wallet before starting payment.",
+      "paymentFailed": "Payment could not be completed. Please try again.",
+      "txNotFound": "Transaction was submitted but is not indexed yet. Please wait a few seconds and try again if needed.",
+      "insufficientPaymentAmount": "The transaction did not include the required amount.",
+      "paymentSessionExpired": "This payment session expired. Start a new one.",
+      "missingTxHash": "Missing transaction hash.",
+      "walletChangeAddressMissing": "Wallet did not return a valid change address.",
+      "unsupportedCardanoNetwork": "This Cardano network is not supported for payment.",
+      "noSpendableUtxos": "This wallet has no spendable UTxOs. Add funds to this wallet or choose another wallet.",
+      "insufficientWalletBalance": "Insufficient wallet balance. Available: {{balance}}. Required: {{required}} including an estimated fee buffer.",
+      "walletBalanceUnavailable": "Wallet balance is not available. Make sure the wallet is unlocked and connected.",
+      "walletSignTxUnavailable": "This wallet does not support transaction signing.",
+      "walletSubmitTxUnavailable": "This wallet does not support transaction submission.",
+      "paymentAddressMissing": "Payment address is missing.",
+      "invalidPaymentAmount": "Invalid payment amount.",
+      "txInputBuildFailed": "Could not build the transaction from this wallet UTxO set. Try refreshing the wallet, switching accounts, or using another wallet.",
+      "unsupportedTransactionBuilder": "This Cardano transaction builder version is not supported by the current payment flow.",
+      "creditDepositTooSmall": "Deposit amount is below the minimum.",
+      "creditDepositTooLarge": "Deposit amount is above the maximum.",
+      "walletLocked": "Please unlock your Cardano wallet and try again."
+    }
+  },
+  "settingsBilling": {
+    "title": "Billing & Access",
+    "subtitle": "Manage premium access, payments, and upcoming credit options.",
+    "premiumPlan": "30-day Premium Access",
+    "premiumDescription": "Activate premium analytics for 30 days. Auto-renewal from your balance is coming next.",
+    "unlock": "Unlock",
+    "renew": "Renew",
+    "connectWallet": "Connect wallet",
+    "connectedWallet": "Connected: {{wallet}}",
+    "connectHint": "Connect a Cardano wallet to start the payment flow.",
+    "walletConnected": "{{wallet}} connected for payment.",
+    "paymentVerified": "Payment verified and access refreshed.",
+    "futureCredits": "Prepaid credits coming soon",
+    "status": {
+      "loading": "Checking",
+      "free": "Free tier",
+      "premium": "Premium active"
+    },
+    "errors": {
+      "statusFailed": "Could not load billing status.",
+      "walletConnectFailed": "Could not connect this wallet.",
+      "reconnectWalletForPayment": "You signed in with {{wallet}}, but the wallet needs to be reconnected before payment.",
+      "depositTooSmall": "Minimum prepaid deposit is {{amount}}.",
+      "balanceActivationFailed": "Could not activate Premium from Balance. Please try again.",
+      "connectWalletToAddBalance": "Connect a payment wallet to add Balance.",
+      "autoRenewSaveFailed": "Could not update auto-renew preference. Please try again."
+    },
+    "prepaidTitle": "Balance",
+    "prepaidDescription": "Deposit ₳DA now and use it later for renewals or pay-as-you-go analytics.",
+    "prepaidHint": "Your balance is tracked by CAP after on-chain verification. It can be used for Premium renewals and future pay-as-you-go analytics.",
+    "addBalance": "Add Balance",
+    "customDepositPlaceholder": "Custom amount",
+    "futurePayg": "Pay-as-you-go queries coming soon",
+    "futureAutoRenew": "Auto-renew from Balance is now available",
+    "depositOptions": {
+      "explore": {
+        "label": "Explore",
+        "hint": "Start with a practical balance for testing CAP workflows."
+      },
+      "analyze": {
+        "label": "Analyze",
+        "hint": "A useful balance for repeated analytics sessions."
+      },
+      "build": {
+        "label": "Build",
+        "hint": "More room for dashboards, saved outputs, and deeper analysis."
+      },
+      "scale": {
+        "label": "Scale",
+        "hint": "More runway for active research and recurring workflows."
+      },
+      "operate": {
+        "label": "Operate",
+        "hint": "Designed for sustained analysis cycles and power usage."
+      }
+    },
+    "activateAccess": "Activate",
+    "extendAccess": "Extend 30 days",
+    "futurePlanControls": "Plan opt-in/out controls coming soon",
+    "activateWithBalance": "Activate with Balance",
+    "extendWithBalance": "Extend with Balance",
+    "activating": "Activating...",
+    "balanceActionHint": "Use your current Balance to activate or extend Premium.",
+    "addBalanceActionHint": "Add enough Balance to activate Premium.",
+    "balanceActivationSuccess": "Premium access activated from Balance.",
+    "connectWalletActionHint": "Connect a Cardano wallet to add Balance.",
+    "topUpMissingBalance": "Top up {{amount}}",
+    "balancePrefilledHint": "{{amount}} is ready in the Balance input. Review it and click Add Balance.",
+    "planPrice": "Plan price",
+    "ready": "Ready",
+    "activateWithBalanceHint": "Use your CAP Balance to activate or extend Premium.",
+    "currentBalanceTitle": "Current Balance",
+    "addBalanceBeforePremiumHint": "Add {{amount}} to Balance before activating Premium.",
+    "autoRenewOptIn": "Auto-renew Premium from Balance",
+    "autoRenewHint": "When enabled, CAP renews Premium with your CAP Balance when your access is about to expire.",
+    "paygOptIn": "PAYG opt-in",
+    "paygHint": "Pay-as-you-go controls are coming soon. They will require explicit opt-in before any Balance debit.",
+    "activityTitle": "Recent billing activity",
+    "activityDescription": "Track Balance deposits, Premium activations, and account adjustments.",
+    "activityEmpty": "No billing activity yet.",
+    "activityBalanceAfter": "Balance after",
+    "activityReasons": {
+      "creditDeposit": "Balance deposit",
+      "planActivation": "Premium activated from Balance",
+      "planPurchase": "Premium payment",
+      "adminAdjustment": "Admin Balance adjustment",
+      "premiumGrant": "Premium granted",
+      "premiumRevoke": "Premium revoked",
+      "other": "Billing activity",
+      "supportContribution": "Support contribution",
+      "autoRenewal": "Premium auto-renewal"
+    },
+    "supportTitle": "Support CAP",
+    "supportDescription": "Help fund open analytics infrastructure for Cardano, including data pipelines, knowledge graph infrastructure, AI tooling, and public-access features.",
+    "supportDisclaimer": "Voluntary contribution. This does not add Balance or activate Premium.",
+    "supportAmountLabel": "Support amount",
+    "supportCustomAmount": "Custom amount in ₳DA",
+    "supportAction": "Support with ₳DA",
+    "supportActionHint": "Continue with your connected Cardano wallet.",
+    "supportCardTitle": "Support open Cardano analytics",
+    "supportCardDescription": "Your contribution helps keep CAP development, infrastructure, and public-access analytics moving.",
+    "activityStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "expired": "Expired",
+      "failed": "Failed"
+    },
+    "autoRenewWalletNote": "Auto-renew never charges your wallet automatically. It only uses Balance already added to your CAP account.",
+    "autoRenewEnabled": "Premium auto-renew enabled.",
+    "autoRenewDisabled": "Premium auto-renew disabled.",
+    "premiumExtendThrough": "Extends Premium through {{date}}.",
+    "premiumActivateForDays": "Activates Premium for {{days}} days."
+  },
+  "connectingWallet": "Connecting {{wallet}}...",
+  "billingAccess": {
+    "badge": {
+      "loading": "Billing",
+      "loadingTitle": "Loading billing status",
+      "premium": "Premium",
+      "premiumTitle": "Premium access is active",
+      "blocked": "Limit reached",
+      "blockedTitle": "Free query limit reached",
+      "freeRemaining": "Free · {{count}} left",
+      "freeTitle": "{{count}} free queries remaining"
+    },
+    "dropdown": {
+      "premium": "Premium Access",
+      "free": "Free tier",
+      "blocked": "Free limit reached",
+      "balance": "Balance",
+      "queries": "Queries",
+      "unlimited": "Unlimited",
+      "expires": "Premium active until {{date}}",
+      "paygComing": "Pay-as-you-go debits from balance are coming next.",
+      "billing": "Billing & Access"
+    },
+    "paywall": {
+      "message": "You reached your free query limit. Open [Billing & Access](/settings?billing=1&action=premium) to add Balance and activate Premium.",
+      "toast": "Free query limit reached. Open Billing & Access to continue."
     }
   }
 }
