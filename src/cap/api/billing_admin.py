@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -25,8 +26,15 @@ from cap.services.billing_access import (
     _period_window,
     get_billing_access_state,
 )
+from cap.services.billing_notifications import (
+    billing_notification_setting_payload,
+    is_billing_notification_enabled,
+    list_billing_notification_settings,
+    update_billing_notification_setting,
+)
 
 router = APIRouter(prefix="/api/v1/admin/billing", tags=["billing_admin"])
+logger = logging.getLogger(__name__)
 
 
 class GrantPremiumIn(BaseModel):
@@ -48,6 +56,32 @@ class AdjustBalanceIn(BaseModel):
     reason: str = "admin_adjustment"
     note: str | None = None
 
+
+class UpdateNotificationSettingIn(BaseModel):
+    enabled: bool
+
+
+def _send_billing_email_safely(trigger_name: str, **kwargs) -> None:
+    try:
+        from cap.mailing import event_triggers as mailing_events
+
+        trigger = getattr(mailing_events, trigger_name)
+        trigger(**kwargs)
+    except Exception as exc:
+        logger.warning("Admin billing email trigger %s failed: %s", trigger_name, exc)
+
+
+def _send_billing_email_if_enabled(
+    db: Session,
+    event_code: str,
+    trigger_name: str,
+    *,
+    default: bool | None = None,
+    **kwargs,
+) -> None:
+    if not is_billing_notification_enabled(db, event_code, default=default):
+        return
+    _send_billing_email_safely(trigger_name, **kwargs)
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -179,6 +213,38 @@ def _get_or_create_balance(db: Session, *, user_id: int) -> UserCreditBalance:
     return row
 
 
+@router.get("/notification-settings")
+def list_admin_billing_notification_settings(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user),
+):
+    items = list_billing_notification_settings(db)
+    db.commit()
+    return {"items": items}
+
+
+@router.put("/notification-settings/{event_code}")
+def update_admin_billing_notification_setting(
+    event_code: str,
+    payload: UpdateNotificationSettingIn,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user),
+):
+    try:
+        row = update_billing_notification_setting(
+            db,
+            event_code,
+            enabled=payload.enabled,
+            updated_by_user_id=admin.user_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    db.commit()
+    db.refresh(row)
+    return {"item": billing_notification_setting_payload(row)}
+
+
 @router.get("/users")
 def list_admin_billing_users(
     search: str | None = Query(None, description="Search by email, username, or wallet"),
@@ -272,6 +338,17 @@ def admin_grant_premium(
 
     db.commit()
     db.refresh(user)
+    db.refresh(existing)
+
+    _send_billing_email_if_enabled(
+        db,
+        "admin_premium_granted",
+        "on_admin_billing_premium_granted",
+        user=user,
+        entitlement=existing,
+        days=payload.days,
+        note=payload.note,
+    )
 
     return {
         "status": "ok",
@@ -309,6 +386,15 @@ def admin_revoke_premium(
 
     db.commit()
     db.refresh(user)
+
+    if rows:
+        _send_billing_email_if_enabled(
+            db,
+            "admin_premium_revoked",
+            "on_admin_billing_premium_revoked",
+            user=user,
+            note=payload.note,
+        )
 
     return {
         "status": "ok",
@@ -426,6 +512,18 @@ def admin_adjust_balance(
 
     db.commit()
     db.refresh(user)
+    db.refresh(balance)
+
+    _send_billing_email_if_enabled(
+        db,
+        "admin_balance_adjusted",
+        "on_admin_billing_balance_adjusted",
+        user=user,
+        amount_lovelace=amount,
+        balance=balance,
+        reason=reason,
+        note=payload.note,
+    )
 
     return {
         "status": "ok",

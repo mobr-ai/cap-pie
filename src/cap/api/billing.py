@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -25,8 +26,10 @@ from cap.database.model import (
 )
 from cap.database.session import get_db
 from cap.services.billing_access import get_billing_access_state
+from cap.services.billing_notifications import is_billing_notification_enabled
 
 router = APIRouter(prefix="/api/v1/billing", tags=["billing"])
+logger = logging.getLogger(__name__)
 
 PAYMENT_KIND_PLAN_PURCHASE = "plan_purchase"
 PAYMENT_KIND_CREDIT_DEPOSIT = "credit_deposit"
@@ -59,6 +62,29 @@ class UpdateBillingPreferencesIn(BaseModel):
     auto_renew_plan_code: str | None = None
     payg_enabled: bool | None = None
 
+
+
+def _send_billing_email_safely(trigger_name: str, **kwargs) -> None:
+    try:
+        from cap.mailing import event_triggers as mailing_events
+
+        trigger = getattr(mailing_events, trigger_name)
+        trigger(**kwargs)
+    except Exception as exc:
+        logger.warning("Billing email trigger %s failed: %s", trigger_name, exc)
+
+
+def _send_billing_email_if_enabled(
+    db: Session,
+    event_code: str,
+    trigger_name: str,
+    *,
+    default: bool | None = None,
+    **kwargs,
+) -> None:
+    if not is_billing_notification_enabled(db, event_code, default=default):
+        return
+    _send_billing_email_safely(trigger_name, **kwargs)
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -596,6 +622,17 @@ def _maybe_auto_renew_premium_from_balance(
     db.refresh(renewed_entitlement)
     db.refresh(renewed_balance)
 
+    _send_billing_email_if_enabled(
+        db,
+        "auto_renew_succeeded",
+        "on_billing_auto_renew_succeeded",
+        user=user,
+        entitlement=renewed_entitlement,
+        balance=renewed_balance,
+        amount_lovelace=required,
+        plan_code=plan.code,
+    )
+
     return {
         "attempted": True,
         "renewed": True,
@@ -683,6 +720,7 @@ def update_my_billing_preferences(
     current_user: User = Depends(get_current_user),
 ):
     row = _get_or_create_billing_preferences(db, user=current_user)
+    was_auto_renew_enabled = bool(row.auto_renew_premium_enabled)
 
     if data.auto_renew_premium_enabled is not None:
         row.auto_renew_premium_enabled = bool(data.auto_renew_premium_enabled)
@@ -698,6 +736,16 @@ def update_my_billing_preferences(
     db.add(row)
     db.commit()
     db.refresh(row)
+
+    is_auto_renew_enabled = bool(row.auto_renew_premium_enabled)
+    if is_auto_renew_enabled != was_auto_renew_enabled:
+        _send_billing_email_if_enabled(
+            db,
+            "auto_renew_enabled" if is_auto_renew_enabled else "auto_renew_disabled",
+            "on_billing_auto_renew_enabled" if is_auto_renew_enabled else "on_billing_auto_renew_disabled",
+            user=current_user,
+            plan_code=row.auto_renew_plan_code or "cap_premium_access",
+        )
 
     return {"preferences": _billing_preferences_payload(row)}
 
@@ -974,6 +1022,15 @@ def create_cardano_payment_session(
     db.commit()
     db.refresh(session)
 
+    # Disabled by default in DB settings to avoid noisy multi-email payment flows.
+    _send_billing_email_if_enabled(
+        db,
+        "payment_session_created",
+        "on_billing_payment_created",
+        user=current_user,
+        session=session,
+    )
+
     return _session_response(session)
 
 
@@ -1069,6 +1126,17 @@ def verify_cardano_payment(
                 },
             )
 
+        _send_billing_email_if_enabled(
+            db,
+            "payment_failed",
+            "on_billing_payment_failed",
+            user=current_user,
+            session=session,
+            error_code=result.error or "paymentVerificationFailed",
+            received_lovelace=result.received_lovelace,
+            expected_lovelace=result.expected_lovelace,
+        )
+
         raise HTTPException(
             status_code=400,
             detail={
@@ -1098,6 +1166,16 @@ def verify_cardano_payment(
         db.refresh(session)
         db.refresh(balance)
 
+        # Final/specific email only: do not also send generic payment_confirmed.
+        _send_billing_email_if_enabled(
+            db,
+            "balance_credited",
+            "on_billing_balance_credited",
+            user=current_user,
+            session=session,
+            balance=balance,
+        )
+
         return {
             "payment": _session_response(session),
             "credit_balance": _credit_balance_payload(balance),
@@ -1107,6 +1185,14 @@ def verify_cardano_payment(
         db.commit()
         db.refresh(session)
 
+        _send_billing_email_if_enabled(
+            db,
+            "support_contribution_confirmed",
+            "on_billing_payment_confirmed",
+            user=current_user,
+            session=session,
+        )
+
         return {
             "payment": _session_response(session),
             "support_contribution": {
@@ -1115,6 +1201,12 @@ def verify_cardano_payment(
                 "tx_hash": session.tx_hash,
             },
         }
+
+    had_active_entitlement = _latest_premium_entitlement(
+        db,
+        user=current_user,
+        entitlement_code=session.entitlement_code_snapshot,
+    ) is not None
 
     entitlement = _grant_entitlement(
         db,
@@ -1126,6 +1218,16 @@ def verify_cardano_payment(
     db.commit()
     db.refresh(session)
     db.refresh(entitlement)
+
+    # Final/specific email only: premium activated/extended already implies payment confirmation.
+    _send_billing_email_if_enabled(
+        db,
+        "premium_extended" if had_active_entitlement else "premium_activated",
+        "on_billing_premium_extended" if had_active_entitlement else "on_billing_premium_activated",
+        user=current_user,
+        entitlement=entitlement,
+        session=session,
+    )
 
     return {
         "payment": _session_response(session),
@@ -1157,6 +1259,12 @@ def activate_plan_from_balance(
             },
         )
 
+    had_active_entitlement = _latest_premium_entitlement(
+        db,
+        user=current_user,
+        entitlement_code=plan.entitlement_code,
+    ) is not None
+
     entitlement = _grant_entitlement_from_balance(
         db,
         user=current_user,
@@ -1184,6 +1292,15 @@ def activate_plan_from_balance(
     db.commit()
     db.refresh(entitlement)
     db.refresh(balance)
+
+    _send_billing_email_if_enabled(
+        db,
+        "premium_extended" if had_active_entitlement else "premium_activated",
+        "on_billing_premium_extended" if had_active_entitlement else "on_billing_premium_activated",
+        user=current_user,
+        entitlement=entitlement,
+        balance=balance,
+    )
 
     return {
         "entitlement": {
