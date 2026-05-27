@@ -153,6 +153,30 @@ class BillingFeatureConfig(Base):
 
 
 
+class BillingNotificationSetting(Base):
+    __tablename__ = "billing_notification_setting"
+
+    id = Column(Integer, primary_key=True)
+    event_code = Column(String(80), nullable=False, index=True)
+    enabled = Column(Boolean, nullable=False, server_default=text("true"), default=True)
+    audience = Column(String(32), nullable=False, server_default=text("'user'"), default="user")
+    channel = Column(String(32), nullable=False, server_default=text("'email'"), default="email")
+    description = Column(Text, nullable=True)
+    updated_by_user_id = Column(Integer, ForeignKey("user.user_id", ondelete="SET NULL"), nullable=True, index=True)
+    created_at = Column(DateTime, server_default=text("NOW()"), index=True)
+    updated_at = Column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+    __table_args__ = (
+        UniqueConstraint(
+            "event_code",
+            "audience",
+            "channel",
+            name="uq_billing_notification_setting_event_audience_channel",
+        ),
+        Index("idx_billing_notification_setting_enabled", "enabled"),
+    )
+
+
 class PaymentSession(Base):
     __tablename__ = "payment_session"
 
