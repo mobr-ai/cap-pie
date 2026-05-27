@@ -17,15 +17,15 @@ from sqlalchemy.orm import Session
 from cap.core.auth_dependencies import get_current_user_unconfirmed
 from cap.database.model import ConversationMessage, QueryMetrics, User
 from cap.database.session import get_db
-from cap.services.conversation_persistence import (
-    persist_assistant_message_and_touch,
-    persist_conversation_artifact_from_raw_kv,
-    start_conversation_and_persist_user,
-)
 from cap.services.billing_access import (
     BillingAccessDenied,
     check_nl_query_access,
     consume_nl_query_success,
+)
+from cap.services.conversation_persistence import (
+    persist_assistant_message_and_touch,
+    persist_conversation_artifact_from_raw_kv,
+    start_conversation_and_persist_user,
 )
 from cap.services.llm_client import get_llm_client
 from cap.services.nl_service import query_with_stream_response

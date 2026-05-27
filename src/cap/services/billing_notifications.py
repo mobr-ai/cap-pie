@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -100,7 +98,7 @@ BILLING_NOTIFICATION_DEFAULTS: dict[str, dict[str, Any]] = {
 
 
 def _utcnow_naive() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 def _default_for(event_code: str) -> dict[str, Any]:

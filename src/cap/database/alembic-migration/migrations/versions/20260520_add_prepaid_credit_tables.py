@@ -5,16 +5,15 @@ Revises: 20260519_add_billing_payment_tables
 Create Date: 2026-05-20
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision: str = "20260520_add_prepaid_credit_tables"
-down_revision: Union[str, Sequence[str], None] = "20260519_add_billing_payment_tables"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = "20260519_add_billing_payment_tables"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

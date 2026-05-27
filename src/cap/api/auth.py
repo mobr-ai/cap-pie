@@ -2,7 +2,7 @@
 import hashlib
 import os
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
@@ -552,19 +552,19 @@ def _hex_encode_utf8(value: str) -> str:
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 
 def _format_utc(dt: datetime) -> str:
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc).isoformat()
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC).isoformat()
 
 def _to_db_naive_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC).replace(tzinfo=None)
 
 def _create_or_get_cardano_user(db: Session, address: str) -> User:
     user = db.query(User).filter(User.wallet_address == address).first()
@@ -735,7 +735,7 @@ def cardano_auth_verify(
     expires_at = challenge.expires_at
 
     if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
+        expires_at = expires_at.replace(tzinfo=UTC)
 
     if expires_at <= now:
         challenge.status = "expired"

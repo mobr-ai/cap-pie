@@ -70,14 +70,6 @@ Before running CAP, ensure you have the following installed:
 
 1. **Config and environment files:**
 
-   Run script to fetch necessary cardano-node and cardano-db-sync config files
-
-   **ATTENTION**: If you wish to run on mainnet, just replace "preview" with "mainnet" in the fetch script and the names in the step by step.
-
-   ```bash
-   ./fetch_config_files.sh
-   ```
-
    Create env file by copying provided example
    ```bash
    cp .env.example .env
@@ -138,85 +130,12 @@ Before running CAP, ensure you have the following installed:
    docker ps
    ```
 
-   Clone the cardano-db-sync Repository:
-   ```bash
-   #remember to cd to your preferred source code folder
-   git clone https://github.com/IntersectMBO/cardano-db-sync.git
-   cd cardano-db-sync
-   ```
-
    Create a pgpass File:
    ```bash
    echo "localhost:5432:cap:postgres:mysecretpassword" > ~/.pgpass
    chmod 600 ~/.pgpass
    ```
 
-   In the cardano-db-sync folder, run the DB Setup Script:
-   ```bash
-   docker run --rm \
-      --platform linux/amd64 \
-      --network host \
-      -v $(pwd)/scripts:/scripts \
-      -v ~/.pgpass:/root/.pgpass \
-      -e PGPASSFILE=/root/.pgpass \
-      --entrypoint /bin/bash \
-      ghcr.io/intersectmbo/cardano-db-sync:13.6.0.2 \
-      -c "/scripts/postgresql-setup.sh --createdb"
-   ```
-
-   Cardano Node:
-   ```bash
-   docker run --platform linux/amd64 -d --name cardano-node-preview \
-      -v $HOME/cardano/preview-config:/config \
-      -v $(pwd)/backend/assets:/assets \
-      -v $HOME/cardano/db:/data \
-      -p 3001:3001 \
-      ghcr.io/intersectmbo/cardano-node:10.4.0 \
-      run \
-      --config /config/config.json \
-      --topology /config/topology.json \
-      --database-path /data \
-      --socket-path /data/node.socket \
-      --host-addr 0.0.0.0 \
-      --port 3001
-   ```
-
-   ```bash
-   #OR check if it is running if you had it before
-   docker ps --filter "name=cardano-node-preview"
-   ```
-
-   cardano-db-sync:
-   ```bash
-   docker run --platform linux/amd64 -d --name cardano-db-sync-preview \
-      --network host \
-      -v $HOME/cardano/preview-config:/config \
-      -v $HOME/cardano/db-sync-data:/var/lib/cexplorer \
-      -v $HOME/cardano/db:/node-ipc \
-      -e NETWORK=preview \
-      -e POSTGRES_HOST=localhost \
-      -e POSTGRES_PORT=5432 \
-      -e POSTGRES_DB=cap \
-      -e POSTGRES_USER=postgres \
-      -e POSTGRES_PASSWORD=mysecretpassword \
-      -e DB_SYNC_CONFIG=/config/db-sync-config.json \
-      ghcr.io/intersectmbo/cardano-db-sync:13.6.0.2
-   ```
-
-   ```bash
-   #OR check if it is running if you had it before
-   docker ps --filter "name=cardano-db-sync-preview"
-   ```
-
-   Wait a few seconds and verify if database is syncing:
-   ```bash
-   docker exec -it postgres psql -U postgres -d cap -c "SELECT * FROM block LIMIT 10;"
-   ```
-
-   ollama:
-   ```bash
-   curl -fsSL https://ollama.com/install.sh | sh
-   ```
 
 3. **Set up Python environment:**
 
@@ -240,7 +159,7 @@ Now, you can access CAP's API at: [http://localhost:8000/docs](http://localhost:
 You can also access CAP's chat UI via `http://localhost:8000/llm`.
 
 #### Testing
-With CAP and its dependencies running (i.e., cardano-node, cardano-db-sync, postgresql, virtuos, jaeger, and cap with uvicorn), you can now run its tests
+
 ```bash
 # activate virtual environment
 source venv/bin/activate
@@ -325,7 +244,7 @@ Once running, access API documentation at:
 - **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
 - **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
-### Cardano Ontology Documentation
+### Ontology Documentation
 
 - **GitHub:** [https://github.com/mobr-ai/cap/documentation/ontology](https://github.com/mobr-ai/cap/documentation/ontology)
 - **Live Website:** [https://mobr.ai/cardano](https://mobr.ai/cardano)

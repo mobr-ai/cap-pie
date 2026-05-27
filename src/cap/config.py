@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     TRIPLESTORE_PASSWORD: str
     TRIPLESTORE_TIMEOUT: str
     TRIPLESTORE_ENDPOINT: str
-    CARDANO_GRAPH: str
+    KG_NAME: str
     ONTOLOGY_PATH: str
 
     # LLM settings
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     MODEL_CONTEXT_CAP: int
     CHAR_PER_TOKEN: int
 
-    # PostgreSQL settings for cardano-db-sync
+    # PostgreSQL settings for offchain data
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str

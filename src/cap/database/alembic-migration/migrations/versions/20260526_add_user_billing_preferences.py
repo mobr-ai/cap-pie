@@ -7,7 +7,6 @@ Create Date: 2026-05-26
 
 from alembic import op
 
-
 revision = "20260526_add_user_billing_preferences"
 down_revision = "20260525_add_free_query_token_bucket"
 branch_labels = None

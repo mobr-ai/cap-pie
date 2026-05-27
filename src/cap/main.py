@@ -102,8 +102,8 @@ async def initialize_required_graphs(client: TriplestoreClient) -> None:
     """Initialize all required graphs for the application."""
     with tracer.start_as_current_span("initialize_required_graphs") as span:
         required_graphs = [
-            (settings.CARDANO_GRAPH, settings.ONTOLOGY_PATH),
-            (f"{settings.CARDANO_GRAPH}/metadata", ""),
+            (settings.KG_NAME, settings.ONTOLOGY_PATH),
+            (f"{settings.KG_NAME}/metadata", ""),
         ]
 
         initialization_results = []

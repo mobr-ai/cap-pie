@@ -1,9 +1,7 @@
-from __future__ import annotations
-
 import logging
 import os
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -19,10 +17,10 @@ from cap.database.model import (
     BillingPrice,
     PaymentSession,
     User,
+    UserBillingPreference,
     UserCreditBalance,
     UserCreditLedger,
     UserEntitlement,
-    UserBillingPreference,
 )
 from cap.database.session import get_db
 from cap.services.billing_access import get_billing_access_state
@@ -87,21 +85,21 @@ def _send_billing_email_if_enabled(
     _send_billing_email_safely(trigger_name, **kwargs)
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _to_db_naive_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC).replace(tzinfo=None)
 
 
 def _from_db_naive_utc(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _format_utc(dt: datetime | None) -> str | None:
@@ -880,7 +878,7 @@ def get_my_billing_transactions(
         for row in support_sessions
     )
 
-    transactions.sort(key=lambda item: item.get("_sort_at") or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+    transactions.sort(key=lambda item: item.get("_sort_at") or datetime.min.replace(tzinfo=UTC), reverse=True)
 
     return {
         "transactions": [

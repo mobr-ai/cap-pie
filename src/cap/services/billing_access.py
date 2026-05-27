@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import select
@@ -37,21 +35,21 @@ class FeatureConfig:
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _to_db_naive_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC).replace(tzinfo=None)
 
 
 def _from_db_naive_utc(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _format_utc(dt: datetime | None) -> str | None:
@@ -90,7 +88,7 @@ def _feature_config(db: Session, feature_code: str = FEATURE_NL_QUERY) -> Featur
 
 
 def _period_window(now: datetime, period_days: int) -> tuple[datetime, datetime]:
-    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    epoch = datetime(1970, 1, 1, tzinfo=UTC)
     elapsed_days = (now - epoch).days
     period_index = elapsed_days // max(1, int(period_days or DEFAULT_PERIOD_DAYS))
     start = epoch + timedelta(days=period_index * period_days)

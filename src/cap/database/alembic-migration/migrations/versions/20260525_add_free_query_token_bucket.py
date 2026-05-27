@@ -5,9 +5,8 @@ Revises: 20260521_add_billing_access_usage_tables
 Create Date: 2026-05-25
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "20260525_add_free_query_token_bucket"
 down_revision = "20260521_add_billing_access_usage_tables"

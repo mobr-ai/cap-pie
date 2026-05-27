@@ -5,9 +5,8 @@ Revises: 20260526_add_user_billing_preferences
 Create Date: 2026-05-27 00:00:00.000000
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "20260527_add_billing_notification_settings"
 down_revision = "20260526_add_user_billing_preferences"
