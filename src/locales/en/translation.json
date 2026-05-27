@@ -642,7 +642,87 @@
     "billingStatsBlockedShown": "Blocked shown",
     "billingStatsBlockedShownCaption": "Users who reached the free query limit",
     "billingStatsPremiumShownCaption": "Users with active Premium",
-    "billingStatsBalanceShownCaption": "Total Balance in current results"
+    "billingStatsBalanceShownCaption": "Total Balance in current results",
+    "billingNotificationsTitle": "Billing Email Notifications",
+    "billingNotificationsSubtitle": "Control which billing and access lifecycle emails are sent to users. These settings are stored in the database and apply immediately.",
+    "billingNotificationsLoading": "Loading billing notification settings…",
+    "billingNotificationsEmpty": "No billing notification settings found.",
+    "billingNotificationsLoadError": "Error loading billing notification settings",
+    "billingNotificationsSaveError": "Error saving billing notification setting",
+    "billingNotificationsSaved": "Billing notification setting saved.",
+    "billingNotificationsEnabled": "Enabled emails",
+    "billingNotificationsEnabledCaption": "Enabled out of {{total}} configured events",
+    "billingNotificationsDefaultFlow": "Default payment flow",
+    "billingNotificationsDefaultFlowValue": "Final email only",
+    "billingNotificationsDefaultFlowCaption": "Deposits notify only after Balance is credited.",
+    "billingNotificationsOn": "On",
+    "billingNotificationsOff": "Off",
+    "billingNotificationGroups": {
+      "payment": "Payment flow",
+      "premium": "Premium access",
+      "support": "Support",
+      "autoRenewal": "Auto-renewal",
+      "adminActions": "Admin actions",
+      "other": "Other"
+    },
+    "billingNotificationEvents": {
+      "payment_session_created": {
+        "title": "Payment session created",
+        "description": "Send when a user creates a pending Cardano payment session. Usually disabled to avoid extra emails."
+      },
+      "payment_confirmed": {
+        "title": "Generic payment confirmed",
+        "description": "Send a generic confirmation when a Cardano payment is verified. Usually disabled when a more specific final email is enabled."
+      },
+      "payment_failed": {
+        "title": "Payment verification failed",
+        "description": "Send when a submitted transaction cannot be verified or does not match the expected payment."
+      },
+      "balance_credited": {
+        "title": "CAP Balance credited",
+        "description": "Send after a successful deposit is credited to the user’s CAP Balance."
+      },
+      "premium_activated": {
+        "title": "Premium activated",
+        "description": "Send when Premium access is newly activated after payment or Balance use."
+      },
+      "premium_extended": {
+        "title": "Premium extended",
+        "description": "Send when an existing Premium entitlement is extended."
+      },
+      "support_contribution_confirmed": {
+        "title": "Support contribution confirmed",
+        "description": "Send after a support or donation payment is confirmed."
+      },
+      "auto_renew_enabled": {
+        "title": "Auto-renewal enabled",
+        "description": "Send when a user enables Balance-funded Premium auto-renewal."
+      },
+      "auto_renew_disabled": {
+        "title": "Auto-renewal disabled",
+        "description": "Send when a user disables Balance-funded Premium auto-renewal."
+      },
+      "auto_renew_succeeded": {
+        "title": "Auto-renewal succeeded",
+        "description": "Send when Premium is renewed automatically from CAP Balance."
+      },
+      "auto_renew_failed": {
+        "title": "Auto-renewal failed",
+        "description": "Send when auto-renewal cannot complete, for example because Balance is insufficient."
+      },
+      "admin_premium_granted": {
+        "title": "Admin granted Premium",
+        "description": "Send when an admin grants or extends Premium access for a user."
+      },
+      "admin_premium_revoked": {
+        "title": "Admin revoked Premium",
+        "description": "Send when an admin revokes Premium access for a user."
+      },
+      "admin_balance_adjusted": {
+        "title": "Admin adjusted Balance",
+        "description": "Send when an admin adds or removes CAP Balance for a user."
+      }
+    }
   },
   "common": {
     "yes": "Yes",

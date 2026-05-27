@@ -643,7 +643,87 @@
     "billingStatsBlockedShown": "Bloqueados exibidos",
     "billingStatsBlockedShownCaption": "Usuários que atingiram o limite grátis",
     "billingStatsPremiumShownCaption": "Usuários com Premium ativo",
-    "billingStatsBalanceShownCaption": "Saldo total nos resultados atuais"
+    "billingStatsBalanceShownCaption": "Saldo total nos resultados atuais",
+    "billingNotificationsTitle": "Notificações de cobrança por e-mail",
+    "billingNotificationsSubtitle": "Controle quais e-mails do ciclo de cobrança e acesso são enviados aos usuários. Essas configurações ficam no banco de dados e valem imediatamente.",
+    "billingNotificationsLoading": "Carregando configurações de notificações de cobrança…",
+    "billingNotificationsEmpty": "Nenhuma configuração de notificação de cobrança encontrada.",
+    "billingNotificationsLoadError": "Erro ao carregar configurações de notificações de cobrança",
+    "billingNotificationsSaveError": "Erro ao salvar configuração de notificação de cobrança",
+    "billingNotificationsSaved": "Configuração de notificação de cobrança salva.",
+    "billingNotificationsEnabled": "E-mails habilitados",
+    "billingNotificationsEnabledCaption": "Habilitados de {{total}} eventos configurados",
+    "billingNotificationsDefaultFlow": "Fluxo padrão de pagamento",
+    "billingNotificationsDefaultFlowValue": "Apenas e-mail final",
+    "billingNotificationsDefaultFlowCaption": "Depósitos notificam apenas depois que o Saldo é creditado.",
+    "billingNotificationsOn": "Ativo",
+    "billingNotificationsOff": "Inativo",
+    "billingNotificationGroups": {
+      "payment": "Fluxo de pagamento",
+      "premium": "Acesso Premium",
+      "support": "Apoio",
+      "autoRenewal": "Renovação automática",
+      "adminActions": "Ações admin",
+      "other": "Outros"
+    },
+    "billingNotificationEvents": {
+      "payment_session_created": {
+        "title": "Sessão de pagamento criada",
+        "description": "Envia quando o usuário cria uma sessão pendente de pagamento Cardano. Normalmente fica desabilitado para evitar e-mails extras."
+      },
+      "payment_confirmed": {
+        "title": "Pagamento confirmado genérico",
+        "description": "Envia uma confirmação genérica quando um pagamento Cardano é verificado. Normalmente fica desabilitado quando um e-mail final mais específico está habilitado."
+      },
+      "payment_failed": {
+        "title": "Falha na verificação do pagamento",
+        "description": "Envia quando uma transação informada não pode ser verificada ou não corresponde ao pagamento esperado."
+      },
+      "balance_credited": {
+        "title": "Saldo CAP creditado",
+        "description": "Envia depois que um depósito bem-sucedido é creditado no Saldo CAP do usuário."
+      },
+      "premium_activated": {
+        "title": "Premium ativado",
+        "description": "Envia quando o acesso Premium é ativado pela primeira vez após pagamento ou uso de Saldo."
+      },
+      "premium_extended": {
+        "title": "Premium estendido",
+        "description": "Envia quando um entitlement Premium existente é estendido."
+      },
+      "support_contribution_confirmed": {
+        "title": "Apoio confirmado",
+        "description": "Envia depois que um pagamento de apoio ou doação é confirmado."
+      },
+      "auto_renew_enabled": {
+        "title": "Renovação automática ativada",
+        "description": "Envia quando o usuário ativa a renovação automática do Premium usando Saldo."
+      },
+      "auto_renew_disabled": {
+        "title": "Renovação automática desativada",
+        "description": "Envia quando o usuário desativa a renovação automática do Premium usando Saldo."
+      },
+      "auto_renew_succeeded": {
+        "title": "Renovação automática concluída",
+        "description": "Envia quando o Premium é renovado automaticamente usando o Saldo CAP."
+      },
+      "auto_renew_failed": {
+        "title": "Falha na renovação automática",
+        "description": "Envia quando a renovação automática não pode ser concluída, por exemplo por Saldo insuficiente."
+      },
+      "admin_premium_granted": {
+        "title": "Admin concedeu Premium",
+        "description": "Envia quando um admin concede ou estende o acesso Premium de um usuário."
+      },
+      "admin_premium_revoked": {
+        "title": "Admin revogou Premium",
+        "description": "Envia quando um admin revoga o acesso Premium de um usuário."
+      },
+      "admin_balance_adjusted": {
+        "title": "Admin ajustou Saldo",
+        "description": "Envia quando um admin adiciona ou remove Saldo CAP de um usuário."
+      }
+    }
   },
   "common": {
     "yes": "Sim",
