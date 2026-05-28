@@ -10,7 +10,7 @@ from typing import Any
 import redis.asyncio as redis
 from opentelemetry import trace
 
-from cap.chains.cardano.canon.query_file_parser import QueryFileParser
+from cap.util.query_file_parser import QueryFileParser
 from cap.chains.registry import get_chain
 from cap.federated.models import QuerySource
 

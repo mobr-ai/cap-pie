@@ -8,7 +8,7 @@ from cap.chains.cardano.api.billing_admin import router as billing_admin_router
 from cap.chains.cardano.canonizer import CardanoQueryCanonizer
 from cap.chains.cardano.epoch import epoch_to_date
 from cap.chains.cardano.explorer import convert_entity_to_cardanoscan_link
-from cap.chains.cardano.money import (
+from cap.chains.cardano.currency import (
     ADA_CURRENCY_URI,
     convert_cardano_result_value,
     detect_ada_variables,
@@ -29,9 +29,6 @@ class CardanoChainModule:
 
     def default_chart_prompt(self) -> str:
         return "You are a blockchain analytics chart analyzer."
-
-    def default_currency_uri(self) -> str | None:
-        return ADA_CURRENCY_URI
 
     def detect_amount_variables(self, sparql_query: str) -> set[str]:
         return detect_ada_variables(sparql_query)

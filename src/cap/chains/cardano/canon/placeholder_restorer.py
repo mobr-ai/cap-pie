@@ -4,7 +4,7 @@ import re
 from opentelemetry import trace
 
 from cap.chains.cardano.canon.pattern_registry import PatternRegistry
-from cap.chains.registry import get_chain
+from cap.chains.cardano.currency import ADA_CURRENCY_URI
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -137,7 +137,7 @@ class PlaceholderRestorer:
             return f"<{cached_value}>"
 
         # Final fallback: use ADA as default currency
-        default_currency = get_chain().default_currency_uri()
+        default_currency = ADA_CURRENCY_URI
         if default_currency:
             return f"<{default_currency}>"
 
