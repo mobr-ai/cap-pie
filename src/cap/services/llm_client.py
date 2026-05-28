@@ -12,17 +12,15 @@ from typing import Any
 import httpx
 from opentelemetry import trace
 
+from cap.chains.cardano.canon.semantic_matcher import SemanticMatcher
+from cap.chains.registry import get_chain
 from cap.config import settings
 from cap.federated.models import FederatedQuery
 from cap.federated.planner import FederatedPlanner
-from cap.rdf.cache.semantic_matcher import SemanticMatcher
-from cap.services.intent.context_assembler import ConversationContextAssembler
 from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
 from cap.services.msg_formatter import MessageFormatter
 from cap.services.similarity_service import SearchStrategy, SimilarityService
-from cap.util.cardano_scan import convert_sparql_results_to_links
-from cap.util.sparql_util import detect_and_parse_sparql
 from cap.util.str_util import get_file_content
 from cap.util.tag_filter import TagFilter
 from cap.util.vega_util import VegaUtil
@@ -34,6 +32,31 @@ tracer = trace.get_tracer(__name__)
 MODEL_CONTEXT_CAP = settings.MODEL_CONTEXT_CAP * 1000
 CHAR_PER_TOKEN = settings.CHAR_PER_TOKEN
 MAX_CONTEXT_CHARS = 18000 # CHAR_PER_TOKEN * MODEL_CONTEXT_CAP
+
+
+def convert_results_to_explorer_links(
+    results: Any,
+    sparql_query: str = "",
+) -> Any:
+    if not results:
+        return results
+
+    chain = get_chain()
+
+    if isinstance(results, list):
+        return [convert_results_to_explorer_links(item, sparql_query) for item in results]
+
+    if isinstance(results, dict):
+        return {
+            key: (
+                convert_results_to_explorer_links(value, sparql_query)
+                if isinstance(value, (dict, list))
+                else chain.convert_entity_to_explorer_link(key, value, sparql_query)
+            )
+            for key, value in results.items()
+        }
+
+    return results
 
 
 def matches_keyword(low_uq: str, keywords):
@@ -73,7 +96,6 @@ class LLMClient:
 
         self._client: httpx.AsyncClient | None = None
 
-        self._context_assembler = ConversationContextAssembler()
         self._refer_classifier = ReferClassifier(
             dataset_path=os.getenv(
                 "REFER_CLASSIFIER_DATASET_PATH",
@@ -106,19 +128,18 @@ class LLMClient:
             self._intent_warmed_up = True
 
     @property
-    def nl_to_sparql_prompt(self) -> str:
-        """Get NL to SPARQL prompt (refreshed from env)."""
+    def default_nl_to_sparql_prompt(self) -> str:
         return self._load_prompt(
             "NL_TO_SPARQL_PROMPT",
-            "Convert the following natural language query to SPARQL for Cardano blockchain data."
+            get_chain().default_nl_to_sparql_prompt(),
         )
 
+
     @property
-    def chart_prompt(self) -> str:
-        """Get contextualization prompt for chart related queries (refreshed from env)."""
+    def default_chart_prompt(self) -> str:
         return self._load_prompt(
             "CHART_PROMPT",
-            "You are the Cardano Analytics Platform chart analyzer."
+            get_chain().default_chart_prompt(),
         )
 
     @property
@@ -254,87 +275,6 @@ class LLMClient:
         leftover = tf.flush()
         if leftover:
             yield leftover
-
-
-    async def nl_to_sparql(
-        self,
-        natural_query: str,
-        conversation_history: list[dict] | None,
-        use_ontology: bool = True,
-        use_fewshot: bool = True,
-        fewshot_strategy: SearchStrategy = SearchStrategy.auto,
-        fewshot_top_n: int = -1,
-        _eval_retrieved_out: list[dict] | None = None,
-    ) -> str:
-        with tracer.start_as_current_span("nl_to_sparql") as span:
-            span.set_attribute("query", natural_query)
-
-            ontology_block = self.ontology_prompt if use_ontology else ""
-
-            refer_decision = await self._refer_classifier.classify(natural_query)
-            span.set_attribute("refer_label", refer_decision.label)
-            span.set_attribute("refer_confidence", refer_decision.confidence)
-
-            assembled_history = await self._context_assembler.assemble(
-                current_query=natural_query,
-                conversation_history=conversation_history,
-                refer_decision=refer_decision,
-            )
-
-            nl_prompt = f"""
-{self.nl_to_sparql_prompt}
-{ontology_block}
-
-User Question: {natural_query}
-""".strip()
-
-            fstn = fewshot_top_n
-            if fstn == -1:
-                fstn = self.fewshot_top_n
-
-            if use_fewshot and fewshot_strategy != SearchStrategy.none:
-                nl_prompt = await self._add_few_shot_learning(
-                    nl_query=natural_query,
-                    prompt=nl_prompt,
-                    strategy=fewshot_strategy,
-                    top_n=fstn,
-                    _eval_retrieved_out=_eval_retrieved_out,
-                )
-
-            if assembled_history:
-                nl_prompt = self._add_history(
-                    prompt=nl_prompt,
-                    conversation_history=assembled_history,
-                )
-
-            logger.info(
-                "LLM is generating SPARQL - prompt size=%s refer=%s history_items=%s",
-                len(nl_prompt),
-                refer_decision.label,
-                len(assembled_history),
-            )
-
-            chunks = []
-            async for chunk in self.generate_stream(
-                prompt=nl_prompt,
-                model=self.llm_model,
-                system_prompt="",
-                temperature=0.0,
-            ):
-                chunks.append(chunk)
-
-            sparql_response = "".join(chunks)
-            if not sparql_response.strip():
-                logger.warning("Empty SPARQL response for query '%s'", natural_query)
-                return "", refer_decision
-
-            is_sequential, content = detect_and_parse_sparql(sparql_response, natural_query)
-            if is_sequential:
-                logger.warning("Sequential SPARQL detected in single nl_to_sparql call; using first query")
-                return content[0]["query"], refer_decision if content else "", refer_decision
-
-            span.set_attribute("sparql_length", len(content))
-            return content, refer_decision
 
 
     async def nl_to_federated_query(
@@ -537,7 +477,7 @@ User Question: {natural_query}
                     span.set_attribute("format", "string")
                 # Otherwise, serialize dict to JSON
                 elif sparql_results:
-                    sparql_results = convert_sparql_results_to_links(sparql_results, sparql_query)
+                    sparql_results = convert_results_to_explorer_links(sparql_results, sparql_query)
                     context_res = json.dumps(sparql_results, indent=2)
                     span.set_attribute("format", "dict")
                 else:

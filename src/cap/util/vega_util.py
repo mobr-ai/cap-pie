@@ -8,8 +8,7 @@ from typing import Any
 
 from opentelemetry import trace
 
-from cap.util.cardano_scan import convert_entity_to_cardanoscan_link
-from cap.util.epoch_util import epoch_to_date
+from cap.chains.registry import get_chain
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -533,30 +532,6 @@ class VegaUtil:
         return {"values": []}
 
     @staticmethod
-    def _detect_series_from_repetitions(data: list, x_key: str) -> bool:
-        """
-        Detect if data contains multiple series within a single y variable
-        by checking for consistent x-value repetitions.
-
-        Returns True if repetitions detected, False otherwise.
-        """
-        if len(data) < 2:
-            return False
-
-        # Count occurrences of each x value
-        x_values = [item.get(x_key) for item in data]
-        x_counts = Counter(x_values)
-
-        # Check if there's a consistent repetition pattern (same count for all x values)
-        unique_counts = set(x_counts.values())
-
-        # If all x values repeat the same number of times (and > 1), we have multiple series
-        if len(unique_counts) == 1 and list(unique_counts)[0] > 1:
-            return True
-
-        return False
-
-    @staticmethod
     def _detect_repetition_pattern(data: list, x_key: str) -> int:
         """
         Detect if x values repeat consistently, indicating multiple series in one variable.
@@ -585,17 +560,18 @@ class VegaUtil:
         if isinstance(x_val, str) and 'epoch' in x_key.lower():
             try:
                 epoch_num = int(float(x_val))
-                return epoch_to_date(epoch_num)
+                return get_chain().format_axis_value(x_key, epoch_num)
             except (ValueError, TypeError) as e:
                 logger.warning(f"Failed to convert epoch {x_val}: {e}")
                 return str(x_val)
 
-        if not isinstance(x_val, str) and 'epoch' in x_key.lower():
+        if "epoch" in x_key.lower():
             try:
-                epoch_num = int(float(x_val)) if isinstance(x_val, str) else int(x_val)
-                return epoch_to_date(epoch_num)
+                epoch_num = int(float(x_val))
+                return get_chain().format_axis_value(x_key, epoch_num)
             except (ValueError, TypeError) as e:
                 logger.warning(f"Failed to convert epoch {x_val}: {e}")
+                return str(x_val)
 
         return str(x_val) if x_val is not None else ""
 
@@ -1130,18 +1106,14 @@ class VegaUtil:
                 value = row.get(col_name, "")
                 # Handle nested structures
                 if isinstance(value, dict):
-                    # Handle ADA conversions - prioritize ADA over lovelace
-                    if 'ada' in value:
-                        value = f"{value['ada']} ADA"
-                    elif 'lovelace' in value:
-                        value = value['lovelace']
-                    elif 'decoded' in value and 'hex' in value:
-                        # Token names - show decoded version
-                        value = value['decoded']
-                    elif 'value' in value:
-                        value = value['value']
+                    formatted = get_chain().format_result_value(value)
+                    if formatted is not None:
+                        value = formatted
+                    elif "decoded" in value and "hex" in value:
+                        value = value["decoded"]
+                    elif "value" in value:
+                        value = value["value"]
                     else:
-                        # Fallback: try to get meaningful representation
                         value = str(value)
 
                 elif isinstance(value, str):
@@ -1149,8 +1121,8 @@ class VegaUtil:
                         value = value[:-2]
 
                 # Convert URLs to clickable links
-                # Convert blockchain entities to Cardanoscan links
-                value = convert_entity_to_cardanoscan_link(col_name, value, sparql_query)
+                # Convert blockchain entities to the active chain explorer links
+                value = get_chain().convert_entity_to_explorer_link(col_name, value, sparql_query)
 
                 # Convert ipfs (if not already converted)
                 if not str(value).startswith('<a href='):

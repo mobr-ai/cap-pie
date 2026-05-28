@@ -6,7 +6,7 @@ import re
 
 from opentelemetry import trace
 
-from cap.rdf.cache.placeholder_counters import PlaceholderCounters
+from cap.chains.cardano.canon.placeholder_counters import PlaceholderCounters
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -40,27 +40,6 @@ class SPARQLNormalizer:
             sparql_spec = self._process_query_body(query_body)
 
             # Restore prefixes
-            if prefixes:
-                sparql_spec = prefixes + "\n\n" + sparql_spec
-
-        return sparql_spec, self.placeholder_map
-
-    def normalize_with_shared_counters(
-        self,
-        sparql_query: str,
-        shared_counters: PlaceholderCounters,
-        normalize_query: bool = True
-    ) -> tuple[str, dict[str, str]]:
-        """Normalize using externally managed counters for sequential queries."""
-
-        self.counters = shared_counters  # Use shared counters
-        self.placeholder_map = {}
-
-        sparql_spec = sparql_query
-        if normalize_query:
-            prefixes, query_body = self._extract_prefixes(sparql_query)
-            sparql_spec = self._process_query_body(query_body)
-
             if prefixes:
                 sparql_spec = prefixes + "\n\n" + sparql_spec
 

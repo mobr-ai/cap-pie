@@ -105,15 +105,6 @@ class RedisSPARQLClient:
         except Exception:
             return None
 
-    async def get_query_count(self, sparql_query: str) -> int:
-        """Get the number of times a query has been asked."""
-        try:
-            client = await self._get_sparql_client()
-            count_key = self._make_count_key(sparql_query)
-            count = await client.get(count_key)
-            return int(count) if count else 0
-        except Exception:
-            return 0
 
     async def health_check(self) -> bool:
         """Check if Redis is available."""
@@ -135,10 +126,3 @@ def get_redis_sparql_client() -> RedisSPARQLClient:
         _redis_sparql_client = RedisSPARQLClient()
     return _redis_sparql_client
 
-
-async def cleanup_redis_sparql_client():
-    """Cleanup global Redis client."""
-    global _redis_sparql_client
-    if _redis_sparql_client:
-        await _redis_sparql_client.close()
-        _redis_sparql_client = None

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 FEDERATED_PROMPT = """
-You are CAP's federated query planner.
+You are a federated query planner.
 
 Generate a JSON object only, with this exact shape:
 {
@@ -22,7 +22,7 @@ Generate a JSON object only, with this exact shape:
 }
 
 Rules:
-- Use SPARQL for Cardano on-chain knowledge graph questions.
+- Use SPARQL for on-chain knowledge graph questions.
 - Use SQL for asset market data / OHLCV questions.
 - Use both when the answer requires joining on-chain facts with market data.
 - For only on-chain queries, sql MUST be "".
@@ -47,7 +47,7 @@ class FederatedPlanner:
         prompt = f"""
 {FEDERATED_PROMPT}
 
-Cardano mini ontology:
+Ontology:
 {ontology_block}
 
 Asset/OHLCV relational data model:

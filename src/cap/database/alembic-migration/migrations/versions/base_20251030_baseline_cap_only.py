@@ -1,4 +1,4 @@
-"""baseline (CAP only)
+"""baseline
 
 Revision ID: base_20251030
 Revises:

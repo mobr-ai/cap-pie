@@ -3,6 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
+
+    APP_NAME: str = "CAP"
+    APP_DESCRIPTION: str = "Cardano powered by LLM"
+
     # Virtuoso settings
     TRIPLESTORE_HOST: str
     TRIPLESTORE_PORT: int
@@ -10,6 +14,7 @@ class Settings(BaseSettings):
     TRIPLESTORE_PASSWORD: str
     TRIPLESTORE_TIMEOUT: str
     TRIPLESTORE_ENDPOINT: str
+    CHAIN_NAME: str = "cardano"
     KG_NAME: str
     ONTOLOGY_PATH: str
 
@@ -29,9 +34,9 @@ class Settings(BaseSettings):
     ENABLE_TRACING: bool
     LOG_LEVEL: str
 
-    # CAP settings
-    CAP_HOST: str
-    CAP_PORT: int
+    # APP settings
+    APP_HOST: str
+    APP_PORT: int
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -8,8 +8,8 @@ from typing import Any
 from opentelemetry import trace
 from sqlalchemy.orm import Session
 
-from cap.database.model import DashboardMetrics, KGMetrics, QueryMetrics
-from cap.rdf.cache.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
+from cap.database.model import DashboardMetrics, QueryMetrics
 from cap.services.lang_detect_client import LanguageDetector
 
 logger = logging.getLogger(__name__)
@@ -124,43 +124,6 @@ class MetricsService:
 
         return metric
 
-    @staticmethod
-    def record_kg_metrics(
-        db: Session,
-        entity_type: str,
-        triples_loaded: int,
-        load_duration_ms: int,
-        load_succeeded: bool,
-        batch_number: int,
-        graph_uri: str,
-        turtle_data: str
-    ) -> KGMetrics:
-        """Record knowledge graph load metrics."""
-
-        # Check ontology alignment
-        ontology_aligned = bool(re.search(r'\b(c:|b:)\w+', turtle_data))
-
-        # Check for off-chain metadata
-        has_offchain = bool(re.search(
-            r'\b(hasPoolMetadata|hasTxMetadata|hasTokenName|hasDatumContent)\b',
-            turtle_data
-        ))
-
-        metric = KGMetrics(
-            entity_type=entity_type,
-            triples_loaded=triples_loaded,
-            load_duration_ms=load_duration_ms,
-            load_succeeded=load_succeeded,
-            ontology_aligned=ontology_aligned,
-            has_offchain_metadata=has_offchain,
-            batch_number=batch_number,
-            graph_uri=graph_uri
-        )
-
-        db.add(metric)
-        db.commit()
-
-        return metric
 
     @staticmethod
     def record_dashboard_metrics(

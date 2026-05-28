@@ -1,5 +1,3 @@
-# cap/database/model.py
-# cap/database/model.py
 import uuid
 
 from sqlalchemy import (

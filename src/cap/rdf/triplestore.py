@@ -9,21 +9,16 @@ from fastapi import HTTPException
 from opentelemetry import trace
 from SPARQLWrapper import JSON, SPARQLWrapper
 
+from cap.chains.registry import get_chain
 from cap.config import settings
 from cap.util.sparql_date_processor import SparqlDateProcessor
 from cap.util.sparql_util import force_limit_cap
 
-DEFAULT_PREFIX = """
-    PREFIX c: <https://mobr.ai/ont/cardano#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    PREFIX b: <https://mobr.ai/ont/blockchain#>
-"""
-
 tracer = trace.get_tracer(__name__)
 logger = logging.getLogger(__name__)
+
+def _default_prefix_block() -> str:
+    return "\n".join(get_chain().sparql_prefixes().values())
 
 @dataclass
 class TriplestoreConfig:
@@ -104,7 +99,11 @@ class TriplestoreClient:
         return self._build_prefixes("@prefix", "", additional_prefixes)
 
     def _build_sparql_prefixes(self, additional_prefixes: dict[str, str] | None = None) -> str:
-        return self._build_prefixes("PREFIX", DEFAULT_PREFIX, additional_prefixes)
+        return self._build_prefixes(
+            "PREFIX",
+            _default_prefix_block,
+            additional_prefixes
+        )
 
     async def _execute_sparql_query_async(self, sparql_query: str) -> dict:
         """Execute SPARQL query asynchronously."""
@@ -472,44 +471,4 @@ class TriplestoreClient:
             except Exception as e:
                 logger.error(f"Error checking graph existence {graph_uri}: {e}")
                 # Don't raise HTTPException here, just return False
-                return False
-
-    async def get_graph_count(self, graph_uri: str) -> int:
-        """Get the number of triples in a graph."""
-        with tracer.start_as_current_span("get_graph_count") as span:
-            span.set_attribute("graph_uri", graph_uri)
-
-            try:
-                query = f"""
-                SELECT (COUNT(*) AS ?count)
-                WHERE {{
-                    GRAPH <{graph_uri}> {{
-                        ?s ?p ?o
-                    }}
-                }}
-                """
-                result = await self._execute_sparql_query_async(query)
-
-                if result.get('results', {}).get('bindings'):
-                    count = int(result['results']['bindings'][0]['count']['value'])
-                    span.set_attribute("triple_count", count)
-                    return count
-                return 0
-            except Exception as e:
-                logger.error(f"Error getting graph count for {graph_uri}: {e}")
-                return 0
-
-    async def test_connection(self) -> bool:
-        """Test the connection to Virtuoso."""
-        with tracer.start_as_current_span("test_connection") as span:
-            try:
-                query = "SELECT ?g WHERE { GRAPH ?g { ?s ?p ?o } } LIMIT 1"
-                await self._execute_sparql_query_async(query)
-                span.set_attribute("connection_success", True)
-                logger.info("Virtuoso connection test successful")
-                return True
-            except Exception as e:
-                span.set_attribute("connection_success", False)
-                span.set_attribute("error", str(e))
-                logger.error(f"Virtuoso connection test failed: {e}")
                 return False

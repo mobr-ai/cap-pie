@@ -16,7 +16,7 @@ from typing import Any
 
 from opentelemetry import trace
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.embedding_regeneration_policy import (
     EmbeddingRegenerationPolicy,
     RegenerationState,

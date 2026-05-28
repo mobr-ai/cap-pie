@@ -1,6 +1,6 @@
 from langgraph.graph import END, StateGraph
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.agentic.agents import (
     AnswerAgent,
     CacheAgent,

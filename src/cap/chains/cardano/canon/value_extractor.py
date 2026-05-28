@@ -1,12 +1,9 @@
-"""
-Redis client for caching SPARQL queries and natural language mappings.
-"""
 import logging
 import re
 
 from opentelemetry import trace
 
-from cap.rdf.cache.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)

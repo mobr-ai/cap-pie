@@ -1,3 +1,4 @@
+import os
 import re
 import secrets
 from typing import Any
@@ -20,7 +21,7 @@ from cap.services.admin_alerts_service import (
 
 router = APIRouter(prefix="/api/v1/admin/wait_list", tags=["waitlist_admin"])
 
-APP_URL = "https://cap.mobr.ai"
+APP_URL = os.getenv("PUBLIC_BASE_URL")
 
 
 # -----------------------------

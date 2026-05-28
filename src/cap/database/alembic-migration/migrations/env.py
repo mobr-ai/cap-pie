@@ -6,7 +6,6 @@ from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
-# Ensure 'src' is on sys.path so "import cap" works when running from this folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 from cap.database.model import Base
 

@@ -1,9 +1,9 @@
-# cap/src/cap/api/user_admin.py
 import logging
-import re
+import os
 import secrets
 from datetime import UTC, datetime
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import delete, func, or_, select
@@ -31,25 +31,11 @@ from cap.services.admin_alerts_service import (
 
 router = APIRouter(prefix="/api/v1/admin/users", tags=["user_admin"])
 
-APP_URL = "https://cap.mobr.ai"
 
+load_dotenv()
 
-# ---------- Helpers ----------
+APP_URL = os.getenv("PUBLIC_BASE_URL")
 
-def _looks_like_placeholder_username(u: User) -> bool:
-    uname = (u.username or "").strip().lower()
-    if not uname:
-        return True
-    # Your observed pattern: "CAP User39"
-    if uname.startswith("cap user"):
-        return True
-    return False
-
-def _preferred_username_from_email(email: str) -> str:
-    local = (email.split("@")[0] if email else "").strip().lower()
-    local = re.sub(r"[^a-z0-9_]+", "_", local)
-    local = re.sub(r"_+", "_", local).strip("_")
-    return (local or "user")[:30]
 
 # ---------- Schemas ----------
 

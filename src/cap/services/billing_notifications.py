@@ -14,7 +14,7 @@ BILLING_NOTIFICATION_DEFAULTS: dict[str, dict[str, Any]] = {
         "enabled": False,
         "audience": AUDIENCE_USER,
         "channel": CHANNEL_EMAIL,
-        "description": "Send an email when a Cardano payment session is created.",
+        "description": "Send an email when a payment session is created.",
     },
     "payment_confirmed": {
         "enabled": False,
@@ -32,7 +32,7 @@ BILLING_NOTIFICATION_DEFAULTS: dict[str, dict[str, Any]] = {
         "enabled": True,
         "audience": AUDIENCE_USER,
         "channel": CHANNEL_EMAIL,
-        "description": "Send an email when CAP Balance is credited.",
+        "description": "Send an email when Balance is credited.",
     },
     "premium_activated": {
         "enabled": True,
@@ -92,7 +92,7 @@ BILLING_NOTIFICATION_DEFAULTS: dict[str, dict[str, Any]] = {
         "enabled": True,
         "audience": AUDIENCE_USER,
         "channel": CHANNEL_EMAIL,
-        "description": "Send an email when an admin adjusts CAP Balance.",
+        "description": "Send an email when an admin adjusts Balance.",
     },
 }
 

@@ -10,13 +10,9 @@ from typing import Any
 import redis.asyncio as redis
 from opentelemetry import trace
 
+from cap.chains.cardano.canon.query_file_parser import QueryFileParser
+from cap.chains.registry import get_chain
 from cap.federated.models import QuerySource
-from cap.rdf.cache.placeholder_counters import PlaceholderCounters
-from cap.rdf.cache.placeholder_restorer import PlaceholderRestorer
-from cap.rdf.cache.query_file_parser import QueryFileParser
-from cap.rdf.cache.query_normalizer import QueryNormalizer
-from cap.rdf.cache.sparql_normalizer import SPARQLNormalizer
-from cap.rdf.cache.value_extractor import ValueExtractor
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -78,9 +74,12 @@ class RedisNLClient:
 
             try:
                 client = await self._get_nlr_client()
-                user_query = nl_query
-                if normalize:
-                    user_query = QueryNormalizer.normalize(nl_query)
+                canonizer = get_chain().query_canonizer()
+                user_query = (
+                    canonizer.normalize_nl(nl_query)
+                    if normalize and canonizer is not None
+                    else nl_query
+                )
 
                 cache_key = self._make_cache_key(user_query)
                 count_key = self._make_count_key(user_query)
@@ -94,7 +93,6 @@ class RedisNLClient:
                     sparql_query,
                     normalize_query=normalize,
                 )
-
                 cache_data = {
                     "original_query": nl_query,
                     "normalized_query": user_query,
@@ -146,11 +144,15 @@ class RedisNLClient:
                 skipped_keys = []
                 cached_keys = []
 
+                canonizer = get_chain().query_canonizer()
+
                 for nl_query, sparql_query in queries:
                     try:
-                        user_query = nl_query
-                        if normalize:
-                            user_query = QueryNormalizer.normalize(nl_query)
+                        user_query = (
+                            canonizer.normalize_nl(nl_query)
+                            if normalize and canonizer is not None
+                            else nl_query
+                        )
 
                         cache_key = self._make_cache_key(user_query)
                         success = await self.cache_query(nl_query, sparql_query, ttl_value, normalize)
@@ -234,6 +236,14 @@ class RedisNLClient:
         assistant_payload: str,
         normalize_query: bool = True,
     ) -> tuple[str, dict[str, str], str]:
+        canonizer = get_chain().query_canonizer()
+
+        if canonizer is not None and normalize_query:
+            return canonizer.normalize_payload(
+                assistant_payload,
+                normalize_query=True,
+            )
+
         query_type = self._detect_cached_query_type(assistant_payload)
 
         if assistant_payload.strip().startswith("{"):
@@ -244,61 +254,19 @@ class RedisNLClient:
             sparql = assistant_payload if query_type == QuerySource.ONCHAIN.value else ""
             sql = assistant_payload if query_type == QuerySource.ASSET.value else ""
 
-        placeholder_map: dict[str, str] = {}
-
-        if sparql and normalize_query:
-            normalizer = SPARQLNormalizer()
-            sparql, sparql_placeholders = normalizer.normalize(
-                sparql_query=sparql,
-                normalize_query=normalize_query
-            )
-            placeholder_map.update({f"SPARQL::{k}": v for k, v in sparql_placeholders.items()})
-
-        # if sql and normalize_query:
-        #     normalizer = SPARQLNormalizer()
-        #     sql, sql_placeholders = normalizer.normalize(
-        #         sparql_query=sql,
-        #         normalize_query=normalize_query,
-        #     )
-        #     placeholder_map.update({f"SQL::{k}": v for k, v in sql_placeholders.items()})
-
-        normalized_payload = json.dumps(
-            {
-                "source": query_type,
-                "sparql": sparql,
-                "sql": sql,
-            },
-            sort_keys=True,
+        return (
+            json.dumps(
+                {
+                    "source": query_type,
+                    "sparql": sparql,
+                    "sql": sql,
+                },
+                sort_keys=True,
+            ),
+            {},
+            query_type,
         )
 
-        return normalized_payload, placeholder_map, query_type
-
-
-    def _normalize_sequential_sparql(self, queries: list[dict], normalize_query: bool = True) -> tuple[str, dict[str, str]]:
-        """Normalize sequential SPARQL queries with global counters."""
-        normalized_queries = []
-        all_placeholders = {}
-        counters = PlaceholderCounters()
-
-        for query_info in queries:
-            # Pass counters to continue numbering across queries
-            normalizer = SPARQLNormalizer()
-            normalizer.counters = counters  # Share counter state
-            norm_q, placeholders = normalizer.normalize_with_shared_counters(
-                query_info['query'],
-                counters,
-                normalize_query
-            )
-            # Check for key collisions before merging
-            collision_keys = set(all_placeholders.keys()) & set(placeholders.keys())
-            if collision_keys:
-                logger.warning(f"Placeholder key collision detected: {collision_keys}")
-
-            all_placeholders.update(placeholders)
-            query_info['query'] = norm_q
-            normalized_queries.append(query_info)
-
-        return json.dumps(normalized_queries), all_placeholders
 
     async def get_cached_query_with_original(
         self,
@@ -321,7 +289,12 @@ class RedisNLClient:
                     return None
 
                 data = json.loads(cached)
-                current_values = ValueExtractor.extract(original_query)
+                canonizer = get_chain().query_canonizer()
+                current_values = (
+                    canonizer.extract_values(original_query)
+                    if canonizer is not None
+                    else {}
+                )
                 placeholder_map = data.get("placeholder_map", {})
 
                 if not placeholder_map:
@@ -359,47 +332,16 @@ class RedisNLClient:
         placeholder_map: dict[str, str],
         current_values: dict[str, list[str]],
     ) -> str:
-        parsed = json.loads(payload)
+        canonizer = get_chain().query_canonizer()
 
-        sparql_map = {
-            k.replace("SPARQL::", "", 1): v
-            for k, v in placeholder_map.items()
-            if k.startswith("SPARQL::")
-        }
-        sql_map = {
-            k.replace("SQL::", "", 1): v
-            for k, v in placeholder_map.items()
-            if k.startswith("SQL::")
-        }
+        if canonizer is None:
+            return payload
 
-        if parsed.get("sparql"):
-            parsed["sparql"] = PlaceholderRestorer.restore(
-                parsed["sparql"],
-                sparql_map,
-                current_values,
-            )
-
-        if parsed.get("sql"):
-            parsed["sql"] = PlaceholderRestorer.restore(
-                parsed["sql"],
-                sql_map,
-                current_values,
-            )
-
-        return json.dumps(parsed, sort_keys=True)
-
-
-    async def get_query_count(self, nl_query: str) -> int:
-        """Get the number of times a query has been asked."""
-        try:
-            client = await self._get_nlr_client()
-            normalized = QueryNormalizer.normalize(nl_query)
-            count_key = self._make_count_key(normalized)
-            count = await client.get(count_key)
-            return int(count) if count else 0
-        except Exception as e:
-            logger.error(f"Failed to get query count: {e}")
-            return 0
+        return canonizer.restore_payload(
+            payload,
+            placeholder_map,
+            current_values,
+        )
 
 
     async def get_popular_queries(self, limit: int = 5) -> list[dict[str, Any]]:
@@ -441,16 +383,6 @@ class RedisNLClient:
                 logger.error(f"Failed to get popular queries: {e}")
                 return []
 
-    async def get_query_variations(self, nl_query: str) -> list[str]:
-        """Get cached variations of a query."""
-        normalized = QueryNormalizer.normalize(nl_query)
-        client = await self._get_nlr_client()
-
-        variations = []
-        async for key in client.scan_iter(match=f"nlq:cache:*{normalized}*"):
-            variations.append(key.replace("nlq:cache:", ""))
-
-        return variations
 
     async def health_check(self) -> bool:
         """Check if Redis is available."""

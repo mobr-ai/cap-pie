@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from cap.chains.cardano.payment import get_cardano_payment_verifier
 from cap.core.auth_dependencies import get_current_user
-from cap.core.cardano_payment_verifier import get_cardano_payment_verifier
 from cap.database.model import (
     BillingPaymentAddress,
     BillingPlan,

@@ -21,7 +21,7 @@ DEFAULT_NOTIFICATION_SETTINGS = [
     ("payment_session_created", False, "user", "email", "Send an email when a Cardano payment session is created."),
     ("payment_confirmed", False, "user", "email", "Send a generic payment confirmation email."),
     ("payment_failed", True, "user", "email", "Send an email when payment verification fails."),
-    ("balance_credited", True, "user", "email", "Send an email when CAP Balance is credited."),
+    ("balance_credited", True, "user", "email", "Send an email when Balance is credited."),
     ("premium_activated", True, "user", "email", "Send an email when Premium access is activated."),
     ("premium_extended", True, "user", "email", "Send an email when Premium access is extended."),
     ("support_contribution_confirmed", True, "user", "email", "Send an email when a support contribution is confirmed."),
@@ -31,7 +31,7 @@ DEFAULT_NOTIFICATION_SETTINGS = [
     ("auto_renew_failed", True, "user", "email", "Send an email when Balance-funded auto-renewal fails."),
     ("admin_premium_granted", True, "user", "email", "Send an email when an admin grants Premium access."),
     ("admin_premium_revoked", True, "user", "email", "Send an email when an admin revokes Premium access."),
-    ("admin_balance_adjusted", True, "user", "email", "Send an email when an admin adjusts CAP Balance."),
+    ("admin_balance_adjusted", True, "user", "email", "Send an email when an admin adjusts Balance."),
 ]
 
 
@@ -76,7 +76,7 @@ def _create_missing_table_columns(bind) -> None:
 
 
 def _create_missing_indexes(bind) -> None:
-    # PostgreSQL-safe and idempotent. CAP migrations already target PostgreSQL.
+    # PostgreSQL-safe and idempotent. migrations already target PostgreSQL.
     op.execute(
         f"CREATE INDEX IF NOT EXISTS ix_{TABLE_NAME}_event_code "
         f"ON {TABLE_NAME} (event_code)"

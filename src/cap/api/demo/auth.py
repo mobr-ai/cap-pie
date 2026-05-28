@@ -1,5 +1,3 @@
-# cap/api/demo/auth.py
-
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session

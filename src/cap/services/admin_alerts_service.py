@@ -1,5 +1,3 @@
-# cap/src/services/admin_alerts_service.py
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 

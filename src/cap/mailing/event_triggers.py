@@ -1,6 +1,5 @@
-# cap/src/cap/mailing/event_triggers.py
 """
-Mailing triggers for CAP.
+Mailing triggers.
 
 Thin wrappers around send_async_email so API/business code stays tidy.
 """
@@ -26,7 +25,7 @@ def _lang_or_default(lang: str | None) -> str:
 
 def _public_base_url() -> str:
     """Read PUBLIC_BASE_URL once, fallback to production hostname."""
-    return os.getenv("PUBLIC_BASE_URL", "https://cap.mobr.ai").rstrip("/")
+    return os.getenv("PUBLIC_BASE_URL").rstrip("/")
 
 
 def _app_url() -> str:

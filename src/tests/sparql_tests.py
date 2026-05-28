@@ -115,7 +115,7 @@ async def main():
     parser.add_argument(
         "--use-api",
         action="store_true",
-        help="Use CAP API instead of direct triplestore connection"
+        help="Use API instead of direct triplestore connection"
     )
     args = parser.parse_args()
 
@@ -139,13 +139,13 @@ async def main():
 
 if __name__ == "__main__":
     print("""
-    ╔══════════════════════════════════════════╗
-    ║    CAP SPARQL Query Pipeline Test Suite  ║
-    ╚══════════════════════════════════════════╝
+    ╔════════════════════════════════════════╗
+    ║    SPARQL Query Pipeline Test Suite    ║
+    ╚════════════════════════════════════════╝
 
     Make sure the following are running:
-    1. CAP service (python -m cap.main)
-    2. Virtuoso triplestore
+    1. Service (python -m cap.main)
+    2. Triplestore
 
     Press Ctrl+C to cancel
     """)

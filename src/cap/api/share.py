@@ -1,4 +1,3 @@
-# cap/src/cap/api/share.py
 """
 Share image endpoints.
 
@@ -60,7 +59,7 @@ ALLOWED_MIMES = {
 SHARE_IMAGE_DIR = Path(os.getenv("SHARE_IMAGE_DIR", "/var/lib/cap/share-images")).resolve()
 
 # Public base URL for absolute OG tags (env already uses this)
-PUBLIC_BASE_URL = (os.getenv("PUBLIC_BASE_URL") or "").strip().rstrip("/")
+PUBLIC_BASE_URL = (os.getenv("PUBLIC_BASE_URL") or "http://localhost:8000").strip().rstrip("/")
 
 
 def _utcnow() -> datetime:
@@ -407,10 +406,10 @@ def get_shared_page(
 
     # If SPA route (dashboard widget view) is known, you can pass it as target_url
     # and we’ll set og:site_name / og:url to the share page, while providing a normal link to the app.
-    page_title = (title or i18n.get("default_title", "CAP")).strip()[:120]
+    page_title = (title or i18n.get("default_title")).strip()[:120]
     page_desc = (description or i18n.get(
         "default_description",
-        "Explore data-driven insights on CAP",
+        "Explore data-driven insights",
     )).strip()[:300]
 
     target = (target_url or PUBLIC_BASE_URL or "/").strip()

@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.llm_client import get_llm_client
 from cap.services.redis_nl_client import get_redis_nl_client
 from cap.services.similarity_service import SearchStrategy

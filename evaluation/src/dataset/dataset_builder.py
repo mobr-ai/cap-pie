@@ -17,7 +17,7 @@ import json
 import random
 from pathlib import Path
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from evaluation.src.dataset.query_mapping_parser import parse_msgs_file
 from evaluation.src.dataset.tag_inferer import infer_tags
 from evaluation.src.dataset.variant_generators import generate_variants

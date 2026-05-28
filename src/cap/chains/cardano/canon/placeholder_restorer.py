@@ -1,12 +1,10 @@
-"""
-Redis client for caching SPARQL queries and natural language mappings.
-"""
 import logging
 import re
 
 from opentelemetry import trace
 
-from cap.rdf.cache.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
+from cap.chains.registry import get_chain
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -139,8 +137,11 @@ class PlaceholderRestorer:
             return f"<{cached_value}>"
 
         # Final fallback: use ADA as default currency
-        logger.warning(f"No currency available for {placeholder}, using default ADA")
-        return "<https://mobr.ai/ont/cardano#cnt/ada>"
+        default_currency = get_chain().default_currency_uri()
+        if default_currency:
+            return f"<{default_currency}>"
+
+        return f"<{cached_value.strip('<>')}>"
 
     @staticmethod
     def _restore_pool_id(

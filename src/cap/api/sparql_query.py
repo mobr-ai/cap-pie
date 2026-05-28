@@ -13,6 +13,7 @@ from cap.api.models import (
     QueryResponse,
     SuccessResponse,
 )
+from cap.chains.registry import get_chain
 from cap.rdf.triplestore import TriplestoreClient
 from cap.services.redis_sparql_client import get_redis_sparql_client
 
@@ -24,31 +25,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 @router.get("/query/sync_data", response_model=QueryResponse)
 async def get_sync_data():
-    """Execute a SPARQL query to get current sync status."""
     try:
-        sync_query = """
-            PREFIX b: <https://mobr.ai/ont/blockchain#>
-            PREFIX c: <https://mobr.ai/ont/cardano#>
-            SELECT ?currentCardanoHeight (MAX(?blockNum) AS ?capBlockNum) (COUNT(?block) AS ?count)
-            WHERE {
-                c:Cardano c:hasBlockNumber ?currentCardanoHeight .
-                ?block a b:Block .
-                ?block c:hasBlockNumber ?blockNum .
-            }
-            GROUP BY (?currentCardanoHeight)
-            LIMIT 1
-        """
-
-        request = QueryRequest(query=sync_query)
+        request = QueryRequest(query=get_chain().sync_status_query())
         return await execute_query(request)
-
-    except HTTPException as e:
-        raise e
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"get_sync_data execution error: {str(e)}")
-        raise HTTPException(
-            status_code=400, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 @router.post("/query", response_model=QueryResponse)
 async def execute_query(request: QueryRequest):

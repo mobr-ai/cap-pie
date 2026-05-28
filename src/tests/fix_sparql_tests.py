@@ -8,7 +8,7 @@ import asyncio
 from pathlib import Path
 from pprint import pprint
 
-from cap.rdf.cache.sparql_normalizer import SPARQLNormalizer
+from cap.chains.cardano.canon.sparql_normalizer import SPARQLNormalizer
 from cap.util.sparql_util import _validate_and_fix_sparql
 
 
@@ -86,12 +86,12 @@ async def main():
 
 if __name__ == "__main__":
     print("""
-    ╔══════════════════════════════════════════╗
-    ║    CAP SPARQL Query Pipeline Test Suite  ║
-    ╚══════════════════════════════════════════╝
+    ╔══════════════════════════════════════╗
+    ║    SPARQL Query Pipeline Test Suite  ║
+    ╚══════════════════════════════════════╝
 
     Make sure the following are running:
-    1. CAP service (python -m cap.main)
+    1. service (python -m cap.main)
     2. Virtuoso triplestore
 
     Press Ctrl+C to cancel

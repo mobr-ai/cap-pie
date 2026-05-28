@@ -9,7 +9,7 @@ import logging
 import time
 from pathlib import Path
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.llm_client import LLMClient
 
 logger = logging.getLogger(__name__)
@@ -183,9 +183,9 @@ async def main():
 
 if __name__ == "__main__":
     print("""
-    ╔══════════════════════════════════════════════════╗
-    ║  CAP NP Query Normalization Pipeline Test Suite  ║
-    ╚══════════════════════════════════════════════════╝
+    ╔══════════════════════════════════════════════╗
+    ║  NP Query Normalization Pipeline Test Suite  ║
+    ╚══════════════════════════════════════════════╝
 
     Press Ctrl+C to cancel
     """)

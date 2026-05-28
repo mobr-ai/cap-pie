@@ -1,4 +1,3 @@
-# cap/core/google_oauth.py
 import os
 
 import requests

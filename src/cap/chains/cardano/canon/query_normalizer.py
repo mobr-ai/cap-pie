@@ -7,8 +7,8 @@ import unicodedata
 
 from opentelemetry import trace
 
-from cap.rdf.cache.pattern_registry import PatternRegistry
-from cap.rdf.cache.semantic_matcher import SemanticMatcher
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.semantic_matcher import SemanticMatcher
 from cap.util.nlp_util import lemmatize_text
 
 logger = logging.getLogger(__name__)

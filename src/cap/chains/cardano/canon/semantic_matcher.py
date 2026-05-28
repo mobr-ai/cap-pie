@@ -1,7 +1,7 @@
 import logging
 import re
 
-from cap.rdf.cache.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
 
 logger = logging.getLogger(__name__)
 
