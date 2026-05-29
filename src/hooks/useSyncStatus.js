@@ -197,8 +197,21 @@ export default function useSyncStatus(authFetch) {
         const row = bindings?.[0];
 
         if (row) {
-          const cap = Number(row?.capBlockNum?.value ?? NaN);
-          const chain = Number(row?.currentCardanoHeight?.value ?? NaN);
+          const cap = Number(
+            row?.capBlockNum?.value ??
+              row?.indexedBlockNum?.value ??
+              row?.indexedHead?.value ??
+              row?.indexedSlot?.value ??
+              NaN,
+          );
+
+          const chain = Number(
+            row?.currentCardanoHeight?.value ??
+              row?.currentChainHeight?.value ??
+              row?.sourceHead?.value ??
+              row?.sourceSlot?.value ??
+              NaN,
+          );
 
           if (!Number.isNaN(cap)) setCapBlock(cap);
           if (!Number.isNaN(chain)) setCardanoBlock(chain);
