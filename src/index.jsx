@@ -47,9 +47,9 @@ import useSyncStatus from "./hooks/useSyncStatus";
 // Components
 import Header from "./components/Header";
 import { fetchBillingAccess } from "./billing/api";
-import { applyTheme, getStoredTheme } from "./theme/themeStorage";
+import { installThemeRouteSync } from "./theme/themeStorage";
 
-applyTheme(getStoredTheme());
+installThemeRouteSync();
 
 const SESSION_KEY = "cap_user_session";
 
