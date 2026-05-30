@@ -1,0 +1,13 @@
+/* Responsive */
+@media (max-width: 768px) {
+  .AnalysesPage {
+    padding-top: 1rem;
+  }
+  .analyses-title {
+    font-size: 1.4rem;
+  }
+  .analyses-note {
+    display: none;
+  }
+}
+

@@ -1,0 +1,47 @@
+/* Processing indicator (same concept as sidebar .processing gleam) */
+.analyses-card.processing::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0) 0%,
+    rgba(59, 130, 246, 0.18) 45%,
+    rgba(59, 130, 246, 0.35) 50%,
+    rgba(59, 130, 246, 0.18) 55%,
+    rgba(59, 130, 246, 0) 100%
+  );
+  transform: translateX(-40%) rotate(10deg);
+  animation: analysesProcessingGleam 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.analyses-card.processing {
+  animation: analysesPulseBorder 1.2s ease-in-out infinite;
+}
+
+@keyframes analysesProcessingGleam {
+  0% {
+    transform: translateX(-50%) rotate(10deg);
+    opacity: 0.35;
+  }
+  60% {
+    transform: translateX(55%) rotate(10deg);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(80%) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes analysesPulseBorder {
+  0%,
+  100% {
+    border-color: var(--theme-primary-soft);
+  }
+  50% {
+    border-color: var(--theme-primary-hover);
+  }
+}
+
