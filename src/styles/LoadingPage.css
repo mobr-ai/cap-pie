@@ -36,7 +36,7 @@
   width: 72px;
   height: 72px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(var(--theme-shadow-soft));
 }
 
 /* Vanilla spin */
@@ -102,7 +102,7 @@
   width: 115px;
   height: 115px;
   border-radius: 50%;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed var(--theme-border-strong);
   animation: cap-orbit-rotate 2.4s linear infinite;
 }
 
@@ -163,7 +163,7 @@
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.06);
+  border: 3px solid var(--theme-border);
   border-top-color: #00d4ff;
   border-right-color: #8e44ad;
   animation: cap-ring-spin 1.4s linear infinite;
@@ -183,5 +183,5 @@
   margin-top: 0.5rem;
   font-size: 0.9rem;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--theme-text-soft);
 }
