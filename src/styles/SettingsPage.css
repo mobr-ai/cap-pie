@@ -257,9 +257,9 @@
 }
 
 .Settings-billing-status.is-active {
-  border-color: rgba(34, 197, 94, 0.38);
-  background: rgba(34, 197, 94, 0.1);
-  color: rgba(187, 247, 208, 0.96);
+  border-color: var(--theme-success-border, var(--theme-success));
+  background: var(--theme-success-soft);
+  color: var(--theme-success);
 }
 
 .Settings-billing-panel {
@@ -771,7 +771,7 @@
 }
 
 .Settings-activity-amount[data-direction="credit"] {
-  color: rgba(134, 239, 172, 0.95);
+  color: var(--theme-success);
 }
 
 .Settings-activity-amount[data-direction="debit"] {
@@ -1015,9 +1015,9 @@
 }
 
 .Settings-activity-status[data-status="paid"] {
-  border-color: rgba(34, 197, 94, 0.28);
-  color: rgba(134, 239, 172, 0.92);
-  background: rgba(34, 197, 94, 0.08);
+  border-color: var(--theme-success-border, var(--theme-success));
+  color: var(--theme-success);
+  background: var(--theme-success-soft);
 }
 
 .Settings-activity-hash {
@@ -1090,13 +1090,13 @@
 }
 
 .Settings-billing-toggle input:checked + .Settings-billing-toggle-ui {
-  border-color: rgba(34, 197, 94, 0.38);
-  background: rgba(34, 197, 94, 0.18);
+  border-color: var(--theme-success-border, var(--theme-success));
+  background: var(--theme-success-soft);
 }
 
 .Settings-billing-toggle input:checked + .Settings-billing-toggle-ui::after {
   transform: translateX(18px);
-  background: rgba(187, 247, 208, 0.98);
+  background: var(--theme-success);
 }
 
 .Settings-billing-toggle input:disabled + .Settings-billing-toggle-ui {
