@@ -961,5 +961,31 @@
       "message": "You reached your free query limit. Open [Billing & Access](/settings?billing=1&action=premium) to add Balance and activate Premium.",
       "toast": "Free query limit reached. Open Billing & Access to continue."
     }
+  },
+  "settingsTheme": {
+    "title": "Appearance",
+    "subtitle": "Choose the visual theme used across the CAP interface.",
+    "options": {
+      "mobr-og": {
+        "label": "MOBR OG",
+        "description": "Original MOBR dark interface"
+      },
+      "graphite": {
+        "label": "Graphite",
+        "description": "Neutral dark theme for focused analytics"
+      },
+      "midnight": {
+        "label": "Midnight",
+        "description": "Deep blue professional dashboard theme"
+      },
+      "paper": {
+        "label": "Paper",
+        "description": "Clean light theme for reports and admin work"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "description": "Retro CLI theme with phosphor green accents"
+      }
+    }
   }
 }

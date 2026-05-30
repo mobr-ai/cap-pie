@@ -20,7 +20,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/theme-tokens.css";
 import "./styles/index.css";
+import "./styles/theme-overrides.css";
 
 // i18n first
 import "./i18n";
@@ -45,6 +47,9 @@ import useSyncStatus from "./hooks/useSyncStatus";
 // Components
 import Header from "./components/Header";
 import { fetchBillingAccess } from "./billing/api";
+import { installThemeRouteSync } from "./theme/themeStorage";
+
+installThemeRouteSync();
 
 const SESSION_KEY = "cap_user_session";
 

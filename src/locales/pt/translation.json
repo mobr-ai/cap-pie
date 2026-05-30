@@ -962,5 +962,31 @@
       "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/settings?billing=1&action=premium) para adicionar Saldo e ativar Premium.",
       "toast": "Limite de consultas grátis atingido. Abra Cobrança e Acesso para continuar."
     }
+  },
+  "settingsTheme": {
+    "title": "Aparência",
+    "subtitle": "Escolha o tema visual usado na interface da CAP.",
+    "options": {
+      "mobr-og": {
+        "label": "MOBR OG",
+        "description": "Interface escura original da MOBR"
+      },
+      "graphite": {
+        "label": "Graphite",
+        "description": "Tema escuro neutro para análises focadas"
+      },
+      "midnight": {
+        "label": "Midnight",
+        "description": "Tema profissional azul profundo para dashboards"
+      },
+      "paper": {
+        "label": "Paper",
+        "description": "Tema claro e limpo para relatórios e administração"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "description": "Tema retrô CLI com acentos verde fósforo"
+      }
+    }
   }
 }
