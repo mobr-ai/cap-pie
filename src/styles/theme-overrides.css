@@ -3372,3 +3372,783 @@ body,
   }
 }
 
+
+/* --------------------------------------------------------------------------
+   Midnight theme UI coverage
+   Deep navy professional dashboard theme across shell, admin, settings,
+   dashboard, landing/chat, analyses, loading state, and modals.
+   -------------------------------------------------------------------------- */
+
+[data-theme="midnight"] {
+  --midnight-bg: #030712;
+  --midnight-bg-soft: #07111f;
+  --midnight-bg-raised: #0b1628;
+  --midnight-bg-elevated: #10213a;
+
+  --midnight-card: #0b1628;
+  --midnight-card-soft: #10213a;
+  --midnight-card-muted: #172b49;
+
+  --midnight-border: rgba(96, 165, 250, 0.16);
+  --midnight-border-strong: rgba(96, 165, 250, 0.32);
+
+  --midnight-text: #f8fafc;
+  --midnight-text-soft: #dbeafe;
+  --midnight-muted: #93a4bf;
+  --midnight-faint: rgba(191, 219, 254, 0.58);
+
+  --midnight-primary: #60a5fa;
+  --midnight-primary-hover: #93c5fd;
+  --midnight-primary-soft: rgba(96, 165, 250, 0.14);
+
+  --midnight-accent: #22d3ee;
+  --midnight-accent-hover: #67e8f9;
+  --midnight-accent-soft: rgba(34, 211, 238, 0.13);
+
+  --midnight-success: #22c55e;
+  --midnight-warning: #f59e0b;
+  --midnight-danger: #ef4444;
+
+  --midnight-shadow: 0 18px 52px rgba(0, 0, 0, 0.48);
+  --midnight-shadow-large: 0 30px 96px rgba(0, 0, 0, 0.62);
+}
+
+/* App shell */
+[data-theme="midnight"] html,
+[data-theme="midnight"] body,
+[data-theme="midnight"] #root,
+[data-theme="midnight"] #outer-container,
+[data-theme="midnight"] #page-wrap {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.09), transparent 32%),
+    linear-gradient(135deg, #030712 0%, #07111f 46%, #0b1628 100%) !important;
+  color: var(--midnight-text) !important;
+}
+
+/* Navbar and sidebar */
+[data-theme="midnight"] .cap-navbar,
+[data-theme="midnight"] .cap-sidebar {
+  background:
+    linear-gradient(180deg, rgba(11, 22, 40, 0.98), rgba(3, 7, 18, 0.98)) !important;
+  color: var(--midnight-text-soft) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .Navbar-brand-slot,
+[data-theme="midnight"] .navbar-user-name,
+[data-theme="midnight"] .navbar-user-title,
+[data-theme="midnight"] .navbar-lang-title,
+[data-theme="midnight"] .navbar-account-name,
+[data-theme="midnight"] .navbar-account-metrics strong,
+[data-theme="midnight"] .nav-link,
+[data-theme="midnight"] .sidebar-item,
+[data-theme="midnight"] .sidebar-item svg,
+[data-theme="midnight"] .sidebar-header-collapse,
+[data-theme="midnight"] .sidebar-header-collapse svg,
+[data-theme="midnight"] .sidebar-expand-chevron,
+[data-theme="midnight"] .sidebar-conversation,
+[data-theme="midnight"] .sidebar-conversation-title,
+[data-theme="midnight"] .status-item .value,
+[data-theme="midnight"] .cap-sync-label {
+  color: var(--midnight-text-soft) !important;
+}
+
+[data-theme="midnight"] .sidebar-section-title,
+[data-theme="midnight"] .sidebar-footer,
+[data-theme="midnight"] .sidebar-conversation-preview,
+[data-theme="midnight"] .sidebar-conversations-empty,
+[data-theme="midnight"] .status-item .label,
+[data-theme="midnight"] .navbar-account-plan,
+[data-theme="midnight"] .navbar-account-note,
+[data-theme="midnight"] .navbar-account-metrics span {
+  color: var(--midnight-muted) !important;
+}
+
+[data-theme="midnight"] .sidebar-header-main,
+[data-theme="midnight"] .sidebar-header-collapse,
+[data-theme="midnight"] .sidebar-conversation,
+[data-theme="midnight"] .sidebar-conv-menu-btn,
+[data-theme="midnight"] .sidebar-conv-menu,
+[data-theme="midnight"] .navbar-account-summary,
+[data-theme="midnight"] .navbar-account-metrics > div,
+[data-theme="midnight"] .dropdown-menu-dark,
+[data-theme="midnight"] .navbar .dropdown-menu-dark {
+  background: rgba(11, 22, 40, 0.86) !important;
+  color: var(--midnight-text-soft) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .sidebar-item:hover,
+[data-theme="midnight"] .sidebar-conversation:hover,
+[data-theme="midnight"] .sidebar-conv-menu-btn:hover,
+[data-theme="midnight"] .dropdown-menu-dark .dropdown-item:hover {
+  background: rgba(96, 165, 250, 0.12) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .sidebar-item.active,
+[data-theme="midnight"] .sidebar-conversation.active {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.24), rgba(34, 211, 238, 0.1)) !important;
+  border-color: rgba(96, 165, 250, 0.52) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight"] .sidebar-item.logout {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.24) !important;
+  color: #fecaca !important;
+}
+
+/* Core surfaces */
+[data-theme="midnight"] .Settings-body,
+[data-theme="midnight"] .AdminPage,
+[data-theme="midnight"] .AdminPage-inner,
+[data-theme="midnight"] .AdminPage.container,
+[data-theme="midnight"] .DashboardPage,
+[data-theme="midnight"] .dashboard-page,
+[data-theme="midnight"] .dashboard-container,
+[data-theme="midnight"] .AnalysesPage,
+[data-theme="midnight"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.08), transparent 30%),
+    linear-gradient(135deg, #030712 0%, #07111f 48%, #0b1628 100%) !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .Settings-container,
+[data-theme="midnight"] .Settings-user-box,
+[data-theme="midnight"] .Settings-billing-zone,
+[data-theme="midnight"] .Settings-billing-panel,
+[data-theme="midnight"] .Settings-balance-panel,
+[data-theme="midnight"] .Settings-payment-methods,
+[data-theme="midnight"] .Settings-deposit-panel,
+[data-theme="midnight"] .Settings-support-section,
+[data-theme="midnight"] .Settings-theme-section,
+[data-theme="midnight"] .Settings-activity-row,
+[data-theme="midnight"] .Settings-premium-metrics > div,
+[data-theme="midnight"] .Settings-billing-toggle,
+[data-theme="midnight"] .AdminPage .admin-section,
+[data-theme="midnight"] .AdminPage .admin-card,
+[data-theme="midnight"] .AdminPage .admin-metric-card,
+[data-theme="midnight"] .AdminPage .admin-stat-card,
+[data-theme="midnight"] .AdminPage .admin-notify-card,
+[data-theme="midnight"] .AdminPage .admin-table-wrapper,
+[data-theme="midnight"] .AdminPage .admin-table-card,
+[data-theme="midnight"] .AdminPage .admin-panel,
+[data-theme="midnight"] .dashboard-widget,
+[data-theme="midnight"] .dashboard-widget-card,
+[data-theme="midnight"] .dashboard-card,
+[data-theme="midnight"] .widget-card,
+[data-theme="midnight"] .dashboard-grid > *,
+[data-theme="midnight"] .analyses-note,
+[data-theme="midnight"] .analyses-loading,
+[data-theme="midnight"] .analyses-empty,
+[data-theme="midnight"] .analyses-card {
+  background:
+    linear-gradient(180deg, rgba(16, 33, 58, 0.96), rgba(7, 17, 31, 0.96)) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+/* Admin spacing */
+[data-theme="midnight"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+
+[data-theme="midnight"] .AdminPage .admin-section-header {
+  margin-bottom: 0.9rem !important;
+}
+
+/* Primary text */
+[data-theme="midnight"] .Settings-title,
+[data-theme="midnight"] .Settings-section-title,
+[data-theme="midnight"] .Settings-primary-name,
+[data-theme="midnight"] .Settings-billing-plan,
+[data-theme="midnight"] .Settings-billing-balance,
+[data-theme="midnight"] .Settings-deposit-chip-amount,
+[data-theme="midnight"] .Settings-support-section-header h5,
+[data-theme="midnight"] .Settings-payment-methods-title,
+[data-theme="midnight"] .Settings-billing-toggle-copy strong,
+[data-theme="midnight"] .Settings-activity-reason,
+[data-theme="midnight"] .Settings-premium-metrics strong,
+[data-theme="midnight"] .AdminPage h1,
+[data-theme="midnight"] .AdminPage h2,
+[data-theme="midnight"] .AdminPage h3,
+[data-theme="midnight"] .AdminPage h4,
+[data-theme="midnight"] .AdminPage h5,
+[data-theme="midnight"] .admin-section-title,
+[data-theme="midnight"] .admin-header h1,
+[data-theme="midnight"] .dashboard-title,
+[data-theme="midnight"] .dashboard-page h1,
+[data-theme="midnight"] .dashboard-page h2,
+[data-theme="midnight"] .dashboard-page h3,
+[data-theme="midnight"] .dashboard-widget h1,
+[data-theme="midnight"] .dashboard-widget h2,
+[data-theme="midnight"] .dashboard-widget h3,
+[data-theme="midnight"] .dashboard-widget h4,
+[data-theme="midnight"] .dashboard-widget h5,
+[data-theme="midnight"] .analyses-title,
+[data-theme="midnight"] .analyses-card-title,
+[data-theme="midnight"] .uq-card-query {
+  color: var(--midnight-text) !important;
+}
+
+/* Muted text */
+[data-theme="midnight"] .Settings-section-subtitle,
+[data-theme="midnight"] .Settings-secondary-handle,
+[data-theme="midnight"] .Settings-username-wallet,
+[data-theme="midnight"] .Settings-billing-copy,
+[data-theme="midnight"] .Settings-billing-hint,
+[data-theme="midnight"] .Settings-support-section-header p,
+[data-theme="midnight"] .Settings-support-disclaimer,
+[data-theme="midnight"] .Settings-billing-toggle-copy span,
+[data-theme="midnight"] .Settings-billing-toggle-copy small,
+[data-theme="midnight"] .Settings-activity-date,
+[data-theme="midnight"] .Settings-premium-metrics span,
+[data-theme="midnight"] .admin-section-subtitle,
+[data-theme="midnight"] .admin-header p,
+[data-theme="midnight"] .admin-muted,
+[data-theme="midnight"] .admin-help,
+[data-theme="midnight"] .admin-card small,
+[data-theme="midnight"] .admin-notify-card small,
+[data-theme="midnight"] .dashboard-widget small,
+[data-theme="midnight"] .dashboard-widget .muted,
+[data-theme="midnight"] .dashboard-widget .text-muted,
+[data-theme="midnight"] .analyses-subtitle,
+[data-theme="midnight"] .analyses-card-meta,
+[data-theme="midnight"] .analyses-card-preview,
+[data-theme="midnight"] .analyses-card-preview.muted,
+[data-theme="midnight"] .uq-card-metrics,
+[data-theme="midnight"] .uq-card-flags,
+[data-theme="midnight"] .uq-card-footer {
+  color: var(--midnight-muted) !important;
+}
+
+/* Inputs */
+[data-theme="midnight"] input,
+[data-theme="midnight"] textarea,
+[data-theme="midnight"] select,
+[data-theme="midnight"] .form-control,
+[data-theme="midnight"] .form-select,
+[data-theme="midnight"] .Settings-inline-input,
+[data-theme="midnight"] .Settings-support-custom input,
+[data-theme="midnight"] .Settings-container .form-control,
+[data-theme="midnight"] .Settings-container .form-select,
+[data-theme="midnight"] .AdminPage input,
+[data-theme="midnight"] .AdminPage textarea,
+[data-theme="midnight"] .AdminPage select,
+[data-theme="midnight"] .analyses-search {
+  background: rgba(3, 7, 18, 0.78) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border-strong) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="midnight"] input::placeholder,
+[data-theme="midnight"] textarea::placeholder,
+[data-theme="midnight"] .form-control::placeholder,
+[data-theme="midnight"] .analyses-search::placeholder {
+  color: rgba(147, 164, 191, 0.78) !important;
+}
+
+[data-theme="midnight"] input:focus,
+[data-theme="midnight"] textarea:focus,
+[data-theme="midnight"] select:focus,
+[data-theme="midnight"] .form-control:focus,
+[data-theme="midnight"] .form-select:focus,
+[data-theme="midnight"] .analyses-search:focus {
+  border-color: rgba(96, 165, 250, 0.58) !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14) !important;
+}
+
+/* Admin tabs */
+[data-theme="midnight"] .admin-tabs,
+[data-theme="midnight"] .admin-tabs-animated,
+[data-theme="midnight"] .admin-tabs-scroller {
+  position: relative !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem !important;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(16, 33, 58, 0.98), rgba(7, 17, 31, 0.98)) !important;
+  border: 1px solid var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .admin-tab-indicator {
+  display: block !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(34, 211, 238, 0.58)) !important;
+  box-shadow:
+    0 10px 24px rgba(37, 99, 235, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+
+[data-theme="midnight"] .admin-tab,
+[data-theme="midnight"] .admin-tabs button,
+[data-theme="midnight"] .admin-tabs-animated button,
+[data-theme="midnight"] .admin-tabs-scroller button {
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: var(--midnight-muted) !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="midnight"] .admin-tab:hover,
+[data-theme="midnight"] .admin-tabs button:hover,
+[data-theme="midnight"] .admin-tabs-animated button:hover,
+[data-theme="midnight"] .admin-tabs-scroller button:hover {
+  background: rgba(96, 165, 250, 0.09) !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .admin-tab-active,
+[data-theme="midnight"] .admin-tab.admin-tab-active,
+[data-theme="midnight"] .admin-tab.active,
+[data-theme="midnight"] .admin-tabs button.active,
+[data-theme="midnight"] .admin-tabs-animated button.active,
+[data-theme="midnight"] .admin-tabs-scroller button.active,
+[data-theme="midnight"] .admin-tabs button[aria-selected="true"],
+[data-theme="midnight"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="midnight"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Tables */
+[data-theme="midnight"] table,
+[data-theme="midnight"] .table,
+[data-theme="midnight"] .table-dark,
+[data-theme="midnight"] .table-striped,
+[data-theme="midnight"] .admin-users-table,
+[data-theme="midnight"] .kv-table {
+  --bs-table-bg: #0b1628;
+  --bs-table-color: var(--midnight-text);
+  --bs-table-border-color: var(--midnight-border);
+  --bs-table-striped-bg: #10213a;
+  --bs-table-striped-color: var(--midnight-text);
+  --bs-table-hover-bg: #172b49;
+  --bs-table-hover-color: var(--midnight-text);
+
+  background: #0b1628 !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] table thead,
+[data-theme="midnight"] table thead tr,
+[data-theme="midnight"] table thead th,
+[data-theme="midnight"] .table thead th,
+[data-theme="midnight"] .kv-table thead th {
+  background: #10213a !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] table tbody tr,
+[data-theme="midnight"] table tbody td,
+[data-theme="midnight"] .table tbody tr,
+[data-theme="midnight"] .table tbody td,
+[data-theme="midnight"] .kv-table tbody tr,
+[data-theme="midnight"] .kv-table tbody td {
+  background-color: #0b1628 !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="midnight"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #10213a !important;
+}
+
+/* Theme selector and chips */
+[data-theme="midnight"] .Settings-theme-option,
+[data-theme="midnight"] .Settings-deposit-chip,
+[data-theme="midnight"] .Settings-support-preset,
+[data-theme="midnight"] .Settings-billing-status,
+[data-theme="midnight"] .Settings-billing-future span,
+[data-theme="midnight"] .Settings-premium-optin-chip,
+[data-theme="midnight"] .cap-email-chip,
+[data-theme="midnight"] .uq-card-metrics span,
+[data-theme="midnight"] .uq-card-flags span {
+  background: rgba(11, 22, 40, 0.9) !important;
+  color: var(--midnight-text-soft) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .Settings-theme-option:hover,
+[data-theme="midnight"] .Settings-deposit-chip:hover,
+[data-theme="midnight"] .Settings-support-preset:hover,
+[data-theme="midnight"] .Settings-support-preset[data-active="true"] {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.32) !important;
+}
+
+[data-theme="midnight"] .Settings-theme-option.is-active,
+[data-theme="midnight"] .Settings-deposit-chip.is-selected {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(34, 211, 238, 0.08)) !important;
+  border-color: rgba(96, 165, 250, 0.48) !important;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.14) !important;
+}
+
+[data-theme="midnight"] .Settings-theme-copy strong,
+[data-theme="midnight"] .Settings-theme-copy small,
+[data-theme="midnight"] .Settings-deposit-chip-label,
+[data-theme="midnight"] .Settings-support-custom span,
+[data-theme="midnight"] .cap-email-chip-address,
+[data-theme="midnight"] .cap-email-label {
+  color: var(--midnight-text-soft) !important;
+}
+
+/* Buttons */
+[data-theme="midnight"] .btn-primary,
+[data-theme="midnight"] .Settings-support-section .btn-primary,
+[data-theme="midnight"] .Settings-deposit-panel .btn-primary,
+[data-theme="midnight"] .cap-root .send-button {
+  background:
+    linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  border-color: rgba(96, 165, 250, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.26) !important;
+}
+
+[data-theme="midnight"] .btn-primary:hover,
+[data-theme="midnight"] .cap-root .send-button:hover:not(:disabled) {
+  background:
+    linear-gradient(135deg, #1d4ed8, #0284c7) !important;
+  border-color: rgba(147, 197, 253, 0.68) !important;
+}
+
+[data-theme="midnight"] .btn-outline-light,
+[data-theme="midnight"] .btn-outline-secondary,
+[data-theme="midnight"] .Settings-container .btn-outline-light,
+[data-theme="midnight"] .btn-secondary,
+[data-theme="midnight"] .btn-light {
+  background: rgba(11, 22, 40, 0.82) !important;
+  border-color: var(--midnight-border-strong) !important;
+  color: var(--midnight-text-soft) !important;
+}
+
+[data-theme="midnight"] .btn-outline-light:hover,
+[data-theme="midnight"] .btn-outline-secondary:hover,
+[data-theme="midnight"] .btn-secondary:hover,
+[data-theme="midnight"] .btn-light:hover {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+}
+
+/* Landing/chat */
+[data-theme="midnight"] .cap-root {
+  --primary: var(--midnight-primary);
+  --primary-dark: var(--midnight-primary-hover);
+  --secondary: var(--midnight-muted);
+  --background: var(--midnight-bg);
+  --surface: var(--midnight-card);
+  --surface-light: var(--midnight-card-soft);
+  --text-primary: var(--midnight-text);
+  --text-secondary: var(--midnight-muted);
+  --border: var(--midnight-border);
+}
+
+[data-theme="midnight"] .cap-root .chat-container,
+[data-theme="midnight"] .cap-root .input-container,
+[data-theme="midnight"] .cap-root .message.assistant .message-bubble,
+[data-theme="midnight"] .cap-root .message.assistant .message-avatar {
+  background: var(--midnight-card) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .cap-root .message.user .message-bubble {
+  background:
+    linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-line,
+[data-theme="midnight"] .cap-root .landing-empty-typed {
+  color: var(--midnight-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-caret {
+  background: var(--midnight-accent-hover) !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-robotBadge {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(96, 165, 250, 0.16), transparent 56%),
+    linear-gradient(180deg, rgba(16, 33, 58, 0.92), rgba(7, 17, 31, 0.92)) !important;
+  border-color: rgba(96, 165, 250, 0.18) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    0 0 0 6px rgba(96, 165, 250, 0.06),
+    0 0 38px rgba(34, 211, 238, 0.08) !important;
+}
+
+[data-theme="midnight"] .cap-root .example-chip {
+  background: rgba(11, 22, 40, 0.92) !important;
+  color: var(--midnight-text-soft) !important;
+  border: 1px solid var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(96, 165, 250, 0.11) !important;
+  color: var(--midnight-text) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+}
+
+/* Chat processing/status */
+[data-theme="midnight"] .cap-root .message.status,
+[data-theme="midnight"] .cap-root .message.status .message-bubble,
+[data-theme="midnight"] .cap-root .rm-assistant-statusRow,
+[data-theme="midnight"] .message.assistant .thinking-inline {
+  color: var(--midnight-text-soft) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="midnight"] .cap-root .message.status .message-bubble,
+[data-theme="midnight"] .cap-root .rm-assistant-statusRow,
+[data-theme="midnight"] .message.assistant .thinking-inline {
+  background: rgba(11, 22, 40, 0.9) !important;
+  border-left-color: var(--midnight-accent-hover) !important;
+}
+
+[data-theme="midnight"] .cap-root .thinking-animation span,
+[data-theme="midnight"] .message.assistant .thinking-animation span {
+  background: var(--midnight-accent-hover) !important;
+  opacity: 0.9 !important;
+}
+
+/* Charts and artifacts */
+[data-theme="midnight"] .chat-chart-slot,
+[data-theme="midnight"] .vega-chart-container,
+[data-theme="midnight"] .dashboard-widget .vega-chart-container {
+  background: #0b1628 !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .kv-table-link,
+[data-theme="midnight"] .Settings-referral-link,
+[data-theme="midnight"] .Settings-payment-address,
+[data-theme="midnight"] .Settings-activity-hash,
+[data-theme="midnight"] .dashboard-widget a,
+[data-theme="midnight"] .analyses-card a {
+  color: #93c5fd !important;
+}
+
+/* Loading page */
+[data-theme="midnight"] .LoadingPage-fullscreen {
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 42%),
+    radial-gradient(circle at bottom, rgba(34, 211, 238, 0.09), transparent 42%),
+    #030712 !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .LoadingPage-logo {
+  filter: drop-shadow(0 8px 22px rgba(37, 99, 235, 0.28)) !important;
+}
+
+[data-theme="midnight"] .LoadingPage-pulse-glow {
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.28), transparent) !important;
+}
+
+[data-theme="midnight"] .LoadingPage-orbit-ring {
+  border-color: rgba(96, 165, 250, 0.24) !important;
+}
+
+[data-theme="midnight"] .LoadingPage-orbit-dot {
+  background: #67e8f9 !important;
+  box-shadow: 0 0 12px rgba(103, 232, 249, 0.52) !important;
+}
+
+[data-theme="midnight"] .LoadingPage-ring-spinner {
+  border-color: rgba(96, 165, 250, 0.08) !important;
+  border-top-color: #60a5fa !important;
+  border-right-color: #22d3ee !important;
+}
+
+[data-theme="midnight"] .LoadingPage-message {
+  color: var(--midnight-muted) !important;
+}
+
+/* Modals */
+[data-theme="midnight"] .modal-content,
+[data-theme="midnight"] .CardanoPaymentModal-content,
+[data-theme="midnight"] .uq-modal {
+  background:
+    linear-gradient(180deg, rgba(16, 33, 58, 0.98), rgba(7, 17, 31, 0.98)) !important;
+  color: var(--midnight-text) !important;
+  border: 1px solid var(--midnight-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--midnight-shadow-large) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="midnight"] .modal-header,
+[data-theme="midnight"] .CardanoPaymentModal-header {
+  background:
+    linear-gradient(180deg, rgba(23, 43, 73, 0.98), rgba(11, 22, 40, 0.98)) !important;
+  color: var(--midnight-text) !important;
+  border-bottom: 1px solid var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .modal-body,
+[data-theme="midnight"] .CardanoPaymentModal-body {
+  background: transparent !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .modal-footer,
+[data-theme="midnight"] .CardanoPaymentModal-footer {
+  background: rgba(3, 7, 18, 0.45) !important;
+  color: var(--midnight-text) !important;
+  border-top: 1px solid var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .modal-title,
+[data-theme="midnight"] .modal-header h1,
+[data-theme="midnight"] .modal-header h2,
+[data-theme="midnight"] .modal-header h3,
+[data-theme="midnight"] .modal-header h4,
+[data-theme="midnight"] .modal-header h5,
+[data-theme="midnight"] .CardanoPaymentModal-title {
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .modal-content small,
+[data-theme="midnight"] .modal-content .text-muted,
+[data-theme="midnight"] .modal-content .muted,
+[data-theme="midnight"] .modal-content .help-text,
+[data-theme="midnight"] .CardanoPaymentModal-subtitle,
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="hint"],
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="meta"],
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="note"] {
+  color: var(--midnight-muted) !important;
+}
+
+[data-theme="midnight"] .payment-modal-card,
+[data-theme="midnight"] .billing-modal-card,
+[data-theme="midnight"] .payment-summary-card,
+[data-theme="midnight"] .payment-benefit,
+[data-theme="midnight"] .payment-benefit-row,
+[data-theme="midnight"] .payment-wallet-row,
+[data-theme="midnight"] .payment-address-row,
+[data-theme="midnight"] .payment-method-row,
+[data-theme="midnight"] .billing-payment-card,
+[data-theme="midnight"] .billing-payment-summary,
+[data-theme="midnight"] .billing-payment-benefit,
+[data-theme="midnight"] .CardanoPaymentModal-plan,
+[data-theme="midnight"] .CardanoPaymentModal-summary,
+[data-theme="midnight"] .CardanoPaymentModal-balance,
+[data-theme="midnight"] .CardanoPaymentModal-wallet,
+[data-theme="midnight"] .CardanoPaymentModal-payment,
+[data-theme="midnight"] .CardanoPaymentModal-benefits,
+[data-theme="midnight"] .CardanoPaymentModal-note,
+[data-theme="midnight"] .CardanoPaymentModal-status,
+[data-theme="midnight"] .CardanoPaymentModal-address,
+[data-theme="midnight"] .CardanoPaymentModal-network,
+[data-theme="midnight"] .CardanoPaymentModal-section,
+[data-theme="midnight"] .CardanoPaymentModal-card,
+[data-theme="midnight"] .CardanoPaymentModal-row,
+[data-theme="midnight"] .share-preview,
+[data-theme="midnight"] .ShareModal-preview,
+[data-theme="midnight"] .dashboard-share-preview,
+[data-theme="midnight"] .widget-share-preview,
+[data-theme="midnight"] .share-image-preview,
+[data-theme="midnight"] .dashboard-widget-share-preview,
+[data-theme="midnight"] .widget-settings-section,
+[data-theme="midnight"] .widget-settings-card,
+[data-theme="midnight"] .widget-settings-group,
+[data-theme="midnight"] .widget-settings-panel,
+[data-theme="midnight"] .modal-content [class*="settings-section"],
+[data-theme="midnight"] .modal-content [class*="settings-card"],
+[data-theme="midnight"] .modal-content [class*="settings-group"],
+[data-theme="midnight"] .modal-content [class*="preview"] {
+  background: rgba(11, 22, 40, 0.92) !important;
+  background-image: none !important;
+  color: var(--midnight-text) !important;
+  border: 1px solid var(--midnight-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="midnight"] .ShareModal-share-icon p,
+[data-theme="midnight"] .ShareModal-share-icon span,
+[data-theme="midnight"] .ShareModal-share-icon small {
+  color: var(--midnight-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="midnight"] .modal-content .btn-close {
+  filter: invert(1) grayscale(1) !important;
+  opacity: 0.72 !important;
+}
+
+/* Billing notifications */
+[data-theme="midnight"] .billing-notification-list,
+[data-theme="midnight"] .billing-notification-row,
+[data-theme="midnight"] .billing-notification-row-meta,
+[data-theme="midnight"] .billing-notification-panel,
+[data-theme="midnight"] .billing-notification-card {
+  background: rgba(11, 22, 40, 0.94) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .billing-notification-list > *:nth-child(even),
+[data-theme="midnight"] .billing-notification-row:nth-child(even) {
+  background: rgba(16, 33, 58, 0.94) !important;
+}
+
+/* Semantic statuses */
+[data-theme="midnight"] .Settings-billing-status.is-active,
+[data-theme="midnight"] .navbar-billing-badge.is-premium {
+  background: rgba(96, 165, 250, 0.12) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+  color: #bfdbfe !important;
+}
+
+[data-theme="midnight"] .form-check-input:checked,
+[data-theme="midnight"] input[type="checkbox"]:checked,
+[data-theme="midnight"] .form-switch .form-check-input:checked {
+  background-color: #2563eb !important;
+  border-color: #60a5fa !important;
+}
+
+/* Mobile */
+@media (max-width: 991.98px) {
+  [data-theme="midnight"] .cap-navbar .navbar-collapse,
+  [data-theme="midnight"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="midnight"] .cap-navbar .navbar-collapse.show {
+    background: #0b1628 !important;
+    border-top-color: var(--midnight-border) !important;
+  }
+}
+
