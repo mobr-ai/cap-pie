@@ -2,11 +2,11 @@
 
 /* Tab container for Query Details */
 .uq-tabcard {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--theme-border);
   border-radius: 14px;
   overflow: hidden;
   margin-top: 0.25rem;
-  background: rgba(2, 6, 23, 0.65);
+  background: var(--theme-surface-2);
   flex: 0 1 auto;
   min-height: 0;
 }
@@ -16,8 +16,8 @@
   gap: 0.4rem;
   align-items: center;
   padding: 0.5rem 0.65rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(2, 6, 23, 0.85);
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
   flex-wrap: wrap;
 }
 
@@ -34,9 +34,9 @@
 
 /* Tabs */
 .uq-tab {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--theme-border-strong);
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
   border-radius: 10px;
   padding: 0.32rem 0.6rem;
   font-size: 0.82rem;
@@ -46,14 +46,14 @@
 
 @media (hover: hover) and (pointer: fine) {
   .uq-tab:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: var(--theme-surface-3);
+    border-color: var(--theme-border-strong);
   }
 }
 
 .uq-tab.active {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.26);
+  background: var(--theme-surface-3);
+  border-color: var(--theme-border-strong);
 }
 
 /*
@@ -62,7 +62,7 @@
 */
 .uq-tight-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  scrollbar-color: var(--theme-border-strong) transparent;
 }
 
 .uq-tight-scroll::-webkit-scrollbar {
@@ -75,7 +75,7 @@
 }
 
 .uq-tight-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: var(--theme-border);
   border-radius: 999px;
   opacity: 0;
   transition:
@@ -85,11 +85,11 @@
 
 .uq-tight-scroll:hover::-webkit-scrollbar-thumb {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: var(--theme-border-strong);
 }
 
 .uq-tight-scroll::-webkit-scrollbar-thumb:active {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--theme-text-muted);
 }
 
 /* QueryDetailsModal helpers */
@@ -116,7 +116,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(2, 6, 23, 0.72);
+  background: var(--theme-surface);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -128,11 +128,11 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #e5e7eb;
-  background: linear-gradient(135deg, #020617, #0b1220);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border-strong);
   border-radius: 0.75rem;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--theme-shadow-large);
 }
 
 .uq-modal-header {
@@ -141,7 +141,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.9rem 1rem 0.8rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--theme-border);
   flex: 0 0 auto;
 }
 
@@ -155,7 +155,7 @@
 .uq-modal-close {
   border: none;
   background: transparent;
-  color: #cbd5e1;
+  color: var(--theme-text-soft);
   font-size: 1.4rem;
   line-height: 1;
   padding: 0.1rem 0.35rem;
@@ -164,8 +164,8 @@
 }
 
 .uq-modal-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--theme-surface-2);
+  color: var(--theme-text);
 }
 
 .uq-tabcard,
@@ -180,7 +180,7 @@
 .uq-modal-section label {
   display: block;
   margin-bottom: 0.45rem;
-  color: #9ca3af;
+  color: var(--theme-text-muted);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -221,8 +221,8 @@
   max-height: 32vh;
   padding: 0.85rem 0.9rem;
   border-radius: 12px;
-  background: rgba(2, 6, 23, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--theme-surface-2);
+  border: 1px solid var(--theme-border);
 }
 
 .uq-modal-query {
@@ -261,7 +261,7 @@
 .uq-modal-error.uq-tight-scroll,
 .uq-modal-grid.uq-tight-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  scrollbar-color: var(--theme-border-strong) transparent;
 }
 
 .uq-modal-query.uq-tight-scroll::-webkit-scrollbar,
@@ -283,7 +283,7 @@
 .uq-modal-code.uq-tight-scroll::-webkit-scrollbar-thumb,
 .uq-modal-error.uq-tight-scroll::-webkit-scrollbar-thumb,
 .uq-modal-grid.uq-tight-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: var(--theme-border);
   border-radius: 999px;
   opacity: 0;
   transition:
@@ -296,14 +296,14 @@
 .uq-modal-error.uq-tight-scroll:hover::-webkit-scrollbar-thumb,
 .uq-modal-grid.uq-tight-scroll:hover::-webkit-scrollbar-thumb {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: var(--theme-border-strong);
 }
 
 .uq-modal-query.uq-tight-scroll::-webkit-scrollbar-thumb:active,
 .uq-modal-code.uq-tight-scroll::-webkit-scrollbar-thumb:active,
 .uq-modal-error.uq-tight-scroll::-webkit-scrollbar-thumb:active,
 .uq-modal-grid.uq-tight-scroll::-webkit-scrollbar-thumb:active {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--theme-text-muted);
 }
 
 @media (max-width: 768px) {

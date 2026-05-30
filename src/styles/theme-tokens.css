@@ -185,6 +185,10 @@
   --dash-btn-bg-hover: rgba(15, 23, 42, 0.08);
   --dash-btn-border: rgba(15, 23, 42, 0.12);
   --dash-btn-border-hover: rgba(15, 23, 42, 0.22);
+  --theme-success: #15803d;
+  --theme-success-soft: rgba(21, 128, 61, 0.12);
+  --theme-success-border: rgba(21, 128, 61, 0.32);
+
 }
 
 

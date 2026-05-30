@@ -10,11 +10,11 @@
 /* Desktop hover only (avoid sticky hover on touch devices) */
 @media (hover: hover) and (pointer: fine) {
   .admin-recentq-row:hover td {
-    background-color: rgba(31, 41, 55, 0.85);
+    background-color: var(--theme-surface-2);
   }
 }
 
 /* Subtle press feedback */
 .admin-recentq-row:active td {
-  background-color: rgba(31, 41, 55, 0.95);
+  background-color: var(--theme-surface);
 }

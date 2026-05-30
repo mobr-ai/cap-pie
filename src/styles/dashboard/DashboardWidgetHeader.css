@@ -3,7 +3,7 @@
 /* Bootstrap compatibility: force header to behave like our layout */
 .dashboard-widget .card-header.dashboard-widget-header {
   padding: 0.75rem 0.85rem !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
   background: transparent !important;
 
   display: flex !important;
@@ -45,7 +45,7 @@
   /* a bit more breathing room helps avoid descender clipping */
   line-height: 1.2;
 
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--theme-text);
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -92,11 +92,11 @@
 }
 
 .widget-subtitle-link:hover {
-  color: rgba(219, 234, 254, 1);
+  color: var(--theme-text);
 }
 
 .widget-subtitle-muted {
-  color: rgba(226, 232, 240, 0.55);
+  color: var(--theme-text-muted);
 }
 
 .widget-subtitle-iconBtn {
@@ -115,12 +115,12 @@
 }
 
 .widget-subtitle-iconBtn:hover {
-  color: rgba(219, 234, 254, 1);
+  color: var(--theme-text);
 }
 
 .widget-metaTime {
   font-size: 0.78rem;
-  color: rgba(226, 232, 240, 0.48);
+  color: var(--theme-text-muted);
 }
 
 /* Toolbar (top-right) */
@@ -159,7 +159,7 @@
   appearance: none;
   border: 1px solid var(--dash-btn-border);
   background: var(--dash-btn-bg);
-  color: rgba(226, 232, 240, 0.92);
+  color: var(--theme-text-soft);
 
   width: 34px;
   height: 34px;

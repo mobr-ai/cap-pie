@@ -8,8 +8,8 @@
 .dashboard-widget-modal .modal-content {
   background: var(--dash-bg);
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff;
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
   display: flex;
   flex-direction: column;
 
@@ -20,7 +20,7 @@
 
 /* Header stays natural height */
 .dashboard-widget-modal .modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--theme-border);
   padding: 14px 16px;
   flex: 0 0 auto;
 }
@@ -114,7 +114,7 @@
 #vg-tooltip-element.vg-tooltip {
   z-index: 20000 !important;
   pointer-events: none;
-  background-color: rgb(43 48 53);
+  background-color: var(--theme-surface-2);
   opacity: 0.85;
   color: white;
 }

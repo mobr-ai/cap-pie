@@ -7,20 +7,20 @@
     "Apple Color Emoji", "Segoe UI Emoji";
   --nav-size: 14px;
   --nav-height: 56px; /* slightly taller than before */
-  --nav-fg: #e5e7eb;
-  --nav-fg-dim: #94a3b8;
-  --nav-bg: #0b1222;
+  --nav-fg: var(--theme-text);
+  --nav-fg-dim: var(--theme-text-muted);
+  --nav-bg: var(--theme-surface);
 }
 
 /* Bar container */
 .cap-navbar {
-  background: #1e293b !important;
+  background: var(--theme-surface-2) !important;
   color: var(--nav-fg);
   font-family: var(--nav-font);
   font-size: var(--nav-size);
   min-height: var(--nav-height);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--theme-shadow-soft);
+  border-bottom: 1px solid var(--theme-border);
 
   /* a little vertical breathing room so the burger is fully contained */
   padding-top: 0.6rem;
@@ -52,9 +52,9 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--theme-surface-2);
+  color: var(--theme-text);
+  border: 1px solid var(--theme-border);
 }
 
 /* Hide sidebar burger on small/mobile screens */
@@ -80,7 +80,7 @@
   text-overflow: ellipsis;
   font-weight: 600;
   letter-spacing: 0.3px;
-  color: #f1f5f9;
+  color: var(--theme-text);
 }
 
 /* Status strip */
@@ -94,7 +94,7 @@
   max-width: 680px;
   flex-wrap: nowrap;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--theme-text-soft);
 }
 
 .status-item {
@@ -105,12 +105,12 @@
 }
 
 .status-item .label {
-  color: #94a3b8;
+  color: var(--theme-text-muted);
   font-weight: 500;
 }
 
 .status-item .value {
-  color: #e5e7eb;
+  color: var(--theme-text);
   font-weight: 600;
   max-width: 120px;
   overflow: hidden;
@@ -164,7 +164,7 @@
   object-fit: contain;
   object-position: center;
   padding: 1px;
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--theme-surface);
   image-rendering: auto;
   backface-visibility: hidden;
 }
@@ -190,10 +190,10 @@
 /* Dropdown styling */
 .navbar .dropdown-menu-dark,
 .dropdown-menu-dark {
-  background-color: #0f172a !important;
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  background-color: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border);
   border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--theme-shadow-large);
   min-width: 220px;
 }
 
@@ -208,7 +208,7 @@
 }
 
 .dropdown-menu-dark .dropdown-item:hover {
-  background: rgba(148, 163, 184, 0.12);
+  background: var(--theme-surface-3);
 }
 
 /* Submenu (language) */
@@ -283,7 +283,7 @@
 .cap-navbar .navbar-toggler {
   border-radius: 0.9rem;
   padding: 0.25rem 0.6rem;
-  border-color: rgba(148, 163, 184, 0.4);
+  border-color: var(--theme-border-strong);
 }
 
 /* Make the expanded mobile menu use a solid dark background */
@@ -298,7 +298,7 @@
     background-color: var(--nav-bg);
     padding: 0.5rem 1rem 0.75rem;
     margin-top: 0.35rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.25);
+    border-top: 1px solid var(--theme-border);
   }
 
   .NavBar-top-container .nav-link,
@@ -316,7 +316,7 @@
   transform: none;
   background: transparent;
   border: none;
-  color: #e5e7eb;
+  color: var(--theme-text);
   font-size: 1.4rem;
   display: flex;
   align-items: center;
@@ -386,7 +386,7 @@
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.6px;
-  color: rgba(229, 231, 235, 0.85);
+  color: var(--theme-text-soft);
 }
 
 .cap-sync-ring {
@@ -410,7 +410,7 @@
   font-weight: 800;
   letter-spacing: -0.2px;
   line-height: 1;
-  color: rgba(229, 231, 235, 0.92);
+  color: var(--theme-text);
 
   pointer-events: none;
   user-select: none;
@@ -422,7 +422,7 @@
 
 .cap-sync-track {
   fill: none;
-  stroke: rgba(148, 163, 184, 0.25);
+  stroke: var(--theme-border);
   stroke-width: 2.5;
 }
 
@@ -446,7 +446,7 @@
 /* .cap-sync-pct {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #e5e7eb;
+  color: var(--theme-text);
   letter-spacing: 0.2px;
 } */
 
@@ -481,7 +481,7 @@
 
 /* Checking: subtle spinner */
 .cap-sync[data-state="checking"] .cap-sync-progress {
-  stroke: rgba(229, 231, 235, 0.65);
+  stroke: var(--theme-text-muted);
   stroke-dasharray: 10 999;
 }
 
@@ -504,7 +504,7 @@
 }
 
 .cap-sync[data-state="offline"] .cap-sync-progress {
-  stroke: rgba(148, 163, 184, 0.35);
+  stroke: var(--theme-border-strong);
   stroke-dasharray: 0 999;
 }
 
@@ -525,11 +525,11 @@
   padding: 10px 12px;
   border-radius: 10px;
 
-  background: #0f172a;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-large);
 
-  color: #e5e7eb;
+  color: var(--theme-text);
   font-size: 0.78rem;
   line-height: 1.25rem;
 
@@ -597,7 +597,7 @@
   align-items: center;
   justify-content: center;
   max-width: 120px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--theme-border);
   border-radius: 999px;
   padding: 0.12rem 0.42rem;
   font-size: 0.68rem;
@@ -605,8 +605,8 @@
   letter-spacing: 0.01em;
   line-height: 1.15;
   white-space: nowrap;
-  background: rgba(15, 23, 42, 0.4);
-  color: rgba(226, 232, 240, 0.82);
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
 }
 
 .navbar-billing-badge.is-premium {
@@ -629,7 +629,7 @@
 
 .navbar-billing-badge.is-loading {
   border-color: rgba(148, 163, 184, 0.18);
-  color: rgba(203, 213, 225, 0.64);
+  color: var(--theme-text-muted);
 }
 
 .navbar-account-summary {
@@ -653,8 +653,8 @@
   object-fit: contain;
   object-position: center;
   padding: 2px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
   image-rendering: auto;
   backface-visibility: hidden;
 }
@@ -664,7 +664,7 @@
 }
 
 .navbar-account-name {
-  color: rgba(248, 250, 252, 0.95);
+  color: var(--theme-text);
   font-size: 0.88rem;
   font-weight: 780;
   overflow: hidden;
@@ -673,7 +673,7 @@
 }
 
 .navbar-account-plan {
-  color: rgba(203, 213, 225, 0.74);
+  color: var(--theme-text-muted);
   font-size: 0.75rem;
   margin-top: 0.1rem;
 }
@@ -686,15 +686,15 @@
 }
 
 .navbar-account-metrics > div {
-  border: 1px solid rgba(148, 163, 184, 0.13);
+  border: 1px solid var(--theme-border);
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.38);
+  background: var(--theme-surface-2);
   padding: 0.5rem 0.55rem;
 }
 
 .navbar-account-metrics span {
   display: block;
-  color: rgba(148, 163, 184, 0.82);
+  color: var(--theme-text-muted);
   font-size: 0.66rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -702,13 +702,13 @@
 
 .navbar-account-metrics strong {
   display: block;
-  color: rgba(248, 250, 252, 0.95);
+  color: var(--theme-text);
   font-size: 0.82rem;
   margin-top: 0.16rem;
 }
 
 .navbar-account-note {
-  color: rgba(203, 213, 225, 0.68);
+  color: var(--theme-text-muted);
   font-size: 0.72rem;
   line-height: 1.35;
   margin-top: 0.65rem;

@@ -48,7 +48,7 @@
 
 .dashboard-widget:hover {
   transform: translateY(-2px);
-  border-color: rgba(148, 163, 184, 0.32);
+  border-color: var(--theme-border-strong);
 }
 
 .dashboard-widget-clickable:hover {

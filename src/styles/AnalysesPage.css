@@ -3,7 +3,7 @@
 .AnalysesPage {
   padding-top: 1.5rem;
   padding-bottom: 2rem;
-  color: #e5e7eb;
+  color: var(--theme-text);
 }
 
 .AnalysesPage-inner {
@@ -27,15 +27,15 @@
 
 .analyses-subtitle {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--theme-text-muted);
   margin-bottom: 0;
 }
 
 .analyses-note {
   font-size: 0.85rem;
-  color: rgba(148, 163, 184, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(2, 6, 23, 0.35);
+  color: var(--theme-text-muted);
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-2);
   padding: 0.4rem 0.6rem;
   border-radius: 9999px;
   white-space: nowrap;
@@ -52,30 +52,30 @@
   width: 100%;
   border-radius: 9999px;
   padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid var(--theme-border-strong);
   outline: none;
-  background: rgba(2, 6, 23, 0.55);
-  color: rgba(226, 232, 240, 0.95);
+  background: var(--theme-surface-2);
+  color: var(--theme-text);
 }
 
 .analyses-search:focus {
-  border-color: rgba(59, 130, 246, 0.55);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px var(--theme-primary-soft);
 }
 
 .analyses-loading {
   border-radius: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  background: rgba(2, 6, 23, 0.25);
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-2);
   padding: 1rem;
 }
 
 .analyses-empty {
   padding: 0.75rem;
-  color: rgba(148, 163, 184, 0.95);
-  border: 1px dashed rgba(148, 163, 184, 0.25);
+  color: var(--theme-text-muted);
+  border: 1px dashed var(--theme-border-strong);
   border-radius: 0.75rem;
-  background: rgba(2, 6, 23, 0.25);
+  background: var(--theme-surface-2);
 }
 
 .analyses-grid {
@@ -86,12 +86,12 @@
 
 .analyses-card {
   text-align: left;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--theme-border);
   border-radius: 0.75rem;
   padding: 0.85rem 0.95rem;
-  color: #e5e7eb;
-  background: linear-gradient(135deg, #111827, #020617);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-soft);
   cursor: pointer;
   transition:
     border-color 0.15s ease,
@@ -102,8 +102,8 @@
 }
 
 .analyses-card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
-  background: linear-gradient(135deg, rgba(17, 24, 39, 1), rgba(2, 6, 23, 1));
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-2);
 }
 
 .analyses-card:active {
@@ -129,13 +129,13 @@
 
 .analyses-card-meta {
   font-size: 0.75rem;
-  color: rgba(148, 163, 184, 0.9);
+  color: var(--theme-text-muted);
   white-space: nowrap;
 }
 
 .analyses-card-preview {
   font-size: 0.85rem;
-  color: rgba(203, 213, 225, 0.85);
+  color: var(--theme-text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -144,7 +144,7 @@
 }
 
 .analyses-card-preview.muted {
-  color: rgba(148, 163, 184, 0.75);
+  color: var(--theme-text-muted);
 }
 
 /* Hover shimmer (subtle) */
@@ -222,10 +222,10 @@
 @keyframes analysesPulseBorder {
   0%,
   100% {
-    border-color: rgba(59, 130, 246, 0.28);
+    border-color: var(--theme-primary-soft);
   }
   50% {
-    border-color: rgba(59, 130, 246, 0.65);
+    border-color: var(--theme-primary-hover);
   }
 }
 
@@ -279,13 +279,13 @@
   flex-wrap: wrap;
   gap: 0.5rem 0.75rem;
   font-size: 0.75rem;
-  color: rgba(203, 213, 225, 0.9);
+  color: var(--theme-text-soft);
   margin-top: 0.35rem;
 }
 
 .uq-card-metrics span,
 .uq-card-flags span {
-  background: rgba(148, 163, 184, 0.08);
+  background: var(--theme-surface-3);
   padding: 0.15rem 0.45rem;
   border-radius: 9999px;
 }
@@ -293,7 +293,7 @@
 .uq-card-footer {
   margin-top: 0.5rem;
   font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.75);
+  color: var(--theme-text-muted);
 }
 
 /* ─────────────────────────────
@@ -303,7 +303,7 @@
 .uq-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.75);
+  background: var(--theme-surface);
   backdrop-filter: blur(6px);
   z-index: 60;
   display: flex;
@@ -313,11 +313,11 @@
 
 .uq-modal {
   width: min(720px, 92vw);
-  background: linear-gradient(135deg, #020617, #020617);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border-strong);
   border-radius: 0.75rem;
   padding: 1rem;
-  color: #e5e7eb;
+  color: var(--theme-text);
 }
 
 .uq-modal-header {
@@ -330,13 +330,13 @@
 .uq-modal-close {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--theme-text-muted);
   font-size: 1.25rem;
   cursor: pointer;
 }
 
 .uq-modal-query {
-  background: rgba(2, 6, 23, 0.6);
+  background: var(--theme-surface-2);
   padding: 0.75rem;
   border-radius: 0.5rem;
   white-space: pre-wrap;
@@ -368,9 +368,9 @@
 }
 
 .uq-tab {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--theme-border-strong);
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
   border-radius: 10px;
   padding: 0.35rem 0.6rem;
   font-size: 0.85rem;
@@ -378,8 +378,8 @@
 }
 
 .uq-tab.active {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--theme-surface-3);
+  border-color: var(--theme-border-strong);
 }
 
 .uq-tabs-spacer {
@@ -390,8 +390,8 @@
   margin: 0;
   padding: 0.75rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-2);
   max-height: 320px;
   overflow: auto;
   white-space: pre;
