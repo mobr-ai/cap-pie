@@ -63,6 +63,7 @@
   "connectWallet": "Conectar Carteira {{wallet}}",
   "joinWaitListSubtitleWallet": "Você conectou uma carteira Cardano. Informe seu e-mail para concluir o cadastro e entrar na lista de espera.",
   "walletNotFound": "Nenhuma carteira Cardano detectada. Instale <nami>Nami</nami>, <lace>Lace</lace>, <flint>Flint</flint> ou <eternl>Eternl</eternl> e recarregue a página.",
+  "walletLocked": "Desbloqueie sua carteira e tente novamente.",
   "walletLoginSuccess": "Login com carteira realizado com sucesso",
   "loginError": "Falha no login. Por favor, tente novamente.",
   "tooltipAvatar": "Alterar seu avatar",
@@ -108,7 +109,6 @@
         "title": "Pronto para explorar os dados da Cardano em modo turbo?",
         "description": "Faça login acima para acessar seu espaço de trabalho e começar a salvar suas análises."
       },
-
       "pillars": {
         "title": "Nosso roadmap: Os Três Pilares da Inovação",
         "llm": {
@@ -124,7 +124,6 @@
           "desc": "Workspaces interativos e personalizáveis onde usuários fixam gráficos e tabelas gerados por IA para monitoramento em tempo real."
         }
       },
-
       "flow": {
         "title": "Da Pergunta ao Insight",
         "step1": {
@@ -140,9 +139,11 @@
           "desc": "Os resultados são automaticamente renderizados em gráficos interativos Vega-Lite ou tabelas estruturadas."
         }
       },
-
       "kpis": {
-        "ask": { "title": "Perguntas", "subtitle": "em linguagem simples" },
+        "ask": {
+          "title": "Perguntas",
+          "subtitle": "em linguagem simples"
+        },
         "federate": {
           "title": "Federação (planejado)",
           "subtitle": "on-chain + off-chain"
@@ -152,7 +153,6 @@
           "subtitle": "simples e instantânea"
         }
       },
-
       "examples": {
         "body": "O roadmap da plataforma prevê queries federadas.",
         "colQuery": "Exemplo de pergunta do usuário",
@@ -174,7 +174,6 @@
         ]
       }
     },
-
     "footer": {
       "tagline": "Construindo infraestrutura avançada de dados e IA para ecossistemas descentralizados.",
       "followUs": "Siga-nos",
@@ -562,6 +561,168 @@
       "copied": "Copiado",
       "copySparql": "Copiar SPARQL para a área de transferência",
       "copyNl": "Copiar consulta para a área de transferência"
+    },
+    "tabBilling": "Cobrança e Acesso",
+    "billingSectionTitle": "Cobrança e Acesso",
+    "billingSectionSubtitle": "Revise planos, status de acesso, saldos, uso de cotas, expiração Premium e pagamentos recentes dos usuários.",
+    "billingSearchPlaceholder": "Buscar por e-mail, usuário, nome de exibição ou carteira…",
+    "billingLoading": "Carregando dados de cobrança e acesso…",
+    "billingLoadError": "Erro ao carregar dados de cobrança e acesso",
+    "billingNoRows": "Nenhum registro de cobrança e acesso encontrado para esta busca.",
+    "billingColUser": "Usuário",
+    "billingColWallet": "Carteira",
+    "billingColPlan": "Plano",
+    "billingColAccess": "Acesso",
+    "billingColBalance": "Saldo",
+    "billingColFreeQuota": "Cota grátis",
+    "billingColPremiumUntil": "Premium até",
+    "billingColLastPayment": "Último pagamento",
+    "billingPlanPremium": "Premium",
+    "billingPlanFree": "Grátis",
+    "billingAccessPremium": "Premium",
+    "billingAccessFree": "Grátis",
+    "billingAccessBlocked": "Bloqueado",
+    "billingUnlimited": "Ilimitado",
+    "billingNeverPaid": "Nunca pagou",
+    "billingStatsTotal": "Total de usuários",
+    "billingStatsFiltered": "Filtrados",
+    "billingStatsPremiumShown": "Premium exibidos",
+    "billingStatsBalanceShown": "Saldo exibido",
+    "billingActionGrantPremium": "Conceder ou estender Premium",
+    "billingActionRevokePremium": "Revogar Premium",
+    "billingActionResetQuota": "Zerar cota grátis",
+    "billingActionAdjustBalance": "Ajustar Saldo",
+    "billingGrantPremiumPrompt": "Quantos dias de Premium devem ser concedidos ou adicionados?",
+    "billingInvalidDays": "Informe um número válido de dias.",
+    "billingConfirmRevokePremium": "Revogar o acesso Premium ativo deste usuário?",
+    "billingConfirmResetQuota": "Zerar o uso de consultas grátis deste usuário no período atual?",
+    "billingAdjustBalancePrompt": "Informe o valor para adicionar ou subtrair. Use valores negativos para remover saldo.",
+    "billingInvalidBalanceAmount": "Informe um valor válido e diferente de zero.",
+    "billingToastPremiumGranted": "Acesso Premium atualizado.",
+    "billingToastPremiumRevoked": "Acesso Premium revogado.",
+    "billingToastQuotaReset": "Cota de consultas grátis zerada.",
+    "billingToastBalanceAdjusted": "Saldo ajustado.",
+    "billingSelectedUser": "Usuário selecionado",
+    "billingActionDetails": "Detalhes da ação",
+    "billingPremiumDaysLabel": "Dias de Premium",
+    "billingBalanceAdaLabel": "Valor do Saldo",
+    "billingBalanceAdaHelp": "Use um valor positivo para adicionar Saldo ou negativo para remover Saldo.",
+    "billingNoteLabel": "Nota admin",
+    "billingNotePlaceholder": "Nota interna opcional...",
+    "billingSubmitting": "Aplicando...",
+    "billingConfirmAction": "Confirmar",
+    "billingConfirmGrantPremium": "Conceder Premium",
+    "billingGrantPremiumModalBody": "Conceda ou estenda o acesso Premium deste usuário. Se ele já tiver Premium ativo, os dias selecionados serão adicionados após a expiração atual.",
+    "billingRevokePremiumModalBody": "Revogue o acesso Premium ativo deste usuário. O entitlement Premium ativo será marcado como revogado.",
+    "billingResetQuotaModalBody": "Zere o uso de consultas grátis deste usuário no período atual.",
+    "billingAdjustBalanceModalBody": "Ajuste o Saldo CAP deste usuário. Isso cria um lançamento no ledger e atualiza o saldo da conta.",
+    "billingQuotaUsage": "{{used}}/{{limit}} ({{remaining}} rest.)",
+    "billingPaymentStatus": {
+      "pending": "Pendente",
+      "paid": "Pagou",
+      "expired": "Expirado",
+      "failed": "Falhou",
+      "cancelled": "Cancelado"
+    },
+    "billingOverviewTitle": "Visão geral de cobrança e acesso",
+    "billingOverviewSubtitle": "Métricas de alto nível sobre acesso Premium, limites de consultas grátis e saldos dos usuários.",
+    "billingOverviewLoading": "Carregando visão geral de cobrança…",
+    "billingOverviewPremiumUsers": "Usuários Premium",
+    "billingOverviewPremiumUsersCaption": "Usuários com entitlement Premium ativo",
+    "billingOverviewBlockedUsers": "Usuários bloqueados",
+    "billingOverviewBlockedUsersCaption": "Usuários que atingiram o limite grátis",
+    "billingOverviewTotalBalance": "Saldo total",
+    "billingOverviewTotalBalanceCaption": "Saldo CAP pré-pago mantido pelos usuários",
+    "billingOverviewPaidPayments": "Pagamentos confirmados",
+    "billingOverviewPaidPaymentsCaption": "Sessões de pagamento Cardano verificadas",
+    "billingOverviewPendingPayments": "Pagamentos pendentes",
+    "billingOverviewPendingPaymentsCaption": "Sessões abertas aguardando verificação",
+    "billingOverviewFreeQuotaUsed": "Uso da cota grátis",
+    "billingOverviewFreeQuotaUsedCaption": "Consultas grátis usadas no período atual",
+    "billingStatsFilteredCaption": "Filtrados: {{count}}",
+    "billingStatsBlockedShown": "Bloqueados exibidos",
+    "billingStatsBlockedShownCaption": "Usuários que atingiram o limite grátis",
+    "billingStatsPremiumShownCaption": "Usuários com Premium ativo",
+    "billingStatsBalanceShownCaption": "Saldo total nos resultados atuais",
+    "billingNotificationsTitle": "Notificações de cobrança por e-mail",
+    "billingNotificationsSubtitle": "Controle quais e-mails do ciclo de cobrança e acesso são enviados aos usuários. Essas configurações ficam no banco de dados e valem imediatamente.",
+    "billingNotificationsLoading": "Carregando configurações de notificações de cobrança…",
+    "billingNotificationsEmpty": "Nenhuma configuração de notificação de cobrança encontrada.",
+    "billingNotificationsLoadError": "Erro ao carregar configurações de notificações de cobrança",
+    "billingNotificationsSaveError": "Erro ao salvar configuração de notificação de cobrança",
+    "billingNotificationsSaved": "Configuração de notificação de cobrança salva.",
+    "billingNotificationsEnabled": "E-mails habilitados",
+    "billingNotificationsEnabledCaption": "Habilitados de {{total}} eventos configurados",
+    "billingNotificationsDefaultFlow": "Fluxo padrão de pagamento",
+    "billingNotificationsDefaultFlowValue": "Apenas e-mail final",
+    "billingNotificationsDefaultFlowCaption": "Depósitos notificam apenas depois que o Saldo é creditado.",
+    "billingNotificationsOn": "Ativo",
+    "billingNotificationsOff": "Inativo",
+    "billingNotificationGroups": {
+      "payment": "Fluxo de pagamento",
+      "premium": "Acesso Premium",
+      "support": "Apoio",
+      "autoRenewal": "Renovação automática",
+      "adminActions": "Ações admin",
+      "other": "Outros"
+    },
+    "billingNotificationEvents": {
+      "payment_session_created": {
+        "title": "Sessão de pagamento criada",
+        "description": "Envia quando o usuário cria uma sessão pendente de pagamento Cardano. Normalmente fica desabilitado para evitar e-mails extras."
+      },
+      "payment_confirmed": {
+        "title": "Pagamento confirmado genérico",
+        "description": "Envia uma confirmação genérica quando um pagamento Cardano é verificado. Normalmente fica desabilitado quando um e-mail final mais específico está habilitado."
+      },
+      "payment_failed": {
+        "title": "Falha na verificação do pagamento",
+        "description": "Envia quando uma transação informada não pode ser verificada ou não corresponde ao pagamento esperado."
+      },
+      "balance_credited": {
+        "title": "Saldo CAP creditado",
+        "description": "Envia depois que um depósito bem-sucedido é creditado no Saldo CAP do usuário."
+      },
+      "premium_activated": {
+        "title": "Premium ativado",
+        "description": "Envia quando o acesso Premium é ativado pela primeira vez após pagamento ou uso de Saldo."
+      },
+      "premium_extended": {
+        "title": "Premium estendido",
+        "description": "Envia quando um entitlement Premium existente é estendido."
+      },
+      "support_contribution_confirmed": {
+        "title": "Apoio confirmado",
+        "description": "Envia depois que um pagamento de apoio ou doação é confirmado."
+      },
+      "auto_renew_enabled": {
+        "title": "Renovação automática ativada",
+        "description": "Envia quando o usuário ativa a renovação automática do Premium usando Saldo."
+      },
+      "auto_renew_disabled": {
+        "title": "Renovação automática desativada",
+        "description": "Envia quando o usuário desativa a renovação automática do Premium usando Saldo."
+      },
+      "auto_renew_succeeded": {
+        "title": "Renovação automática concluída",
+        "description": "Envia quando o Premium é renovado automaticamente usando o Saldo CAP."
+      },
+      "auto_renew_failed": {
+        "title": "Falha na renovação automática",
+        "description": "Envia quando a renovação automática não pode ser concluída, por exemplo por Saldo insuficiente."
+      },
+      "admin_premium_granted": {
+        "title": "Admin concedeu Premium",
+        "description": "Envia quando um admin concede ou estende o acesso Premium de um usuário."
+      },
+      "admin_premium_revoked": {
+        "title": "Admin revogou Premium",
+        "description": "Envia quando um admin revoga o acesso Premium de um usuário."
+      },
+      "admin_balance_adjusted": {
+        "title": "Admin ajustou Saldo",
+        "description": "Envia quando um admin adiciona ou remove Saldo CAP de um usuário."
+      }
     }
   },
   "common": {
@@ -576,6 +737,256 @@
     "storageRequired": {
       "title": "Armazenamento bloqueado",
       "body": "O CAP precisa de armazenamento do navegador (cookies/local storage) para manter seu login. Ative o armazenamento para este site, desative o modo de privacidade estrito ou libere espaço e recarregue a página."
+    }
+  },
+  "billing": {
+    "plans": {
+      "capPremiumAccess": "Acesso CAP Premium"
+    },
+    "modal": {
+      "title": "Ativar CAP Premium",
+      "subtitle": "Pague com segurança usando sua carteira Cardano conectada. Renovação usando saldo virá em seguida.",
+      "plan": "Plano",
+      "amount": "Valor",
+      "duration": "Duração",
+      "durationDays": "{{count}} dias",
+      "network": "Rede",
+      "wallet": "Carteira",
+      "noWallet": "Não conectada",
+      "paymentAddress": "Endereço de pagamento",
+      "loadedAfterStart": "Carregado ao iniciar o pagamento",
+      "success": "Pagamento verificado. O acesso Premium está ativo.",
+      "note": "O valor e o endereço de pagamento são gerados pelo CAP antes da transação ser criada. O acesso só é liberado após verificação no backend.",
+      "eyebrow": "Acesso premium",
+      "loadingPrice": "Carregando",
+      "balanceLoading": "Lendo saldo...",
+      "walletBalance": "Saldo: {{balance}}",
+      "connectWalletToSeeBalance": "Conecte a carteira para ver o saldo.",
+      "benefits": {
+        "unlimitedQueries": "Desbloqueie consultas ilimitadas em linguagem natural durante o período ativo de 30 dias.",
+        "premiumAnalytics": "Acesse geração premium de dashboards e fluxos de análise on-chain.",
+        "walletNative": "Pague diretamente pela sua carteira Cardano, sem redirecionamento de conta.",
+        "prepaidRenewals": "Use seu saldo para futuras renovações premium.",
+        "payAsYouGoReady": "Preparado para o futuro uso pay-as-you-go por consulta.",
+        "supportOpenInfrastructure": "Apoia infraestrutura pública de analytics",
+        "supportKnowledgeGraphs": "Ajuda a manter knowledge graph e ferramentas de IA"
+      },
+      "depositEyebrow": "Saldo da conta",
+      "depositTitle": "Adicionar Saldo",
+      "depositSubtitle": "Adicione saldo à sua conta CAP para futuras renovações e análises pay-as-you-go.",
+      "depositPlanName": "Saldo CAP",
+      "prepaidCreditMeta": "Saldo da conta",
+      "supportEyebrow": "Apoiar o CAP",
+      "supportTitle": "Apoiar o desenvolvimento do CAP",
+      "supportSubtitle": "Ajude a financiar infraestrutura aberta de analytics para Cardano.",
+      "supportPlanName": "Contribuição voluntária",
+      "supportMeta": "Contribuição de apoio",
+      "supportNote": "Esta é uma contribuição voluntária. Ela não adiciona Saldo nem ativa o Premium."
+    },
+    "status": {
+      "ready": "Pronto",
+      "creatingSession": "Preparando",
+      "buildingTransaction": "Aprovação na carteira",
+      "verifying": "Aguardando on-chain",
+      "paid": "Pago",
+      "error": "Requer atenção"
+    },
+    "actions": {
+      "close": "Fechar",
+      "done": "Concluir",
+      "processing": "Processando...",
+      "payWithCardano": "Pagar com Cardano",
+      "refresh": "Atualizar",
+      "payWithAda": "Pagar com ₳DA"
+    },
+    "errors": {
+      "walletRequired": "Conecte uma carteira Cardano antes de iniciar o pagamento.",
+      "paymentFailed": "Não foi possível concluir o pagamento. Tente novamente.",
+      "txNotFound": "A transação foi enviada, mas ainda não foi indexada. Aguarde alguns segundos e tente novamente se necessário.",
+      "insufficientPaymentAmount": "A transação não incluiu o valor necessário.",
+      "paymentSessionExpired": "Esta sessão de pagamento expirou. Inicie uma nova.",
+      "missingTxHash": "Hash da transação ausente.",
+      "walletChangeAddressMissing": "A carteira não retornou um endereço de troco válido.",
+      "unsupportedCardanoNetwork": "Esta rede Cardano não é suportada para pagamento.",
+      "noSpendableUtxos": "Esta carteira não possui UTxOs disponíveis. Adicione fundos a esta carteira ou escolha outra carteira.",
+      "insufficientWalletBalance": "Saldo insuficiente. Disponível: {{balance}}. Necessário: {{required}} incluindo uma estimativa de taxa.",
+      "walletBalanceUnavailable": "O saldo da carteira não está disponível. Verifique se a carteira está desbloqueada e conectada.",
+      "walletSignTxUnavailable": "Esta carteira não suporta assinatura de transações.",
+      "walletSubmitTxUnavailable": "Esta carteira não suporta envio de transações.",
+      "paymentAddressMissing": "Endereço de pagamento ausente.",
+      "invalidPaymentAmount": "Valor de pagamento inválido.",
+      "txInputBuildFailed": "Não foi possível construir a transação com os UTxOs desta carteira. Atualize a carteira, troque de conta ou tente outra carteira.",
+      "unsupportedTransactionBuilder": "Esta versão do construtor de transações Cardano não é suportada pelo fluxo de pagamento atual.",
+      "creditDepositTooSmall": "O valor do depósito está abaixo do mínimo.",
+      "creditDepositTooLarge": "O valor do depósito está acima do máximo.",
+      "walletLocked": "Desbloqueie sua carteira Cardano e tente novamente."
+    }
+  },
+  "settingsBilling": {
+    "title": "Cobrança e Acesso",
+    "subtitle": "Gerencie acesso premium, pagamentos e futuras opções de créditos.",
+    "premiumPlan": "Acesso Premium por 30 dias",
+    "premiumDescription": "Ative análises premium por 30 dias. Renovação automática usando saldo virá em seguida.",
+    "unlock": "Desbloquear",
+    "renew": "Renovar",
+    "connectWallet": "Conectar carteira",
+    "connectedWallet": "Conectada: {{wallet}}",
+    "connectHint": "Conecte uma carteira Cardano para iniciar o fluxo de pagamento.",
+    "walletConnected": "{{wallet}} conectada para pagamento.",
+    "paymentVerified": "Pagamento verificado e acesso atualizado.",
+    "futureCredits": "Créditos pré-pagos em breve",
+    "status": {
+      "loading": "Verificando",
+      "free": "Plano gratuito",
+      "premium": "Premium ativo"
+    },
+    "errors": {
+      "statusFailed": "Não foi possível carregar o status de cobrança.",
+      "walletConnectFailed": "Não foi possível conectar esta carteira.",
+      "reconnectWalletForPayment": "Você entrou com a carteira {{wallet}}, mas ela precisa ser reconectada antes do pagamento.",
+      "depositTooSmall": "O depósito pré-pago mínimo é {{amount}}.",
+      "balanceActivationFailed": "Não foi possível ativar o Premium com Saldo. Tente novamente.",
+      "connectWalletToAddBalance": "Conecte uma carteira de pagamento para adicionar Saldo.",
+      "autoRenewSaveFailed": "Não foi possível atualizar a preferência de renovação automática. Tente novamente."
+    },
+    "prepaidTitle": "Saldo",
+    "prepaidDescription": "Adicione ₳DA agora e use depois para renovações ou análises pay-as-you-go.",
+    "prepaidHint": "Seu saldo é rastreado pelo CAP após a verificação on-chain. Ele pode ser usado para renovações Premium e futuras análises pay-as-you-go.",
+    "addBalance": "Adicionar Saldo",
+    "customDepositPlaceholder": "Valor customizado",
+    "futurePayg": "Consultas pay-as-you-go em breve",
+    "futureAutoRenew": "Renovação automática pelo Saldo já disponível",
+    "depositOptions": {
+      "explore": {
+        "label": "Explorar",
+        "hint": "Comece com um saldo prático para testar fluxos do CAP."
+      },
+      "analyze": {
+        "label": "Analisar",
+        "hint": "Um saldo útil para sessões recorrentes de análise."
+      },
+      "build": {
+        "label": "Construir",
+        "hint": "Mais espaço para dashboards, outputs salvos e análises profundas."
+      },
+      "scale": {
+        "label": "Escalar",
+        "hint": "Mais fôlego para pesquisa ativa e fluxos recorrentes."
+      },
+      "operate": {
+        "label": "Operar",
+        "hint": "Pensado para ciclos contínuos de análise e uso intensivo."
+      }
+    },
+    "activateAccess": "Ativar",
+    "extendAccess": "Estender 30 dias",
+    "futurePlanControls": "Controles de adesão/cancelamento em breve",
+    "activateWithBalance": "Ativar com Saldo",
+    "extendWithBalance": "Estender com Saldo",
+    "activating": "Ativando...",
+    "balanceActionHint": "Use seu Saldo atual para ativar ou estender o Premium.",
+    "addBalanceActionHint": "Adicione Saldo suficiente para ativar o Premium.",
+    "balanceActivationSuccess": "Acesso Premium ativado com Saldo.",
+    "connectWalletActionHint": "Conecte uma carteira Cardano para adicionar Saldo.",
+    "topUpMissingBalance": "Completar {{amount}}",
+    "balancePrefilledHint": "{{amount}} está pronto no campo de Saldo. Revise e clique em Adicionar Saldo.",
+    "planPrice": "Preço do plano",
+    "ready": "Pronto",
+    "activateWithBalanceHint": "Use seu Saldo CAP para ativar ou estender o Premium.",
+    "currentBalanceTitle": "Saldo atual",
+    "addBalanceBeforePremiumHint": "Adicione {{amount}} ao Saldo antes de ativar o Premium.",
+    "autoRenewOptIn": "Renovar Premium automaticamente pelo Saldo",
+    "autoRenewHint": "Quando ativado, o CAP renova o Premium usando seu Saldo CAP quando o acesso estiver perto de expirar.",
+    "paygOptIn": "Opt-in PAYG",
+    "paygHint": "Os controles pay-as-you-go serão adicionados em breve. Eles exigirão opt-in explícito antes de qualquer débito no Saldo.",
+    "activityTitle": "Atividade recente de cobrança",
+    "activityDescription": "Acompanhe depósitos de Saldo, ativações Premium e ajustes da conta.",
+    "activityEmpty": "Nenhuma atividade de cobrança ainda.",
+    "activityBalanceAfter": "Saldo após",
+    "activityReasons": {
+      "creditDeposit": "Depósito de Saldo",
+      "planActivation": "Premium ativado pelo Saldo",
+      "planPurchase": "Pagamento Premium",
+      "adminAdjustment": "Ajuste de Saldo pelo admin",
+      "premiumGrant": "Premium concedido",
+      "premiumRevoke": "Premium revogado",
+      "other": "Atividade de cobrança",
+      "supportContribution": "Contribuição de apoio",
+      "autoRenewal": "Renovação automática Premium"
+    },
+    "supportTitle": "Apoiar o CAP",
+    "supportDescription": "Ajude a financiar infraestrutura aberta de analytics para Cardano, incluindo pipelines de dados, infraestrutura de knowledge graph, ferramentas de IA e recursos de acesso público.",
+    "supportDisclaimer": "Contribuição voluntária. Isso não adiciona Saldo nem ativa o Premium.",
+    "supportAmountLabel": "Valor de apoio",
+    "supportCustomAmount": "Valor customizado em ₳DA",
+    "supportAction": "Apoiar com ₳DA",
+    "supportActionHint": "Continuar com sua carteira Cardano conectada.",
+    "supportCardTitle": "Apoiar analytics aberto para Cardano",
+    "supportCardDescription": "Sua contribuição ajuda a manter o desenvolvimento, a infraestrutura e os recursos públicos de analytics do CAP.",
+    "activityStatus": {
+      "pending": "Pendente",
+      "paid": "Pago",
+      "expired": "Expirado",
+      "failed": "Falhou"
+    },
+    "autoRenewWalletNote": "A renovação automática nunca cobra sua carteira automaticamente. Ela usa apenas o Saldo já adicionado à sua conta CAP.",
+    "autoRenewEnabled": "Renovação automática do Premium ativada.",
+    "autoRenewDisabled": "Renovação automática do Premium desativada.",
+    "premiumExtendThrough": "Estende o Premium até {{date}}.",
+    "premiumActivateForDays": "Ativa o Premium por {{days}} dias."
+  },
+  "connectingWallet": "Conectando {{wallet}}...",
+  "billingAccess": {
+    "badge": {
+      "loading": "Cobrança",
+      "loadingTitle": "Carregando status de cobrança",
+      "premium": "Premium",
+      "premiumTitle": "Acesso Premium ativo",
+      "blocked": "Limite atingido",
+      "blockedTitle": "Limite de consultas grátis atingido",
+      "freeRemaining": "Grátis · {{count}} rest.",
+      "freeTitle": "{{count}} consultas grátis restantes"
+    },
+    "dropdown": {
+      "premium": "Acesso Premium",
+      "free": "Plano grátis",
+      "blocked": "Limite grátis atingido",
+      "balance": "Saldo",
+      "queries": "Consultas",
+      "unlimited": "Ilimitadas",
+      "expires": "Premium ativo até {{date}}",
+      "paygComing": "Débitos pay-as-you-go usando saldo virão em seguida.",
+      "billing": "Cobrança e Acesso"
+    },
+    "paywall": {
+      "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/settings?billing=1&action=premium) para adicionar Saldo e ativar Premium.",
+      "toast": "Limite de consultas grátis atingido. Abra Cobrança e Acesso para continuar."
+    }
+  },
+  "settingsTheme": {
+    "title": "Aparência",
+    "subtitle": "Escolha o tema visual usado na interface da CAP.",
+    "options": {
+      "mobr-og": {
+        "label": "MOBR OG",
+        "description": "Interface escura original da MOBR"
+      },
+      "graphite": {
+        "label": "Graphite",
+        "description": "Tema escuro neutro para análises focadas"
+      },
+      "midnight": {
+        "label": "Midnight",
+        "description": "Tema profissional azul profundo para dashboards"
+      },
+      "paper": {
+        "label": "Paper",
+        "description": "Tema claro e limpo para relatórios e administração"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "description": "Tema retrô CLI com acentos verde fósforo"
+      }
     }
   }
 }

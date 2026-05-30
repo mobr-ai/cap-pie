@@ -20,7 +20,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/theme-tokens.css";
 import "./styles/index.css";
+import "./styles/theme-overrides.css";
 
 // i18n first
 import "./i18n";
@@ -44,6 +46,10 @@ import useSyncStatus from "./hooks/useSyncStatus";
 
 // Components
 import Header from "./components/Header";
+import { fetchBillingAccess } from "./billing/api";
+import { installThemeRouteSync } from "./theme/themeStorage";
+
+installThemeRouteSync();
 
 const SESSION_KEY = "cap_user_session";
 
@@ -115,6 +121,8 @@ function Layout() {
   const [session, setSession] = useState(getInitialSession);
 
   const [sidebarIsOpen, setSidebarOpen] = useState(false);
+  const [billingAccess, setBillingAccess] = useState(null);
+  const [billingAccessLoading, setBillingAccessLoading] = useState(false);
 
   const storageWorksRef = useRef(canUseLocalStorage());
   const storageWarnedRef = useRef(false);
@@ -212,6 +220,31 @@ function Layout() {
   const { healthOnline, capBlock, cardanoBlock, syncStatus, syncPct, syncLag } =
     useSyncStatus(session ? authFetch : null);
 
+  const refreshBillingAccess = useCallback(async () => {
+    if (!session || !authFetch) {
+      setBillingAccess(null);
+      return null;
+    }
+
+    setBillingAccessLoading(true);
+
+    try {
+      const data = await fetchBillingAccess(session);
+      setBillingAccess(data || null);
+      return data || null;
+    } catch (err) {
+      console.warn("[Billing] Failed to refresh billing access:", err);
+      setBillingAccess(null);
+      return null;
+    } finally {
+      setBillingAccessLoading(false);
+    }
+  }, [authFetch, session]);
+
+  useEffect(() => {
+    refreshBillingAccess();
+  }, [refreshBillingAccess]);
+
   const setUser = useCallback(
     (next) => {
       setSession((prev) => {
@@ -245,6 +278,9 @@ function Layout() {
       syncStatus,
       syncPct,
       syncLag,
+      billingAccess,
+      billingAccessLoading,
+      refreshBillingAccess,
     }),
     [
       session,
@@ -259,6 +295,9 @@ function Layout() {
       syncStatus,
       syncPct,
       syncLag,
+      billingAccess,
+      billingAccessLoading,
+      refreshBillingAccess,
     ],
   );
 
@@ -306,6 +345,9 @@ function Layout() {
           sidebarIsOpen={sidebarIsOpen}
           setSidebarOpen={setSidebarOpen}
           authFetch={authFetch}
+          billingAccess={billingAccess}
+          billingAccessLoading={billingAccessLoading}
+          refreshBillingAccess={refreshBillingAccess}
         />
         {loading && (
           <LoadingPage
