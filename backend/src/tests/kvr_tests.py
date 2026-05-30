@@ -189,9 +189,9 @@ async def main():
 
 if __name__ == "__main__":
     print("""
-    ╔══════════════════════════════════════════════════╗
-    ║  CAP Natural Language Query Pipeline Test Suite  ║
-    ╚══════════════════════════════════════════════════╝
+    ╔══════════════════════════════════════════════╗
+    ║  Natural Language Query Pipeline Test Suite  ║
+    ╚══════════════════════════════════════════════╝
 
     This script will test:
     - Service health check
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     - Streaming response delivery
 
     Make sure the following are running:
-    1. CAP service (python -m cap.main)
+    1. service (python -m cap.main)
     2. llm service (llm serve)
     3. Virtuoso triplestore
 

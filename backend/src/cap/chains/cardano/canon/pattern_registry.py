@@ -103,7 +103,7 @@ class PatternRegistry:
 
     SEMANTIC_SUGAR = [
         'create', 'created', 'plot', 'draw', 'indeed', 'very', 'too', 'so', 'make', 'compose',
-        'visualization', 'cardano', 'count', 'network', 'represent', 'table', 'versus', 'about',
+        'visualization', 'count', 'network', 'represent', 'table', 'versus', 'about',
         'against', 'pie', 'pizza', 'recorded', 'storage', 'storaged', "with", "all",
         'history', 'ever', 'over time', 'historical', 'progression', 'evolution',
     ]
@@ -262,13 +262,3 @@ class PatternRegistry:
     def is_pool_id(text: str) -> bool:
         """Check if text matches pool ID pattern."""
         return bool(re.match(r'["\']?(pool1[a-z0-9]{50,})["\']?', text))
-
-    @staticmethod
-    def is_utxo_ref(text: str) -> bool:
-        """Check if text matches UTXO reference pattern (txhash#index)."""
-        return bool(re.match(r'["\']?([a-f0-9]{64})#(\d+)["\']?', text, re.IGNORECASE))
-
-    @staticmethod
-    def is_cardano_address(text: str) -> bool:
-        """Check if text matches Cardano address pattern."""
-        return bool(re.match(r'["\']?(addr1[a-z0-9]{50,}|stake1[a-z0-9]{50,})["\']?', text, re.IGNORECASE))

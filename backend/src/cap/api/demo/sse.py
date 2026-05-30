@@ -1,4 +1,3 @@
-# cap/api/demo/sse.py
 import re
 from collections.abc import Iterator
 

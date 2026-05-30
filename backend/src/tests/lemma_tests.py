@@ -128,7 +128,7 @@ async def main():
 if __name__ == "__main__":
     print("""
     ╔══════════════════════════════════════════════════╗
-    ║  CAP NP Query Normalization Pipeline Test Suite  ║
+    ║  NP Query Normalization Pipeline Test Suite  ║
     ╚══════════════════════════════════════════════════╝
 
     Press Ctrl+C to cancel

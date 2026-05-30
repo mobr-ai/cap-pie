@@ -1,6 +1,5 @@
-# cap/src/cap/mailing/event_triggers.py
 """
-Mailing triggers for CAP.
+Mailing triggers.
 
 Thin wrappers around send_async_email so API/business code stays tidy.
 """
@@ -26,7 +25,7 @@ def _lang_or_default(lang: str | None) -> str:
 
 def _public_base_url() -> str:
     """Read PUBLIC_BASE_URL once, fallback to production hostname."""
-    return os.getenv("PUBLIC_BASE_URL", "https://cap.mobr.ai").rstrip("/")
+    return os.getenv("PUBLIC_BASE_URL").rstrip("/")
 
 
 def _app_url() -> str:
@@ -351,4 +350,353 @@ def on_user_access_revoked(
             "app_url": app_url or _app_url(),
         },
         template_type="security",
+    )
+
+
+# -------------------------
+# Billing triggers
+# -------------------------
+
+def _user_to_email(user: Any) -> str | None:
+    value = getattr(user, "email", None)
+    return (value or "").strip() or None
+
+
+def _user_language(user: Any, fallback: str | None = "en") -> str:
+    settings = getattr(user, "settings", None)
+    if isinstance(settings, str) and settings.strip():
+        try:
+            import json
+
+            settings = json.loads(settings)
+        except Exception:
+            settings = None
+
+    if isinstance(settings, Mapping):
+        for key in ("language", "lang", "locale", "i18nextLng"):
+            value = settings.get(key)
+            if isinstance(value, str) and value.strip():
+                return _lang_or_default(value)
+
+    return _lang_or_default(fallback)
+
+
+def _lovelace_to_ada(value: Any) -> str:
+    try:
+        ada = int(value or 0) / 1_000_000
+    except Exception:
+        ada = 0
+    return f"{ada:,.6f}".rstrip("0").rstrip(".")
+
+
+def _short(value: Any, prefix: int = 12, suffix: int = 8) -> str:
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    if len(raw) <= prefix + suffix + 3:
+        return raw
+    return f"{raw[:prefix]}...{raw[-suffix:]}"
+
+
+def _billing_app_url(path: str = "/settings?section=billing") -> str:
+    base = _app_url()
+    return f"{base}{path if path.startswith('/') else '/' + path}"
+
+
+def _session_billing_context(session: Any | None = None) -> dict[str, Any]:
+    if session is None:
+        return {}
+
+    amount = getattr(session, "amount_snapshot", None)
+    return {
+        "amount_ada": _lovelace_to_ada(amount) if amount is not None else "",
+        "plan_code": getattr(session, "plan_code_snapshot", "") or "",
+        "duration_days": getattr(session, "duration_days_snapshot", "") or "",
+        "network": getattr(session, "network_snapshot", "") or "",
+        "tx_hash_short": _short(getattr(session, "tx_hash", "")),
+        "payment_address_short": _short(getattr(session, "payment_address_snapshot", ""), 14, 10),
+        "expires_at": str(getattr(session, "expires_at", "") or ""),
+    }
+
+
+def _entitlement_billing_context(entitlement: Any | None = None) -> dict[str, Any]:
+    if entitlement is None:
+        return {}
+
+    return {
+        "plan_code": getattr(entitlement, "entitlement_code", "") or "",
+        "expires_at": str(getattr(entitlement, "expires_at", "") or ""),
+    }
+
+
+def _balance_billing_context(balance: Any | None = None) -> dict[str, Any]:
+    if balance is None:
+        return {}
+
+    return {
+        "balance_ada": _lovelace_to_ada(getattr(balance, "balance", 0)),
+    }
+
+
+def _send_billing_user_event(
+    *,
+    user: Any,
+    template: str,
+    ctx: Mapping[str, Any] | None = None,
+    language: str | None = None,
+) -> None:
+    to = _user_to_email(user)
+    if not to:
+        return
+
+    payload = {
+        "cta_url": _billing_app_url(),
+        **dict(ctx or {}),
+    }
+    _send(
+        template=template,
+        to=to,
+        language=language or _user_language(user),
+        ctx=payload,
+        template_type="billing",
+    )
+
+
+def on_billing_payment_created(
+    *,
+    user: Any,
+    session: Any,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_payment_created",
+        language=language,
+        ctx=_session_billing_context(session),
+    )
+
+
+def on_billing_payment_confirmed(
+    *,
+    user: Any,
+    session: Any,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_payment_confirmed",
+        language=language,
+        ctx=_session_billing_context(session),
+    )
+
+
+
+def on_billing_payment_failed(
+    *,
+    user: Any,
+    session: Any,
+    error_code: str | None = None,
+    received_lovelace: int | None = None,
+    expected_lovelace: int | None = None,
+    language: str | None = None,
+) -> None:
+    detail = error_code or "paymentVerificationFailed"
+    if expected_lovelace is not None:
+        detail = f"{detail} · Expected {_lovelace_to_ada(expected_lovelace)} ADA"
+        if received_lovelace is not None:
+            detail = f"{detail} · Received {_lovelace_to_ada(received_lovelace)} ADA"
+
+    _send_billing_user_event(
+        user=user,
+        template="billing_payment_failed",
+        language=language,
+        ctx={
+            **_session_billing_context(session),
+            "detail": detail,
+        },
+    )
+
+def on_billing_balance_credited(
+    *,
+    user: Any,
+    session: Any,
+    balance: Any,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_balance_credited",
+        language=language,
+        ctx={
+            **_session_billing_context(session),
+            **_balance_billing_context(balance),
+        },
+    )
+
+
+def on_billing_premium_activated(
+    *,
+    user: Any,
+    entitlement: Any,
+    session: Any | None = None,
+    balance: Any | None = None,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_premium_activated",
+        language=language,
+        ctx={
+            **_session_billing_context(session),
+            **_entitlement_billing_context(entitlement),
+            **_balance_billing_context(balance),
+        },
+    )
+
+
+def on_billing_premium_extended(
+    *,
+    user: Any,
+    entitlement: Any,
+    session: Any | None = None,
+    balance: Any | None = None,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_premium_extended",
+        language=language,
+        ctx={
+            **_session_billing_context(session),
+            **_entitlement_billing_context(entitlement),
+            **_balance_billing_context(balance),
+        },
+    )
+
+
+def on_billing_auto_renew_enabled(
+    *,
+    user: Any,
+    plan_code: str = "cap_premium_access",
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_auto_renew_enabled",
+        language=language,
+        ctx={"plan_code": plan_code},
+    )
+
+
+def on_billing_auto_renew_disabled(
+    *,
+    user: Any,
+    plan_code: str = "cap_premium_access",
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_auto_renew_disabled",
+        language=language,
+        ctx={"plan_code": plan_code},
+    )
+
+
+def on_billing_auto_renew_succeeded(
+    *,
+    user: Any,
+    entitlement: Any,
+    balance: Any,
+    amount_lovelace: int | None = None,
+    plan_code: str = "cap_premium_access",
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_auto_renew_succeeded",
+        language=language,
+        ctx={
+            "amount_ada": _lovelace_to_ada(amount_lovelace),
+            "plan_code": plan_code,
+            **_entitlement_billing_context(entitlement),
+            **_balance_billing_context(balance),
+        },
+    )
+
+
+def on_billing_auto_renew_failed(
+    *,
+    user: Any,
+    balance_lovelace: int,
+    required_lovelace: int,
+    missing_lovelace: int,
+    plan_code: str = "cap_premium_access",
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_auto_renew_failed",
+        language=language,
+        ctx={
+            "amount_ada": _lovelace_to_ada(required_lovelace),
+            "balance_ada": _lovelace_to_ada(balance_lovelace),
+            "plan_code": plan_code,
+            "detail": f"Missing {_lovelace_to_ada(missing_lovelace)} ADA.",
+        },
+    )
+
+
+def on_admin_billing_premium_granted(
+    *,
+    user: Any,
+    entitlement: Any,
+    days: int,
+    note: str | None = None,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_admin_premium_granted",
+        language=language,
+        ctx={
+            "duration_days": days,
+            "detail": note or "",
+            **_entitlement_billing_context(entitlement),
+        },
+    )
+
+
+def on_admin_billing_premium_revoked(
+    *,
+    user: Any,
+    note: str | None = None,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_admin_premium_revoked",
+        language=language,
+        ctx={"detail": note or ""},
+    )
+
+
+def on_admin_billing_balance_adjusted(
+    *,
+    user: Any,
+    amount_lovelace: int,
+    balance: Any,
+    reason: str,
+    note: str | None = None,
+    language: str | None = None,
+) -> None:
+    _send_billing_user_event(
+        user=user,
+        template="billing_admin_balance_adjusted",
+        language=language,
+        ctx={
+            "amount_ada": _lovelace_to_ada(amount_lovelace),
+            "plan_code": reason,
+            "detail": note or "",
+            **_balance_billing_context(balance),
+        },
     )

@@ -1,4 +1,3 @@
-# cap/src/cap/api/user.py
 import hashlib
 from datetime import UTC, datetime
 

@@ -1,0 +1,73 @@
+{# src/cap/mailing/templates/billing_payment_created.html #}
+{% extends "base_email.html" %}
+{% block preheader %}{{ translations.preheader or "CAP billing update." }}{% endblock %}
+{% block content %}
+<h2 style="margin: 0 0 12px 0">{{ translations.title or "Billing update" }}</h2>
+
+<p style="margin: 0 0 12px 0">{{ translations.lead or "There is an update related to your CAP billing account." }}</p>
+
+{% if detail %}
+<p style="margin: 0 0 16px 0">{{ detail }}</p>
+{% endif %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 18px 0; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+  {% if amount_ada %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.amount_label or "Amount" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ amount_ada }} ADA</td>
+  </tr>
+  {% endif %}
+  {% if balance_ada %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.balance_label or "CAP Balance" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ balance_ada }} ADA</td>
+  </tr>
+  {% endif %}
+  {% if plan_code %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.plan_label or "Plan" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ plan_code }}</td>
+  </tr>
+  {% endif %}
+  {% if duration_days %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.duration_label or "Duration" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ duration_days }} {{ translations.days_label or "days" }}</td>
+  </tr>
+  {% endif %}
+  {% if expires_at %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.expires_label or "Expires" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ expires_at }}</td>
+  </tr>
+  {% endif %}
+  {% if network %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.network_label or "Network" }}</td>
+    <td align="right" style="padding: 10px 12px; font-weight: 600; border-bottom: 1px solid #e5e7eb;">{{ network }}</td>
+  </tr>
+  {% endif %}
+  {% if tx_hash_short %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px; border-bottom: 1px solid #e5e7eb;">{{ translations.tx_label or "Transaction" }}</td>
+    <td align="right" style="padding: 10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; border-bottom: 1px solid #e5e7eb;">{{ tx_hash_short }}</td>
+  </tr>
+  {% endif %}
+  {% if payment_address_short %}
+  <tr>
+    <td style="padding: 10px 12px; color: #6b7280; font-size: 13px;">{{ translations.address_label or "Payment address" }}</td>
+    <td align="right" style="padding: 10px 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;">{{ payment_address_short }}</td>
+  </tr>
+  {% endif %}
+</table>
+
+{% if cta_url %}
+<p style="margin: 0 0 16px 0">
+  <a href="{{ cta_url }}" class="btn" style="display: inline-block; padding: 10px 18px; border-radius: 999px; background-color: #2563eb; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none; line-height: 1.2;">
+    {{ translations.cta_label or "Open CAP" }}
+  </a>
+</p>
+{% endif %}
+
+<p style="color: #6b7280; font-size: 12px; margin: 0">{{ translations.footer or "This is an automated billing message from the Cardano Analytics Platform (CAP)." }}</p>
+{% endblock %}

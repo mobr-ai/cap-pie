@@ -6,7 +6,6 @@ from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
-# Ensure 'src' is on sys.path so "import cap" works when running from this folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 from cap.database.model import Base
 
@@ -35,7 +34,19 @@ if config.config_file_name is not None:
 
 # --- Import model metadata for autogenerate ---
 # Only manage these tables with Alembic
-MANAGED_TABLES = {"user"}
+MANAGED_TABLES = {
+    "user",
+    "cardano_auth_challenge",
+    "billing_plan",
+    "billing_price",
+    "billing_payment_address",
+    "payment_session",
+    "user_entitlement",
+    "user_credit_ledger",
+    "user_credit_balance",
+    "user_usage_period",
+    "billing_feature_config",
+}
 
 def include_object(object, name, type_, reflected, compare_to):
     # Ignore all tables not in MANAGED_TABLES

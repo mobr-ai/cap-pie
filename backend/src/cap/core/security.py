@@ -1,4 +1,3 @@
-# cap/core/security.py
 import os
 import re
 import secrets
@@ -10,8 +9,14 @@ import bcrypt
 import jwt  # PyJWT
 from fastapi import HTTPException
 
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret")
+JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")
+
+if not JWT_SECRET:
+    raise RuntimeError("JWT_SECRET is not set. Define it in .env or the deployment environment.")
+
+if JWT_ALG.startswith("HS") and len(JWT_SECRET.encode("utf-8")) < 32:
+    raise RuntimeError("JWT_SECRET must be at least 32 bytes for HMAC JWT algorithms.")
 
 def hash_password(pw: str) -> str:
     return bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode()

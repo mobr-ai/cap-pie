@@ -28,15 +28,17 @@ from cap.api.user import router as user_router
 from cap.api.user_admin import router as user_admin_router
 from cap.api.waitlist import router as wait_router
 from cap.api.waitlist_admin import router as wait_admin_router
+from cap.chains.registry import get_chain
 from cap.config import settings
 from cap.database.model import Base
 from cap.database.session import engine
-from cap.rdf.triplestore import TriplestoreClient
 from cap.services.llm_client import cleanup_llm_client, get_llm_client
 from cap.services.redis_nl_client import cleanup_redis_nl_client
 from cap.telemetry import instrument_app, setup_telemetry
 
 load_dotenv()
+
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL")
 
 # Allowed frontend origins (comma-separated env optional)
 DEFAULT_CORS = [
@@ -45,7 +47,7 @@ DEFAULT_CORS = [
     "http://0.0.0.0:8000",     # Local dev server
     "http://localhost:8000",   # Local dev server
     "http://127.0.0.1:8000",   # Local dev server
-    "https://cap.mobr.ai",     # production
+    PUBLIC_BASE_URL,           # production
 ]
 ENV_CORS = os.getenv("CORS_ORIGINS", "")
 ALLOWED_ORIGINS = [o.strip() for o in ENV_CORS.split(",") if o.strip()] or DEFAULT_CORS
@@ -56,78 +58,6 @@ tracer = trace.get_tracer(__name__)
 
 # Set uvloop as the event loop policy
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
-async def initialize_graph(client: TriplestoreClient, graph_uri: str, ontology_path: str) -> bool:
-    """Initialize a graph with ontology data if it doesn't exist."""
-    with tracer.start_as_current_span("initialize_graph") as span:
-        span.set_attribute("graph_uri", graph_uri)
-        span.set_attribute("ontology_path", ontology_path)
-
-        try:
-            exists = await client.check_graph_exists(graph_uri)
-
-            if not exists:
-                span.set_attribute("creating_new_graph", True)
-
-                if ontology_path != "":
-                    with open(ontology_path) as f:
-                        turtle_data = f.read()
-                else:
-                    turtle_data = ""
-
-                await client.create_graph(graph_uri, turtle_data)
-                exists = await client.check_graph_exists(graph_uri)
-                if exists:
-                    logger.info(f"Successfully initialized graph: {graph_uri}")
-                    return True
-
-                logger.error(f"Could not create graph: {graph_uri}")
-                return False
-
-            logger.info(f"Graph already exists: {graph_uri}")
-            return False
-
-        except Exception as e:
-            span.set_attribute("error", str(e))
-            logger.error(f"Failed to initialize graph {graph_uri}: {e}")
-            raise RuntimeError(
-                f"Failed to initialize graph {graph_uri}: {e}"
-            ) from e
-
-
-async def initialize_required_graphs(client: TriplestoreClient) -> None:
-    """Initialize all required graphs for the application."""
-    with tracer.start_as_current_span("initialize_required_graphs") as span:
-        required_graphs = [
-            (settings.CARDANO_GRAPH, settings.ONTOLOGY_PATH),
-            (f"{settings.CARDANO_GRAPH}/metadata", ""),
-        ]
-
-        initialization_results = []
-        for graph_uri, ontology_path in required_graphs:
-            try:
-                if ontology_path:
-                    result = await initialize_graph(client, graph_uri, ontology_path)
-                else:
-                    # Create empty graph for data
-                    exists = await client.check_graph_exists(graph_uri)
-                    if not exists:
-                        await client.create_graph(graph_uri, "")
-                        logger.info(f"Created empty graph: {graph_uri}")
-                        result = True
-                    else:
-                        result = False
-
-                initialization_results.append((graph_uri, result))
-            except Exception as e:
-                logger.error(f"Failed to initialize graph {graph_uri}: {e}")
-                raise RuntimeError(
-                    f"Application startup failed: {e}"
-                ) from e
-
-        span.set_attribute("initialization_results", str(initialization_results))
-        logger.info("Graph initialization completed successfully")
 
 
 @asynccontextmanager
@@ -164,8 +94,8 @@ def setup_tracing():
 def create_application() -> FastAPI:
     setup_tracing()
     app = FastAPI(
-        title="CAP",
-        description="Cardano Analytics Platform powered by LLM",
+        title=settings.APP_NAME,
+        description=settings.APP_DESCRIPTION,
         version="0.2.0",
         lifespan=lifespan,
     )
@@ -200,6 +130,14 @@ def create_application() -> FastAPI:
     app.include_router(conversation_router)
     app.include_router(conversation_admin_router)
 
+    chain = get_chain()
+
+    for router in chain.api_routers():
+        app.include_router(router)
+
+    for router in chain.admin_api_routers():
+        app.include_router(router)
+
     return app
 
 
@@ -222,8 +160,8 @@ with engine.begin() as conn:
     )
 
 # Paths
-CAP_DIR = os.path.dirname(__file__)
-FRONTEND_DIST = os.getenv("FRONTEND_DIST", os.path.join(CAP_DIR, "static"))
+APP_DIR = os.path.dirname(__file__)
+FRONTEND_DIST = os.getenv("FRONTEND_DIST", os.path.join(APP_DIR, "static"))
 INDEX_HTML = os.path.join(FRONTEND_DIST, "index.html")
 
 # 1) Serve built assets (safe: only mount if present)
@@ -232,7 +170,7 @@ if os.path.isdir(assets_dir):
     app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 # Share page static ("shared_pages")
-SHARED_PAGES_DIR = os.path.join(CAP_DIR, "shared_pages")
+SHARED_PAGES_DIR = os.path.join(APP_DIR, "shared_pages")
 if os.path.isdir(SHARED_PAGES_DIR):
     app.mount(
         "/share-static",
@@ -252,7 +190,7 @@ async def favicon():
 @app.get("/llm", include_in_schema=False)
 async def llm_interface():
     """Serve the LLM natural language query interface."""
-    llm_page = os.path.join(CAP_DIR, "templates", "llm.html")
+    llm_page = os.path.join(APP_DIR, "templates", "llm.html")
     if os.path.isfile(llm_page):
         return FileResponse(llm_page)
     raise HTTPException(status_code=404, detail="LLM interface not found")

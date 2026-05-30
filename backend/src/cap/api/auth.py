@@ -1,5 +1,3 @@
-# cap/src/cap/api/auth.py
-import hashlib
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -27,7 +25,7 @@ try:
         on_confirmation_resent,  # notify user that a new confirmation email was sent
         on_oauth_login,  # notify / log OAuth login
         on_user_confirmed,  # notify / log that user confirmed their email
-        on_user_registered,  # existing in CAP (confirm-your-email)
+        on_user_registered,  # existing user (confirm-your-email)
         on_waiting_list_joined,  # notify user joined waiting list
         on_wallet_login,  # notify / log Cardano wallet login
     )
@@ -44,7 +42,7 @@ except Exception:
 route_prefix = "/api/v1"
 router = APIRouter(prefix=route_prefix, tags=["auth"])
 
-PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL")  # e.g. "https://cap.mobr.ai"
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL")
 
 def _stable_base_url(request: Request) -> str:
     """Prefer PUBLIC_BASE_URL to avoid localhost/0.0.0.0 links; fallback to request base_url."""
@@ -94,13 +92,6 @@ class GoogleIn(BaseModel):
     token: str
     token_type: str | None = None
     remember_me: bool = False
-    language: str | None = "en"
-    ref: str | None = ""
-
-
-class CardanoIn(BaseModel):
-    address: str
-    remember_me: bool = True
     language: str | None = "en"
     ref: str | None = ""
 
@@ -405,8 +396,9 @@ def login(data: LoginIn, db: Session = Depends(get_db)):
 @router.post("/auth/google")
 def auth_google(data: GoogleIn, request: Request, db: Session = Depends(get_db)):
     try:
+        token_type = getattr(data, "token_type", None)
         info = get_userinfo_from_access_token_or_idtoken(
-            data.token, getattr(data, "token_type", None)
+            data.token, token_type if isinstance(token_type, str) else None
         )
 
         google_id = info["sub"]
@@ -520,59 +512,4 @@ def auth_google(data: GoogleIn, request: Request, db: Session = Depends(get_db))
         ) from e
 
 
-# ---- Cardano wallet auth (simplified flow) ----
-@router.post("/auth/cardano")
-def cardano_auth(data: CardanoIn, db: Session = Depends(get_db)):
-    if not data.address:
-        raise HTTPException(400, detail="missingWalletAddress")
 
-    user = db.query(User).filter(User.wallet_address == data.address).first()
-
-    if not user:
-        suffix = int(hashlib.sha256(data.address.encode()).hexdigest(), 16) % 1_000_000
-        username = f"cardano_user{suffix}"
-        if db.query(User).filter(User.username == username).first():
-            username = generate_unique_username(db, User, preferred=username)
-
-        display_name = f"{data.address[:8]}...{data.address[-5:]}"
-        user = User(
-            username=username,
-            wallet_address=data.address,
-            display_name=display_name,
-            is_confirmed=False,  # do not auto-confirm
-            is_admin=False,
-        )
-        db.add(user)
-        db.commit()
-
-        maybe_notify_admins_new_user(db, user, source="cardano")
-
-    # If not confirmed, do not issue token
-    if not bool(user.is_confirmed):
-        # Note: waiting_list table is email-based today; wallet users still become "pending"
-        return {
-            "status": "pending_confirmation",
-            "id": user.user_id,
-            "wallet_address": user.wallet_address,
-        }
-
-    token = make_access_token(str(user.user_id), remember=data.remember_me)
-
-    if user.email:
-        on_wallet_login(
-            to=[user.email],
-            language=(data.language or "en"),
-            wallet_address=data.address,
-        )
-
-    return {
-        "id": user.user_id,
-        "username": user.username,
-        "wallet_address": user.wallet_address,
-        "display_name": user.display_name,
-        "email": user.email,
-        "avatar": user.avatar,
-        "settings": user.settings,
-        "is_admin": getattr(user, "is_admin", False),
-        "access_token": token,
-    }

@@ -3,7 +3,6 @@ Natural language query API endpoint using LLM.
 Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
 """
 import logging
-from itertools import cycle
 
 from opentelemetry import trace
 
@@ -28,27 +27,6 @@ class StatusMessage:
     @staticmethod
     def processing_query() -> str:
         return "status: Processing your query\n"
-
-    @staticmethod
-    def generating_sparql() -> str:
-        return "status: Analyzing how to consume the knowledge graph\n"
-
-    @staticmethod
-    def executing_query() -> str:
-        return "status: Fetching contextual data from knowledge graph\n"
-
-    @staticmethod
-    def no_results() -> str:
-        return "status: No context found, thinking more\n"
-
-    @staticmethod
-    def processing_results() -> str:
-        return "status: Analyzing context and preparing answer\n"
-
-    @staticmethod
-    def get_thinking_message_cycle():
-        """Get cycling iterator for thinking messages."""
-        return cycle(StatusMessage.THINKING_MESSAGES)
 
     @staticmethod
     def no_data() -> str:

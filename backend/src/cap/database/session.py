@@ -1,4 +1,3 @@
-# cap/src/cap/database/session.py
 import os
 from collections.abc import Generator
 
@@ -8,7 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 load_dotenv()  # must be first
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://usernotdefined:pass@localhost/cap")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(
     DATABASE_URL,

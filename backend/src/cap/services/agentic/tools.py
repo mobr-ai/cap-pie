@@ -3,12 +3,12 @@ from typing import Any
 
 from langchain_core.tools import tool
 
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
-from cap.rdf.cache.query_normalizer import QueryNormalizer
 from cap.services.redis_nl_client import RedisNLClient
 from cap.services.similarity_service import SimilarityService
-from cap.util.sparql_result_processor import convert_sparql_to_kv, format_for_llm
+from cap.util.sparql_result_processor import convert_sparql_to_kv
 
 
 @tool
@@ -96,7 +96,7 @@ def format_execution_context(
             sparql_results,
             federated_query.sparql,
         )
-        sections.append(format_for_llm(kv_results))
+        sections.append(kv_results)
 
     if federated_query.sql:
         sql_kv = {

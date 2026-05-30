@@ -18,7 +18,7 @@ def virtuoso_client():
 
 @pytest.fixture
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
-    base_url = f"http://{settings.CAP_HOST}:{settings.CAP_PORT}"
+    base_url = f"http://{settings.APP_HOST}:{settings.APP_PORT}"
     logger.debug(f"Creating async client with base_url: {base_url}")
 
     async with AsyncClient(

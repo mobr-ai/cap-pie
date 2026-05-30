@@ -14,13 +14,12 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from cap.rdf.cache.query_normalizer import QueryNormalizer
+from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.llm_client import get_llm_client
 from cap.services.redis_nl_client import get_redis_nl_client
 from cap.services.similarity_service import SearchStrategy
 from cap.services.sparql_service import execute_sparql
-from cap.util.sparql_result_processor import convert_sparql_to_kv, format_for_llm
-from cap.util.sparql_util import detect_and_parse_sparql
+from cap.util.sparql_result_processor import convert_sparql_to_kv
 
 
 @dataclass
@@ -116,7 +115,6 @@ async def run_pipeline(
     # ---------- final answer generation (required) ----------
     t_final_start = time.time()
     kv = convert_sparql_to_kv(sparql_results)
-    kv_for_llm = format_for_llm(kv)
 
     prompt = f"""
 User Question: {user_query}
@@ -124,7 +122,7 @@ User Question: {user_query}
 Current utc date and time: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}.
 
 This is the data you MUST consider in your answer:
-{kv_for_llm}
+{kv}
 """
     if len(prompt) > 18000:
         prompt = prompt[:18000]

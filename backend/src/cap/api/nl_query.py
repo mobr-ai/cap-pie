@@ -17,6 +17,11 @@ from sqlalchemy.orm import Session
 from cap.core.auth_dependencies import get_current_user_unconfirmed
 from cap.database.model import ConversationMessage, QueryMetrics, User
 from cap.database.session import get_db
+from cap.services.billing_access import (
+    BillingAccessDenied,
+    check_nl_query_access,
+    consume_nl_query_success,
+)
 from cap.services.conversation_persistence import (
     persist_assistant_message_and_touch,
     persist_conversation_artifact_from_raw_kv,
@@ -95,7 +100,7 @@ def iter_word_safe_chunks(text: str, max_len: int = 96):
     r"""
     Yield chunks without splitting inside words.
 
-    Consumes tokens as: non-space + trailing whitespace (\S+\s*).
+    Consumes tokens as: non-space + trailing whitespace (\\S+\\s*).
     Preserves spaces exactly; avoids 'thiswould' / 'mint ed' regressions
     caused by fixed-width slicing or trimming.
     """
@@ -126,6 +131,29 @@ def iter_word_safe_chunks(text: str, max_len: int = 96):
 
     if buf:
         yield buf
+
+def is_billable_assistant_text(text: str) -> bool:
+    value = (text or "").strip()
+    if not value:
+        return False
+
+    lowered = value.lower()
+
+    non_billable_markers = (
+        "error:",
+        "error generating answer",
+        "client error",
+        "server error",
+        "http error",
+        "unauthorized",
+        "for more information check:",
+        "failed to generate",
+        "failed to execute",
+    )
+
+    return not any(marker in lowered for marker in non_billable_markers)
+
+
 
 def parse_sse_payload_from_line(line: str) -> str:
     """
@@ -191,6 +219,17 @@ async def natural_language_query(
     """
     with tracer.start_as_current_span("nl_query_pipeline") as span:
         span.set_attribute("query", request.query)
+
+        # 0) Billing access enforcement
+        if current_user is None:
+            raise HTTPException(status_code=401, detail="authenticationRequired")
+
+        try:
+            billing_access = check_nl_query_access(db, current_user)
+            span.set_attribute("billing.access_mode", billing_access.get("access_mode", "unknown"))
+            span.set_attribute("billing.free_query_remaining", billing_access.get("free_query_remaining", 0))
+        except BillingAccessDenied as exc:
+            raise HTTPException(status_code=402, detail=exc.payload) from exc
 
         # 1) Conversation + user message
         persist = current_user is not None
@@ -260,6 +299,7 @@ async def natural_language_query(
 
             # word-safe streaming buffer
             pending_text = ""
+            carry = ""
             stop_stream = False
 
             async def flush_pending(force: bool = False):
@@ -307,22 +347,17 @@ async def natural_language_query(
                 else:
                     text = str(chunk)
 
-                # query_with_stream_response may return partial lines; we need a small carry buffer
-                # to safely split into full lines.
-                # We'll handle this by accumulating into a local buffer per-iteration.
-                # (Keep it inside generator state.)
-                if not hasattr(stream_and_persist, "_carry"):
-                    stream_and_persist._carry = ""
-                carry = stream_and_persist._carry
+                # query_with_stream_response may return partial lines; keep a typed
+                # local carry buffer instead of mutating the function object.
                 carry += text
                 lines = carry.splitlines(keepends=False)
 
                 # If the chunk did not end in a newline, last element is incomplete.
                 # Keep it in carry for next iteration.
                 if carry and not carry.endswith("\n") and not carry.endswith("\r\n"):
-                    stream_and_persist._carry = lines.pop() if lines else carry
+                    carry = lines.pop() if lines else carry
                 else:
-                    stream_and_persist._carry = ""
+                    carry = ""
 
                 for raw_line in lines:
                     line = raw_line.rstrip("\r")
@@ -505,6 +540,19 @@ async def natural_language_query(
                         )
 
                     db.commit()
+
+                    if current_user is not None and is_billable_assistant_text(assistant_text):
+                        try:
+                            next_access = consume_nl_query_success(db, current_user)
+                            span.set_attribute(
+                                "billing.free_query_remaining_after",
+                                next_access.get("free_query_remaining", 0),
+                            )
+                        except Exception as billing_err:
+                            logger.error(
+                                "Failed to consume successful NL query usage: %s",
+                                billing_err,
+                            )
                 except Exception as e:
                     db.rollback()
                     logger.error(f"Failed to persist assistant message: {e}")
@@ -560,3 +608,5 @@ async def get_cache_stats():
     except Exception as e:
         logger.error(f"Cache stats error: {e}")
         return {"error": str(e)}
+
+

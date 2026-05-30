@@ -7,8 +7,8 @@ import unicodedata
 
 from opentelemetry import trace
 
-from cap.rdf.cache.pattern_registry import PatternRegistry
-from cap.rdf.cache.semantic_matcher import SemanticMatcher
+from cap.chains.cardano.canon.pattern_registry import PatternRegistry
+from cap.chains.cardano.canon.semantic_matcher import SemanticMatcher
 from cap.util.nlp_util import lemmatize_text
 
 logger = logging.getLogger(__name__)
@@ -87,11 +87,9 @@ class QueryNormalizer:
 
             # System and Status
             PatternRegistry.build_entity_pattern(PatternRegistry.STATUS_TERMS): 'ENTITY_STATUS',
-            r'\b((what is happening|what up (cardano)s?)s?)s?\b': 'ENTITY_STATUS',
-
             PatternRegistry.build_entity_pattern(PatternRegistry.REWARD_TERMS): 'ENTITY_REWARD_WITHDRAWAL',
 
-            PatternRegistry.build_entity_pattern(PatternRegistry.POOL_TERMS) + r'(?!\s+owner)': 'ENTITY_POOL',
+            PatternRegistry.build_entity_pattern(PatternRegistry.POOL_TERMS): 'ENTITY_POOL',
             PatternRegistry.build_entity_pattern(PatternRegistry.SLOT_TERMS): 'ENTITY_SLOT_LEADER',
             PatternRegistry.build_entity_pattern(PatternRegistry.ACCOUNT_TERMS): 'ENTITY_ACCOUNT',
             PatternRegistry.build_entity_pattern(PatternRegistry.TRANSACTION_TERMS): 'ENTITY_TX',

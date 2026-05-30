@@ -1,4 +1,3 @@
-# cap/mailing/email_service.py
 import json
 import os
 import threading
@@ -15,10 +14,10 @@ load_dotenv()
 
 # ---- Config ----
 RESEND_API_KEY = os.environ["RESEND_API_KEY"]
-SERVICE_MAIL = os.environ.get("SERVICE_MAIL", "team@mail.cap.mobr.ai")  # verified in Resend
-PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "https://cap.mobr.ai")    # used to build absolute links
-CAP_LOGO_URL = os.environ.get("CAP_LOGO_URL", "https://cap.mobr.ai/icons/logo.png")
-CAP_UNSUB_URL = os.environ.get("CAP_UNSUB_URL", f"{PUBLIC_BASE_URL}/unsubscribe")
+SERVICE_MAIL = os.environ.get("SERVICE_MAIL")
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000")
+APP_LOGO_URL = os.environ.get("APP_LOGO_URL", f"{PUBLIC_BASE_URL}/icons/logo.png")
+APP_UNSUB_URL = os.environ.get("APP_UNSUB_URL", f"{PUBLIC_BASE_URL}/unsubscribe")
 
 HERE = Path(__file__).resolve().parent
 
@@ -76,8 +75,8 @@ def render_template(template_name: str, language: str, **kwargs) -> str:
     return template.render(
         translations=merged_tr,
         language=lang,
-        cap_logo_url=CAP_LOGO_URL,
-        unsubscribe_url=CAP_UNSUB_URL,
+        cap_logo_url=APP_LOGO_URL,
+        unsubscribe_url=APP_UNSUB_URL,
         public_base_url=PUBLIC_BASE_URL.rstrip("/"),
         **kwargs,
     )
@@ -97,9 +96,6 @@ def send_email(
             "to": to_email if isinstance(to_email, list) else [to_email],
             "subject": subject,
             "html": html,
-            # Optional:
-            # "reply_to": "support@cap.mobr.ai",
-            # "text": strip_tags_if_you_want(html),
         })
         print(f"[mailing] ✅ sent '{template_name}' to {to_email}")
         return response
