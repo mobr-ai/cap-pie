@@ -4282,3 +4282,854 @@ body,
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
 }
 
+
+/* --------------------------------------------------------------------------
+   Terminal theme UI coverage
+   Retro CLI inspired theme with phosphor green accents across shell, admin,
+   settings, dashboard, landing/chat, analyses, loading state, and modals.
+   -------------------------------------------------------------------------- */
+
+[data-theme="terminal"] {
+  --terminal-bg: #020403;
+  --terminal-bg-soft: #030806;
+  --terminal-bg-raised: #06120d;
+  --terminal-bg-elevated: #091a13;
+
+  --terminal-card: #07140f;
+  --terminal-card-soft: #0a1c14;
+  --terminal-card-muted: #0d241a;
+
+  --terminal-border: rgba(34, 197, 94, 0.18);
+  --terminal-border-strong: rgba(34, 197, 94, 0.36);
+
+  --terminal-text: #d9ffe5;
+  --terminal-text-soft: #b7f7c8;
+  --terminal-muted: #75b985;
+  --terminal-faint: rgba(183, 247, 200, 0.56);
+
+  --terminal-primary: #22c55e;
+  --terminal-primary-hover: #86efac;
+  --terminal-accent: #39ff88;
+  --terminal-accent-soft: rgba(57, 255, 136, 0.12);
+
+  --terminal-shadow: 0 18px 52px rgba(0, 0, 0, 0.58);
+  --terminal-shadow-large: 0 30px 96px rgba(0, 0, 0, 0.72);
+}
+
+/* Subtle terminal scanline layer */
+[data-theme="terminal"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(57, 255, 136, 0.025) 50%, rgba(0, 0, 0, 0) 50%),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.015), rgba(0, 0, 0, 0));
+  background-size: 100% 4px, 6px 100%;
+  opacity: 0.42;
+}
+
+[data-theme="terminal"] #root,
+[data-theme="terminal"] #outer-container,
+[data-theme="terminal"] #page-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* App shell */
+[data-theme="terminal"] html,
+[data-theme="terminal"] body,
+[data-theme="terminal"] #root,
+[data-theme="terminal"] #outer-container,
+[data-theme="terminal"] #page-wrap {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(57, 255, 136, 0.06), transparent 38%),
+    linear-gradient(135deg, #020403 0%, #030806 48%, #06120d 100%) !important;
+  color: var(--terminal-text) !important;
+}
+
+/* Optional monospace flavor without breaking charts too much */
+[data-theme="terminal"] body,
+[data-theme="terminal"] button,
+[data-theme="terminal"] input,
+[data-theme="terminal"] textarea,
+[data-theme="terminal"] select {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace !important;
+}
+
+/* Navbar and sidebar */
+[data-theme="terminal"] .cap-navbar,
+[data-theme="terminal"] .cap-sidebar {
+  background:
+    linear-gradient(180deg, rgba(7, 20, 15, 0.98), rgba(2, 4, 3, 0.98)) !important;
+  color: var(--terminal-text-soft) !important;
+  border-color: var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .Navbar-brand-slot,
+[data-theme="terminal"] .navbar-user-name,
+[data-theme="terminal"] .navbar-user-title,
+[data-theme="terminal"] .navbar-lang-title,
+[data-theme="terminal"] .navbar-account-name,
+[data-theme="terminal"] .navbar-account-metrics strong,
+[data-theme="terminal"] .nav-link,
+[data-theme="terminal"] .sidebar-item,
+[data-theme="terminal"] .sidebar-item svg,
+[data-theme="terminal"] .sidebar-header-collapse,
+[data-theme="terminal"] .sidebar-header-collapse svg,
+[data-theme="terminal"] .sidebar-expand-chevron,
+[data-theme="terminal"] .sidebar-conversation,
+[data-theme="terminal"] .sidebar-conversation-title,
+[data-theme="terminal"] .status-item .value,
+[data-theme="terminal"] .cap-sync-label {
+  color: var(--terminal-text-soft) !important;
+}
+
+[data-theme="terminal"] .sidebar-section-title,
+[data-theme="terminal"] .sidebar-footer,
+[data-theme="terminal"] .sidebar-conversation-preview,
+[data-theme="terminal"] .sidebar-conversations-empty,
+[data-theme="terminal"] .status-item .label,
+[data-theme="terminal"] .navbar-account-plan,
+[data-theme="terminal"] .navbar-account-note,
+[data-theme="terminal"] .navbar-account-metrics span {
+  color: var(--terminal-muted) !important;
+}
+
+[data-theme="terminal"] .sidebar-header-main,
+[data-theme="terminal"] .sidebar-header-collapse,
+[data-theme="terminal"] .sidebar-conversation,
+[data-theme="terminal"] .sidebar-conv-menu-btn,
+[data-theme="terminal"] .sidebar-conv-menu,
+[data-theme="terminal"] .navbar-account-summary,
+[data-theme="terminal"] .navbar-account-metrics > div,
+[data-theme="terminal"] .dropdown-menu-dark,
+[data-theme="terminal"] .navbar .dropdown-menu-dark {
+  background: rgba(7, 20, 15, 0.86) !important;
+  color: var(--terminal-text-soft) !important;
+  border-color: var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .sidebar-item:hover,
+[data-theme="terminal"] .sidebar-conversation:hover,
+[data-theme="terminal"] .sidebar-conv-menu-btn:hover,
+[data-theme="terminal"] .dropdown-menu-dark .dropdown-item:hover {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(34, 197, 94, 0.34) !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .sidebar-item.active,
+[data-theme="terminal"] .sidebar-conversation.active {
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(57, 255, 136, 0.08)) !important;
+  border-color: rgba(57, 255, 136, 0.5) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="terminal"] .sidebar-item.logout {
+  background: rgba(251, 113, 133, 0.08) !important;
+  border-color: rgba(251, 113, 133, 0.24) !important;
+  color: #fecdd3 !important;
+}
+
+/* Core surfaces */
+[data-theme="terminal"] .Settings-body,
+[data-theme="terminal"] .AdminPage,
+[data-theme="terminal"] .AdminPage-inner,
+[data-theme="terminal"] .AdminPage.container,
+[data-theme="terminal"] .DashboardPage,
+[data-theme="terminal"] .dashboard-page,
+[data-theme="terminal"] .dashboard-container,
+[data-theme="terminal"] .AnalysesPage,
+[data-theme="terminal"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(57, 255, 136, 0.06), transparent 38%),
+    linear-gradient(135deg, #020403 0%, #030806 48%, #06120d 100%) !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .Settings-container,
+[data-theme="terminal"] .Settings-user-box,
+[data-theme="terminal"] .Settings-billing-zone,
+[data-theme="terminal"] .Settings-billing-panel,
+[data-theme="terminal"] .Settings-balance-panel,
+[data-theme="terminal"] .Settings-payment-methods,
+[data-theme="terminal"] .Settings-deposit-panel,
+[data-theme="terminal"] .Settings-support-section,
+[data-theme="terminal"] .Settings-theme-section,
+[data-theme="terminal"] .Settings-activity-row,
+[data-theme="terminal"] .Settings-premium-metrics > div,
+[data-theme="terminal"] .Settings-billing-toggle,
+[data-theme="terminal"] .AdminPage .admin-section,
+[data-theme="terminal"] .AdminPage .admin-card,
+[data-theme="terminal"] .AdminPage .admin-metric-card,
+[data-theme="terminal"] .AdminPage .admin-stat-card,
+[data-theme="terminal"] .AdminPage .admin-notify-card,
+[data-theme="terminal"] .AdminPage .admin-table-wrapper,
+[data-theme="terminal"] .AdminPage .admin-table-card,
+[data-theme="terminal"] .AdminPage .admin-panel,
+[data-theme="terminal"] .dashboard-widget,
+[data-theme="terminal"] .dashboard-widget-card,
+[data-theme="terminal"] .dashboard-card,
+[data-theme="terminal"] .widget-card,
+[data-theme="terminal"] .dashboard-grid > *,
+[data-theme="terminal"] .analyses-note,
+[data-theme="terminal"] .analyses-loading,
+[data-theme="terminal"] .analyses-empty,
+[data-theme="terminal"] .analyses-card {
+  background:
+    linear-gradient(180deg, rgba(9, 26, 19, 0.96), rgba(3, 8, 6, 0.96)) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+  box-shadow:
+    var(--terminal-shadow),
+    inset 0 0 0 1px rgba(57, 255, 136, 0.025) !important;
+}
+
+/* Admin spacing */
+[data-theme="terminal"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+
+/* Text */
+[data-theme="terminal"] .Settings-title,
+[data-theme="terminal"] .Settings-section-title,
+[data-theme="terminal"] .Settings-primary-name,
+[data-theme="terminal"] .Settings-billing-plan,
+[data-theme="terminal"] .Settings-billing-balance,
+[data-theme="terminal"] .Settings-deposit-chip-amount,
+[data-theme="terminal"] .Settings-support-section-header h5,
+[data-theme="terminal"] .Settings-payment-methods-title,
+[data-theme="terminal"] .Settings-billing-toggle-copy strong,
+[data-theme="terminal"] .Settings-activity-reason,
+[data-theme="terminal"] .Settings-premium-metrics strong,
+[data-theme="terminal"] .AdminPage h1,
+[data-theme="terminal"] .AdminPage h2,
+[data-theme="terminal"] .AdminPage h3,
+[data-theme="terminal"] .AdminPage h4,
+[data-theme="terminal"] .AdminPage h5,
+[data-theme="terminal"] .admin-section-title,
+[data-theme="terminal"] .admin-header h1,
+[data-theme="terminal"] .dashboard-title,
+[data-theme="terminal"] .dashboard-page h1,
+[data-theme="terminal"] .dashboard-page h2,
+[data-theme="terminal"] .dashboard-page h3,
+[data-theme="terminal"] .dashboard-widget h1,
+[data-theme="terminal"] .dashboard-widget h2,
+[data-theme="terminal"] .dashboard-widget h3,
+[data-theme="terminal"] .dashboard-widget h4,
+[data-theme="terminal"] .dashboard-widget h5,
+[data-theme="terminal"] .analyses-title,
+[data-theme="terminal"] .analyses-card-title,
+[data-theme="terminal"] .uq-card-query {
+  color: var(--terminal-text) !important;
+  text-shadow: 0 0 10px rgba(57, 255, 136, 0.08) !important;
+}
+
+[data-theme="terminal"] .Settings-section-subtitle,
+[data-theme="terminal"] .Settings-secondary-handle,
+[data-theme="terminal"] .Settings-username-wallet,
+[data-theme="terminal"] .Settings-billing-copy,
+[data-theme="terminal"] .Settings-billing-hint,
+[data-theme="terminal"] .Settings-support-section-header p,
+[data-theme="terminal"] .Settings-support-disclaimer,
+[data-theme="terminal"] .Settings-billing-toggle-copy span,
+[data-theme="terminal"] .Settings-billing-toggle-copy small,
+[data-theme="terminal"] .Settings-activity-date,
+[data-theme="terminal"] .Settings-premium-metrics span,
+[data-theme="terminal"] .admin-section-subtitle,
+[data-theme="terminal"] .admin-header p,
+[data-theme="terminal"] .admin-muted,
+[data-theme="terminal"] .admin-help,
+[data-theme="terminal"] .admin-card small,
+[data-theme="terminal"] .admin-notify-card small,
+[data-theme="terminal"] .dashboard-widget small,
+[data-theme="terminal"] .dashboard-widget .muted,
+[data-theme="terminal"] .dashboard-widget .text-muted,
+[data-theme="terminal"] .analyses-subtitle,
+[data-theme="terminal"] .analyses-card-meta,
+[data-theme="terminal"] .analyses-card-preview,
+[data-theme="terminal"] .analyses-card-preview.muted,
+[data-theme="terminal"] .uq-card-metrics,
+[data-theme="terminal"] .uq-card-flags,
+[data-theme="terminal"] .uq-card-footer {
+  color: var(--terminal-muted) !important;
+}
+
+/* Inputs */
+[data-theme="terminal"] input,
+[data-theme="terminal"] textarea,
+[data-theme="terminal"] select,
+[data-theme="terminal"] .form-control,
+[data-theme="terminal"] .form-select,
+[data-theme="terminal"] .Settings-inline-input,
+[data-theme="terminal"] .Settings-support-custom input,
+[data-theme="terminal"] .Settings-container .form-control,
+[data-theme="terminal"] .Settings-container .form-select,
+[data-theme="terminal"] .AdminPage input,
+[data-theme="terminal"] .AdminPage textarea,
+[data-theme="terminal"] .AdminPage select,
+[data-theme="terminal"] .analyses-search {
+  background: rgba(2, 4, 3, 0.84) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border-strong) !important;
+  box-shadow: inset 0 0 0 1px rgba(57, 255, 136, 0.025) !important;
+}
+
+[data-theme="terminal"] input::placeholder,
+[data-theme="terminal"] textarea::placeholder,
+[data-theme="terminal"] .form-control::placeholder,
+[data-theme="terminal"] .analyses-search::placeholder {
+  color: rgba(117, 185, 133, 0.76) !important;
+}
+
+[data-theme="terminal"] input:focus,
+[data-theme="terminal"] textarea:focus,
+[data-theme="terminal"] select:focus,
+[data-theme="terminal"] .form-control:focus,
+[data-theme="terminal"] .form-select:focus,
+[data-theme="terminal"] .analyses-search:focus {
+  border-color: rgba(57, 255, 136, 0.56) !important;
+  box-shadow:
+    0 0 0 3px rgba(57, 255, 136, 0.12),
+    0 0 22px rgba(57, 255, 136, 0.08) !important;
+}
+
+/* Admin tabs */
+[data-theme="terminal"] .admin-tabs,
+[data-theme="terminal"] .admin-tabs-animated,
+[data-theme="terminal"] .admin-tabs-scroller {
+  position: relative !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem !important;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(9, 26, 19, 0.98), rgba(3, 8, 6, 0.98)) !important;
+  border: 1px solid var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .admin-tab-indicator {
+  display: block !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(57, 255, 136, 0.38)) !important;
+  box-shadow:
+    0 10px 24px rgba(34, 197, 94, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="terminal"] .admin-tab,
+[data-theme="terminal"] .admin-tabs button,
+[data-theme="terminal"] .admin-tabs-animated button,
+[data-theme="terminal"] .admin-tabs-scroller button {
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: var(--terminal-muted) !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="terminal"] .admin-tab:hover,
+[data-theme="terminal"] .admin-tabs button:hover,
+[data-theme="terminal"] .admin-tabs-animated button:hover,
+[data-theme="terminal"] .admin-tabs-scroller button:hover {
+  background: rgba(34, 197, 94, 0.09) !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .admin-tab-active,
+[data-theme="terminal"] .admin-tab.admin-tab-active,
+[data-theme="terminal"] .admin-tab.active,
+[data-theme="terminal"] .admin-tabs button.active,
+[data-theme="terminal"] .admin-tabs-animated button.active,
+[data-theme="terminal"] .admin-tabs-scroller button.active,
+[data-theme="terminal"] .admin-tabs button[aria-selected="true"],
+[data-theme="terminal"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="terminal"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Tables */
+[data-theme="terminal"] table,
+[data-theme="terminal"] .table,
+[data-theme="terminal"] .table-dark,
+[data-theme="terminal"] .table-striped,
+[data-theme="terminal"] .admin-users-table,
+[data-theme="terminal"] .kv-table {
+  --bs-table-bg: #07140f;
+  --bs-table-color: var(--terminal-text);
+  --bs-table-border-color: var(--terminal-border);
+  --bs-table-striped-bg: #0a1c14;
+  --bs-table-striped-color: var(--terminal-text);
+  --bs-table-hover-bg: #0d241a;
+  --bs-table-hover-color: var(--terminal-text);
+
+  background: #07140f !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] table thead,
+[data-theme="terminal"] table thead tr,
+[data-theme="terminal"] table thead th,
+[data-theme="terminal"] .table thead th,
+[data-theme="terminal"] .kv-table thead th {
+  background: #0a1c14 !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] table tbody tr,
+[data-theme="terminal"] table tbody td,
+[data-theme="terminal"] .table tbody tr,
+[data-theme="terminal"] .table tbody td,
+[data-theme="terminal"] .kv-table tbody tr,
+[data-theme="terminal"] .kv-table tbody td {
+  background-color: #07140f !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="terminal"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #0a1c14 !important;
+}
+
+/* Theme selector and chips */
+[data-theme="terminal"] .Settings-theme-option,
+[data-theme="terminal"] .Settings-deposit-chip,
+[data-theme="terminal"] .Settings-support-preset,
+[data-theme="terminal"] .Settings-billing-status,
+[data-theme="terminal"] .Settings-billing-future span,
+[data-theme="terminal"] .Settings-premium-optin-chip,
+[data-theme="terminal"] .cap-email-chip,
+[data-theme="terminal"] .uq-card-metrics span,
+[data-theme="terminal"] .uq-card-flags span {
+  background: rgba(7, 20, 15, 0.9) !important;
+  color: var(--terminal-text-soft) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-option:hover,
+[data-theme="terminal"] .Settings-deposit-chip:hover,
+[data-theme="terminal"] .Settings-support-preset:hover,
+[data-theme="terminal"] .Settings-support-preset[data-active="true"] {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(57, 255, 136, 0.32) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-option.is-active,
+[data-theme="terminal"] .Settings-deposit-chip.is-selected {
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(57, 255, 136, 0.08)) !important;
+  border-color: rgba(57, 255, 136, 0.48) !important;
+  box-shadow: 0 0 0 1px rgba(57, 255, 136, 0.14) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-copy strong,
+[data-theme="terminal"] .Settings-theme-copy small,
+[data-theme="terminal"] .Settings-deposit-chip-label,
+[data-theme="terminal"] .Settings-support-custom span,
+[data-theme="terminal"] .cap-email-chip-address,
+[data-theme="terminal"] .cap-email-label {
+  color: var(--terminal-text-soft) !important;
+}
+
+/* Buttons */
+[data-theme="terminal"] .btn-primary,
+[data-theme="terminal"] .Settings-support-section .btn-primary,
+[data-theme="terminal"] .Settings-deposit-panel .btn-primary,
+[data-theme="terminal"] .cap-root .send-button {
+  background:
+    linear-gradient(135deg, #15803d, #22c55e) !important;
+  border-color: rgba(57, 255, 136, 0.55) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.18) !important;
+}
+
+[data-theme="terminal"] .btn-primary:hover,
+[data-theme="terminal"] .cap-root .send-button:hover:not(:disabled) {
+  background:
+    linear-gradient(135deg, #166534, #16a34a) !important;
+  border-color: rgba(134, 239, 172, 0.68) !important;
+}
+
+[data-theme="terminal"] .btn-outline-light,
+[data-theme="terminal"] .btn-outline-secondary,
+[data-theme="terminal"] .Settings-container .btn-outline-light,
+[data-theme="terminal"] .btn-secondary,
+[data-theme="terminal"] .btn-light {
+  background: rgba(7, 20, 15, 0.82) !important;
+  border-color: var(--terminal-border-strong) !important;
+  color: var(--terminal-text-soft) !important;
+}
+
+[data-theme="terminal"] .btn-outline-light:hover,
+[data-theme="terminal"] .btn-outline-secondary:hover,
+[data-theme="terminal"] .btn-secondary:hover,
+[data-theme="terminal"] .btn-light:hover {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(57, 255, 136, 0.34) !important;
+}
+
+/* Landing/chat */
+[data-theme="terminal"] .cap-root {
+  --primary: var(--terminal-primary);
+  --primary-dark: var(--terminal-primary-hover);
+  --secondary: var(--terminal-muted);
+  --background: var(--terminal-bg);
+  --surface: var(--terminal-card);
+  --surface-light: var(--terminal-card-soft);
+  --text-primary: var(--terminal-text);
+  --text-secondary: var(--terminal-muted);
+  --border: var(--terminal-border);
+}
+
+[data-theme="terminal"] .cap-root .chat-container,
+[data-theme="terminal"] .cap-root .input-container,
+[data-theme="terminal"] .cap-root .message.assistant .message-bubble,
+[data-theme="terminal"] .cap-root .message.assistant .message-avatar {
+  background: var(--terminal-card) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .cap-root .message.user .message-bubble {
+  background:
+    linear-gradient(135deg, rgba(21, 128, 61, 0.95), rgba(34, 197, 94, 0.88)) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-line,
+[data-theme="terminal"] .cap-root .landing-empty-typed {
+  color: var(--terminal-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-caret {
+  background: var(--terminal-accent) !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-robotBadge {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(57, 255, 136, 0.15), transparent 56%),
+    linear-gradient(180deg, rgba(9, 26, 19, 0.92), rgba(3, 8, 6, 0.92)) !important;
+  border-color: rgba(57, 255, 136, 0.18) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.4),
+    0 0 0 6px rgba(57, 255, 136, 0.045),
+    0 0 38px rgba(57, 255, 136, 0.08) !important;
+}
+
+[data-theme="terminal"] .cap-root .example-chip {
+  background: rgba(7, 20, 15, 0.92) !important;
+  color: var(--terminal-text-soft) !important;
+  border: 1px solid var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: var(--terminal-text) !important;
+  border-color: rgba(57, 255, 136, 0.34) !important;
+}
+
+/* Chat processing/status */
+[data-theme="terminal"] .cap-root .message.status,
+[data-theme="terminal"] .cap-root .message.status .message-bubble,
+[data-theme="terminal"] .cap-root .rm-assistant-statusRow,
+[data-theme="terminal"] .message.assistant .thinking-inline {
+  color: var(--terminal-text-soft) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="terminal"] .cap-root .message.status .message-bubble,
+[data-theme="terminal"] .cap-root .rm-assistant-statusRow,
+[data-theme="terminal"] .message.assistant .thinking-inline {
+  background: rgba(7, 20, 15, 0.9) !important;
+  border-left-color: var(--terminal-accent) !important;
+}
+
+[data-theme="terminal"] .cap-root .thinking-animation span,
+[data-theme="terminal"] .message.assistant .thinking-animation span {
+  background: var(--terminal-accent) !important;
+  opacity: 0.9 !important;
+}
+
+/* Charts and artifacts */
+[data-theme="terminal"] .chat-chart-slot,
+[data-theme="terminal"] .vega-chart-container,
+[data-theme="terminal"] .dashboard-widget .vega-chart-container {
+  background: #07140f !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .kv-table-link,
+[data-theme="terminal"] .Settings-referral-link,
+[data-theme="terminal"] .Settings-payment-address,
+[data-theme="terminal"] .Settings-activity-hash,
+[data-theme="terminal"] .dashboard-widget a,
+[data-theme="terminal"] .analyses-card a {
+  color: #86efac !important;
+}
+
+/* Loading page */
+[data-theme="terminal"] .LoadingPage-fullscreen {
+  background:
+    radial-gradient(circle at top, rgba(34, 197, 94, 0.14), transparent 42%),
+    radial-gradient(circle at bottom, rgba(57, 255, 136, 0.06), transparent 42%),
+    #020403 !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-logo {
+  filter: drop-shadow(0 8px 22px rgba(34, 197, 94, 0.22)) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-pulse-glow {
+  background: radial-gradient(circle, rgba(57, 255, 136, 0.24), transparent) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-orbit-ring {
+  border-color: rgba(57, 255, 136, 0.24) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-orbit-dot {
+  background: #39ff88 !important;
+  box-shadow: 0 0 12px rgba(57, 255, 136, 0.52) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-ring-spinner {
+  border-color: rgba(57, 255, 136, 0.08) !important;
+  border-top-color: #22c55e !important;
+  border-right-color: #39ff88 !important;
+}
+
+[data-theme="terminal"] .LoadingPage-message {
+  color: var(--terminal-muted) !important;
+}
+
+/* Modals */
+[data-theme="terminal"] .modal-content,
+[data-theme="terminal"] .CardanoPaymentModal-content,
+[data-theme="terminal"] .uq-modal {
+  background:
+    linear-gradient(180deg, rgba(9, 26, 19, 0.98), rgba(3, 8, 6, 0.98)) !important;
+  color: var(--terminal-text) !important;
+  border: 1px solid var(--terminal-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--terminal-shadow-large) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="terminal"] .modal-header,
+[data-theme="terminal"] .CardanoPaymentModal-header {
+  background:
+    linear-gradient(180deg, rgba(13, 36, 26, 0.98), rgba(7, 20, 15, 0.98)) !important;
+  color: var(--terminal-text) !important;
+  border-bottom: 1px solid var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .modal-body,
+[data-theme="terminal"] .CardanoPaymentModal-body {
+  background: transparent !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .modal-footer,
+[data-theme="terminal"] .CardanoPaymentModal-footer {
+  background: rgba(2, 4, 3, 0.45) !important;
+  color: var(--terminal-text) !important;
+  border-top: 1px solid var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .modal-title,
+[data-theme="terminal"] .modal-header h1,
+[data-theme="terminal"] .modal-header h2,
+[data-theme="terminal"] .modal-header h3,
+[data-theme="terminal"] .modal-header h4,
+[data-theme="terminal"] .modal-header h5,
+[data-theme="terminal"] .CardanoPaymentModal-title {
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .modal-content small,
+[data-theme="terminal"] .modal-content .text-muted,
+[data-theme="terminal"] .modal-content .muted,
+[data-theme="terminal"] .modal-content .help-text,
+[data-theme="terminal"] .CardanoPaymentModal-subtitle,
+[data-theme="terminal"] .CardanoPaymentModal-content [class*="hint"],
+[data-theme="terminal"] .CardanoPaymentModal-content [class*="meta"],
+[data-theme="terminal"] .CardanoPaymentModal-content [class*="note"] {
+  color: var(--terminal-muted) !important;
+}
+
+[data-theme="terminal"] .payment-modal-card,
+[data-theme="terminal"] .billing-modal-card,
+[data-theme="terminal"] .payment-summary-card,
+[data-theme="terminal"] .payment-benefit,
+[data-theme="terminal"] .payment-benefit-row,
+[data-theme="terminal"] .payment-wallet-row,
+[data-theme="terminal"] .payment-address-row,
+[data-theme="terminal"] .payment-method-row,
+[data-theme="terminal"] .billing-payment-card,
+[data-theme="terminal"] .billing-payment-summary,
+[data-theme="terminal"] .billing-payment-benefit,
+[data-theme="terminal"] .CardanoPaymentModal-plan,
+[data-theme="terminal"] .CardanoPaymentModal-summary,
+[data-theme="terminal"] .CardanoPaymentModal-balance,
+[data-theme="terminal"] .CardanoPaymentModal-wallet,
+[data-theme="terminal"] .CardanoPaymentModal-payment,
+[data-theme="terminal"] .CardanoPaymentModal-benefits,
+[data-theme="terminal"] .CardanoPaymentModal-note,
+[data-theme="terminal"] .CardanoPaymentModal-status,
+[data-theme="terminal"] .CardanoPaymentModal-address,
+[data-theme="terminal"] .CardanoPaymentModal-network,
+[data-theme="terminal"] .CardanoPaymentModal-section,
+[data-theme="terminal"] .CardanoPaymentModal-card,
+[data-theme="terminal"] .CardanoPaymentModal-row,
+[data-theme="terminal"] .share-preview,
+[data-theme="terminal"] .ShareModal-preview,
+[data-theme="terminal"] .dashboard-share-preview,
+[data-theme="terminal"] .widget-share-preview,
+[data-theme="terminal"] .share-image-preview,
+[data-theme="terminal"] .dashboard-widget-share-preview,
+[data-theme="terminal"] .widget-settings-section,
+[data-theme="terminal"] .widget-settings-card,
+[data-theme="terminal"] .widget-settings-group,
+[data-theme="terminal"] .widget-settings-panel,
+[data-theme="terminal"] .modal-content [class*="settings-section"],
+[data-theme="terminal"] .modal-content [class*="settings-card"],
+[data-theme="terminal"] .modal-content [class*="settings-group"],
+[data-theme="terminal"] .modal-content [class*="preview"] {
+  background: rgba(7, 20, 15, 0.92) !important;
+  background-image: none !important;
+  color: var(--terminal-text) !important;
+  border: 1px solid var(--terminal-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="terminal"] .ShareModal-share-icon p,
+[data-theme="terminal"] .ShareModal-share-icon span,
+[data-theme="terminal"] .ShareModal-share-icon small {
+  color: var(--terminal-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="terminal"] .modal-content .btn-close {
+  filter: invert(1) grayscale(1) !important;
+  opacity: 0.72 !important;
+}
+
+/* Billing notifications */
+[data-theme="terminal"] .billing-notification-list,
+[data-theme="terminal"] .billing-notification-row,
+[data-theme="terminal"] .billing-notification-row-meta,
+[data-theme="terminal"] .billing-notification-panel,
+[data-theme="terminal"] .billing-notification-card {
+  background: rgba(7, 20, 15, 0.94) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .billing-notification-list > *:nth-child(even),
+[data-theme="terminal"] .billing-notification-row:nth-child(even) {
+  background: rgba(10, 28, 20, 0.94) !important;
+}
+
+/* Semantic statuses */
+[data-theme="terminal"] .Settings-billing-status.is-active,
+[data-theme="terminal"] .navbar-billing-badge.is-premium {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(57, 255, 136, 0.3) !important;
+  color: #bbf7d0 !important;
+}
+
+[data-theme="terminal"] .form-check-input:checked,
+[data-theme="terminal"] input[type="checkbox"]:checked,
+[data-theme="terminal"] .form-switch .form-check-input:checked {
+  background-color: #16a34a !important;
+  border-color: #86efac !important;
+}
+
+/* Mobile */
+@media (max-width: 991.98px) {
+  [data-theme="terminal"] .cap-navbar .navbar-collapse,
+  [data-theme="terminal"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="terminal"] .cap-navbar .navbar-collapse.show {
+    background: #07140f !important;
+    border-top-color: var(--terminal-border) !important;
+  }
+}
+
+
+/* Terminal theme selector preview */
+.Settings-theme-preview-terminal {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(57, 255, 136, 0.16), transparent 42%),
+    linear-gradient(180deg, #06120d, #020403) !important;
+  border-color: rgba(57, 255, 136, 0.34) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(57, 255, 136, 0.08),
+    0 0 18px rgba(57, 255, 136, 0.08);
+}
+
+.Settings-theme-preview-terminal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(57, 255, 136, 0.06) 50%, transparent 50%);
+  background-size: 100% 4px;
+  opacity: 0.55;
+}
+
+.Settings-theme-preview-terminal span {
+  position: relative;
+  z-index: 1;
+  background: #39ff88 !important;
+  box-shadow: 0 0 8px rgba(57, 255, 136, 0.48);
+}
+
+.Settings-theme-preview-terminal span:nth-child(1) {
+  width: 85%;
+}
+
+.Settings-theme-preview-terminal span:nth-child(2) {
+  width: 62%;
+  background: #86efac !important;
+}
+
+.Settings-theme-preview-terminal span:nth-child(3) {
+  width: 74%;
+  background: #22c55e !important;
+}
+

@@ -186,3 +186,68 @@
   --dash-btn-border: rgba(15, 23, 42, 0.12);
   --dash-btn-border-hover: rgba(15, 23, 42, 0.22);
 }
+
+
+[data-theme="terminal"] {
+  color-scheme: dark;
+
+  --theme-bg: #020403;
+  --theme-bg-soft: #030806;
+  --theme-bg-elevated: #06120d;
+
+  --theme-surface: #07140f;
+  --theme-surface-2: #091a13;
+  --theme-surface-3: #0d241a;
+  --theme-surface-glass: rgba(7, 20, 15, 0.82);
+
+  --theme-border: rgba(34, 197, 94, 0.18);
+  --theme-border-strong: rgba(34, 197, 94, 0.34);
+
+  --theme-text: #d9ffe5;
+  --theme-text-soft: #b7f7c8;
+  --theme-text-muted: #75b985;
+  --theme-text-faint: rgba(183, 247, 200, 0.58);
+
+  --theme-primary: #22c55e;
+  --theme-primary-hover: #86efac;
+  --theme-primary-soft: rgba(34, 197, 94, 0.13);
+
+  --theme-accent: #39ff88;
+  --theme-accent-hover: #bbf7d0;
+  --theme-accent-soft: rgba(57, 255, 136, 0.12);
+
+  --theme-success: #22c55e;
+  --theme-warning: #facc15;
+  --theme-danger: #fb7185;
+  --theme-info: #4ade80;
+
+  --theme-success-soft: rgba(34, 197, 94, 0.12);
+  --theme-warning-soft: rgba(250, 204, 21, 0.12);
+  --theme-danger-soft: rgba(251, 113, 133, 0.12);
+  --theme-info-soft: rgba(74, 222, 128, 0.12);
+
+  --theme-shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.58);
+  --theme-shadow-large: 0 28px 92px rgba(0, 0, 0, 0.72);
+
+  --theme-page-gradient:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(57, 255, 136, 0.06), transparent 38%),
+    linear-gradient(135deg, #020403 0%, #030806 48%, #06120d 100%);
+
+  --theme-shell-gradient:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.1), transparent 32%),
+    linear-gradient(180deg, #06120d 0%, #020403 100%);
+
+  --dash-bg: var(--theme-bg-soft);
+  --dash-card: var(--theme-surface);
+  --dash-border: var(--theme-border);
+  --dash-text: var(--theme-text);
+  --dash-muted: var(--theme-text-muted);
+  --dash-muted-2: rgba(117, 185, 133, 0.72);
+  --dash-link: var(--theme-primary-hover);
+  --dash-btn-bg: rgba(34, 197, 94, 0.08);
+  --dash-btn-bg-hover: rgba(34, 197, 94, 0.14);
+  --dash-btn-border: var(--theme-border);
+  --dash-btn-border-hover: var(--theme-border-strong);
+}
+

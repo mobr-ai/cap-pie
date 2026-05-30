@@ -981,6 +981,10 @@
       "paper": {
         "label": "Paper",
         "description": "Clean light theme for reports and admin work"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "description": "Retro CLI theme with phosphor green accents"
       }
     }
   }

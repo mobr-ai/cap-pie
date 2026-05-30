@@ -982,6 +982,10 @@
       "paper": {
         "label": "Paper",
         "description": "Tema claro e limpo para relatórios e administração"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "description": "Tema retrô CLI com acentos verde fósforo"
       }
     }
   }

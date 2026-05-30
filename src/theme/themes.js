@@ -21,6 +21,11 @@ export const THEMES = [
     label: "Paper",
     description: "Clean light theme for reports and admin work",
   },
+  {
+    id: "terminal",
+    label: "Terminal",
+    description: "Retro CLI theme with phosphor green accents",
+  },
 ];
 
 export function isValidThemeId(themeId) {
