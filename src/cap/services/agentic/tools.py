@@ -96,7 +96,10 @@ def format_execution_context(
             sparql_results,
             federated_query.sparql,
         )
-        sections.append(kv_results)
+        sections.append(
+            "SPARQL results:\n"
+            + json.dumps(kv_results, default=str, ensure_ascii=False, indent=2)
+        )
 
     if federated_query.sql:
         sql_kv = {
