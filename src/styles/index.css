@@ -1,21 +1,21 @@
 /* src/styles/index.css */
 :root {
-  --dash-bg: #050c1a;
-  --dash-card: #151b26;
-  --dash-border: #243047;
-  --dash-text: #f5f5f5;
+  --dash-bg: var(--theme-bg);
+  --dash-card: var(--theme-surface);
+  --dash-border: var(--theme-border);
+  --dash-text: var(--theme-text);
 
-  --dash-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  --dash-shadow: var(--theme-shadow-large);
   --dash-radius: 16px;
 
-  --dash-muted: rgba(226, 232, 240, 0.65);
-  --dash-muted-2: rgba(226, 232, 240, 0.5);
-  --dash-link: rgba(169, 194, 255, 0.95);
+  --dash-muted: var(--theme-text-muted);
+  --dash-muted-2: var(--theme-text-muted);
+  --dash-link: var(--theme-primary);
 
-  --dash-btn-bg: rgba(2, 6, 23, 0.35);
-  --dash-btn-bg-hover: rgba(2, 6, 23, 0.55);
-  --dash-btn-border: rgba(148, 163, 184, 0.18);
-  --dash-btn-border-hover: rgba(148, 163, 184, 0.28);
+  --dash-btn-bg: var(--theme-surface-2);
+  --dash-btn-bg-hover: var(--theme-surface-3);
+  --dash-btn-border: var(--theme-border);
+  --dash-btn-border-hover: var(--theme-border-strong);
 }
 
 :root {
@@ -33,7 +33,7 @@
 .cap-sidebar {
   width: var(--cap-sidebar-expanded);
   height: 100vh;
-  background: radial-gradient(circle at top left, #111827 0%, #020617 55%);
+  background: var(--theme-bg);
   border-right: 1px solid rgba(148, 163, 184, 0.25);
   box-shadow: 0 2px 16px rgba(15, 23, 42, 0.9);
   overflow: hidden;
@@ -315,7 +315,7 @@ body,
 #root,
 #outer-container,
 #page-wrap {
-  background-color: #020617;
+  background-color: var(--theme-bg);
 }
 
 /* Layout shifting for fixed sidebar */
@@ -331,7 +331,7 @@ body,
   /* max-width: fit-content; */
   transition: padding-left 0.18s ease;
   /* key: prevent “white page” bleed */
-  background: radial-gradient(circle at top left, #111827 0%, #020617 55%);
+  background: var(--theme-bg);
 }
 
 #page-wrap.has-static-sidebar.sidebar-expanded {
