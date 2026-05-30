@@ -201,7 +201,7 @@
 
 .Settings-container .btn-outline-light:hover {
   color: var(--theme-text);
-  background: rgba(47, 79, 79, 0.36);
+  background: var(--theme-primary-soft);
   border-color: var(--theme-border-strong);
 }
 
@@ -517,7 +517,7 @@
 
 .Settings-deposit-chip:hover {
   border-color: var(--theme-primary);
-  background: rgba(47, 79, 79, 0.24);
+  background: var(--theme-primary-soft);
 }
 
 .Settings-deposit-chip:active {
@@ -527,8 +527,8 @@
 .Settings-deposit-chip.is-selected {
   border-color: var(--theme-primary);
   background:
-    radial-gradient(circle at top, rgba(94, 234, 212, 0.14), transparent 45%),
-    rgba(47, 79, 79, 0.32);
+    radial-gradient(circle at top, var(--theme-primary-soft), transparent 45%),
+    var(--theme-primary-soft);
   box-shadow: 0 0 0 1px var(--theme-primary-soft);
 }
 
