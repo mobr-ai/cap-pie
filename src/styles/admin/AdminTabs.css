@@ -12,7 +12,7 @@
     #020617 40%,
     #020617
   );
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid var(--theme-border);
   margin-bottom: 1.25rem;
 
   /*
@@ -61,7 +61,7 @@
   left: 0;
   border-radius: 9999px;
   background: linear-gradient(135deg, #1a231d, #2189bd);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--theme-shadow-soft);
   z-index: 1;
   transition:
     transform 200ms ease,
@@ -76,7 +76,7 @@
   padding: 0.3rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--theme-text-muted);
   background: transparent;
   cursor: pointer;
   transition:
@@ -90,20 +90,20 @@
 /* Hover styles only on devices that truly support hover */
 @media (hover: hover) and (pointer: fine) {
   .admin-tab:hover {
-    color: #e5e7eb;
-    background: rgba(31, 41, 55, 0.8);
+    color: var(--theme-text);
+    background: var(--theme-surface-2);
   }
 }
 
 /* On touch devices, prevent sticky hover artifacts */
 @media (hover: none) and (pointer: coarse) {
   .admin-tab:hover {
-    color: #9ca3af;
+    color: var(--theme-text-muted);
     background: transparent;
   }
 
   .admin-tab:active {
-    background: rgba(31, 41, 55, 0.35);
+    background: var(--theme-surface-2);
   }
 }
 
@@ -112,7 +112,7 @@
   Keep button itself transparent so we don't double-paint.
 */
 .admin-tab--active {
-  color: #f9fafb;
+  color: var(--theme-text);
   background: transparent;
   box-shadow: none;
 }
@@ -121,7 +121,7 @@
 .admin-tab--active:hover,
 .admin-tab--active:active,
 .admin-tab--active:focus-visible {
-  color: #f9fafb;
+  color: var(--theme-text);
   background: transparent;
   box-shadow: none;
 }

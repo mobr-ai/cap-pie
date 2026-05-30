@@ -4,7 +4,7 @@
 
 .admin-users-table {
   font-size: 0.85rem;
-  color: #e5e7eb;
+  color: var(--theme-text);
   margin-bottom: 0;
   border-collapse: separate;
   border-spacing: 0;
@@ -17,8 +17,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9ca3af;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.9);
+  color: var(--theme-text-muted);
+  border-bottom: 1px solid var(--theme-border);
   padding-top: 0.45rem;
   padding-bottom: 0.35rem;
 }
@@ -28,17 +28,17 @@
 .admin-users-table tbody td {
   padding-top: 0.35rem;
   padding-bottom: 0.35rem;
-  border-top: 1px solid rgba(31, 41, 55, 0.9);
+  border-top: 1px solid var(--theme-border);
 }
 
 /* Subtle custom striping so it blends with the dark cards */
 
 .admin-users-table tbody tr:nth-child(odd) td {
-  background-color: rgba(15, 23, 42, 0.96);
+  background-color: var(--theme-surface);
 }
 
 .admin-users-table tbody tr:nth-child(even) td {
-  background-color: rgba(17, 24, 39, 0.96);
+  background-color: var(--theme-surface-2);
 }
 
 /* Search + table */
@@ -61,7 +61,7 @@
   max-height: 420px;
   border-radius: 0.75rem;
   overflow: auto;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid var(--theme-border);
 }
 
 /* Make table header stand out a bit more */
@@ -69,7 +69,7 @@
 .admin-users-table thead th {
   position: sticky;
   top: 0;
-  background-color: #020617;
+  background-color: var(--theme-bg);
   z-index: 1;
 }
 
@@ -79,7 +79,7 @@
   position: sticky;
   left: 0;
   z-index: 2;
-  background-color: #020617;
+  background-color: var(--theme-bg);
 }
 
 .admin-users-actions-col--head {
@@ -132,19 +132,19 @@
 }
 
 .admin-user-row:hover td {
-  background-color: rgba(31, 41, 55, 0.9);
+  background-color: var(--theme-surface-2);
 }
 
 /* Anonymized users */
 
 .admin-user-row--anonymized td {
-  background-color: rgba(15, 23, 42, 0.95);
-  color: #6b7280;
+  background-color: var(--theme-surface);
+  color: var(--theme-text-muted);
   font-style: italic;
 }
 
 .admin-user-row--anonymized td.admin-users-actions-cell {
-  background-color: rgba(15, 23, 42, 0.95);
+  background-color: var(--theme-surface);
 }
 
 /* Username + anonymized badge */
@@ -164,8 +164,8 @@
   height: 1.2rem;
   border-radius: 9999px;
   font-size: 0.7rem;
-  background-color: rgba(55, 65, 81, 0.9);
-  color: #e5e7eb;
+  background-color: var(--theme-surface-3);
+  color: var(--theme-text);
   flex-shrink: 0;
 }
 
