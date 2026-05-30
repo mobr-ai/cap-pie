@@ -1,0 +1,131 @@
+/* Responsive adjustments (tablet/desktop down) */
+@media (max-width: 992px) {
+  .cap-navbar .cap-navbar-row {
+    grid-template-columns: 1fr auto;
+    margin-left: auto;
+  }
+
+  .navbar-status-bar {
+    min-width: 0;
+    max-width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  /* .Navbar-brand-slot {
+    width: clamp(140px, 40vw, 240px); 
+  } */
+}
+
+/* Large screens: hide Bootstrap's burger, only sidebar burger is used */
+@media (min-width: 992px) {
+  .cap-navbar .navbar-toggler {
+    display: none !important;
+  }
+  .cap-navbar .cap-navbar-row {
+    display: grid;
+  }
+}
+
+/* On very small screens hide the heavy status bar entirely
+   so the navbar doesn't look cramped or wrap weirdly */
+@media (max-width: 576px) {
+  .navbar-status-bar {
+    display: none;
+  }
+
+  .cap-navbar .cap-navbar-row {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+/* Navbar toggler (burger) */
+.cap-navbar .navbar-toggler {
+  border-radius: 0.9rem;
+  padding: 0.25rem 0.6rem;
+  border-color: var(--theme-border-strong);
+}
+
+/* Make the expanded mobile menu use a solid dark background */
+.cap-navbar .navbar-collapse {
+  background-color: transparent;
+}
+
+@media (max-width: 991.98px) {
+  .cap-navbar .navbar-collapse,
+  .cap-navbar .navbar-collapse.collapsing,
+  .cap-navbar .navbar-collapse.show {
+    background-color: var(--nav-bg);
+    padding: 0.5rem 1rem 0.75rem;
+    margin-top: 0.35rem;
+    border-top: 1px solid var(--theme-border);
+  }
+
+  .NavBar-top-container .nav-link,
+  .NavBar-top-container .dropdown-toggle {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
+
+/* Optional left sidebar burger (desktop) */
+.Navbar-toggle-btn {
+  position: fixed;
+  top: 1.2rem;
+  left: 12px;
+  transform: none;
+  background: transparent;
+  border: none;
+  color: var(--theme-text);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  padding: 0;
+}
+
+/* Hide sidebar burger on mobile; mobile uses built-in Nav collapse */
+@media (max-width: 991px) {
+  .Navbar-toggle-btn {
+    display: none;
+  }
+}
+
+/* Shift navbar content so burger sits left of CAP logo in desktop sidebar mode */
+.cap-navbar-with-sidebar {
+  padding-left: 3rem;
+}
+
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+.nav-link {
+  display: flex;
+}
+
+/* Language dropdown title + caret */
+.navbar-lang-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navbar-lang-label {
+  white-space: nowrap;
+}
+
+.navbar-lang-caret {
+  display: inline-block;
+  line-height: 1;
+  margin-left: 2px;
+  opacity: 0.9;
+}
+
+#navbar-lang .dropdown-toggle::after {
+  display: none !important;
+}
+

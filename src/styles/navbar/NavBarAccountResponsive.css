@@ -1,0 +1,15 @@
+@media (max-width: 991.98px) {
+  .navbar-billing-badge {
+    margin-left: auto;
+  }
+
+  .navbar-account-summary {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-billing-badge {
+    display: none;
+  }
+}

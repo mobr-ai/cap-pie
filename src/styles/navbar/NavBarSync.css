@@ -1,0 +1,223 @@
+/* ───────────────────────────────
+   Compact radial sync indicator
+   ─────────────────────────────── */
+
+.cap-sync {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px 8px; /* bottom padding = hover buffer */
+  border-radius: 10px;
+  cursor: help;
+}
+
+.cap-sync-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--theme-text-soft);
+}
+
+.cap-sync-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+}
+
+.cap-sync-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  line-height: 1;
+  color: var(--theme-text);
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.cap-sync-svg {
+  transform: rotate(-90deg);
+}
+
+.cap-sync-track {
+  fill: none;
+  stroke: var(--theme-border);
+  stroke-width: 2.5;
+}
+
+.cap-sync-progress {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.95;
+  transition:
+    stroke-dasharray 600ms ease,
+    opacity 200ms ease;
+}
+
+.cap-sync-slash {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+/* .cap-sync-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--theme-text);
+  letter-spacing: 0.2px;
+} */
+
+/* States */
+.cap-sync[data-state="synced"] .cap-sync-progress {
+  stroke: #10b981;
+}
+
+.cap-sync[data-state="syncing"] .cap-sync-progress {
+  stroke: #f59e0b;
+}
+
+/* Only animate when syncing */
+.cap-sync[data-state="syncing"] .cap-sync-ring {
+  animation: cap-sync-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes cap-sync-breathe {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.75;
+  }
+}
+
+/* Checking: subtle spinner */
+.cap-sync[data-state="checking"] .cap-sync-progress {
+  stroke: var(--theme-text-muted);
+  stroke-dasharray: 10 999;
+}
+
+.cap-sync[data-state="checking"] .cap-sync-svg {
+  animation: cap-sync-spin 1.1s linear infinite;
+}
+
+@keyframes cap-sync-spin {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(270deg);
+  }
+}
+
+/* Offline: gray + slash */
+.cap-sync[data-state="offline"] {
+  opacity: 0.75;
+}
+
+.cap-sync[data-state="offline"] .cap-sync-progress {
+  stroke: var(--theme-border-strong);
+  stroke-dasharray: 0 999;
+}
+
+.cap-sync[data-state="offline"] .cap-sync-slash {
+  stroke: rgba(239, 68, 68, 0.85);
+  opacity: 1;
+}
+
+/* Tooltip */
+.cap-sync-tooltip {
+  will-change: opacity, transform;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+
+  min-width: 240px;
+  white-space: pre-line;
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-large);
+
+  color: var(--theme-text);
+  font-size: 0.78rem;
+  line-height: 1.25rem;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  pointer-events: none;
+
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    visibility 0s linear 140ms;
+  z-index: 2000;
+}
+
+.cap-sync:hover .cap-sync-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    visibility 0s;
+}
+
+.cap-sync-tooltip-blocked {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.cap-sync-tooltip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cap-sync-tooltip-title {
+  font-weight: 600;
+}
+
+.cap-sync-tooltip-body {
+  opacity: 0.9;
+}
+
+.cap-tip-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: rgba(239, 68, 68, 0.95);
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+

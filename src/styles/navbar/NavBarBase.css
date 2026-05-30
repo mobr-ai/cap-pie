@@ -1,0 +1,85 @@
+/* ───────────────────────────────
+   NAVBAR STRUCTURE & LAYOUT
+   ─────────────────────────────── */
+:root {
+  --nav-font:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --nav-size: 14px;
+  --nav-height: 56px; /* slightly taller than before */
+  --nav-fg: var(--theme-text);
+  --nav-fg-dim: var(--theme-text-muted);
+  --nav-bg: var(--theme-surface);
+}
+
+/* Bar container */
+.cap-navbar {
+  background: var(--theme-surface-2) !important;
+  color: var(--nav-fg);
+  font-family: var(--nav-font);
+  font-size: var(--nav-size);
+  min-height: var(--nav-height);
+  box-shadow: var(--theme-shadow-soft);
+  border-bottom: 1px solid var(--theme-border);
+
+  /* a little vertical breathing room so the burger is fully contained */
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
+
+/* grid layout: Brand | Status | Controls */
+.cap-navbar .cap-navbar-row {
+  display: flex;
+  grid-template-columns: minmax(220px, 32vw) 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+}
+
+/* When sidebar burger exists */
+.has-left-burger .cap-navbar-row {
+  /* grid-template-columns: 48px minmax(200px, auto) 1fr auto; */
+  margin-left: 1rem;
+}
+
+.has-left-burger .Navbar-toggle-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--theme-surface-2);
+  color: var(--theme-text);
+  border: 1px solid var(--theme-border);
+}
+
+/* Hide sidebar burger on small/mobile screens */
+@media (max-width: 991px) {
+  .Navbar-toggle-btn {
+    display: none;
+  }
+}
+
+/* Brand area */
+.Navbar-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.Navbar-brand-slot {
+  display: inline-block;
+  /* width: clamp(180px, 26vw, 340px); */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--theme-text);
+}
+
