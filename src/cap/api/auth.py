@@ -396,8 +396,9 @@ def login(data: LoginIn, db: Session = Depends(get_db)):
 @router.post("/auth/google")
 def auth_google(data: GoogleIn, request: Request, db: Session = Depends(get_db)):
     try:
+        token_type = getattr(data, "token_type", None)
         info = get_userinfo_from_access_token_or_idtoken(
-            data.token, getattr(data, "token_type", None)
+            data.token, token_type if isinstance(token_type, str) else None
         )
 
         google_id = info["sub"]
@@ -509,4 +510,6 @@ def auth_google(data: GoogleIn, request: Request, db: Session = Depends(get_db))
         raise HTTPException(
             400, detail=str(e)
         ) from e
+
+
 

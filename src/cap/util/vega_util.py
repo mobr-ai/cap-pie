@@ -4,7 +4,10 @@ Vega util to convert data to vega format.
 import logging
 import re
 from collections import Counter
-from typing import Any
+from typing import Any, TypeAlias
+
+DataRow: TypeAlias = dict[str, Any]
+VegaValue: TypeAlias = dict[str, Any]
 
 from opentelemetry import trace
 
@@ -65,7 +68,7 @@ class VegaUtil:
         return False
 
     @staticmethod
-    def _classify_fields(data: list[dict]) -> tuple[list[str], list[str]]:
+    def _classify_fields(data: list[DataRow]) -> tuple[list[str], list[str]]:
         """
         Classify all fields in the data as either categorical or numeric.
 
@@ -93,7 +96,7 @@ class VegaUtil:
         return categorical_keys, numeric_keys
 
     @staticmethod
-    def _get_x_candidates(first_item: dict, keys: list) -> list:
+    def _get_x_candidates(first_item: DataRow, keys: list[str]) -> list[str]:
         x_candidates = VegaUtil.x_candidates.copy()
 
         # Extend x_candidates with any keys containing 'date' or having datetime values
@@ -109,7 +112,7 @@ class VegaUtil:
         return x_candidates
 
     @staticmethod
-    def _parse_coordinate_assignments(user_query: str, data: list[dict]) -> dict[str, str | None]:
+    def _parse_coordinate_assignments(user_query: str, data: list[DataRow]) -> dict[str, str]:
         """
         Parse user query to extract explicit coordinate assignments (x, y, z, size, color, etc.).
 
@@ -136,7 +139,7 @@ class VegaUtil:
         query_lower = user_query.lower()
 
         # Dictionary to store coordinate assignments
-        coordinates = {}
+        coordinates: dict[str, str] = {}
 
         # Pattern 1: Direct assignments with "=" or "as" (e.g., "x = field name", "use y as volume")
         # Improved to handle multiple assignments better, including "x = A and y = B" format
@@ -200,7 +203,7 @@ class VegaUtil:
         return coordinates
 
     @staticmethod
-    def _match_coordinate_to_field(coordinate_desc: str, data: list[dict],
+    def _match_coordinate_to_field(coordinate_desc: str, data: list[DataRow],
                                    exclude_keys: list[str] | None = None) -> str | None:
         """
         Match a coordinate description from the query to an actual field in the data.
@@ -292,7 +295,7 @@ class VegaUtil:
         return best_match if best_score >= 10 else None
 
     @staticmethod
-    def _apply_coordinate_mapping(data: list[dict], coordinate_map: dict[str, str]) -> dict[str, str]:
+    def _apply_coordinate_mapping(data: list[DataRow], coordinate_map: dict[str, str]) -> dict[str, str]:
         """
         Apply coordinate mapping from parsed query to actual data fields.
 
@@ -309,8 +312,8 @@ class VegaUtil:
         if not coordinate_map or not data:
             return {}
 
-        field_assignments = {}
-        used_keys = []
+        field_assignments: dict[str, str] = {}
+        used_keys: list[str] = []
 
         # Priority order for assignment (x, y, z, size, color, etc.)
         priority_order = ['x', 'y', 'z', 'size', 'color']
@@ -532,7 +535,7 @@ class VegaUtil:
         return {"values": []}
 
     @staticmethod
-    def _detect_repetition_pattern(data: list, x_key: str) -> int:
+    def _detect_repetition_pattern(data: list[DataRow], x_key: str) -> int:
         """
         Detect if x values repeat consistently, indicating multiple series in one variable.
 
@@ -586,7 +589,12 @@ class VegaUtil:
         return f"{label[:prefix_len]}...{label[-suffix_len:]}"
 
     @staticmethod
-    def _extract_series_labels(data: list, x_key: str, series_keys: list, repetition_count: int) -> list[str]:
+    def _extract_series_labels(
+        data: list[DataRow],
+        x_key: str,
+        series_keys: list[str],
+        repetition_count: int,
+    ) -> list[str]:
         """
         Extract series labels from repeating patterns in non-series columns.
 
@@ -793,7 +801,7 @@ class VegaUtil:
 
             if x_val is not None and y_val is not None:
                 try:
-                    point = {"x": float(x_val), "y": float(y_val)}
+                    point: dict[str, Any] = {"x": float(x_val), "y": float(y_val)}
                     if category_key:
                         cat_val = item.get(category_key, "")
                         if isinstance(cat_val, dict):
@@ -881,7 +889,7 @@ class VegaUtil:
 
             if x_val is not None and y_val is not None and size_val is not None:
                 try:
-                    bubble = {
+                    bubble: dict[str, Any] = {
                         "x": float(x_val),
                         "y": float(y_val),
                         "size": float(size_val)
@@ -1018,8 +1026,10 @@ class VegaUtil:
         elif not value_key and keys:
             value_key = keys[-1]  # Last resort fallback
 
-        if not (x_key and y_key):
-            logger.warning(f"Need at least 2 categorical fields for heatmap. Found: x={x_key}, y={y_key}")
+        if not (x_key and y_key and value_key):
+            logger.warning(
+                f"Need x, y, and value fields for heatmap. Found: x={x_key}, y={y_key}, value={value_key}"
+            )
             return {"values": []}
 
         values = []

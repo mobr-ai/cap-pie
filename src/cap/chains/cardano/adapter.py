@@ -6,14 +6,13 @@ from cap.chains.cardano.api.auth import router as auth_router
 from cap.chains.cardano.api.billing import router as billing_router
 from cap.chains.cardano.api.billing_admin import router as billing_admin_router
 from cap.chains.cardano.canonizer import CardanoQueryCanonizer
-from cap.chains.cardano.epoch import epoch_to_date
-from cap.chains.cardano.explorer import convert_entity_to_cardanoscan_link
 from cap.chains.cardano.currency import (
-    ADA_CURRENCY_URI,
     convert_cardano_result_value,
     detect_ada_variables,
     format_cardano_result_value,
 )
+from cap.chains.cardano.epoch import epoch_to_date
+from cap.chains.cardano.explorer import convert_entity_to_cardanoscan_link
 from cap.chains.cardano.sparql import CARDANO_PREFIXES
 
 

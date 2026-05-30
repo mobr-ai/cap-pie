@@ -72,7 +72,7 @@ class LLMClient:
     def __init__(
         self,
         base_url: str | None = None,
-        llm_model: str = None,
+        llm_model: str | None = None,
         timeout: float = 360.0
     ):
         """
@@ -280,12 +280,12 @@ class LLMClient:
     async def nl_to_federated_query(
         self,
         natural_query: str,
-        conversation_history: list[dict] | None,
+        conversation_history: list[dict[str, Any]] | None,
         use_ontology: bool = True,
         use_fewshot: bool = True,
         fewshot_strategy: SearchStrategy = SearchStrategy.auto,
         fewshot_top_n: int = -1,
-        _eval_retrieved_out: list[dict] | None = None,
+        _eval_retrieved_out: list[dict[str, Any]] | None = None,
     ) -> tuple[FederatedQuery, Any]:
         ontology_block = self.ontology_prompt if use_ontology else ""
 
@@ -293,7 +293,7 @@ class LLMClient:
         if use_fewshot and fewshot_strategy != SearchStrategy.none:
             # Reuse existing retrieval, but now the returned assistant payload may be
             # SPARQL-only, SQL-only, or federated JSON.
-            retrieved: list[dict] = []
+            retrieved: list[dict[str, Any]] = []
             prompt_seed = ""
             prompt_seed = await self._add_few_shot_learning(
                 nl_query=natural_query,
@@ -435,8 +435,8 @@ class LLMClient:
         sparql_query: str,
         sparql_results: str | dict[str, Any],
         kv_results: dict[str, Any],
-        system_prompt: str = None,
-        conversation_history: list[dict] | None = None
+        system_prompt: str | None = None,
+        conversation_history: list[dict[str, Any]] | None = None
     ) -> AsyncIterator[str]:
         """
         Generate contextualized answer based on SPARQL results.
@@ -495,7 +495,7 @@ class LLMClient:
             if "chart" in result_type or "table" in result_type:
                 known_info = f"""
                 {current_date}
-                {self.chart_prompt}
+                {self.default_chart_prompt}
                 The system is showing an artifact to the user using the data below. Always write a SHORT insight about it.
                 {kv_results}
                 """
@@ -559,7 +559,7 @@ class LLMClient:
         strategy: SearchStrategy = SearchStrategy.auto,
         top_n: int = 3,
         min_similarity: float = 0.0,
-        _eval_retrieved_out: list[dict] | None = None,
+        _eval_retrieved_out: list[dict[str, Any]] | None = None,
     ) -> str:
         """Use similar queries as few-shot examples."""
 
@@ -587,18 +587,18 @@ class LLMClient:
     def _add_history(
         self,
         prompt: str,
-        conversation_history: list[dict] | None = None
-    ) -> list[dict]:
+        conversation_history: list[dict[str, Any]] | None = None
+    ) -> str:
         """
         Prepare messages for chat API with token limit.
         """
 
-        history = []
+        history: list[dict[str, Any]] = []
 
         # Add conversation history (most recent first after reversing)
         if conversation_history:
             reversed_history = list(reversed(conversation_history))
-            kept_history = []
+            kept_history: list[dict[str, Any]] = []
             current_size = len(prompt)
 
             for msg in reversed_history:
@@ -640,3 +640,5 @@ async def cleanup_llm_client():
     if _llm_client:
         await _llm_client._close()
         _llm_client = None
+
+
