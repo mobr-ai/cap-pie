@@ -171,7 +171,7 @@ export function NewUserAlertsPanel({
                         onChange={() => toggleRecipient(email)}
                         disabled={busy}
                       />
-                      <span style={{ color: "#e5e7eb" }}>{email}</span>
+                      <span className="cap-email-label">{email}</span>
                     </label>
                   );
                 })}

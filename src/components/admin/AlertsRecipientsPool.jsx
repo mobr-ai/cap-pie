@@ -153,7 +153,7 @@ export function AlertsRecipientsPool({ t, value, onChange, disabled }) {
                     fontWeight: 500,
                   }}
                 >
-                  <span style={{ marginRight: "0.45rem" }}>{email}</span>
+                  <span className="cap-email-chip-address">{email}</span>
                   <button
                     type="button"
                     className="btn btn-sm"

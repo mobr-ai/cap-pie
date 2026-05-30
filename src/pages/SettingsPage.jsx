@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
+import ThemeSelector from "../components/settings/ThemeSelector";
 import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { getCardanoTxExplorerUrl } from "../billing/explorers";
 import {
@@ -1367,6 +1368,8 @@ export default function SettingsPage() {
             <span>{t("settingsBilling.futurePlanControls")}</span>
           </div>
         </div>
+
+        <ThemeSelector />
 
         <div className="mt-4 Settings-support-section">
           <div className="Settings-support-section-header">

@@ -1,0 +1,188 @@
+:root,
+[data-theme="mobr-og"] {
+  color-scheme: dark;
+
+  --theme-bg: #020617;
+  --theme-bg-soft: #050c1a;
+  --theme-bg-elevated: #0b1222;
+
+  --theme-surface: #0f172a;
+  --theme-surface-2: #151b26;
+  --theme-surface-3: #1e293b;
+  --theme-surface-glass: rgba(15, 23, 42, 0.72);
+
+  --theme-border: rgba(148, 163, 184, 0.18);
+  --theme-border-strong: rgba(148, 163, 184, 0.35);
+
+  --theme-text: #f8fafc;
+  --theme-text-soft: #e5e7eb;
+  --theme-text-muted: #94a3b8;
+  --theme-text-faint: rgba(203, 213, 225, 0.68);
+
+  --theme-primary: #3b82f6;
+  --theme-primary-hover: #60a5fa;
+  --theme-primary-soft: rgba(59, 130, 246, 0.14);
+
+  --theme-accent: #14b8a6;
+  --theme-accent-hover: #2dd4bf;
+  --theme-accent-soft: rgba(20, 184, 166, 0.14);
+
+  --theme-success: #22c55e;
+  --theme-warning: #f59e0b;
+  --theme-danger: #ef4444;
+  --theme-info: #38bdf8;
+
+  --theme-success-soft: rgba(34, 197, 94, 0.12);
+  --theme-warning-soft: rgba(245, 158, 11, 0.12);
+  --theme-danger-soft: rgba(239, 68, 68, 0.12);
+  --theme-info-soft: rgba(56, 189, 248, 0.12);
+
+  --theme-shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.45);
+  --theme-shadow-large: 0 24px 90px rgba(0, 0, 0, 0.6);
+
+  --theme-radius-sm: 0.5rem;
+  --theme-radius-md: 0.75rem;
+  --theme-radius-lg: 1rem;
+  --theme-radius-xl: 1.25rem;
+
+  --theme-page-gradient:
+    radial-gradient(circle at top left, rgba(47, 79, 79, 0.28), transparent 34%),
+    radial-gradient(circle at top right, rgba(30, 41, 59, 0.3), transparent 30%),
+    linear-gradient(135deg, #1f2933 0%, #26313c 46%, #202832 100%);
+
+  --theme-shell-gradient: radial-gradient(circle at top left, #111827 0%, #020617 55%);
+
+  --dash-bg: var(--theme-bg-soft);
+  --dash-card: var(--theme-surface-2);
+  --dash-border: #243047;
+  --dash-text: var(--theme-text);
+  --dash-shadow: var(--theme-shadow-soft);
+  --dash-muted: rgba(226, 232, 240, 0.65);
+  --dash-muted-2: rgba(226, 232, 240, 0.5);
+  --dash-link: rgba(169, 194, 255, 0.95);
+  --dash-btn-bg: rgba(2, 6, 23, 0.35);
+  --dash-btn-bg-hover: rgba(2, 6, 23, 0.55);
+  --dash-btn-border: var(--theme-border);
+  --dash-btn-border-hover: rgba(148, 163, 184, 0.28);
+}
+
+[data-theme="graphite"] {
+  color-scheme: dark;
+
+  --theme-bg: #0a0a0b;
+  --theme-bg-soft: #111113;
+  --theme-bg-elevated: #151519;
+
+  --theme-surface: #18181b;
+  --theme-surface-2: #202024;
+  --theme-surface-3: #2a2a30;
+  --theme-surface-glass: rgba(24, 24, 27, 0.76);
+
+  --theme-border: rgba(212, 212, 216, 0.14);
+  --theme-border-strong: rgba(212, 212, 216, 0.28);
+
+  --theme-text: #fafafa;
+  --theme-text-soft: #e4e4e7;
+  --theme-text-muted: #a1a1aa;
+  --theme-text-faint: rgba(212, 212, 216, 0.62);
+
+  --theme-primary: #a1a1aa;
+  --theme-primary-hover: #d4d4d8;
+  --theme-primary-soft: rgba(161, 161, 170, 0.14);
+
+  --theme-accent: #71717a;
+  --theme-accent-hover: #d4d4d8;
+  --theme-accent-soft: rgba(113, 113, 122, 0.18);
+
+  --theme-page-gradient:
+    radial-gradient(circle at top left, rgba(82, 82, 91, 0.22), transparent 34%),
+    linear-gradient(135deg, #111113 0%, #18181b 48%, #0a0a0b 100%);
+
+  --theme-shell-gradient: radial-gradient(circle at top left, #202024 0%, #0a0a0b 58%);
+}
+
+[data-theme="midnight"] {
+  color-scheme: dark;
+
+  --theme-bg: #030712;
+  --theme-bg-soft: #07111f;
+  --theme-bg-elevated: #0b1628;
+
+  --theme-surface: #0b1628;
+  --theme-surface-2: #10213a;
+  --theme-surface-3: #172b49;
+  --theme-surface-glass: rgba(11, 22, 40, 0.78);
+
+  --theme-border: rgba(96, 165, 250, 0.18);
+  --theme-border-strong: rgba(96, 165, 250, 0.34);
+
+  --theme-text: #f8fafc;
+  --theme-text-soft: #dbeafe;
+  --theme-text-muted: #93a4bf;
+  --theme-text-faint: rgba(191, 219, 254, 0.62);
+
+  --theme-primary: #60a5fa;
+  --theme-primary-hover: #93c5fd;
+  --theme-primary-soft: rgba(96, 165, 250, 0.16);
+
+  --theme-accent: #22d3ee;
+  --theme-accent-hover: #67e8f9;
+  --theme-accent-soft: rgba(34, 211, 238, 0.14);
+
+  --theme-page-gradient:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.24), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.13), transparent 32%),
+    linear-gradient(135deg, #030712 0%, #07111f 48%, #0b1628 100%);
+
+  --theme-shell-gradient: radial-gradient(circle at top left, #172b49 0%, #030712 60%);
+}
+
+[data-theme="paper"] {
+  color-scheme: light;
+
+  --theme-bg: #f6f7f9;
+  --theme-bg-soft: #eef1f5;
+  --theme-bg-elevated: #ffffff;
+
+  --theme-surface: #ffffff;
+  --theme-surface-2: #f9fafb;
+  --theme-surface-3: #eef2f7;
+  --theme-surface-glass: rgba(255, 255, 255, 0.86);
+
+  --theme-border: rgba(15, 23, 42, 0.12);
+  --theme-border-strong: rgba(15, 23, 42, 0.22);
+
+  --theme-text: #0f172a;
+  --theme-text-soft: #1e293b;
+  --theme-text-muted: #64748b;
+  --theme-text-faint: rgba(71, 85, 105, 0.72);
+
+  --theme-primary: #2563eb;
+  --theme-primary-hover: #1d4ed8;
+  --theme-primary-soft: rgba(37, 99, 235, 0.1);
+
+  --theme-accent: #0f766e;
+  --theme-accent-hover: #0d9488;
+  --theme-accent-soft: rgba(15, 118, 110, 0.1);
+
+  --theme-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.08);
+  --theme-shadow-large: 0 24px 70px rgba(15, 23, 42, 0.14);
+
+  --theme-page-gradient:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 34%),
+    linear-gradient(135deg, #f8fafc 0%, #eef2f7 48%, #e5e7eb 100%);
+
+  --theme-shell-gradient: radial-gradient(circle at top left, #ffffff 0%, #e5e7eb 62%);
+
+  --dash-bg: #f8fafc;
+  --dash-card: #ffffff;
+  --dash-border: rgba(15, 23, 42, 0.12);
+  --dash-text: #0f172a;
+  --dash-muted: rgba(71, 85, 105, 0.72);
+  --dash-muted-2: rgba(100, 116, 139, 0.62);
+  --dash-link: #2563eb;
+  --dash-btn-bg: rgba(15, 23, 42, 0.04);
+  --dash-btn-bg-hover: rgba(15, 23, 42, 0.08);
+  --dash-btn-border: rgba(15, 23, 42, 0.12);
+  --dash-btn-border-hover: rgba(15, 23, 42, 0.22);
+}
