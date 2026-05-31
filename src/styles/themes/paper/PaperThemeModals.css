@@ -1,0 +1,373 @@
+/* --------------------------------------------------------------------------
+   Paper theme modal and admin tabs polish
+   Covers payment modals, share modals, widget settings modals, and tab strip.
+   -------------------------------------------------------------------------- */
+
+/* Kill legacy admin tab gradient indicator in Paper */
+[data-theme="paper"] .admin-tab-indicator {
+  display: none !important;
+  opacity: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Force clean Paper tab strip */
+[data-theme="paper"] .admin-tabs,
+[data-theme="paper"] .admin-tabs-animated,
+[data-theme="paper"] .admin-tabs-scroller {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08) !important;
+  padding: 0.25rem !important;
+  gap: 0.2rem !important;
+}
+
+[data-theme="paper"] .admin-tab,
+[data-theme="paper"] .admin-tabs button,
+[data-theme="paper"] .admin-tabs-animated button,
+[data-theme="paper"] .admin-tabs-scroller button {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: #475569 !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="paper"] .admin-tab:hover,
+[data-theme="paper"] .admin-tabs button:hover,
+[data-theme="paper"] .admin-tabs-animated button:hover,
+[data-theme="paper"] .admin-tabs-scroller button:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .admin-tab-active,
+[data-theme="paper"] .admin-tab.admin-tab-active,
+[data-theme="paper"] .admin-tab.active,
+[data-theme="paper"] .admin-tabs button.active,
+[data-theme="paper"] .admin-tabs-animated button.active,
+[data-theme="paper"] .admin-tabs-scroller button.active,
+[data-theme="paper"] .admin-tabs button[aria-selected="true"],
+[data-theme="paper"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="paper"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: #2563eb !important;
+  background-image: none !important;
+  border: 0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22) !important;
+}
+
+[data-theme="paper"] .admin-tab-active *,
+[data-theme="paper"] .admin-tab.admin-tab-active *,
+[data-theme="paper"] .admin-tab.active *,
+[data-theme="paper"] .admin-tabs button.active *,
+[data-theme="paper"] .admin-tabs-animated button.active *,
+[data-theme="paper"] .admin-tabs-scroller button.active * {
+  color: #ffffff !important;
+}
+
+/* Generic Bootstrap modal foundation for Paper */
+[data-theme="paper"] .modal-backdrop.show {
+  opacity: 0.46 !important;
+}
+
+[data-theme="paper"] .modal-content {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 28px 80px rgba(15, 23, 42, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset !important;
+  overflow: hidden !important;
+}
+
+[data-theme="paper"] .modal-header {
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.98)) !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1) !important;
+  padding: 1rem 1.15rem !important;
+}
+
+[data-theme="paper"] .modal-title,
+[data-theme="paper"] .modal-header h1,
+[data-theme="paper"] .modal-header h2,
+[data-theme="paper"] .modal-header h3,
+[data-theme="paper"] .modal-header h4,
+[data-theme="paper"] .modal-header h5 {
+  color: #0f172a !important;
+  font-weight: 780 !important;
+}
+
+[data-theme="paper"] .modal-body {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 1.15rem !important;
+}
+
+[data-theme="paper"] .modal-footer {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.1) !important;
+  padding: 0.9rem 1.15rem !important;
+}
+
+[data-theme="paper"] .modal-content p,
+[data-theme="paper"] .modal-content span,
+[data-theme="paper"] .modal-content label,
+[data-theme="paper"] .modal-content small,
+[data-theme="paper"] .modal-content div {
+  text-shadow: none !important;
+}
+
+[data-theme="paper"] .modal-content label,
+[data-theme="paper"] .modal-content .form-label {
+  color: #334155 !important;
+  font-weight: 650 !important;
+}
+
+[data-theme="paper"] .modal-content small,
+[data-theme="paper"] .modal-content .text-muted,
+[data-theme="paper"] .modal-content .muted,
+[data-theme="paper"] .modal-content .help-text {
+  color: #64748b !important;
+}
+
+[data-theme="paper"] .modal-content input,
+[data-theme="paper"] .modal-content textarea,
+[data-theme="paper"] .modal-content select,
+[data-theme="paper"] .modal-content .form-control,
+[data-theme="paper"] .modal-content .form-select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="paper"] .modal-content input:focus,
+[data-theme="paper"] .modal-content textarea:focus,
+[data-theme="paper"] .modal-content select:focus,
+[data-theme="paper"] .modal-content .form-control:focus,
+[data-theme="paper"] .modal-content .form-select:focus {
+  border-color: rgba(37, 99, 235, 0.48) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14) !important;
+}
+
+[data-theme="paper"] .modal-content .btn-close {
+  filter: none !important;
+  opacity: 0.75 !important;
+}
+
+[data-theme="paper"] .modal-content .btn-close:hover {
+  opacity: 1 !important;
+}
+
+[data-theme="paper"] .modal-content .btn-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2) !important;
+}
+
+[data-theme="paper"] .modal-content .btn-primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+[data-theme="paper"] .modal-content .btn-secondary,
+[data-theme="paper"] .modal-content .btn-light,
+[data-theme="paper"] .modal-content .btn-outline-light,
+[data-theme="paper"] .modal-content .btn-outline-secondary {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+[data-theme="paper"] .modal-content .btn-secondary:hover,
+[data-theme="paper"] .modal-content .btn-light:hover,
+[data-theme="paper"] .modal-content .btn-outline-light:hover,
+[data-theme="paper"] .modal-content .btn-outline-secondary:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  border-color: rgba(37, 99, 235, 0.32) !important;
+  color: #0f172a !important;
+}
+
+/* Payment and billing modal specific surfaces */
+[data-theme="paper"] .CardanoPaymentModal,
+[data-theme="paper"] .cardano-payment-modal,
+[data-theme="paper"] .payment-modal,
+[data-theme="paper"] .billing-modal,
+[data-theme="paper"] .billing-payment-modal,
+[data-theme="paper"] .Settings-payment-modal {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .CardanoPaymentModal *,
+[data-theme="paper"] .cardano-payment-modal *,
+[data-theme="paper"] .payment-modal *,
+[data-theme="paper"] .billing-modal *,
+[data-theme="paper"] .billing-payment-modal *,
+[data-theme="paper"] .Settings-payment-modal * {
+  text-shadow: none !important;
+}
+
+[data-theme="paper"] .payment-modal-card,
+[data-theme="paper"] .billing-modal-card,
+[data-theme="paper"] .payment-summary-card,
+[data-theme="paper"] .payment-benefit,
+[data-theme="paper"] .payment-benefit-row,
+[data-theme="paper"] .payment-wallet-row,
+[data-theme="paper"] .payment-address-row,
+[data-theme="paper"] .payment-method-row,
+[data-theme="paper"] .billing-payment-card,
+[data-theme="paper"] .billing-payment-summary,
+[data-theme="paper"] .billing-payment-benefit,
+[data-theme="paper"] .CardanoPaymentModal .card,
+[data-theme="paper"] .CardanoPaymentModal [class*="benefit"],
+[data-theme="paper"] .CardanoPaymentModal [class*="summary"],
+[data-theme="paper"] .CardanoPaymentModal [class*="wallet"],
+[data-theme="paper"] .CardanoPaymentModal [class*="address"] {
+  background: #f8fafc !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="paper"] .CardanoPaymentModal [class*="eyebrow"],
+[data-theme="paper"] .CardanoPaymentModal [class*="subtitle"],
+[data-theme="paper"] .CardanoPaymentModal [class*="hint"],
+[data-theme="paper"] .CardanoPaymentModal [class*="note"],
+[data-theme="paper"] .CardanoPaymentModal [class*="meta"] {
+  color: #64748b !important;
+}
+
+[data-theme="paper"] .CardanoPaymentModal [class*="amount"],
+[data-theme="paper"] .CardanoPaymentModal [class*="title"],
+[data-theme="paper"] .CardanoPaymentModal [class*="balance"],
+[data-theme="paper"] .CardanoPaymentModal strong {
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .CardanoPaymentModal [class*="status"],
+[data-theme="paper"] .billing-payment-modal [class*="status"] {
+  background: rgba(37, 99, 235, 0.1) !important;
+  border-color: rgba(37, 99, 235, 0.22) !important;
+  color: #1d4ed8 !important;
+}
+
+/* Widget share modal */
+[data-theme="paper"] .ShareModal,
+[data-theme="paper"] .share-modal,
+[data-theme="paper"] .dashboard-share-modal,
+[data-theme="paper"] .widget-share-modal,
+[data-theme="paper"] .dashboard-widget-share-modal {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .share-preview,
+[data-theme="paper"] .ShareModal-preview,
+[data-theme="paper"] .dashboard-share-preview,
+[data-theme="paper"] .widget-share-preview,
+[data-theme="paper"] .share-image-preview,
+[data-theme="paper"] .dashboard-widget-share-preview,
+[data-theme="paper"] .modal-content [class*="preview"] {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75) !important;
+}
+
+[data-theme="paper"] .ShareModal .artifact-toolBtn,
+[data-theme="paper"] .share-modal .artifact-toolBtn,
+[data-theme="paper"] .dashboard-share-modal .artifact-toolBtn,
+[data-theme="paper"] .widget-share-modal .artifact-toolBtn {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
+}
+
+/* Widget edit/settings modal */
+[data-theme="paper"] .WidgetSettingsModal,
+[data-theme="paper"] .widget-settings-modal,
+[data-theme="paper"] .dashboard-widget-settings-modal,
+[data-theme="paper"] .widget-config-modal {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .WidgetSettingsModal section,
+[data-theme="paper"] .widget-settings-modal section,
+[data-theme="paper"] .dashboard-widget-settings-modal section,
+[data-theme="paper"] .widget-config-modal section,
+[data-theme="paper"] .widget-settings-section,
+[data-theme="paper"] .widget-settings-card,
+[data-theme="paper"] .widget-settings-group,
+[data-theme="paper"] .widget-settings-panel,
+[data-theme="paper"] .modal-content [class*="settings-section"],
+[data-theme="paper"] .modal-content [class*="settings-card"],
+[data-theme="paper"] .modal-content [class*="settings-group"] {
+  background: #f8fafc !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 14px !important;
+}
+
+[data-theme="paper"] .widget-color-pill,
+[data-theme="paper"] .widget-category-pill,
+[data-theme="paper"] .widget-settings-pill,
+[data-theme="paper"] .modal-content [class*="color-pill"],
+[data-theme="paper"] .modal-content [class*="category-pill"],
+[data-theme="paper"] .modal-content [class*="settings-pill"] {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+[data-theme="paper"] .widget-color-pill.is-active,
+[data-theme="paper"] .widget-category-pill.is-active,
+[data-theme="paper"] .widget-settings-pill.is-active,
+[data-theme="paper"] .modal-content [class*="color-pill"].is-active,
+[data-theme="paper"] .modal-content [class*="category-pill"].is-active,
+[data-theme="paper"] .modal-content [class*="settings-pill"].is-active {
+  background: rgba(37, 99, 235, 0.1) !important;
+  color: #1d4ed8 !important;
+  border-color: rgba(37, 99, 235, 0.36) !important;
+}
+
+/* Tone down old category colors in Paper widget settings only */
+[data-theme="paper"] .modal-content [style*="--pill-accent"],
+[data-theme="paper"] .modal-content [style*="--widget-accent"] {
+  color: #334155 !important;
+}
+
+/* Any modal dark utility classes should become Paper-light */
+[data-theme="paper"] .modal-content .bg-dark,
+[data-theme="paper"] .modal-content .text-bg-dark,
+[data-theme="paper"] .modal-content .dropdown-menu-dark {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="paper"] .modal-content .text-light,
+[data-theme="paper"] .modal-content .text-white {
+  color: #0f172a !important;
+}
+
+

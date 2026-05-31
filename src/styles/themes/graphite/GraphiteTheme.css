@@ -1,0 +1,762 @@
+/* --------------------------------------------------------------------------
+   Graphite theme UI coverage
+   Neutral dark professional theme across shell, admin, settings, dashboard,
+   landing/chat, analyses, loading state, and modals.
+   -------------------------------------------------------------------------- */
+
+[data-theme="graphite"] {
+  --graphite-bg: #0a0a0b;
+  --graphite-bg-soft: #101014;
+  --graphite-bg-raised: #16161b;
+  --graphite-bg-elevated: #1d1d23;
+
+  --graphite-card: #18181d;
+  --graphite-card-soft: #202027;
+  --graphite-card-muted: #26262e;
+
+  --graphite-border: rgba(212, 212, 216, 0.13);
+  --graphite-border-strong: rgba(212, 212, 216, 0.26);
+
+  --graphite-text: #f4f4f5;
+  --graphite-text-soft: #e4e4e7;
+  --graphite-muted: #a1a1aa;
+  --graphite-faint: rgba(212, 212, 216, 0.58);
+
+  --graphite-primary: #d4d4d8;
+  --graphite-primary-hover: #f4f4f5;
+  --graphite-primary-soft: rgba(212, 212, 216, 0.1);
+
+  --graphite-accent: #a1a1aa;
+  --graphite-accent-hover: #e4e4e7;
+  --graphite-accent-soft: rgba(161, 161, 170, 0.14);
+
+  --graphite-success: #22c55e;
+  --graphite-warning: #f59e0b;
+  --graphite-danger: #ef4444;
+  --graphite-info: #94a3b8;
+
+  --graphite-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+  --graphite-shadow-large: 0 28px 90px rgba(0, 0, 0, 0.55);
+}
+
+/* App shell */
+[data-theme="graphite"] html,
+[data-theme="graphite"] body,
+[data-theme="graphite"] #root,
+[data-theme="graphite"] #outer-container,
+[data-theme="graphite"] #page-wrap {
+  background:
+    radial-gradient(circle at top left, rgba(82, 82, 91, 0.18), transparent 34%),
+    linear-gradient(135deg, #0a0a0b 0%, #111113 48%, #18181b 100%) !important;
+  color: var(--graphite-text) !important;
+}
+
+/* Navbar and sidebar */
+[data-theme="graphite"] .cap-navbar,
+[data-theme="graphite"] .cap-sidebar {
+  background:
+    linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(10, 10, 11, 0.98)) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .Navbar-brand-slot,
+[data-theme="graphite"] .navbar-user-name,
+[data-theme="graphite"] .navbar-user-title,
+[data-theme="graphite"] .navbar-lang-title,
+[data-theme="graphite"] .navbar-account-name,
+[data-theme="graphite"] .navbar-account-metrics strong,
+[data-theme="graphite"] .nav-link,
+[data-theme="graphite"] .sidebar-item,
+[data-theme="graphite"] .sidebar-item svg,
+[data-theme="graphite"] .sidebar-header-collapse,
+[data-theme="graphite"] .sidebar-header-collapse svg,
+[data-theme="graphite"] .sidebar-expand-chevron,
+[data-theme="graphite"] .sidebar-conversation,
+[data-theme="graphite"] .sidebar-conversation-title,
+[data-theme="graphite"] .status-item .value,
+[data-theme="graphite"] .cap-sync-label {
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .sidebar-section-title,
+[data-theme="graphite"] .sidebar-footer,
+[data-theme="graphite"] .sidebar-conversation-preview,
+[data-theme="graphite"] .sidebar-conversations-empty,
+[data-theme="graphite"] .status-item .label,
+[data-theme="graphite"] .navbar-account-plan,
+[data-theme="graphite"] .navbar-account-note,
+[data-theme="graphite"] .navbar-account-metrics span {
+  color: var(--graphite-muted) !important;
+}
+
+[data-theme="graphite"] .sidebar-header-main,
+[data-theme="graphite"] .sidebar-header-collapse,
+[data-theme="graphite"] .sidebar-conversation,
+[data-theme="graphite"] .sidebar-conv-menu-btn,
+[data-theme="graphite"] .sidebar-conv-menu,
+[data-theme="graphite"] .navbar-account-summary,
+[data-theme="graphite"] .navbar-account-metrics > div,
+[data-theme="graphite"] .dropdown-menu-dark,
+[data-theme="graphite"] .navbar .dropdown-menu-dark {
+  background: rgba(24, 24, 27, 0.82) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .sidebar-item:hover,
+[data-theme="graphite"] .sidebar-conversation:hover,
+[data-theme="graphite"] .sidebar-conv-menu-btn:hover,
+[data-theme="graphite"] .dropdown-menu-dark .dropdown-item:hover {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.22) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .sidebar-item.active,
+[data-theme="graphite"] .sidebar-conversation.active {
+  background: rgba(212, 212, 216, 0.12) !important;
+  border-color: rgba(212, 212, 216, 0.36) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .sidebar-item.logout {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.22) !important;
+  color: #fecaca !important;
+}
+
+/* Core surfaces */
+[data-theme="graphite"] .Settings-body,
+[data-theme="graphite"] .AdminPage,
+[data-theme="graphite"] .AdminPage-inner,
+[data-theme="graphite"] .AdminPage.container,
+[data-theme="graphite"] .DashboardPage,
+[data-theme="graphite"] .dashboard-page,
+[data-theme="graphite"] .dashboard-container,
+[data-theme="graphite"] .AnalysesPage,
+[data-theme="graphite"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(113, 113, 122, 0.14), transparent 34%),
+    linear-gradient(135deg, #0a0a0b 0%, #111113 48%, #18181b 100%) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .Settings-container,
+[data-theme="graphite"] .Settings-user-box,
+[data-theme="graphite"] .Settings-billing-zone,
+[data-theme="graphite"] .Settings-billing-panel,
+[data-theme="graphite"] .Settings-balance-panel,
+[data-theme="graphite"] .Settings-payment-methods,
+[data-theme="graphite"] .Settings-deposit-panel,
+[data-theme="graphite"] .Settings-support-section,
+[data-theme="graphite"] .Settings-theme-section,
+[data-theme="graphite"] .Settings-activity-row,
+[data-theme="graphite"] .Settings-premium-metrics > div,
+[data-theme="graphite"] .Settings-billing-toggle,
+[data-theme="graphite"] .AdminPage .admin-section,
+[data-theme="graphite"] .AdminPage .admin-card,
+[data-theme="graphite"] .AdminPage .admin-metric-card,
+[data-theme="graphite"] .AdminPage .admin-stat-card,
+[data-theme="graphite"] .AdminPage .admin-notify-card,
+[data-theme="graphite"] .AdminPage .admin-table-wrapper,
+[data-theme="graphite"] .AdminPage .admin-table-card,
+[data-theme="graphite"] .AdminPage .admin-panel,
+[data-theme="graphite"] .dashboard-widget,
+[data-theme="graphite"] .dashboard-widget-card,
+[data-theme="graphite"] .dashboard-card,
+[data-theme="graphite"] .widget-card,
+[data-theme="graphite"] .dashboard-grid > *,
+[data-theme="graphite"] .analyses-note,
+[data-theme="graphite"] .analyses-loading,
+[data-theme="graphite"] .analyses-empty,
+[data-theme="graphite"] .analyses-card {
+  background:
+    linear-gradient(180deg, rgba(29, 29, 35, 0.96), rgba(18, 18, 22, 0.96)) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+/* Admin spacing, same as Paper */
+[data-theme="graphite"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+
+[data-theme="graphite"] .AdminPage .admin-section-header {
+  margin-bottom: 0.9rem !important;
+}
+
+/* Text */
+[data-theme="graphite"] .Settings-title,
+[data-theme="graphite"] .Settings-section-title,
+[data-theme="graphite"] .Settings-primary-name,
+[data-theme="graphite"] .Settings-billing-plan,
+[data-theme="graphite"] .Settings-billing-balance,
+[data-theme="graphite"] .Settings-deposit-chip-amount,
+[data-theme="graphite"] .Settings-support-section-header h5,
+[data-theme="graphite"] .Settings-payment-methods-title,
+[data-theme="graphite"] .Settings-billing-toggle-copy strong,
+[data-theme="graphite"] .Settings-activity-reason,
+[data-theme="graphite"] .Settings-premium-metrics strong,
+[data-theme="graphite"] .AdminPage h1,
+[data-theme="graphite"] .AdminPage h2,
+[data-theme="graphite"] .AdminPage h3,
+[data-theme="graphite"] .AdminPage h4,
+[data-theme="graphite"] .AdminPage h5,
+[data-theme="graphite"] .admin-section-title,
+[data-theme="graphite"] .admin-header h1,
+[data-theme="graphite"] .dashboard-title,
+[data-theme="graphite"] .dashboard-page h1,
+[data-theme="graphite"] .dashboard-page h2,
+[data-theme="graphite"] .dashboard-page h3,
+[data-theme="graphite"] .dashboard-widget h1,
+[data-theme="graphite"] .dashboard-widget h2,
+[data-theme="graphite"] .dashboard-widget h3,
+[data-theme="graphite"] .dashboard-widget h4,
+[data-theme="graphite"] .dashboard-widget h5,
+[data-theme="graphite"] .analyses-title,
+[data-theme="graphite"] .analyses-card-title,
+[data-theme="graphite"] .uq-card-query {
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .Settings-section-subtitle,
+[data-theme="graphite"] .Settings-secondary-handle,
+[data-theme="graphite"] .Settings-username-wallet,
+[data-theme="graphite"] .Settings-billing-copy,
+[data-theme="graphite"] .Settings-billing-hint,
+[data-theme="graphite"] .Settings-support-section-header p,
+[data-theme="graphite"] .Settings-support-disclaimer,
+[data-theme="graphite"] .Settings-billing-toggle-copy span,
+[data-theme="graphite"] .Settings-billing-toggle-copy small,
+[data-theme="graphite"] .Settings-activity-date,
+[data-theme="graphite"] .Settings-premium-metrics span,
+[data-theme="graphite"] .admin-section-subtitle,
+[data-theme="graphite"] .admin-header p,
+[data-theme="graphite"] .admin-muted,
+[data-theme="graphite"] .admin-help,
+[data-theme="graphite"] .admin-card small,
+[data-theme="graphite"] .admin-notify-card small,
+[data-theme="graphite"] .dashboard-widget small,
+[data-theme="graphite"] .dashboard-widget .muted,
+[data-theme="graphite"] .dashboard-widget .text-muted,
+[data-theme="graphite"] .analyses-subtitle,
+[data-theme="graphite"] .analyses-card-meta,
+[data-theme="graphite"] .analyses-card-preview,
+[data-theme="graphite"] .analyses-card-preview.muted,
+[data-theme="graphite"] .uq-card-metrics,
+[data-theme="graphite"] .uq-card-flags,
+[data-theme="graphite"] .uq-card-footer {
+  color: var(--graphite-muted) !important;
+}
+
+/* Inputs */
+[data-theme="graphite"] input,
+[data-theme="graphite"] textarea,
+[data-theme="graphite"] select,
+[data-theme="graphite"] .form-control,
+[data-theme="graphite"] .form-select,
+[data-theme="graphite"] .Settings-inline-input,
+[data-theme="graphite"] .Settings-support-custom input,
+[data-theme="graphite"] .Settings-container .form-control,
+[data-theme="graphite"] .Settings-container .form-select,
+[data-theme="graphite"] .AdminPage input,
+[data-theme="graphite"] .AdminPage textarea,
+[data-theme="graphite"] .AdminPage select,
+[data-theme="graphite"] .analyses-search {
+  background: rgba(10, 10, 11, 0.82) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border-strong) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="graphite"] input::placeholder,
+[data-theme="graphite"] textarea::placeholder,
+[data-theme="graphite"] .form-control::placeholder,
+[data-theme="graphite"] .analyses-search::placeholder {
+  color: rgba(161, 161, 170, 0.78) !important;
+}
+
+[data-theme="graphite"] input:focus,
+[data-theme="graphite"] textarea:focus,
+[data-theme="graphite"] select:focus,
+[data-theme="graphite"] .form-control:focus,
+[data-theme="graphite"] .form-select:focus,
+[data-theme="graphite"] .analyses-search:focus {
+  border-color: rgba(212, 212, 216, 0.46) !important;
+  box-shadow: 0 0 0 3px rgba(212, 212, 216, 0.1) !important;
+}
+
+/* Admin tabs */
+[data-theme="graphite"] .admin-tabs,
+[data-theme="graphite"] .admin-tabs-animated,
+[data-theme="graphite"] .admin-tabs-scroller {
+  position: relative !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem !important;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(32, 32, 36, 0.96), rgba(18, 18, 22, 0.96)) !important;
+  border: 1px solid var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .admin-tab-indicator {
+  display: block !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(113, 113, 122, 0.92), rgba(212, 212, 216, 0.32)) !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="graphite"] .admin-tab,
+[data-theme="graphite"] .admin-tabs button,
+[data-theme="graphite"] .admin-tabs-animated button,
+[data-theme="graphite"] .admin-tabs-scroller button {
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: var(--graphite-muted) !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="graphite"] .admin-tab:hover,
+[data-theme="graphite"] .admin-tabs button:hover,
+[data-theme="graphite"] .admin-tabs-animated button:hover,
+[data-theme="graphite"] .admin-tabs-scroller button:hover {
+  background: rgba(212, 212, 216, 0.07) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .admin-tab-active,
+[data-theme="graphite"] .admin-tab.admin-tab-active,
+[data-theme="graphite"] .admin-tab.active,
+[data-theme="graphite"] .admin-tabs button.active,
+[data-theme="graphite"] .admin-tabs-animated button.active,
+[data-theme="graphite"] .admin-tabs-scroller button.active,
+[data-theme="graphite"] .admin-tabs button[aria-selected="true"],
+[data-theme="graphite"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="graphite"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Tables */
+[data-theme="graphite"] table,
+[data-theme="graphite"] .table,
+[data-theme="graphite"] .table-dark,
+[data-theme="graphite"] .table-striped,
+[data-theme="graphite"] .admin-users-table,
+[data-theme="graphite"] .kv-table {
+  --bs-table-bg: #18181d;
+  --bs-table-color: var(--graphite-text);
+  --bs-table-border-color: var(--graphite-border);
+  --bs-table-striped-bg: #202027;
+  --bs-table-striped-color: var(--graphite-text);
+  --bs-table-hover-bg: #26262e;
+  --bs-table-hover-color: var(--graphite-text);
+
+  background: #18181d !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] table thead,
+[data-theme="graphite"] table thead tr,
+[data-theme="graphite"] table thead th,
+[data-theme="graphite"] .table thead th,
+[data-theme="graphite"] .kv-table thead th {
+  background: #202027 !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] table tbody tr,
+[data-theme="graphite"] table tbody td,
+[data-theme="graphite"] .table tbody tr,
+[data-theme="graphite"] .table tbody td,
+[data-theme="graphite"] .kv-table tbody tr,
+[data-theme="graphite"] .kv-table tbody td {
+  background-color: #18181d !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="graphite"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #202027 !important;
+}
+
+/* Theme selector and chips */
+[data-theme="graphite"] .Settings-theme-option,
+[data-theme="graphite"] .Settings-deposit-chip,
+[data-theme="graphite"] .Settings-support-preset,
+[data-theme="graphite"] .Settings-billing-status,
+[data-theme="graphite"] .Settings-billing-future span,
+[data-theme="graphite"] .Settings-premium-optin-chip,
+[data-theme="graphite"] .cap-email-chip,
+[data-theme="graphite"] .uq-card-metrics span,
+[data-theme="graphite"] .uq-card-flags span {
+  background: rgba(24, 24, 27, 0.86) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-option:hover,
+[data-theme="graphite"] .Settings-deposit-chip:hover,
+[data-theme="graphite"] .Settings-support-preset:hover,
+[data-theme="graphite"] .Settings-support-preset[data-active="true"] {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.28) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-option.is-active,
+[data-theme="graphite"] .Settings-deposit-chip.is-selected {
+  background: rgba(212, 212, 216, 0.1) !important;
+  border-color: rgba(212, 212, 216, 0.42) !important;
+  box-shadow: 0 0 0 1px rgba(212, 212, 216, 0.12) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-copy strong,
+[data-theme="graphite"] .Settings-theme-copy small,
+[data-theme="graphite"] .Settings-deposit-chip-label,
+[data-theme="graphite"] .Settings-support-custom span,
+[data-theme="graphite"] .cap-email-chip-address,
+[data-theme="graphite"] .cap-email-label {
+  color: var(--graphite-text-soft) !important;
+}
+
+/* Buttons */
+[data-theme="graphite"] .btn-primary,
+[data-theme="graphite"] .Settings-support-section .btn-primary,
+[data-theme="graphite"] .Settings-deposit-panel .btn-primary,
+[data-theme="graphite"] .cap-root .send-button {
+  background: #3f3f46 !important;
+  border-color: #52525b !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24) !important;
+}
+
+[data-theme="graphite"] .btn-primary:hover,
+[data-theme="graphite"] .cap-root .send-button:hover:not(:disabled) {
+  background: #52525b !important;
+  border-color: #71717a !important;
+}
+
+[data-theme="graphite"] .btn-outline-light,
+[data-theme="graphite"] .btn-outline-secondary,
+[data-theme="graphite"] .Settings-container .btn-outline-light,
+[data-theme="graphite"] .btn-secondary,
+[data-theme="graphite"] .btn-light {
+  background: rgba(24, 24, 27, 0.82) !important;
+  border-color: var(--graphite-border-strong) !important;
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .btn-outline-light:hover,
+[data-theme="graphite"] .btn-outline-secondary:hover,
+[data-theme="graphite"] .btn-secondary:hover,
+[data-theme="graphite"] .btn-light:hover {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.3) !important;
+}
+
+/* Landing/chat */
+[data-theme="graphite"] .cap-root {
+  --primary: var(--graphite-accent);
+  --primary-dark: var(--graphite-accent-hover);
+  --secondary: var(--graphite-muted);
+  --background: var(--graphite-bg);
+  --surface: var(--graphite-card);
+  --surface-light: var(--graphite-card-soft);
+  --text-primary: var(--graphite-text);
+  --text-secondary: var(--graphite-muted);
+  --border: var(--graphite-border);
+}
+
+[data-theme="graphite"] .cap-root .chat-container,
+[data-theme="graphite"] .cap-root .input-container,
+[data-theme="graphite"] .cap-root .message.assistant .message-bubble,
+[data-theme="graphite"] .cap-root .message.assistant .message-avatar {
+  background: var(--graphite-card) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .cap-root .message.user .message-bubble {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="graphite"] .cap-root .landing-empty-line,
+[data-theme="graphite"] .cap-root .landing-empty-typed {
+  color: var(--graphite-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="graphite"] .cap-root .landing-empty-caret {
+  background: var(--graphite-accent-hover) !important;
+}
+
+[data-theme="graphite"] .cap-root .example-chip {
+  background: rgba(24, 24, 27, 0.9) !important;
+  color: var(--graphite-text-soft) !important;
+  border: 1px solid var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(212, 212, 216, 0.08) !important;
+  color: var(--graphite-text) !important;
+  border-color: rgba(212, 212, 216, 0.3) !important;
+}
+
+/* Chat processing/status */
+[data-theme="graphite"] .cap-root .message.status,
+[data-theme="graphite"] .cap-root .message.status .message-bubble,
+[data-theme="graphite"] .cap-root .rm-assistant-statusRow,
+[data-theme="graphite"] .message.assistant .thinking-inline {
+  color: var(--graphite-text-soft) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="graphite"] .cap-root .message.status .message-bubble,
+[data-theme="graphite"] .cap-root .rm-assistant-statusRow,
+[data-theme="graphite"] .message.assistant .thinking-inline {
+  background: rgba(24, 24, 27, 0.86) !important;
+  border-left-color: var(--graphite-accent-hover) !important;
+}
+
+[data-theme="graphite"] .cap-root .thinking-animation span,
+[data-theme="graphite"] .message.assistant .thinking-animation span {
+  background: var(--graphite-accent-hover) !important;
+  opacity: 0.85 !important;
+}
+
+/* Charts and artifacts */
+[data-theme="graphite"] .chat-chart-slot,
+[data-theme="graphite"] .vega-chart-container,
+[data-theme="graphite"] .dashboard-widget .vega-chart-container {
+  background: #18181d !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .kv-table-link,
+[data-theme="graphite"] .Settings-referral-link,
+[data-theme="graphite"] .Settings-payment-address,
+[data-theme="graphite"] .Settings-activity-hash,
+[data-theme="graphite"] .dashboard-widget a,
+[data-theme="graphite"] .analyses-card a {
+  color: #d4d4d8 !important;
+}
+
+/* Loading page */
+[data-theme="graphite"] .LoadingPage-fullscreen {
+  background:
+    radial-gradient(circle at top, rgba(113, 113, 122, 0.14), transparent 42%),
+    radial-gradient(circle at bottom, rgba(39, 39, 42, 0.34), transparent 42%),
+    #0a0a0b !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .LoadingPage-logo {
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.52)) !important;
+}
+
+[data-theme="graphite"] .LoadingPage-pulse-glow {
+  background: radial-gradient(circle, rgba(212, 212, 216, 0.24), transparent) !important;
+}
+
+[data-theme="graphite"] .LoadingPage-orbit-ring {
+  border-color: rgba(212, 212, 216, 0.22) !important;
+}
+
+[data-theme="graphite"] .LoadingPage-orbit-dot {
+  background: #d4d4d8 !important;
+  box-shadow: 0 0 12px rgba(212, 212, 216, 0.42) !important;
+}
+
+[data-theme="graphite"] .LoadingPage-ring-spinner {
+  border-color: rgba(212, 212, 216, 0.08) !important;
+  border-top-color: #d4d4d8 !important;
+  border-right-color: #71717a !important;
+}
+
+[data-theme="graphite"] .LoadingPage-message {
+  color: var(--graphite-muted) !important;
+}
+
+/* Modals */
+[data-theme="graphite"] .modal-content,
+[data-theme="graphite"] .CardanoPaymentModal-content,
+[data-theme="graphite"] .uq-modal {
+  background:
+    linear-gradient(180deg, rgba(29, 29, 35, 0.98), rgba(18, 18, 22, 0.98)) !important;
+  color: var(--graphite-text) !important;
+  border: 1px solid var(--graphite-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--graphite-shadow-large) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="graphite"] .modal-header,
+[data-theme="graphite"] .CardanoPaymentModal-header {
+  background:
+    linear-gradient(180deg, rgba(39, 39, 42, 0.98), rgba(24, 24, 27, 0.98)) !important;
+  color: var(--graphite-text) !important;
+  border-bottom: 1px solid var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .modal-body,
+[data-theme="graphite"] .CardanoPaymentModal-body {
+  background: transparent !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .modal-footer,
+[data-theme="graphite"] .CardanoPaymentModal-footer {
+  background: rgba(10, 10, 11, 0.45) !important;
+  color: var(--graphite-text) !important;
+  border-top: 1px solid var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .modal-title,
+[data-theme="graphite"] .modal-header h1,
+[data-theme="graphite"] .modal-header h2,
+[data-theme="graphite"] .modal-header h3,
+[data-theme="graphite"] .modal-header h4,
+[data-theme="graphite"] .modal-header h5,
+[data-theme="graphite"] .CardanoPaymentModal-title {
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .modal-content small,
+[data-theme="graphite"] .modal-content .text-muted,
+[data-theme="graphite"] .modal-content .muted,
+[data-theme="graphite"] .modal-content .help-text,
+[data-theme="graphite"] .CardanoPaymentModal-subtitle,
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="hint"],
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="meta"],
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="note"] {
+  color: var(--graphite-muted) !important;
+}
+
+[data-theme="graphite"] .payment-modal-card,
+[data-theme="graphite"] .billing-modal-card,
+[data-theme="graphite"] .payment-summary-card,
+[data-theme="graphite"] .payment-benefit,
+[data-theme="graphite"] .payment-benefit-row,
+[data-theme="graphite"] .payment-wallet-row,
+[data-theme="graphite"] .payment-address-row,
+[data-theme="graphite"] .payment-method-row,
+[data-theme="graphite"] .billing-payment-card,
+[data-theme="graphite"] .billing-payment-summary,
+[data-theme="graphite"] .billing-payment-benefit,
+[data-theme="graphite"] .CardanoPaymentModal-plan,
+[data-theme="graphite"] .CardanoPaymentModal-summary,
+[data-theme="graphite"] .CardanoPaymentModal-balance,
+[data-theme="graphite"] .CardanoPaymentModal-wallet,
+[data-theme="graphite"] .CardanoPaymentModal-payment,
+[data-theme="graphite"] .CardanoPaymentModal-benefits,
+[data-theme="graphite"] .CardanoPaymentModal-note,
+[data-theme="graphite"] .CardanoPaymentModal-status,
+[data-theme="graphite"] .CardanoPaymentModal-address,
+[data-theme="graphite"] .CardanoPaymentModal-network,
+[data-theme="graphite"] .CardanoPaymentModal-section,
+[data-theme="graphite"] .CardanoPaymentModal-card,
+[data-theme="graphite"] .CardanoPaymentModal-row,
+[data-theme="graphite"] .share-preview,
+[data-theme="graphite"] .ShareModal-preview,
+[data-theme="graphite"] .dashboard-share-preview,
+[data-theme="graphite"] .widget-share-preview,
+[data-theme="graphite"] .share-image-preview,
+[data-theme="graphite"] .dashboard-widget-share-preview,
+[data-theme="graphite"] .widget-settings-section,
+[data-theme="graphite"] .widget-settings-card,
+[data-theme="graphite"] .widget-settings-group,
+[data-theme="graphite"] .widget-settings-panel,
+[data-theme="graphite"] .modal-content [class*="settings-section"],
+[data-theme="graphite"] .modal-content [class*="settings-card"],
+[data-theme="graphite"] .modal-content [class*="settings-group"],
+[data-theme="graphite"] .modal-content [class*="preview"] {
+  background: rgba(24, 24, 27, 0.9) !important;
+  background-image: none !important;
+  color: var(--graphite-text) !important;
+  border: 1px solid var(--graphite-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="graphite"] .ShareModal-share-icon p,
+[data-theme="graphite"] .ShareModal-share-icon span,
+[data-theme="graphite"] .ShareModal-share-icon small {
+  color: var(--graphite-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="graphite"] .modal-content .btn-close {
+  filter: invert(1) grayscale(1) !important;
+  opacity: 0.72 !important;
+}
+
+/* Billing notifications */
+[data-theme="graphite"] .billing-notification-list,
+[data-theme="graphite"] .billing-notification-row,
+[data-theme="graphite"] .billing-notification-row-meta,
+[data-theme="graphite"] .billing-notification-panel,
+[data-theme="graphite"] .billing-notification-card {
+  background: rgba(24, 24, 27, 0.94) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .billing-notification-list > *:nth-child(even),
+[data-theme="graphite"] .billing-notification-row:nth-child(even) {
+  background: rgba(32, 32, 36, 0.94) !important;
+}
+
+/* Semantic statuses */
+[data-theme="graphite"] .Settings-billing-status.is-active,
+[data-theme="graphite"] .navbar-billing-badge.is-premium {
+  background: rgba(212, 212, 216, 0.1) !important;
+  border-color: rgba(212, 212, 216, 0.26) !important;
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .form-check-input:checked,
+[data-theme="graphite"] input[type="checkbox"]:checked,
+[data-theme="graphite"] .form-switch .form-check-input:checked {
+  background-color: #71717a !important;
+  border-color: #a1a1aa !important;
+}
+
+/* Mobile */
+@media (max-width: 991.98px) {
+  [data-theme="graphite"] .cap-navbar .navbar-collapse,
+  [data-theme="graphite"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="graphite"] .cap-navbar .navbar-collapse.show {
+    background: #18181b !important;
+    border-top-color: var(--graphite-border) !important;
+  }
+}
+
+
