@@ -102,12 +102,34 @@ class ContextAgent:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
-        has_sparql_data = bool(result and result.sparql_results)
-        has_sql_data = bool(result and result.sql_results)
-
-        if not query or not result or not (has_sparql_data or has_sql_data):
+        if not query or not result:
             state["formatted_results"] = ""
             state["kv_results"] = None
+            return state
+
+        has_sparql_data = bool(result.sparql_results)
+        has_sql_data = bool(result.sql_results)
+
+        if not has_sparql_data and not has_sql_data:
+            if query.sql:
+                state["formatted_results"] = (
+                    "SQL / OHLCV results:\n"
+                    "[]\n\n"
+                    "The SQL query executed successfully but returned no rows."
+                )
+                state["kv_results"] = {
+                    "result_type": "table",
+                    "data": [],
+                    "metadata": {
+                        "count": 0,
+                        "reason": "SQL query executed successfully but returned no rows.",
+                    },
+                }
+
+            else:
+                state["formatted_results"] = ""
+                state["kv_results"] = None
+
             return state
 
         formatted, kv_results = format_execution_context(
@@ -137,8 +159,8 @@ class AnswerAgent:
 
         stream = self.llm_client.generate_answer_with_context(
             user_query=state.get("user_query", ""),
-            sparql_query=serialized_query,
-            sparql_results=state.get("formatted_results", ""),
+            federated_query=serialized_query,
+            formatted_results=state.get("formatted_results", ""),
             kv_results=kv_results,
             system_prompt="",
             conversation_history=state.get("conversation_history"),

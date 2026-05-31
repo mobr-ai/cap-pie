@@ -256,7 +256,7 @@ def _query_metrics_to_dict(r: QueryMetrics) -> dict[str, Any]:
         "created_at": r.created_at.isoformat() if r.created_at else None,
 
         # details / modal
-        "sparql_query": getattr(r, "sparql_query", None),
+        "federated_query": getattr(r, "federated_query", None),
         "sparql_valid": getattr(r, "sparql_valid", None),
         "semantic_valid": getattr(r, "semantic_valid", None),
         "is_sequential": getattr(r, "is_sequential", None),

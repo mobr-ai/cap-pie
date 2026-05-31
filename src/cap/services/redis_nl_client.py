@@ -107,7 +107,7 @@ class RedisNLClient:
                 cache_data = {
                     "original_query": nl_query,
                     "normalized_query": user_query,
-                    "sparql_query": normalized_payload,
+                    "federated_query": normalized_payload,
                     "placeholder_map": placeholder_map,
                     "is_sequential": isinstance(sparql_query, str) and sparql_query.strip().startswith('['),
                     "precached": False,
@@ -315,7 +315,7 @@ class RedisNLClient:
 
                 # Restore placeholders
                 restored_payload = self._restore_federated_payload(
-                    data["sparql_query"],
+                    data["federated_query"],
                     placeholder_map,
                     current_values,
                 )
@@ -328,7 +328,7 @@ class RedisNLClient:
                     span.set_attribute("cache_hit", False)
                     return None
 
-                data["sparql_query"] = restored_payload
+                data["federated_query"] = restored_payload
                 span.set_attribute("cache_hit", True)
                 return data
 

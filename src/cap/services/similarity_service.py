@@ -180,18 +180,18 @@ class SimilarityService:
                 continue
 
             original_nl = entry.get("original_query", "")
-            sparql_data = await redis_client.get_cached_query_with_original(
+            federated_data = await redis_client.get_cached_query_with_original(
                 normalized_query=cached_normalized,
                 original_query=original_nl,
             )
-            sparql_query = ""
-            if sparql_data:
-                sparql_query = sparql_data.get("sparql_query", "")
+            federated_query = ""
+            if federated_data:
+                federated_query = federated_data.get("federated_query", "")
 
             candidates.append({
                 "original_query": original_nl,
                 "normalized_query": cached_normalized,
-                "sparql_query": sparql_query,
+                "federated_query": federated_query,
                 "similarity_score": score,
                 "is_sequential": entry.get("is_sequential", False),
                 "precached": entry.get("precached", False),

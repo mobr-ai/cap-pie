@@ -29,7 +29,7 @@ async def get_cached_federated_query(
     if not cached_data:
         return None
 
-    payload = cached_data["sparql_query"]
+    payload = cached_data["federated_query"]
 
     try:
         parsed = json.loads(payload)

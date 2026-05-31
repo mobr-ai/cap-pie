@@ -44,6 +44,7 @@ class FederatedPlanner:
         ontology_block: str,
         fewshot_block: str = "",
     ) -> FederatedQuery:
+
         prompt = f"""
 {FEDERATED_PROMPT}
 
