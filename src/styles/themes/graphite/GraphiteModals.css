@@ -1,0 +1,113 @@
+/* Modals */
+[data-theme="graphite"] .modal-content,
+[data-theme="graphite"] .CardanoPaymentModal-content,
+[data-theme="graphite"] .uq-modal {
+  background:
+    linear-gradient(180deg, rgba(29, 29, 35, 0.98), rgba(18, 18, 22, 0.98)) !important;
+  color: var(--graphite-text) !important;
+  border: 1px solid var(--graphite-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--graphite-shadow-large) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="graphite"] .modal-header,
+[data-theme="graphite"] .CardanoPaymentModal-header {
+  background:
+    linear-gradient(180deg, rgba(39, 39, 42, 0.98), rgba(24, 24, 27, 0.98)) !important;
+  color: var(--graphite-text) !important;
+  border-bottom: 1px solid var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .modal-body,
+[data-theme="graphite"] .CardanoPaymentModal-body {
+  background: transparent !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .modal-footer,
+[data-theme="graphite"] .CardanoPaymentModal-footer {
+  background: rgba(10, 10, 11, 0.45) !important;
+  color: var(--graphite-text) !important;
+  border-top: 1px solid var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .modal-title,
+[data-theme="graphite"] .modal-header h1,
+[data-theme="graphite"] .modal-header h2,
+[data-theme="graphite"] .modal-header h3,
+[data-theme="graphite"] .modal-header h4,
+[data-theme="graphite"] .modal-header h5,
+[data-theme="graphite"] .CardanoPaymentModal-title {
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .modal-content small,
+[data-theme="graphite"] .modal-content .text-muted,
+[data-theme="graphite"] .modal-content .muted,
+[data-theme="graphite"] .modal-content .help-text,
+[data-theme="graphite"] .CardanoPaymentModal-subtitle,
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="hint"],
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="meta"],
+[data-theme="graphite"] .CardanoPaymentModal-content [class*="note"] {
+  color: var(--graphite-muted) !important;
+}
+
+[data-theme="graphite"] .payment-modal-card,
+[data-theme="graphite"] .billing-modal-card,
+[data-theme="graphite"] .payment-summary-card,
+[data-theme="graphite"] .payment-benefit,
+[data-theme="graphite"] .payment-benefit-row,
+[data-theme="graphite"] .payment-wallet-row,
+[data-theme="graphite"] .payment-address-row,
+[data-theme="graphite"] .payment-method-row,
+[data-theme="graphite"] .billing-payment-card,
+[data-theme="graphite"] .billing-payment-summary,
+[data-theme="graphite"] .billing-payment-benefit,
+[data-theme="graphite"] .CardanoPaymentModal-plan,
+[data-theme="graphite"] .CardanoPaymentModal-summary,
+[data-theme="graphite"] .CardanoPaymentModal-balance,
+[data-theme="graphite"] .CardanoPaymentModal-wallet,
+[data-theme="graphite"] .CardanoPaymentModal-payment,
+[data-theme="graphite"] .CardanoPaymentModal-benefits,
+[data-theme="graphite"] .CardanoPaymentModal-note,
+[data-theme="graphite"] .CardanoPaymentModal-status,
+[data-theme="graphite"] .CardanoPaymentModal-address,
+[data-theme="graphite"] .CardanoPaymentModal-network,
+[data-theme="graphite"] .CardanoPaymentModal-section,
+[data-theme="graphite"] .CardanoPaymentModal-card,
+[data-theme="graphite"] .CardanoPaymentModal-row,
+[data-theme="graphite"] .share-preview,
+[data-theme="graphite"] .ShareModal-preview,
+[data-theme="graphite"] .dashboard-share-preview,
+[data-theme="graphite"] .widget-share-preview,
+[data-theme="graphite"] .share-image-preview,
+[data-theme="graphite"] .dashboard-widget-share-preview,
+[data-theme="graphite"] .widget-settings-section,
+[data-theme="graphite"] .widget-settings-card,
+[data-theme="graphite"] .widget-settings-group,
+[data-theme="graphite"] .widget-settings-panel,
+[data-theme="graphite"] .modal-content [class*="settings-section"],
+[data-theme="graphite"] .modal-content [class*="settings-card"],
+[data-theme="graphite"] .modal-content [class*="settings-group"],
+[data-theme="graphite"] .modal-content [class*="preview"] {
+  background: rgba(24, 24, 27, 0.9) !important;
+  background-image: none !important;
+  color: var(--graphite-text) !important;
+  border: 1px solid var(--graphite-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="graphite"] .ShareModal-share-icon p,
+[data-theme="graphite"] .ShareModal-share-icon span,
+[data-theme="graphite"] .ShareModal-share-icon small {
+  color: var(--graphite-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="graphite"] .modal-content .btn-close {
+  filter: invert(1) grayscale(1) !important;
+  opacity: 0.72 !important;
+}
+

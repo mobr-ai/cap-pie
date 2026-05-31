@@ -1,0 +1,63 @@
+/* Landing/chat */
+[data-theme="midnight"] .cap-root {
+  --primary: var(--midnight-primary);
+  --primary-dark: var(--midnight-primary-hover);
+  --secondary: var(--midnight-muted);
+  --background: var(--midnight-bg);
+  --surface: var(--midnight-card);
+  --surface-light: var(--midnight-card-soft);
+  --text-primary: var(--midnight-text);
+  --text-secondary: var(--midnight-muted);
+  --border: var(--midnight-border);
+}
+
+[data-theme="midnight"] .cap-root .chat-container,
+[data-theme="midnight"] .cap-root .input-container,
+[data-theme="midnight"] .cap-root .message.assistant .message-bubble,
+[data-theme="midnight"] .cap-root .message.assistant .message-avatar {
+  background: var(--midnight-card) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .cap-root .message.user .message-bubble {
+  background:
+    linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-line,
+[data-theme="midnight"] .cap-root .landing-empty-typed {
+  color: var(--midnight-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-caret {
+  background: var(--midnight-accent-hover) !important;
+}
+
+[data-theme="midnight"] .cap-root .landing-empty-robotBadge {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(96, 165, 250, 0.16), transparent 56%),
+    linear-gradient(180deg, rgba(16, 33, 58, 0.92), rgba(7, 17, 31, 0.92)) !important;
+  border-color: rgba(96, 165, 250, 0.18) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    0 0 0 6px rgba(96, 165, 250, 0.06),
+    0 0 38px rgba(34, 211, 238, 0.08) !important;
+}
+
+[data-theme="midnight"] .cap-root .example-chip {
+  background: rgba(11, 22, 40, 0.92) !important;
+  color: var(--midnight-text-soft) !important;
+  border: 1px solid var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(96, 165, 250, 0.11) !important;
+  color: var(--midnight-text) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+}
+

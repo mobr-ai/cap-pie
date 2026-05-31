@@ -1,0 +1,36 @@
+/* Loading page */
+[data-theme="terminal"] .LoadingPage-fullscreen {
+  background:
+    radial-gradient(circle at top, rgba(34, 197, 94, 0.14), transparent 42%),
+    radial-gradient(circle at bottom, rgba(57, 255, 136, 0.06), transparent 42%),
+    #020403 !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-logo {
+  filter: drop-shadow(0 8px 22px rgba(34, 197, 94, 0.22)) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-pulse-glow {
+  background: radial-gradient(circle, rgba(57, 255, 136, 0.24), transparent) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-orbit-ring {
+  border-color: rgba(57, 255, 136, 0.24) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-orbit-dot {
+  background: #39ff88 !important;
+  box-shadow: 0 0 12px rgba(57, 255, 136, 0.52) !important;
+}
+
+[data-theme="terminal"] .LoadingPage-ring-spinner {
+  border-color: rgba(57, 255, 136, 0.08) !important;
+  border-top-color: #22c55e !important;
+  border-right-color: #39ff88 !important;
+}
+
+[data-theme="terminal"] .LoadingPage-message {
+  color: var(--terminal-muted) !important;
+}
+

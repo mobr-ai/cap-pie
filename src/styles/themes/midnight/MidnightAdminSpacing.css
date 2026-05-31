@@ -1,0 +1,11 @@
+/* Admin spacing */
+[data-theme="midnight"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+
+[data-theme="midnight"] .AdminPage .admin-section-header {
+  margin-bottom: 0.9rem !important;
+}
+

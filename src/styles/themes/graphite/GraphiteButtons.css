@@ -1,0 +1,35 @@
+/* Buttons */
+[data-theme="graphite"] .btn-primary,
+[data-theme="graphite"] .Settings-support-section .btn-primary,
+[data-theme="graphite"] .Settings-deposit-panel .btn-primary,
+[data-theme="graphite"] .cap-root .send-button {
+  background: #3f3f46 !important;
+  border-color: #52525b !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24) !important;
+}
+
+[data-theme="graphite"] .btn-primary:hover,
+[data-theme="graphite"] .cap-root .send-button:hover:not(:disabled) {
+  background: #52525b !important;
+  border-color: #71717a !important;
+}
+
+[data-theme="graphite"] .btn-outline-light,
+[data-theme="graphite"] .btn-outline-secondary,
+[data-theme="graphite"] .Settings-container .btn-outline-light,
+[data-theme="graphite"] .btn-secondary,
+[data-theme="graphite"] .btn-light {
+  background: rgba(24, 24, 27, 0.82) !important;
+  border-color: var(--graphite-border-strong) !important;
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .btn-outline-light:hover,
+[data-theme="graphite"] .btn-outline-secondary:hover,
+[data-theme="graphite"] .btn-secondary:hover,
+[data-theme="graphite"] .btn-light:hover {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.3) !important;
+}
+

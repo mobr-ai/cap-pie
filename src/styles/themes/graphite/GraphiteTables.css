@@ -1,0 +1,46 @@
+/* Tables */
+[data-theme="graphite"] table,
+[data-theme="graphite"] .table,
+[data-theme="graphite"] .table-dark,
+[data-theme="graphite"] .table-striped,
+[data-theme="graphite"] .admin-users-table,
+[data-theme="graphite"] .kv-table {
+  --bs-table-bg: #18181d;
+  --bs-table-color: var(--graphite-text);
+  --bs-table-border-color: var(--graphite-border);
+  --bs-table-striped-bg: #202027;
+  --bs-table-striped-color: var(--graphite-text);
+  --bs-table-hover-bg: #26262e;
+  --bs-table-hover-color: var(--graphite-text);
+
+  background: #18181d !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] table thead,
+[data-theme="graphite"] table thead tr,
+[data-theme="graphite"] table thead th,
+[data-theme="graphite"] .table thead th,
+[data-theme="graphite"] .kv-table thead th {
+  background: #202027 !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] table tbody tr,
+[data-theme="graphite"] table tbody td,
+[data-theme="graphite"] .table tbody tr,
+[data-theme="graphite"] .table tbody td,
+[data-theme="graphite"] .kv-table tbody tr,
+[data-theme="graphite"] .kv-table tbody td {
+  background-color: #18181d !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="graphite"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #202027 !important;
+}
+

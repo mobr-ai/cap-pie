@@ -1,0 +1,7 @@
+/* Admin spacing */
+[data-theme="terminal"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+

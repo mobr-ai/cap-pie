@@ -1,0 +1,37 @@
+/* Navbar */
+.cap-navbar {
+  background: var(--theme-surface-3) !important;
+  color: var(--theme-text-soft);
+  border-bottom-color: var(--theme-border);
+  box-shadow: var(--theme-shadow-soft);
+  --nav-fg: var(--theme-text-soft);
+  --nav-fg-dim: var(--theme-text-muted);
+  --nav-bg: var(--theme-surface);
+}
+
+.Navbar-brand-slot,
+.status-item .value,
+.Navbar-toggle-btn,
+.has-left-burger .Navbar-toggle-btn,
+.cap-sync-tooltip,
+.navbar-account-name,
+.navbar-account-metrics strong {
+  color: var(--theme-text-soft);
+}
+
+.status-item .label,
+.cap-sync-label,
+.navbar-account-plan,
+.navbar-account-note,
+.navbar-account-metrics span {
+  color: var(--theme-text-muted);
+}
+
+.cap-sync-tooltip,
+.navbar-account-metrics > div,
+.navbar-billing-badge,
+.has-left-burger .Navbar-toggle-btn {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+

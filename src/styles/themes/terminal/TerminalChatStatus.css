@@ -1,0 +1,22 @@
+/* Chat processing/status */
+[data-theme="terminal"] .cap-root .message.status,
+[data-theme="terminal"] .cap-root .message.status .message-bubble,
+[data-theme="terminal"] .cap-root .rm-assistant-statusRow,
+[data-theme="terminal"] .message.assistant .thinking-inline {
+  color: var(--terminal-text-soft) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="terminal"] .cap-root .message.status .message-bubble,
+[data-theme="terminal"] .cap-root .rm-assistant-statusRow,
+[data-theme="terminal"] .message.assistant .thinking-inline {
+  background: rgba(7, 20, 15, 0.9) !important;
+  border-left-color: var(--terminal-accent) !important;
+}
+
+[data-theme="terminal"] .cap-root .thinking-animation span,
+[data-theme="terminal"] .message.assistant .thinking-animation span {
+  background: var(--terminal-accent) !important;
+  opacity: 0.9 !important;
+}
+

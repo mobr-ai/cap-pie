@@ -1,0 +1,63 @@
+/* Landing/chat */
+[data-theme="terminal"] .cap-root {
+  --primary: var(--terminal-primary);
+  --primary-dark: var(--terminal-primary-hover);
+  --secondary: var(--terminal-muted);
+  --background: var(--terminal-bg);
+  --surface: var(--terminal-card);
+  --surface-light: var(--terminal-card-soft);
+  --text-primary: var(--terminal-text);
+  --text-secondary: var(--terminal-muted);
+  --border: var(--terminal-border);
+}
+
+[data-theme="terminal"] .cap-root .chat-container,
+[data-theme="terminal"] .cap-root .input-container,
+[data-theme="terminal"] .cap-root .message.assistant .message-bubble,
+[data-theme="terminal"] .cap-root .message.assistant .message-avatar {
+  background: var(--terminal-card) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .cap-root .message.user .message-bubble {
+  background:
+    linear-gradient(135deg, rgba(21, 128, 61, 0.95), rgba(34, 197, 94, 0.88)) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-line,
+[data-theme="terminal"] .cap-root .landing-empty-typed {
+  color: var(--terminal-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-caret {
+  background: var(--terminal-accent) !important;
+}
+
+[data-theme="terminal"] .cap-root .landing-empty-robotBadge {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(57, 255, 136, 0.15), transparent 56%),
+    linear-gradient(180deg, rgba(9, 26, 19, 0.92), rgba(3, 8, 6, 0.92)) !important;
+  border-color: rgba(57, 255, 136, 0.18) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.4),
+    0 0 0 6px rgba(57, 255, 136, 0.045),
+    0 0 38px rgba(57, 255, 136, 0.08) !important;
+}
+
+[data-theme="terminal"] .cap-root .example-chip {
+  background: rgba(7, 20, 15, 0.92) !important;
+  color: var(--terminal-text-soft) !important;
+  border: 1px solid var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: var(--terminal-text) !important;
+  border-color: rgba(57, 255, 136, 0.34) !important;
+}
+

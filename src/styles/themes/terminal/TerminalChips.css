@@ -1,0 +1,40 @@
+/* Theme selector and chips */
+[data-theme="terminal"] .Settings-theme-option,
+[data-theme="terminal"] .Settings-deposit-chip,
+[data-theme="terminal"] .Settings-support-preset,
+[data-theme="terminal"] .Settings-billing-status,
+[data-theme="terminal"] .Settings-billing-future span,
+[data-theme="terminal"] .Settings-premium-optin-chip,
+[data-theme="terminal"] .cap-email-chip,
+[data-theme="terminal"] .uq-card-metrics span,
+[data-theme="terminal"] .uq-card-flags span {
+  background: rgba(7, 20, 15, 0.9) !important;
+  color: var(--terminal-text-soft) !important;
+  border-color: var(--terminal-border) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-option:hover,
+[data-theme="terminal"] .Settings-deposit-chip:hover,
+[data-theme="terminal"] .Settings-support-preset:hover,
+[data-theme="terminal"] .Settings-support-preset[data-active="true"] {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(57, 255, 136, 0.32) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-option.is-active,
+[data-theme="terminal"] .Settings-deposit-chip.is-selected {
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(57, 255, 136, 0.08)) !important;
+  border-color: rgba(57, 255, 136, 0.48) !important;
+  box-shadow: 0 0 0 1px rgba(57, 255, 136, 0.14) !important;
+}
+
+[data-theme="terminal"] .Settings-theme-copy strong,
+[data-theme="terminal"] .Settings-theme-copy small,
+[data-theme="terminal"] .Settings-deposit-chip-label,
+[data-theme="terminal"] .Settings-support-custom span,
+[data-theme="terminal"] .cap-email-chip-address,
+[data-theme="terminal"] .cap-email-label {
+  color: var(--terminal-text-soft) !important;
+}
+

@@ -1,0 +1,78 @@
+/* Navbar and sidebar */
+[data-theme="midnight"] .cap-navbar,
+[data-theme="midnight"] .cap-sidebar {
+  background:
+    linear-gradient(180deg, rgba(11, 22, 40, 0.98), rgba(3, 7, 18, 0.98)) !important;
+  color: var(--midnight-text-soft) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .Navbar-brand-slot,
+[data-theme="midnight"] .navbar-user-name,
+[data-theme="midnight"] .navbar-user-title,
+[data-theme="midnight"] .navbar-lang-title,
+[data-theme="midnight"] .navbar-account-name,
+[data-theme="midnight"] .navbar-account-metrics strong,
+[data-theme="midnight"] .nav-link,
+[data-theme="midnight"] .sidebar-item,
+[data-theme="midnight"] .sidebar-item svg,
+[data-theme="midnight"] .sidebar-header-collapse,
+[data-theme="midnight"] .sidebar-header-collapse svg,
+[data-theme="midnight"] .sidebar-expand-chevron,
+[data-theme="midnight"] .sidebar-conversation,
+[data-theme="midnight"] .sidebar-conversation-title,
+[data-theme="midnight"] .status-item .value,
+[data-theme="midnight"] .cap-sync-label {
+  color: var(--midnight-text-soft) !important;
+}
+
+[data-theme="midnight"] .sidebar-section-title,
+[data-theme="midnight"] .sidebar-footer,
+[data-theme="midnight"] .sidebar-conversation-preview,
+[data-theme="midnight"] .sidebar-conversations-empty,
+[data-theme="midnight"] .status-item .label,
+[data-theme="midnight"] .navbar-account-plan,
+[data-theme="midnight"] .navbar-account-note,
+[data-theme="midnight"] .navbar-account-metrics span {
+  color: var(--midnight-muted) !important;
+}
+
+[data-theme="midnight"] .sidebar-header-main,
+[data-theme="midnight"] .sidebar-header-collapse,
+[data-theme="midnight"] .sidebar-conversation,
+[data-theme="midnight"] .sidebar-conv-menu-btn,
+[data-theme="midnight"] .sidebar-conv-menu,
+[data-theme="midnight"] .navbar-account-summary,
+[data-theme="midnight"] .navbar-account-metrics > div,
+[data-theme="midnight"] .dropdown-menu-dark,
+[data-theme="midnight"] .navbar .dropdown-menu-dark {
+  background: rgba(11, 22, 40, 0.86) !important;
+  color: var(--midnight-text-soft) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+
+[data-theme="midnight"] .sidebar-item:hover,
+[data-theme="midnight"] .sidebar-conversation:hover,
+[data-theme="midnight"] .sidebar-conv-menu-btn:hover,
+[data-theme="midnight"] .dropdown-menu-dark .dropdown-item:hover {
+  background: rgba(96, 165, 250, 0.12) !important;
+  border-color: rgba(96, 165, 250, 0.34) !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .sidebar-item.active,
+[data-theme="midnight"] .sidebar-conversation.active {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.24), rgba(34, 211, 238, 0.1)) !important;
+  border-color: rgba(96, 165, 250, 0.52) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight"] .sidebar-item.logout {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.24) !important;
+  color: #fecaca !important;
+}
+
