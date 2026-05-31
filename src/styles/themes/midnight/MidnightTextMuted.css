@@ -1,0 +1,31 @@
+/* Muted text */
+[data-theme="midnight"] .Settings-section-subtitle,
+[data-theme="midnight"] .Settings-secondary-handle,
+[data-theme="midnight"] .Settings-username-wallet,
+[data-theme="midnight"] .Settings-billing-copy,
+[data-theme="midnight"] .Settings-billing-hint,
+[data-theme="midnight"] .Settings-support-section-header p,
+[data-theme="midnight"] .Settings-support-disclaimer,
+[data-theme="midnight"] .Settings-billing-toggle-copy span,
+[data-theme="midnight"] .Settings-billing-toggle-copy small,
+[data-theme="midnight"] .Settings-activity-date,
+[data-theme="midnight"] .Settings-premium-metrics span,
+[data-theme="midnight"] .admin-section-subtitle,
+[data-theme="midnight"] .admin-header p,
+[data-theme="midnight"] .admin-muted,
+[data-theme="midnight"] .admin-help,
+[data-theme="midnight"] .admin-card small,
+[data-theme="midnight"] .admin-notify-card small,
+[data-theme="midnight"] .dashboard-widget small,
+[data-theme="midnight"] .dashboard-widget .muted,
+[data-theme="midnight"] .dashboard-widget .text-muted,
+[data-theme="midnight"] .analyses-subtitle,
+[data-theme="midnight"] .analyses-card-meta,
+[data-theme="midnight"] .analyses-card-preview,
+[data-theme="midnight"] .analyses-card-preview.muted,
+[data-theme="midnight"] .uq-card-metrics,
+[data-theme="midnight"] .uq-card-flags,
+[data-theme="midnight"] .uq-card-footer {
+  color: var(--midnight-muted) !important;
+}
+

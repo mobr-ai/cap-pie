@@ -1,0 +1,74 @@
+/* ---- conversation row + options menu ---- */
+.sidebar-conv-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.sidebar-conv-menu-btn {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.sidebar-conv-menu-btn:hover {
+  background: rgba(30, 58, 138, 0.22);
+  border-color: var(--theme-primary);
+  transform: translateY(-1px);
+}
+
+.sidebar-conv-menu {
+  position: absolute;
+  top: 40px;
+  right: 8px;
+  z-index: 50;
+  width: 180px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-large);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-conv-menu-item {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--theme-text-soft);
+  cursor: pointer;
+}
+
+.sidebar-conv-menu-item:hover {
+  background: rgba(30, 58, 138, 0.22);
+}
+
+.sidebar-conv-menu-item.danger {
+  color: rgba(248, 113, 113, 0.95);
+}
+
+.sidebar-conv-menu-item.danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+

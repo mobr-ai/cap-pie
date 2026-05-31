@@ -1,0 +1,41 @@
+/* --------------------------------------------------------------------------
+   Graphite theme UI coverage
+   Neutral dark professional theme across shell, admin, settings, dashboard,
+   landing/chat, analyses, loading state, and modals.
+   -------------------------------------------------------------------------- */
+
+[data-theme="graphite"] {
+  --graphite-bg: #0a0a0b;
+  --graphite-bg-soft: #101014;
+  --graphite-bg-raised: #16161b;
+  --graphite-bg-elevated: #1d1d23;
+
+  --graphite-card: #18181d;
+  --graphite-card-soft: #202027;
+  --graphite-card-muted: #26262e;
+
+  --graphite-border: rgba(212, 212, 216, 0.13);
+  --graphite-border-strong: rgba(212, 212, 216, 0.26);
+
+  --graphite-text: #f4f4f5;
+  --graphite-text-soft: #e4e4e7;
+  --graphite-muted: #a1a1aa;
+  --graphite-faint: rgba(212, 212, 216, 0.58);
+
+  --graphite-primary: #d4d4d8;
+  --graphite-primary-hover: #f4f4f5;
+  --graphite-primary-soft: rgba(212, 212, 216, 0.1);
+
+  --graphite-accent: #a1a1aa;
+  --graphite-accent-hover: #e4e4e7;
+  --graphite-accent-soft: rgba(161, 161, 170, 0.14);
+
+  --graphite-success: #22c55e;
+  --graphite-warning: #f59e0b;
+  --graphite-danger: #ef4444;
+  --graphite-info: #94a3b8;
+
+  --graphite-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+  --graphite-shadow-large: 0 28px 90px rgba(0, 0, 0, 0.55);
+}
+

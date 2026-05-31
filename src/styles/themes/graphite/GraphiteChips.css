@@ -1,0 +1,39 @@
+/* Theme selector and chips */
+[data-theme="graphite"] .Settings-theme-option,
+[data-theme="graphite"] .Settings-deposit-chip,
+[data-theme="graphite"] .Settings-support-preset,
+[data-theme="graphite"] .Settings-billing-status,
+[data-theme="graphite"] .Settings-billing-future span,
+[data-theme="graphite"] .Settings-premium-optin-chip,
+[data-theme="graphite"] .cap-email-chip,
+[data-theme="graphite"] .uq-card-metrics span,
+[data-theme="graphite"] .uq-card-flags span {
+  background: rgba(24, 24, 27, 0.86) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-option:hover,
+[data-theme="graphite"] .Settings-deposit-chip:hover,
+[data-theme="graphite"] .Settings-support-preset:hover,
+[data-theme="graphite"] .Settings-support-preset[data-active="true"] {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.28) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-option.is-active,
+[data-theme="graphite"] .Settings-deposit-chip.is-selected {
+  background: rgba(212, 212, 216, 0.1) !important;
+  border-color: rgba(212, 212, 216, 0.42) !important;
+  box-shadow: 0 0 0 1px rgba(212, 212, 216, 0.12) !important;
+}
+
+[data-theme="graphite"] .Settings-theme-copy strong,
+[data-theme="graphite"] .Settings-theme-copy small,
+[data-theme="graphite"] .Settings-deposit-chip-label,
+[data-theme="graphite"] .Settings-support-custom span,
+[data-theme="graphite"] .cap-email-chip-address,
+[data-theme="graphite"] .cap-email-label {
+  color: var(--graphite-text-soft) !important;
+}
+

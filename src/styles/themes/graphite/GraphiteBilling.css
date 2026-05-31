@@ -1,0 +1,16 @@
+/* Billing notifications */
+[data-theme="graphite"] .billing-notification-list,
+[data-theme="graphite"] .billing-notification-row,
+[data-theme="graphite"] .billing-notification-row-meta,
+[data-theme="graphite"] .billing-notification-panel,
+[data-theme="graphite"] .billing-notification-card {
+  background: rgba(24, 24, 27, 0.94) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .billing-notification-list > *:nth-child(even),
+[data-theme="graphite"] .billing-notification-row:nth-child(even) {
+  background: rgba(32, 32, 36, 0.94) !important;
+}
+

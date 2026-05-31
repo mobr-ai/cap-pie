@@ -1,0 +1,77 @@
+/* Navbar and sidebar */
+[data-theme="graphite"] .cap-navbar,
+[data-theme="graphite"] .cap-sidebar {
+  background:
+    linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(10, 10, 11, 0.98)) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .Navbar-brand-slot,
+[data-theme="graphite"] .navbar-user-name,
+[data-theme="graphite"] .navbar-user-title,
+[data-theme="graphite"] .navbar-lang-title,
+[data-theme="graphite"] .navbar-account-name,
+[data-theme="graphite"] .navbar-account-metrics strong,
+[data-theme="graphite"] .nav-link,
+[data-theme="graphite"] .sidebar-item,
+[data-theme="graphite"] .sidebar-item svg,
+[data-theme="graphite"] .sidebar-header-collapse,
+[data-theme="graphite"] .sidebar-header-collapse svg,
+[data-theme="graphite"] .sidebar-expand-chevron,
+[data-theme="graphite"] .sidebar-conversation,
+[data-theme="graphite"] .sidebar-conversation-title,
+[data-theme="graphite"] .status-item .value,
+[data-theme="graphite"] .cap-sync-label {
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .sidebar-section-title,
+[data-theme="graphite"] .sidebar-footer,
+[data-theme="graphite"] .sidebar-conversation-preview,
+[data-theme="graphite"] .sidebar-conversations-empty,
+[data-theme="graphite"] .status-item .label,
+[data-theme="graphite"] .navbar-account-plan,
+[data-theme="graphite"] .navbar-account-note,
+[data-theme="graphite"] .navbar-account-metrics span {
+  color: var(--graphite-muted) !important;
+}
+
+[data-theme="graphite"] .sidebar-header-main,
+[data-theme="graphite"] .sidebar-header-collapse,
+[data-theme="graphite"] .sidebar-conversation,
+[data-theme="graphite"] .sidebar-conv-menu-btn,
+[data-theme="graphite"] .sidebar-conv-menu,
+[data-theme="graphite"] .navbar-account-summary,
+[data-theme="graphite"] .navbar-account-metrics > div,
+[data-theme="graphite"] .dropdown-menu-dark,
+[data-theme="graphite"] .navbar .dropdown-menu-dark {
+  background: rgba(24, 24, 27, 0.82) !important;
+  color: var(--graphite-text-soft) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .sidebar-item:hover,
+[data-theme="graphite"] .sidebar-conversation:hover,
+[data-theme="graphite"] .sidebar-conv-menu-btn:hover,
+[data-theme="graphite"] .dropdown-menu-dark .dropdown-item:hover {
+  background: rgba(212, 212, 216, 0.08) !important;
+  border-color: rgba(212, 212, 216, 0.22) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .sidebar-item.active,
+[data-theme="graphite"] .sidebar-conversation.active {
+  background: rgba(212, 212, 216, 0.12) !important;
+  border-color: rgba(212, 212, 216, 0.36) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .sidebar-item.logout {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.22) !important;
+  color: #fecaca !important;
+}
+

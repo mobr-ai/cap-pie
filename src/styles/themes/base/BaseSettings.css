@@ -1,0 +1,89 @@
+/* Settings page */
+.Settings-body {
+  color: var(--theme-text);
+  background: var(--theme-page-gradient);
+}
+
+.Settings-container,
+.Settings-user-box,
+.Settings-billing-zone,
+.Settings-billing-panel,
+.Settings-payment-methods,
+.Settings-deposit-panel,
+.Settings-support-section,
+.Settings-activity-row,
+.Settings-premium-metrics > div,
+.Settings-billing-toggle,
+.Settings-support-custom input {
+  background: var(--theme-surface-glass);
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+}
+
+.Settings-container {
+  box-shadow: var(--theme-shadow-large);
+}
+
+.Settings-title,
+.Settings-section-title,
+.Settings-primary-name,
+.Settings-billing-plan,
+.Settings-billing-balance,
+.Settings-deposit-chip-amount,
+.Settings-premium-metrics strong,
+.Settings-activity-reason,
+.Settings-support-section-header h5,
+.Settings-billing-toggle-copy strong {
+  color: var(--theme-text);
+}
+
+.Settings-section-subtitle,
+.Settings-secondary-handle,
+.Settings-username-wallet,
+.Settings-billing-copy,
+.Settings-billing-hint,
+.Settings-deposit-chip-label,
+.Settings-premium-action-hint,
+.Settings-premium-metrics span,
+.Settings-activity-date,
+.Settings-activity-empty,
+.Settings-support-disclaimer,
+.Settings-support-section-header p,
+.Settings-support-custom span,
+.Settings-billing-toggle-copy span,
+.Settings-billing-toggle-copy small {
+  color: var(--theme-text-muted);
+}
+
+.Settings-avatar-wrapper,
+.Settings-inline-input,
+.Settings-deposit-chip,
+.Settings-support-preset,
+.Settings-support-custom input,
+.Settings-billing-status,
+.Settings-billing-future span,
+.Settings-premium-optin-chip {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--theme-text-soft);
+}
+
+.Settings-inline-input:focus,
+.Settings-support-custom input:focus {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px var(--theme-accent-soft);
+}
+
+.Settings-referral-link,
+.Settings-payment-address,
+.Settings-activity-hash {
+  color: var(--theme-primary-hover);
+}
+
+.Settings-avatar-icon,
+.Settings-username-icon,
+.Settings-editable-line:hover .Settings-username-icon,
+.Settings-deposit-chip-icon {
+  color: var(--theme-accent-hover);
+}
+

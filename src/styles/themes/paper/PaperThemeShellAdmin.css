@@ -1,0 +1,331 @@
+/* --------------------------------------------------------------------------
+   Paper theme final shell/admin hardening
+   Makes Paper a real light theme, not a light content area with dark chrome.
+   -------------------------------------------------------------------------- */
+
+[data-theme="paper"] {
+  --paper-shell: #ffffff;
+  --paper-shell-2: #f8fafc;
+  --paper-shell-3: #eef2f7;
+  --paper-shell-border: rgba(15, 23, 42, 0.12);
+  --paper-shell-text: #0f172a;
+  --paper-shell-muted: #64748b;
+  --paper-shell-hover: rgba(37, 99, 235, 0.08);
+  --paper-shell-active: rgba(37, 99, 235, 0.12);
+}
+
+/* Full light navbar and sidebar */
+[data-theme="paper"] .cap-navbar,
+[data-theme="paper"] .cap-sidebar {
+  background: var(--paper-shell) !important;
+  color: var(--paper-shell-text) !important;
+  border-color: var(--paper-shell-border) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="paper"] .cap-navbar *,
+[data-theme="paper"] .cap-sidebar * {
+  border-color: var(--paper-shell-border);
+}
+
+[data-theme="paper"] .Navbar-brand-slot,
+[data-theme="paper"] .navbar-user-name,
+[data-theme="paper"] .navbar-user-title,
+[data-theme="paper"] .navbar-lang-title,
+[data-theme="paper"] .navbar-account-name,
+[data-theme="paper"] .navbar-account-metrics strong,
+[data-theme="paper"] .nav-link,
+[data-theme="paper"] .sidebar-item,
+[data-theme="paper"] .sidebar-item svg,
+[data-theme="paper"] .sidebar-header-collapse,
+[data-theme="paper"] .sidebar-header-collapse svg,
+[data-theme="paper"] .sidebar-expand-chevron,
+[data-theme="paper"] .sidebar-conversation,
+[data-theme="paper"] .sidebar-conversation-title,
+[data-theme="paper"] .status-item .value,
+[data-theme="paper"] .cap-sync-label {
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .sidebar-section-title,
+[data-theme="paper"] .sidebar-footer,
+[data-theme="paper"] .sidebar-conversation-preview,
+[data-theme="paper"] .sidebar-conversations-empty,
+[data-theme="paper"] .status-item .label,
+[data-theme="paper"] .navbar-account-plan,
+[data-theme="paper"] .navbar-account-note,
+[data-theme="paper"] .navbar-account-metrics span {
+  color: var(--paper-shell-muted) !important;
+}
+
+[data-theme="paper"] .sidebar-header-main,
+[data-theme="paper"] .sidebar-header-collapse,
+[data-theme="paper"] .sidebar-conversation,
+[data-theme="paper"] .sidebar-conv-menu-btn,
+[data-theme="paper"] .sidebar-conv-menu,
+[data-theme="paper"] .navbar-account-metrics > div,
+[data-theme="paper"] .navbar-account-summary,
+[data-theme="paper"] .dropdown-menu-dark,
+[data-theme="paper"] .navbar .dropdown-menu-dark {
+  background: var(--paper-shell-2) !important;
+  color: var(--paper-shell-text) !important;
+  border-color: var(--paper-shell-border) !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="paper"] .sidebar-item:hover,
+[data-theme="paper"] .sidebar-conversation:hover,
+[data-theme="paper"] .sidebar-conv-menu-btn:hover,
+[data-theme="paper"] .dropdown-menu-dark .dropdown-item:hover {
+  background: var(--paper-shell-hover) !important;
+  border-color: rgba(37, 99, 235, 0.28) !important;
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .sidebar-item.active,
+[data-theme="paper"] .sidebar-conversation.active {
+  background: var(--paper-shell-active) !important;
+  border-color: rgba(37, 99, 235, 0.45) !important;
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .sidebar-item.logout {
+  background: rgba(220, 38, 38, 0.04) !important;
+  border-color: rgba(220, 38, 38, 0.18) !important;
+  color: #991b1b !important;
+}
+
+[data-theme="paper"] .sidebar-item.logout:hover {
+  background: rgba(220, 38, 38, 0.08) !important;
+  border-color: rgba(220, 38, 38, 0.28) !important;
+}
+
+[data-theme="paper"] .sidebar-conversations-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="paper"] .sidebar-conversations-list::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35) !important;
+}
+
+[data-theme="paper"] .sidebar-conversations-list {
+  scrollbar-color: rgba(100, 116, 139, 0.45) rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Navbar account dropdown */
+[data-theme="paper"] .navbar-user-avatar,
+[data-theme="paper"] .navbar-account-avatar {
+  background: #ffffff !important;
+  border-color: var(--paper-shell-border) !important;
+}
+
+[data-theme="paper"] .dropdown-menu-dark .dropdown-item {
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .dropdown-divider {
+  border-color: var(--paper-shell-border) !important;
+}
+
+/* Sync indicator colors in Paper */
+[data-theme="paper"] .cap-sync-track {
+  stroke: rgba(100, 116, 139, 0.28) !important;
+}
+
+[data-theme="paper"] .cap-sync-ring-text {
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .cap-sync[data-state="syncing"] .cap-sync-progress,
+[data-theme="paper"] .cap-sync[data-state="synced"] .cap-sync-progress,
+[data-theme="paper"] .cap-sync[data-state="checking"] .cap-sync-progress {
+  stroke: var(--paper-primary) !important;
+}
+
+[data-theme="paper"] .cap-sync-tooltip {
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: var(--paper-border) !important;
+}
+
+/* Admin tab scroller and active tabs */
+[data-theme="paper"] .admin-tabs,
+[data-theme="paper"] .admin-tabs-animated,
+[data-theme="paper"] .admin-tabs-scroller {
+  background: #ffffff !important;
+  border-color: var(--paper-border) !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="paper"] .admin-tab,
+[data-theme="paper"] .admin-tabs button,
+[data-theme="paper"] .admin-tabs-animated button {
+  background: transparent !important;
+  color: #334155 !important;
+  border-color: transparent !important;
+}
+
+[data-theme="paper"] .admin-tab:hover,
+[data-theme="paper"] .admin-tabs button:hover,
+[data-theme="paper"] .admin-tabs-animated button:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .admin-tab-active,
+[data-theme="paper"] .admin-tab.admin-tab-active,
+[data-theme="paper"] .admin-tabs button.active,
+[data-theme="paper"] .admin-tabs-animated button.active,
+[data-theme="paper"] .admin-tabs button[aria-selected="true"],
+[data-theme="paper"] .admin-tabs-animated button[aria-selected="true"] {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #0f172a !important;
+  border-color: rgba(37, 99, 235, 0.28) !important;
+  box-shadow: inset 0 -2px 0 rgba(37, 99, 235, 0.55) !important;
+}
+
+/* Billing notification list */
+[data-theme="paper"] .billing-notification-list,
+[data-theme="paper"] .billing-notification-row,
+[data-theme="paper"] .billing-notification-row-meta,
+[data-theme="paper"] .billing-notification-panel,
+[data-theme="paper"] .billing-notification-card {
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: var(--paper-border) !important;
+}
+
+[data-theme="paper"] .billing-notification-list {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="paper"] .billing-notification-row {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="paper"] .billing-notification-row:nth-child(odd),
+[data-theme="paper"] .billing-notification-row:nth-child(odd) .billing-notification-row-meta {
+  background: #ffffff !important;
+}
+
+[data-theme="paper"] .billing-notification-row:nth-child(even),
+[data-theme="paper"] .billing-notification-row:nth-child(even) .billing-notification-row-meta {
+  background: #f8fafc !important;
+}
+
+[data-theme="paper"] .billing-notification-row *,
+[data-theme="paper"] .billing-notification-row-meta *,
+[data-theme="paper"] .billing-notification-panel *,
+[data-theme="paper"] .billing-notification-card * {
+  color: inherit;
+}
+
+[data-theme="paper"] .billing-notification-row-title,
+[data-theme="paper"] .billing-notification-title,
+[data-theme="paper"] .billing-notification-name,
+[data-theme="paper"] .billing-notification-event,
+[data-theme="paper"] .billing-notification-row strong {
+  color: var(--paper-text) !important;
+}
+
+[data-theme="paper"] .billing-notification-row-description,
+[data-theme="paper"] .billing-notification-description,
+[data-theme="paper"] .billing-notification-row small,
+[data-theme="paper"] .billing-notification-row-meta,
+[data-theme="paper"] .billing-notification-caption {
+  color: var(--paper-muted) !important;
+}
+
+/* Paper toggles use blue, not green/slate */
+[data-theme="paper"] .form-check-input:checked,
+[data-theme="paper"] input[type="checkbox"]:checked,
+[data-theme="paper"] .billing-notification-row input[type="checkbox"]:checked {
+  background-color: var(--paper-primary) !important;
+  border-color: var(--paper-primary) !important;
+}
+
+[data-theme="paper"] .form-switch .form-check-input:checked {
+  background-color: var(--paper-primary) !important;
+  border-color: var(--paper-primary) !important;
+}
+
+/* Billing notification custom switches, in case they use div-based switches */
+[data-theme="paper"] .billing-notification-toggle,
+[data-theme="paper"] .billing-notification-switch {
+  background: #e2e8f0 !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+}
+
+[data-theme="paper"] .billing-notification-toggle.is-enabled,
+[data-theme="paper"] .billing-notification-switch.is-enabled,
+[data-theme="paper"] .billing-notification-toggle[data-enabled="true"],
+[data-theme="paper"] .billing-notification-switch[data-enabled="true"] {
+  background: rgba(37, 99, 235, 0.16) !important;
+  border-color: rgba(37, 99, 235, 0.34) !important;
+}
+
+/* Admin metric cards, compact cards, and list sections */
+[data-theme="paper"] .admin-metric-card,
+[data-theme="paper"] .admin-stat-card,
+[data-theme="paper"] .admin-compact-card,
+[data-theme="paper"] .admin-section-table,
+[data-theme="paper"] .admin-list,
+[data-theme="paper"] .admin-list-row {
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: var(--paper-border) !important;
+}
+
+/* Kill leftover dark gradients in Paper */
+[data-theme="paper"] .admin-card,
+[data-theme="paper"] .admin-section,
+[data-theme="paper"] .admin-notify-card,
+[data-theme="paper"] .billing-notification-list,
+[data-theme="paper"] .Settings-billing-zone,
+[data-theme="paper"] .Settings-support-section,
+[data-theme="paper"] .Settings-deposit-panel,
+[data-theme="paper"] .Settings-theme-section {
+  background-image: none !important;
+}
+
+/* Keep semantic success readable, but blue is the main accent */
+[data-theme="paper"] .navbar-billing-badge.is-premium,
+[data-theme="paper"] .Settings-billing-status.is-active {
+  background: rgba(37, 99, 235, 0.1) !important;
+  border-color: rgba(37, 99, 235, 0.28) !important;
+  color: #1d4ed8 !important;
+}
+
+/* Dashboard widget gradients still show orange/green/purple by category.
+   Tone them down in Paper so cards look coherent. */
+[data-theme="paper"] .dashboard-widget,
+[data-theme="paper"] .dashboard-widget-card,
+[data-theme="paper"] .dashboard-card,
+[data-theme="paper"] .widget-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96)) !important;
+}
+
+[data-theme="paper"] .dashboard-widget::before,
+[data-theme="paper"] .dashboard-widget-card::before,
+[data-theme="paper"] .dashboard-card::before,
+[data-theme="paper"] .widget-card::before {
+  opacity: 0.12 !important;
+}
+
+/* Mobile navbar shell */
+@media (max-width: 991.98px) {
+  [data-theme="paper"] .cap-navbar .navbar-collapse,
+  [data-theme="paper"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="paper"] .cap-navbar .navbar-collapse.show {
+    background: #ffffff !important;
+    border-top-color: var(--paper-border) !important;
+  }
+
+  [data-theme="paper"] .cap-navbar .navbar-toggler {
+    border-color: var(--paper-border) !important;
+    color: var(--paper-text) !important;
+  }
+}
+
+

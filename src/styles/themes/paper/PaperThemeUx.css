@@ -1,0 +1,251 @@
+/* --------------------------------------------------------------------------
+   Paper theme UX polish
+   Admin spacing, tabs, landing empty state, example chips, and loading page.
+   -------------------------------------------------------------------------- */
+
+/* Admin sections need visual breathing room on light surfaces */
+[data-theme="paper"] .AdminPage .admin-section {
+  padding: 1rem !important;
+  margin-bottom: 1rem !important;
+  border-radius: 18px !important;
+}
+
+[data-theme="paper"] .AdminPage .admin-section-header {
+  margin-bottom: 0.9rem !important;
+}
+
+[data-theme="paper"] .AdminPage .admin-section-title {
+  margin: 0 0 0.25rem !important;
+}
+
+[data-theme="paper"] .AdminPage .admin-section-subtitle {
+  margin: 0 !important;
+}
+
+/* Admin tab strip should feel like light UI, not ghosted dark UI */
+[data-theme="paper"] .admin-tabs,
+[data-theme="paper"] .admin-tabs-animated,
+[data-theme="paper"] .admin-tabs-scroller {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="paper"] .admin-tab,
+[data-theme="paper"] .admin-tabs button,
+[data-theme="paper"] .admin-tabs-animated button {
+  min-height: 2rem;
+  padding: 0.42rem 0.82rem !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="paper"] .admin-tab:hover,
+[data-theme="paper"] .admin-tabs button:hover,
+[data-theme="paper"] .admin-tabs-animated button:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .admin-tab-active,
+[data-theme="paper"] .admin-tab.admin-tab-active,
+[data-theme="paper"] .admin-tab.active,
+[data-theme="paper"] .admin-tabs button.active,
+[data-theme="paper"] .admin-tabs-animated button.active,
+[data-theme="paper"] .admin-tabs button[aria-selected="true"],
+[data-theme="paper"] .admin-tabs-animated button[aria-selected="true"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22) !important;
+}
+
+[data-theme="paper"] .admin-tab-active *,
+[data-theme="paper"] .admin-tab.admin-tab-active *,
+[data-theme="paper"] .admin-tab.active *,
+[data-theme="paper"] .admin-tabs button.active *,
+[data-theme="paper"] .admin-tabs-animated button.active * {
+  color: #ffffff !important;
+}
+
+/* Billing notification list was still carrying dark row backgrounds */
+[data-theme="paper"] .billing-notification-list {
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="paper"] .billing-notification-list > *,
+[data-theme="paper"] .billing-notification-row,
+[data-theme="paper"] .billing-notification-row-meta,
+[data-theme="paper"] .billing-notification-row-main,
+[data-theme="paper"] .billing-notification-row-copy,
+[data-theme="paper"] .billing-notification-row-actions {
+  background-image: none !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .billing-notification-list > *:nth-child(even),
+[data-theme="paper"] .billing-notification-list > *:nth-child(even) .billing-notification-row,
+[data-theme="paper"] .billing-notification-list > *:nth-child(even) .billing-notification-row-meta {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="paper"] .billing-notification-list strong,
+[data-theme="paper"] .billing-notification-list .billing-notification-row-title,
+[data-theme="paper"] .billing-notification-list .billing-notification-title {
+  color: #0f172a !important;
+}
+
+[data-theme="paper"] .billing-notification-list small,
+[data-theme="paper"] .billing-notification-list .billing-notification-row-description,
+[data-theme="paper"] .billing-notification-list .billing-notification-description,
+[data-theme="paper"] .billing-notification-list .billing-notification-caption {
+  color: #64748b !important;
+}
+
+/* Loading page should follow Paper theme */
+[data-theme="paper"] .LoadingPage-fullscreen {
+  background:
+    radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 42%),
+    radial-gradient(circle at bottom, rgba(15, 118, 110, 0.06), transparent 42%),
+    #f8fafc !important;
+  color: #0f172a !important;
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="paper"] .LoadingPage-logo {
+  filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.16)) !important;
+}
+
+[data-theme="paper"] .LoadingPage-pulse-glow {
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28), transparent) !important;
+}
+
+[data-theme="paper"] .LoadingPage-orbit-ring {
+  border-color: rgba(37, 99, 235, 0.24) !important;
+}
+
+[data-theme="paper"] .LoadingPage-orbit-dot {
+  background: #2563eb !important;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.45) !important;
+}
+
+[data-theme="paper"] .LoadingPage-ring-spinner {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  border-top-color: #2563eb !important;
+  border-right-color: #1d4ed8 !important;
+}
+
+[data-theme="paper"] .LoadingPage-message {
+  color: #334155 !important;
+}
+
+/* Landing empty state: fix pale text on white */
+[data-theme="paper"] .cap-root .landing-empty,
+[data-theme="paper"] .cap-root .landing-empty-rotator {
+  background: transparent !important;
+}
+
+[data-theme="paper"] .cap-root .landing-empty-line,
+[data-theme="paper"] .cap-root .landing-empty-typed {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+[data-theme="paper"] .cap-root .landing-empty-caret {
+  background: #2563eb !important;
+}
+
+[data-theme="paper"] .cap-root .landing-empty-robotBadge {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(37, 99, 235, 0.12), transparent 56%),
+    linear-gradient(180deg, #ffffff, #f1f5f9) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow:
+    0 14px 34px rgba(15, 23, 42, 0.12),
+    0 0 0 6px rgba(37, 99, 235, 0.06) !important;
+}
+
+/* Top queries / examples: light chips with blue hover */
+[data-theme="paper"] .cap-root .example-chip {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="paper"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #0f172a !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="paper"] .cap-root .example-chip.disabled {
+  opacity: 0.55 !important;
+}
+
+/* Landing input/card wrapper */
+[data-theme="paper"] .cap-root .chat-container {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="paper"] .cap-root .input-container {
+  background: #ffffff !important;
+  border-top-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="paper"] .cap-root textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
+}
+
+[data-theme="paper"] .cap-root textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="paper"] .cap-root .char-count {
+  color: #94a3b8 !important;
+}
+
+[data-theme="paper"] .cap-root .send-button {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+[data-theme="paper"] .cap-root .send-button:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+}
+
+[data-theme="paper"] .cap-root .send-button:disabled {
+  background: #e5e7eb !important;
+  color: #64748b !important;
+}
+
+/* Sidebar collapsed Paper polish */
+[data-theme="paper"] .cap-sidebar.collapsed .sidebar-item,
+[data-theme="paper"] .cap-sidebar.collapsed .sidebar-header-main,
+[data-theme="paper"] .cap-sidebar.collapsed .sidebar-header-collapse {
+  background: #ffffff !important;
+}
+
+[data-theme="paper"] .cap-sidebar.collapsed .sidebar-item:hover,
+[data-theme="paper"] .cap-sidebar.collapsed .sidebar-item.active {
+  background: rgba(37, 99, 235, 0.12) !important;
+}
+
+

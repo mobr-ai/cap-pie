@@ -1,0 +1,32 @@
+/* Admin inline-style cleanup helpers */
+.cap-email-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text-soft);
+}
+
+.cap-email-chip-address {
+  margin-right: 0.45rem;
+  color: var(--theme-text-soft);
+}
+
+.cap-email-muted {
+  color: var(--theme-text-muted);
+}
+
+.cap-email-label {
+  color: var(--theme-text-soft);
+}
+
+@media (max-width: 520px) {
+  .Settings-theme-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+

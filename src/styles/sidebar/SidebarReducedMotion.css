@@ -1,0 +1,11 @@
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-conversation.processing::before,
+  .sidebar-conversation.processing {
+    animation: none;
+  }
+}
+
+.sidebar-conversation-main {
+  min-width: 0;
+}

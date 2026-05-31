@@ -1,0 +1,410 @@
+/* --------------------------------------------------------------------------
+   Paper theme hardening pass
+   Fix remaining legacy dark surfaces, table rows, accents, and nav mismatch.
+   -------------------------------------------------------------------------- */
+
+[data-theme="paper"] {
+  --paper-shell: #0f172a;
+  --paper-shell-2: #111827;
+  --paper-shell-border: rgba(148, 163, 184, 0.18);
+  --paper-shell-text: #e5e7eb;
+  --paper-shell-muted: rgba(203, 213, 225, 0.78);
+
+  --paper-page: #eef2f7;
+  --paper-card: #ffffff;
+  --paper-card-soft: #f8fafc;
+  --paper-card-muted: #f1f5f9;
+  --paper-border: rgba(15, 23, 42, 0.12);
+  --paper-border-strong: rgba(15, 23, 42, 0.22);
+
+  --paper-text: #0f172a;
+  --paper-text-soft: #334155;
+  --paper-muted: #64748b;
+
+  --paper-primary: #2563eb;
+  --paper-primary-hover: #1d4ed8;
+  --paper-primary-soft: rgba(37, 99, 235, 0.1);
+
+  --paper-accent: #2563eb;
+  --paper-accent-soft: rgba(37, 99, 235, 0.12);
+
+  --paper-success: #16a34a;
+  --paper-warning: #d97706;
+  --paper-danger: #dc2626;
+}
+
+/* One dark shell color for both navbar and sidebar */
+[data-theme="paper"] .cap-navbar,
+[data-theme="paper"] .cap-sidebar {
+  background: var(--paper-shell) !important;
+  color: var(--paper-shell-text) !important;
+  border-color: var(--paper-shell-border) !important;
+}
+
+[data-theme="paper"] .cap-navbar *,
+[data-theme="paper"] .cap-sidebar * {
+  border-color: var(--paper-shell-border);
+}
+
+[data-theme="paper"] .Navbar-brand-slot,
+[data-theme="paper"] .navbar-user-name,
+[data-theme="paper"] .navbar-user-title,
+[data-theme="paper"] .navbar-lang-title,
+[data-theme="paper"] .nav-link,
+[data-theme="paper"] .sidebar-item,
+[data-theme="paper"] .sidebar-item svg,
+[data-theme="paper"] .sidebar-header-collapse,
+[data-theme="paper"] .sidebar-header-collapse svg,
+[data-theme="paper"] .sidebar-expand-chevron,
+[data-theme="paper"] .sidebar-conversation,
+[data-theme="paper"] .sidebar-conversation-title,
+[data-theme="paper"] .status-item .value,
+[data-theme="paper"] .cap-sync-label {
+  color: var(--paper-shell-text) !important;
+}
+
+[data-theme="paper"] .sidebar-section-title,
+[data-theme="paper"] .sidebar-footer,
+[data-theme="paper"] .sidebar-conversation-preview,
+[data-theme="paper"] .sidebar-conversations-empty,
+[data-theme="paper"] .status-item .label,
+[data-theme="paper"] .navbar-account-plan,
+[data-theme="paper"] .navbar-account-note {
+  color: var(--paper-shell-muted) !important;
+}
+
+[data-theme="paper"] .sidebar-header-main,
+[data-theme="paper"] .sidebar-header-collapse,
+[data-theme="paper"] .sidebar-conversation,
+[data-theme="paper"] .sidebar-conv-menu-btn,
+[data-theme="paper"] .sidebar-conv-menu,
+[data-theme="paper"] .navbar-account-metrics > div {
+  background: rgba(2, 6, 23, 0.34) !important;
+  border-color: var(--paper-shell-border) !important;
+}
+
+[data-theme="paper"] .sidebar-item:hover,
+[data-theme="paper"] .sidebar-item.active,
+[data-theme="paper"] .sidebar-conversation:hover,
+[data-theme="paper"] .sidebar-conversation.active {
+  background: rgba(37, 99, 235, 0.24) !important;
+  border-color: rgba(96, 165, 250, 0.76) !important;
+  color: #ffffff !important;
+}
+
+/* Remove green/slategray accents from Paper except semantic success states */
+[data-theme="paper"] .admin-tab-active,
+[data-theme="paper"] .admin-tab:hover,
+[data-theme="paper"] .admin-tab:active,
+[data-theme="paper"] .admin-tab[aria-selected="true"],
+[data-theme="paper"] .admin-tabs button.active,
+[data-theme="paper"] .admin-tabs button:hover,
+[data-theme="paper"] .admin-tabs-animated button.active,
+[data-theme="paper"] .admin-tabs-animated button:hover,
+[data-theme="paper"] .Settings-theme-option.is-active,
+[data-theme="paper"] .Settings-deposit-chip.is-selected,
+[data-theme="paper"] .Settings-support-preset[data-active="true"],
+[data-theme="paper"] .Settings-support-preset:hover {
+  background: var(--paper-primary-soft) !important;
+  border-color: rgba(37, 99, 235, 0.42) !important;
+  color: var(--paper-text) !important;
+  box-shadow: none !important;
+}
+
+/* Base light content surfaces */
+[data-theme="paper"] .AdminPage,
+[data-theme="paper"] .AdminPage-inner,
+[data-theme="paper"] .AdminPage.container,
+[data-theme="paper"] .Settings-body,
+[data-theme="paper"] .DashboardPage,
+[data-theme="paper"] .dashboard-page,
+[data-theme="paper"] .dashboard-container,
+[data-theme="paper"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34%),
+    linear-gradient(135deg, #f8fafc 0%, #eef2f7 52%, #e5e7eb 100%) !important;
+  color: var(--paper-text) !important;
+}
+
+/* Cards and sections */
+[data-theme="paper"] .AdminPage .admin-section,
+[data-theme="paper"] .AdminPage .admin-card,
+[data-theme="paper"] .AdminPage .admin-metric-card,
+[data-theme="paper"] .AdminPage .admin-stat-card,
+[data-theme="paper"] .AdminPage .admin-notify-card,
+[data-theme="paper"] .AdminPage .admin-table-wrapper,
+[data-theme="paper"] .AdminPage .admin-table-card,
+[data-theme="paper"] .AdminPage .admin-panel,
+[data-theme="paper"] .Settings-container,
+[data-theme="paper"] .Settings-user-box,
+[data-theme="paper"] .Settings-billing-zone,
+[data-theme="paper"] .Settings-billing-panel,
+[data-theme="paper"] .Settings-balance-panel,
+[data-theme="paper"] .Settings-payment-methods,
+[data-theme="paper"] .Settings-deposit-panel,
+[data-theme="paper"] .Settings-support-section,
+[data-theme="paper"] .Settings-theme-section,
+[data-theme="paper"] .Settings-activity-row,
+[data-theme="paper"] .Settings-premium-metrics > div,
+[data-theme="paper"] .Settings-billing-toggle,
+[data-theme="paper"] .dashboard-widget,
+[data-theme="paper"] .dashboard-widget-card,
+[data-theme="paper"] .dashboard-card,
+[data-theme="paper"] .widget-card,
+[data-theme="paper"] .dashboard-grid > * {
+  background: var(--paper-card) !important;
+  color: var(--paper-text) !important;
+  border-color: var(--paper-border) !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Headings and primary text */
+[data-theme="paper"] .AdminPage h1,
+[data-theme="paper"] .AdminPage h2,
+[data-theme="paper"] .AdminPage h3,
+[data-theme="paper"] .AdminPage h4,
+[data-theme="paper"] .AdminPage h5,
+[data-theme="paper"] .admin-section-title,
+[data-theme="paper"] .admin-header h1,
+[data-theme="paper"] .Settings-title,
+[data-theme="paper"] .Settings-section-title,
+[data-theme="paper"] .Settings-primary-name,
+[data-theme="paper"] .Settings-billing-plan,
+[data-theme="paper"] .Settings-billing-balance,
+[data-theme="paper"] .Settings-deposit-chip-amount,
+[data-theme="paper"] .Settings-support-section-header h5,
+[data-theme="paper"] .Settings-billing-toggle-copy strong,
+[data-theme="paper"] .Settings-activity-reason,
+[data-theme="paper"] .Settings-premium-metrics strong,
+[data-theme="paper"] .dashboard-title,
+[data-theme="paper"] .dashboard-page h1,
+[data-theme="paper"] .dashboard-page h2,
+[data-theme="paper"] .dashboard-page h3,
+[data-theme="paper"] .dashboard-widget h1,
+[data-theme="paper"] .dashboard-widget h2,
+[data-theme="paper"] .dashboard-widget h3,
+[data-theme="paper"] .dashboard-widget h4,
+[data-theme="paper"] .dashboard-widget h5 {
+  color: var(--paper-text) !important;
+}
+
+/* Muted text */
+[data-theme="paper"] .admin-section-subtitle,
+[data-theme="paper"] .admin-header p,
+[data-theme="paper"] .admin-muted,
+[data-theme="paper"] .admin-help,
+[data-theme="paper"] .admin-card small,
+[data-theme="paper"] .admin-notify-card small,
+[data-theme="paper"] .Settings-section-subtitle,
+[data-theme="paper"] .Settings-secondary-handle,
+[data-theme="paper"] .Settings-username-wallet,
+[data-theme="paper"] .Settings-billing-copy,
+[data-theme="paper"] .Settings-billing-hint,
+[data-theme="paper"] .Settings-support-section-header p,
+[data-theme="paper"] .Settings-support-disclaimer,
+[data-theme="paper"] .Settings-billing-toggle-copy span,
+[data-theme="paper"] .Settings-billing-toggle-copy small,
+[data-theme="paper"] .Settings-activity-date,
+[data-theme="paper"] .Settings-premium-metrics span,
+[data-theme="paper"] .dashboard-widget small,
+[data-theme="paper"] .dashboard-widget .muted,
+[data-theme="paper"] .dashboard-widget .text-muted {
+  color: var(--paper-muted) !important;
+}
+
+/* Forms */
+[data-theme="paper"] input,
+[data-theme="paper"] textarea,
+[data-theme="paper"] select,
+[data-theme="paper"] .form-control,
+[data-theme="paper"] .form-select,
+[data-theme="paper"] .Settings-inline-input,
+[data-theme="paper"] .Settings-support-custom input,
+[data-theme="paper"] .Settings-container .form-control,
+[data-theme="paper"] .Settings-container .form-select,
+[data-theme="paper"] .AdminPage input,
+[data-theme="paper"] .AdminPage textarea,
+[data-theme="paper"] .AdminPage select {
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+}
+
+[data-theme="paper"] input::placeholder,
+[data-theme="paper"] textarea::placeholder,
+[data-theme="paper"] .form-control::placeholder {
+  color: rgba(71, 85, 105, 0.64) !important;
+}
+
+/* Bootstrap table-dark and striped tables were causing dark rows in Paper */
+[data-theme="paper"] table,
+[data-theme="paper"] .table,
+[data-theme="paper"] .table-dark,
+[data-theme="paper"] .table-striped,
+[data-theme="paper"] .admin-users-table,
+[data-theme="paper"] .kv-table {
+  --bs-table-bg: #ffffff;
+  --bs-table-color: var(--paper-text);
+  --bs-table-border-color: rgba(15, 23, 42, 0.12);
+  --bs-table-striped-bg: #f8fafc;
+  --bs-table-striped-color: var(--paper-text);
+  --bs-table-hover-bg: #eef2ff;
+  --bs-table-hover-color: var(--paper-text);
+
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="paper"] table thead,
+[data-theme="paper"] table thead tr,
+[data-theme="paper"] table thead th,
+[data-theme="paper"] .table thead,
+[data-theme="paper"] .table thead tr,
+[data-theme="paper"] .table thead th,
+[data-theme="paper"] .kv-table thead th {
+  background: #f1f5f9 !important;
+  color: var(--paper-text) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-theme="paper"] table tbody,
+[data-theme="paper"] table tbody tr,
+[data-theme="paper"] table tbody td,
+[data-theme="paper"] .table tbody,
+[data-theme="paper"] .table tbody tr,
+[data-theme="paper"] .table tbody td,
+[data-theme="paper"] .kv-table tbody,
+[data-theme="paper"] .kv-table tbody tr,
+[data-theme="paper"] .kv-table tbody td {
+  background-color: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="paper"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="paper"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #f8fafc !important;
+  color: var(--paper-text) !important;
+}
+
+[data-theme="paper"] .table-striped > tbody > tr:nth-of-type(even) > *,
+[data-theme="paper"] .admin-users-table tbody tr:nth-child(even) td {
+  background-color: #ffffff !important;
+  color: var(--paper-text) !important;
+}
+
+/* Dashboard widget internals */
+[data-theme="paper"] .dashboard-widget *,
+[data-theme="paper"] .dashboard-widget-card *,
+[data-theme="paper"] .dashboard-card *,
+[data-theme="paper"] .widget-card * {
+  color: var(--paper-text);
+}
+
+[data-theme="paper"] .dashboard-widget a,
+[data-theme="paper"] .dashboard-widget-card a,
+[data-theme="paper"] .dashboard-card a,
+[data-theme="paper"] .widget-card a,
+[data-theme="paper"] .kv-table-link,
+[data-theme="paper"] .Settings-referral-link,
+[data-theme="paper"] .Settings-payment-address,
+[data-theme="paper"] .Settings-activity-hash {
+  color: var(--paper-primary) !important;
+}
+
+/* Charts stay readable on white */
+[data-theme="paper"] .chat-chart-slot,
+[data-theme="paper"] .vega-chart-container,
+[data-theme="paper"] .dashboard-widget .vega-chart-container {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Theme selector and payment/support chips */
+[data-theme="paper"] .Settings-theme-option,
+[data-theme="paper"] .Settings-deposit-chip,
+[data-theme="paper"] .Settings-support-preset,
+[data-theme="paper"] .Settings-billing-status,
+[data-theme="paper"] .Settings-billing-future span,
+[data-theme="paper"] .Settings-premium-optin-chip,
+[data-theme="paper"] .cap-email-chip {
+  background: #ffffff !important;
+  color: var(--paper-text) !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+[data-theme="paper"] .Settings-theme-copy strong,
+[data-theme="paper"] .Settings-theme-copy small,
+[data-theme="paper"] .Settings-deposit-chip-label,
+[data-theme="paper"] .Settings-support-custom span,
+[data-theme="paper"] .cap-email-chip-address,
+[data-theme="paper"] .cap-email-label {
+  color: var(--paper-text) !important;
+}
+
+[data-theme="paper"] .cap-email-muted {
+  color: var(--paper-muted) !important;
+}
+
+/* Buttons */
+[data-theme="paper"] .btn-primary,
+[data-theme="paper"] .Settings-support-section .btn-primary,
+[data-theme="paper"] .Settings-deposit-panel .btn-primary {
+  background: var(--paper-primary) !important;
+  border-color: var(--paper-primary) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="paper"] .btn-primary:hover {
+  background: var(--paper-primary-hover) !important;
+  border-color: var(--paper-primary-hover) !important;
+}
+
+[data-theme="paper"] .btn-outline-light,
+[data-theme="paper"] .btn-outline-secondary,
+[data-theme="paper"] .Settings-container .btn-outline-light {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+  color: var(--paper-text) !important;
+}
+
+[data-theme="paper"] .btn-outline-light:hover,
+[data-theme="paper"] .btn-outline-secondary:hover,
+[data-theme="paper"] .Settings-container .btn-outline-light:hover {
+  background: var(--paper-primary-soft) !important;
+  border-color: rgba(37, 99, 235, 0.32) !important;
+  color: var(--paper-text) !important;
+}
+
+[data-theme="paper"] button:disabled,
+[data-theme="paper"] .btn:disabled,
+[data-theme="paper"] .Settings-container .btn:disabled {
+  background: #e5e7eb !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #64748b !important;
+  opacity: 0.75 !important;
+}
+
+/* Semantic statuses retain meaning but use light-friendly colors */
+[data-theme="paper"] .Settings-billing-status.is-active,
+[data-theme="paper"] .navbar-billing-badge.is-premium {
+  background: rgba(22, 163, 74, 0.1) !important;
+  border-color: rgba(22, 163, 74, 0.28) !important;
+  color: #166534 !important;
+}
+
+[data-theme="paper"] .status-item.sync .dot,
+[data-theme="paper"] .status-item.checking .dot,
+[data-theme="paper"] .cap-sync[data-state="syncing"] .cap-sync-progress {
+  background: var(--paper-primary) !important;
+  stroke: var(--paper-primary) !important;
+}
+
+[data-theme="paper"] .status-item.sync.synced .dot,
+[data-theme="paper"] .cap-sync[data-state="synced"] .cap-sync-progress {
+  background: var(--paper-primary) !important;
+  stroke: var(--paper-primary) !important;
+}
+
+

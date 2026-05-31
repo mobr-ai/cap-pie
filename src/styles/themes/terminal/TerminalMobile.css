@@ -1,0 +1,11 @@
+/* Mobile */
+@media (max-width: 991.98px) {
+  [data-theme="terminal"] .cap-navbar .navbar-collapse,
+  [data-theme="terminal"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="terminal"] .cap-navbar .navbar-collapse.show {
+    background: #07140f !important;
+    border-top-color: var(--terminal-border) !important;
+  }
+}
+
+

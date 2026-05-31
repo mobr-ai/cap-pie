@@ -1,0 +1,50 @@
+.Settings-activity-status {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.45rem;
+  padding: 0.08rem 0.4rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  color: var(--theme-text-muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.Settings-activity-status[data-status="pending"] {
+  border-color: rgba(251, 191, 36, 0.28);
+  color: rgba(253, 230, 138, 0.92);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.Settings-activity-status[data-status="paid"] {
+  border-color: var(--theme-success-border, var(--theme-success));
+  color: var(--theme-success);
+  background: var(--theme-success-soft);
+}
+
+.Settings-activity-hash {
+  margin-left: 0.55rem;
+  color: var(--theme-primary);
+}
+
+.Settings-activity-hash {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.55rem;
+  color: var(--theme-primary);
+  text-decoration: none;
+  transition:
+    color 0.18s ease,
+    text-shadow 0.18s ease;
+}
+
+.Settings-activity-hash:hover,
+.Settings-activity-hash:focus {
+  color: var(--theme-primary-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-shadow: 0 0 14px var(--theme-primary-soft);
+}
+

@@ -1,0 +1,35 @@
+/* Hover shimmer (subtle) */
+.analyses-card::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(59, 130, 246, 0.06) 45%,
+    rgba(59, 130, 246, 0.14) 50%,
+    rgba(59, 130, 246, 0.06) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-70%) rotate(10deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.analyses-card:hover::after {
+  opacity: 1;
+  animation: analysesGleam 1.2s ease-in-out 1;
+}
+
+@keyframes analysesGleam {
+  0% {
+    transform: translateX(-70%) rotate(10deg);
+    opacity: 0.25;
+  }
+  100% {
+    transform: translateX(70%) rotate(10deg);
+    opacity: 0;
+  }
+}
+

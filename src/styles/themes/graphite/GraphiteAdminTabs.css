@@ -1,0 +1,67 @@
+/* Admin tabs */
+[data-theme="graphite"] .admin-tabs,
+[data-theme="graphite"] .admin-tabs-animated,
+[data-theme="graphite"] .admin-tabs-scroller {
+  position: relative !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem !important;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(32, 32, 36, 0.96), rgba(18, 18, 22, 0.96)) !important;
+  border: 1px solid var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .admin-tab-indicator {
+  display: block !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(113, 113, 122, 0.92), rgba(212, 212, 216, 0.32)) !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="graphite"] .admin-tab,
+[data-theme="graphite"] .admin-tabs button,
+[data-theme="graphite"] .admin-tabs-animated button,
+[data-theme="graphite"] .admin-tabs-scroller button {
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: var(--graphite-muted) !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="graphite"] .admin-tab:hover,
+[data-theme="graphite"] .admin-tabs button:hover,
+[data-theme="graphite"] .admin-tabs-animated button:hover,
+[data-theme="graphite"] .admin-tabs-scroller button:hover {
+  background: rgba(212, 212, 216, 0.07) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .admin-tab-active,
+[data-theme="graphite"] .admin-tab.admin-tab-active,
+[data-theme="graphite"] .admin-tab.active,
+[data-theme="graphite"] .admin-tabs button.active,
+[data-theme="graphite"] .admin-tabs-animated button.active,
+[data-theme="graphite"] .admin-tabs-scroller button.active,
+[data-theme="graphite"] .admin-tabs button[aria-selected="true"],
+[data-theme="graphite"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="graphite"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+

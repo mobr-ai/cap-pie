@@ -1,0 +1,13 @@
+/* App shell */
+[data-theme="terminal"] html,
+[data-theme="terminal"] body,
+[data-theme="terminal"] #root,
+[data-theme="terminal"] #outer-container,
+[data-theme="terminal"] #page-wrap {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(57, 255, 136, 0.06), transparent 38%),
+    linear-gradient(135deg, #020403 0%, #030806 48%, #06120d 100%) !important;
+  color: var(--terminal-text) !important;
+}
+

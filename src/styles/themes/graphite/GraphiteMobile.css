@@ -1,0 +1,11 @@
+/* Mobile */
+@media (max-width: 991.98px) {
+  [data-theme="graphite"] .cap-navbar .navbar-collapse,
+  [data-theme="graphite"] .cap-navbar .navbar-collapse.collapsing,
+  [data-theme="graphite"] .cap-navbar .navbar-collapse.show {
+    background: #18181b !important;
+    border-top-color: var(--graphite-border) !important;
+  }
+}
+
+

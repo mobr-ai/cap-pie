@@ -1,0 +1,53 @@
+/* Core surfaces */
+[data-theme="midnight"] .Settings-body,
+[data-theme="midnight"] .AdminPage,
+[data-theme="midnight"] .AdminPage-inner,
+[data-theme="midnight"] .AdminPage.container,
+[data-theme="midnight"] .DashboardPage,
+[data-theme="midnight"] .dashboard-page,
+[data-theme="midnight"] .dashboard-container,
+[data-theme="midnight"] .AnalysesPage,
+[data-theme="midnight"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.08), transparent 30%),
+    linear-gradient(135deg, #030712 0%, #07111f 48%, #0b1628 100%) !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .Settings-container,
+[data-theme="midnight"] .Settings-user-box,
+[data-theme="midnight"] .Settings-billing-zone,
+[data-theme="midnight"] .Settings-billing-panel,
+[data-theme="midnight"] .Settings-balance-panel,
+[data-theme="midnight"] .Settings-payment-methods,
+[data-theme="midnight"] .Settings-deposit-panel,
+[data-theme="midnight"] .Settings-support-section,
+[data-theme="midnight"] .Settings-theme-section,
+[data-theme="midnight"] .Settings-activity-row,
+[data-theme="midnight"] .Settings-premium-metrics > div,
+[data-theme="midnight"] .Settings-billing-toggle,
+[data-theme="midnight"] .AdminPage .admin-section,
+[data-theme="midnight"] .AdminPage .admin-card,
+[data-theme="midnight"] .AdminPage .admin-metric-card,
+[data-theme="midnight"] .AdminPage .admin-stat-card,
+[data-theme="midnight"] .AdminPage .admin-notify-card,
+[data-theme="midnight"] .AdminPage .admin-table-wrapper,
+[data-theme="midnight"] .AdminPage .admin-table-card,
+[data-theme="midnight"] .AdminPage .admin-panel,
+[data-theme="midnight"] .dashboard-widget,
+[data-theme="midnight"] .dashboard-widget-card,
+[data-theme="midnight"] .dashboard-card,
+[data-theme="midnight"] .widget-card,
+[data-theme="midnight"] .dashboard-grid > *,
+[data-theme="midnight"] .analyses-note,
+[data-theme="midnight"] .analyses-loading,
+[data-theme="midnight"] .analyses-empty,
+[data-theme="midnight"] .analyses-card {
+  background:
+    linear-gradient(180deg, rgba(16, 33, 58, 0.96), rgba(7, 17, 31, 0.96)) !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+  box-shadow: var(--midnight-shadow) !important;
+}
+

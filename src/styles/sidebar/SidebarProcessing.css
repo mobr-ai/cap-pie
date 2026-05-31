@@ -1,0 +1,52 @@
+/* ---- processing indicator (gleam) ---- */
+.sidebar-conversation.processing {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-conversation.processing::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0) 0%,
+    rgba(59, 130, 246, 0.18) 45%,
+    rgba(59, 130, 246, 0.35) 50%,
+    rgba(59, 130, 246, 0.18) 55%,
+    rgba(59, 130, 246, 0) 100%
+  );
+  transform: translateX(-40%) rotate(10deg);
+  animation: capGleam 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.sidebar-conversation.processing {
+  animation: capPulseBorder 1.2s ease-in-out infinite;
+}
+
+@keyframes capGleam {
+  0% {
+    transform: translateX(-50%) rotate(10deg);
+    opacity: 0.35;
+  }
+  60% {
+    transform: translateX(55%) rotate(10deg);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(80%) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes capPulseBorder {
+  0%,
+  100% {
+    border-color: rgba(59, 130, 246, 0.28);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.65);
+  }
+}
+

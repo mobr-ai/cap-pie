@@ -1,0 +1,67 @@
+/* Admin tabs */
+[data-theme="terminal"] .admin-tabs,
+[data-theme="terminal"] .admin-tabs-animated,
+[data-theme="terminal"] .admin-tabs-scroller {
+  position: relative !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem !important;
+  padding: 0.25rem !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(9, 26, 19, 0.98), rgba(3, 8, 6, 0.98)) !important;
+  border: 1px solid var(--terminal-border) !important;
+  box-shadow: var(--terminal-shadow) !important;
+}
+
+[data-theme="terminal"] .admin-tab-indicator {
+  display: block !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(57, 255, 136, 0.38)) !important;
+  box-shadow:
+    0 10px 24px rgba(34, 197, 94, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="terminal"] .admin-tab,
+[data-theme="terminal"] .admin-tabs button,
+[data-theme="terminal"] .admin-tabs-animated button,
+[data-theme="terminal"] .admin-tabs-scroller button {
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: var(--terminal-muted) !important;
+  min-height: 2rem !important;
+  padding: 0.42rem 0.9rem !important;
+  text-shadow: none !important;
+}
+
+[data-theme="terminal"] .admin-tab:hover,
+[data-theme="terminal"] .admin-tabs button:hover,
+[data-theme="terminal"] .admin-tabs-animated button:hover,
+[data-theme="terminal"] .admin-tabs-scroller button:hover {
+  background: rgba(34, 197, 94, 0.09) !important;
+  color: var(--terminal-text) !important;
+}
+
+[data-theme="terminal"] .admin-tab-active,
+[data-theme="terminal"] .admin-tab.admin-tab-active,
+[data-theme="terminal"] .admin-tab.active,
+[data-theme="terminal"] .admin-tabs button.active,
+[data-theme="terminal"] .admin-tabs-animated button.active,
+[data-theme="terminal"] .admin-tabs-scroller button.active,
+[data-theme="terminal"] .admin-tabs button[aria-selected="true"],
+[data-theme="terminal"] .admin-tabs-animated button[aria-selected="true"],
+[data-theme="terminal"] .admin-tabs-scroller button[aria-selected="true"] {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+

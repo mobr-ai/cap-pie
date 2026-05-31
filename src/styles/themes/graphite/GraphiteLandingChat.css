@@ -1,0 +1,51 @@
+/* Landing/chat */
+[data-theme="graphite"] .cap-root {
+  --primary: var(--graphite-accent);
+  --primary-dark: var(--graphite-accent-hover);
+  --secondary: var(--graphite-muted);
+  --background: var(--graphite-bg);
+  --surface: var(--graphite-card);
+  --surface-light: var(--graphite-card-soft);
+  --text-primary: var(--graphite-text);
+  --text-secondary: var(--graphite-muted);
+  --border: var(--graphite-border);
+}
+
+[data-theme="graphite"] .cap-root .chat-container,
+[data-theme="graphite"] .cap-root .input-container,
+[data-theme="graphite"] .cap-root .message.assistant .message-bubble,
+[data-theme="graphite"] .cap-root .message.assistant .message-avatar {
+  background: var(--graphite-card) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .cap-root .message.user .message-bubble {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="graphite"] .cap-root .landing-empty-line,
+[data-theme="graphite"] .cap-root .landing-empty-typed {
+  color: var(--graphite-text) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="graphite"] .cap-root .landing-empty-caret {
+  background: var(--graphite-accent-hover) !important;
+}
+
+[data-theme="graphite"] .cap-root .example-chip {
+  background: rgba(24, 24, 27, 0.9) !important;
+  color: var(--graphite-text-soft) !important;
+  border: 1px solid var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+
+[data-theme="graphite"] .cap-root .example-chip:hover:not(.disabled) {
+  background: rgba(212, 212, 216, 0.08) !important;
+  color: var(--graphite-text) !important;
+  border-color: rgba(212, 212, 216, 0.3) !important;
+}
+

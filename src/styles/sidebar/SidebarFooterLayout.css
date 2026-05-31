@@ -1,0 +1,73 @@
+/* Push logout to bottom */
+.sidebar-spacer {
+  flex: 1;
+}
+
+.sidebar-item.logout {
+  margin-top: 10px;
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.sidebar-item.logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+/* Footer */
+.sidebar-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--theme-border);
+  color: var(--theme-text-muted);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-footer .muted {
+  opacity: 0.85;
+}
+
+/* Make sidebar a column and allow internal scroll areas */
+.cap-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure nav can shrink so the convo list can scroll */
+.sidebar-nav {
+  flex: 1;
+  min-height: 0; /* critical for overflow containers in flex layouts */
+}
+
+/* Scrollable conversations area */
+.sidebar-conversations-list {
+  max-height: 50vh;
+  min-height: 50vh;
+  overflow-y: auto;
+  padding-right: 6px; /* space for scrollbar */
+}
+
+/* Nice scrollbar (WebKit) */
+.sidebar-conversations-list::-webkit-scrollbar {
+  width: 8px;
+}
+.sidebar-conversations-list::-webkit-scrollbar-track {
+  background: var(--theme-surface-2);
+  border-radius: 999px;
+}
+.sidebar-conversations-list::-webkit-scrollbar-thumb {
+  background: var(--theme-border-strong);
+  border-radius: 999px;
+}
+.sidebar-conversations-list::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-muted);
+}
+
+/* Nice scrollbar (Firefox) */
+.sidebar-conversations-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-border-strong) var(--theme-surface-2);
+}
+

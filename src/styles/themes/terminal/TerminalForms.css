@@ -1,0 +1,39 @@
+/* Inputs */
+[data-theme="terminal"] input,
+[data-theme="terminal"] textarea,
+[data-theme="terminal"] select,
+[data-theme="terminal"] .form-control,
+[data-theme="terminal"] .form-select,
+[data-theme="terminal"] .Settings-inline-input,
+[data-theme="terminal"] .Settings-support-custom input,
+[data-theme="terminal"] .Settings-container .form-control,
+[data-theme="terminal"] .Settings-container .form-select,
+[data-theme="terminal"] .AdminPage input,
+[data-theme="terminal"] .AdminPage textarea,
+[data-theme="terminal"] .AdminPage select,
+[data-theme="terminal"] .analyses-search {
+  background: rgba(2, 4, 3, 0.84) !important;
+  color: var(--terminal-text) !important;
+  border-color: var(--terminal-border-strong) !important;
+  box-shadow: inset 0 0 0 1px rgba(57, 255, 136, 0.025) !important;
+}
+
+[data-theme="terminal"] input::placeholder,
+[data-theme="terminal"] textarea::placeholder,
+[data-theme="terminal"] .form-control::placeholder,
+[data-theme="terminal"] .analyses-search::placeholder {
+  color: rgba(117, 185, 133, 0.76) !important;
+}
+
+[data-theme="terminal"] input:focus,
+[data-theme="terminal"] textarea:focus,
+[data-theme="terminal"] select:focus,
+[data-theme="terminal"] .form-control:focus,
+[data-theme="terminal"] .form-select:focus,
+[data-theme="terminal"] .analyses-search:focus {
+  border-color: rgba(57, 255, 136, 0.56) !important;
+  box-shadow:
+    0 0 0 3px rgba(57, 255, 136, 0.12),
+    0 0 22px rgba(57, 255, 136, 0.08) !important;
+}
+

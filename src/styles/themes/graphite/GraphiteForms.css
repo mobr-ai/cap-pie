@@ -1,0 +1,37 @@
+/* Inputs */
+[data-theme="graphite"] input,
+[data-theme="graphite"] textarea,
+[data-theme="graphite"] select,
+[data-theme="graphite"] .form-control,
+[data-theme="graphite"] .form-select,
+[data-theme="graphite"] .Settings-inline-input,
+[data-theme="graphite"] .Settings-support-custom input,
+[data-theme="graphite"] .Settings-container .form-control,
+[data-theme="graphite"] .Settings-container .form-select,
+[data-theme="graphite"] .AdminPage input,
+[data-theme="graphite"] .AdminPage textarea,
+[data-theme="graphite"] .AdminPage select,
+[data-theme="graphite"] .analyses-search {
+  background: rgba(10, 10, 11, 0.82) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border-strong) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="graphite"] input::placeholder,
+[data-theme="graphite"] textarea::placeholder,
+[data-theme="graphite"] .form-control::placeholder,
+[data-theme="graphite"] .analyses-search::placeholder {
+  color: rgba(161, 161, 170, 0.78) !important;
+}
+
+[data-theme="graphite"] input:focus,
+[data-theme="graphite"] textarea:focus,
+[data-theme="graphite"] select:focus,
+[data-theme="graphite"] .form-control:focus,
+[data-theme="graphite"] .form-select:focus,
+[data-theme="graphite"] .analyses-search:focus {
+  border-color: rgba(212, 212, 216, 0.46) !important;
+  box-shadow: 0 0 0 3px rgba(212, 212, 216, 0.1) !important;
+}
+

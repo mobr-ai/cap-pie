@@ -1,0 +1,89 @@
+/* User menu */
+.navbar-user-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navbar-user-avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  padding: 1px;
+  background: var(--theme-surface);
+  image-rendering: auto;
+  backface-visibility: hidden;
+}
+
+.navbar-user-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-user-caret {
+  display: inline-block;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+/* Dropdown caret override */
+#navbar-user .dropdown-toggle::after {
+  display: none !important;
+}
+
+/* Dropdown styling */
+.navbar .dropdown-menu-dark,
+.dropdown-menu-dark {
+  background-color: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  box-shadow: var(--theme-shadow-large);
+  min-width: 220px;
+}
+
+.dropdown-menu-dark .dropdown-item {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--nav-fg);
+  transition: background 0.15s ease-in-out;
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+  background: var(--theme-surface-3);
+}
+
+/* Submenu (language) */
+.submenu {
+  position: relative;
+}
+
+.submenu-toggle.dropdown-item {
+  padding-right: 1.25rem;
+}
+
+.submenu-caret {
+  transition: transform 0.15s ease-in-out;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.submenu.show .submenu-caret {
+  transform: rotate(90deg);
+}
+
+.submenu .dropdown-menu {
+  left: 100% !important;
+  top: 0 !important;
+  margin-left: 0.25rem;
+  min-width: 220px;
+}
+
