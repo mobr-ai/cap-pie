@@ -67,7 +67,7 @@ class CriticAgent:
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         result = state.get("execution_result")
 
-        if result and result.has_data:
+        if result and (result.has_data or result.sql_results):
             state["error"] = None
             return state
 
@@ -102,7 +102,10 @@ class ContextAgent:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
-        if not query or not result or not result.has_data:
+        has_sparql_data = bool(result and result.sparql_results)
+        has_sql_data = bool(result and result.sql_results)
+
+        if not query or not result or not (has_sparql_data or has_sql_data):
             state["formatted_results"] = ""
             state["kv_results"] = None
             return state
