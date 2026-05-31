@@ -6,12 +6,12 @@ import re
 from collections import Counter
 from typing import Any, TypeAlias
 
-DataRow: TypeAlias = dict[str, Any]
-VegaValue: TypeAlias = dict[str, Any]
-
 from opentelemetry import trace
 
 from cap.chains.registry import get_chain
+
+DataRow: TypeAlias = dict[str, Any]
+VegaValue: TypeAlias = dict[str, Any]
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)

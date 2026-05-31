@@ -28,7 +28,7 @@ def build_agentic_query_graph(
     persistence_agent = PersistenceAgent(redis_client)
 
     async def normalize_node(state: AgenticQueryState) -> AgenticQueryState:
-        state["normalized_query"] = QueryNormalizer.normalize(state["user_query"])
+        state["normalized_query"] = QueryNormalizer.normalize(state.get("user_query", ""))
         state.setdefault("retry_count", 0)
         state.setdefault("max_retries", 2)
         return state

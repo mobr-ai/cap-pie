@@ -15,10 +15,13 @@ class CacheAgent:
         self.redis_client = redis_client
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+        user_query = state.get("user_query", "")
+        normalized_query = state.get("normalized_query", user_query)
+
         cached = await get_cached_federated_query(
             redis_client=self.redis_client,
-            normalized_query=state["normalized_query"],
-            user_query=state["user_query"],
+            normalized_query=normalized_query,
+            user_query=user_query,
         )
 
         state["cached"] = cached is not None
@@ -37,7 +40,7 @@ class PlanningAgent:
             return state
 
         federated_query, refer_decision = await self.llm_client.nl_to_federated_query(
-            natural_query=state["user_query"],
+            natural_query=state.get("user_query", ""),
             conversation_history=state.get("conversation_history") or [],
         )
 
@@ -83,7 +86,7 @@ class CriticAgent:
                 "content": (
                     "The generated federated query failed.\n"
                     f"Error: {state.get('error')}\n"
-                    f"Original question: {state['user_query']}\n"
+                    f"Original question: {state.get('user_query', '')}\n"
                     "Regenerate a corrected federated JSON query."
                 ),
             }
@@ -125,11 +128,15 @@ class AnswerAgent:
         query = state.get("federated_query")
         serialized_query = query.model_dump_json() if query else ""
 
+        kv_results = state.get("kv_results")
+        if not isinstance(kv_results, dict):
+            kv_results = {}
+
         stream = self.llm_client.generate_answer_with_context(
-            user_query=state["user_query"],
+            user_query=state.get("user_query", ""),
             sparql_query=serialized_query,
             sparql_results=state.get("formatted_results", ""),
-            kv_results=state.get("kv_results"),
+            kv_results=kv_results,
             system_prompt="",
             conversation_history=state.get("conversation_history"),
         )
@@ -155,7 +162,7 @@ class PersistenceAgent:
         if result and result.has_data and query:
             await cache_successful_query(
                 redis_client=self.redis_client,
-                user_query=state["user_query"],
+                user_query=state.get("user_query", ""),
                 federated_query=query,
             )
 

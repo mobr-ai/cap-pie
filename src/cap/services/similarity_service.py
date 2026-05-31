@@ -183,10 +183,14 @@ class SimilarityService:
                 normalized_query=cached_normalized,
                 original_query=original_nl,
             )
+            sparql_query = ""
+            if sparql_data:
+                sparql_query = sparql_data["sparql_query"]
+
             candidates.append({
                 "original_query": original_nl,
                 "normalized_query": cached_normalized,
-                "sparql_query": sparql_data["sparql_query"],
+                "sparql_query": sparql_query,
                 "similarity_score": score,
                 "is_sequential": entry.get("is_sequential", False),
                 "precached": entry.get("precached", False),

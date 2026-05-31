@@ -2,7 +2,8 @@
 Metrics reporting API.
 """
 from datetime import UTC, datetime, timedelta
-from typing import Any, cast as type_cast
+from typing import Any
+from typing import cast as type_cast
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import Float, Integer, and_, case, cast, func, or_, select

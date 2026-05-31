@@ -316,7 +316,7 @@ class SPARQLNormalizer:
 
         return text
 
-    def _is_inside_bind_if(self, text: str, match: re.Match) -> bool:
+    def _is_inside_bind_if(self, text: str, match: re.Match[str]) -> bool:
         """Check if match is inside a BIND(IF(...)) statement."""
         # Look backwards for BIND(IF pattern
         before_text = text[:match.start()]
@@ -346,7 +346,7 @@ class SPARQLNormalizer:
         # If paren_count > 0, we're still inside the BIND(IF(...))
         return paren_count > 0
 
-    def _is_inside_optional_block(self, text: str, match: re.Match) -> bool:
+    def _is_inside_optional_block(self, text: str, match: re.Match[str]) -> bool:
         """Check if match is inside an OPTIONAL {...} block."""
         before_text = text[:match.start()]
 
@@ -451,7 +451,7 @@ class SPARQLNormalizer:
 
         return text
 
-    def _should_skip_number(self, text: str, match: re.Match) -> bool:
+    def _should_skip_number(self, text: str, match: re.Match[str]) -> bool:
         """Determine if a number should be skipped during extraction."""
 
         # Skip if inside an existing placeholder
@@ -495,7 +495,7 @@ class SPARQLNormalizer:
 
         return False
 
-    def _is_inside_placeholder(self, text: str, match: re.Match) -> bool:
+    def _is_inside_placeholder(self, text: str, match: re.Match[str]) -> bool:
         """Check if match position is inside an existing placeholder."""
         # Look backwards from match position
         before_text = text[:match.start()]

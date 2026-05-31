@@ -73,26 +73,6 @@ async def run_pipeline(
     t_retrieval_start = time.time()
     t_nl2sparql_start = time.time()
 
-    if not cache_hit:
-        retrieved = []
-        raw_sparql_response = await llm.nl_to_sparql(
-            natural_query=user_query,
-            conversation_history=[],
-            use_ontology=use_ontology,
-            use_fewshot=use_fewshot,
-            fewshot_strategy=fewshot_strategy,
-            fewshot_top_n=5,
-            _eval_retrieved_out=retrieved,
-        )
-
-        is_sequential, sparql_content = detect_and_parse_sparql(raw_sparql_response, user_query)
-        if is_sequential:
-            sparql_queries = sparql_content
-            sparql_query = ""
-        else:
-            sparql_query = sparql_content
-            sparql_queries = None
-
     t_nl2sparql_end = time.time()
     retrieval_ms = int((t_nl2sparql_end - t_retrieval_start) * 1000)
 
