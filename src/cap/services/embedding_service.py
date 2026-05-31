@@ -215,10 +215,14 @@ class EmbeddingService:
                         normalized_query=cached_normalized,
                         original_query=original_nl,
                     )
+                    sparql_query = ""
+                    if sparql_data:
+                        sparql_query = sparql_data.get("sparql_query", "")
+
                     results.append({
                         "original_query": meta.get("original_query", ""),
                         "normalized_query": meta.get("normalized_query", ""),
-                        "sparql_query": sparql_data["sparql_query"],
+                        "sparql_query": sparql_query,
                         "is_sequential": meta.get("is_sequential", "False") == "True",
                         "precached": meta.get("precached", "False") == "True",
                         "similarity_score": similarity,
