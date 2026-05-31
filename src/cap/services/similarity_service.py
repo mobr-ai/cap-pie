@@ -99,6 +99,7 @@ class SimilarityService:
                     logger.error(f"Jaccard fallback also failed: {jaccard_exc}", exc_info=True)
                     return []
 
+        logger.error("No similar queries found using jaccard")
         return []
 
 
@@ -185,7 +186,7 @@ class SimilarityService:
             )
             sparql_query = ""
             if sparql_data:
-                sparql_query = sparql_data["sparql_query"]
+                sparql_query = sparql_data.get("sparql_query", "")
 
             candidates.append({
                 "original_query": original_nl,

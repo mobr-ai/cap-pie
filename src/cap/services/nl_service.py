@@ -5,16 +5,13 @@ Multi-stage pipeline: NL -> FederatedQuery(SPARQL/SQL) -> Execute -> Contextuali
 import logging
 import time
 
-from opentelemetry import trace
-
+from cap.services.agentic.graph import build_agentic_query_graph
 from cap.services.llm_client import get_llm_client
 from cap.services.metrics_service import MetricsService
 from cap.services.redis_nl_client import get_redis_nl_client
 from cap.util.status_message import StatusMessage
 
 logger = logging.getLogger(__name__)
-tracer = trace.get_tracer(__name__)
-
 
 async def query_with_stream_response(
     query,
@@ -31,8 +28,6 @@ async def query_with_stream_response(
 
         llm_client = get_llm_client()
         redis_client = get_redis_nl_client()
-
-        from cap.services.agentic.graph import build_agentic_query_graph
 
         user_query = query
         if context:

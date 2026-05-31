@@ -1,4 +1,3 @@
-# nl_query.py
 """
 Natural language query API endpoint using LLM.
 Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
