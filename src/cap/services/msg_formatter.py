@@ -27,9 +27,11 @@ class MessageFormatter:
 
         examples_to_use = similar_queries[:max_examples]
         for example in examples_to_use:
+            oq = example.get("original_query", "")
+            fq = example.get("federated_query", "")
             examples.append({
-                "user": f"User Question: {example['original_query']}",
-                "assistant": f"Assistant Answer: {example['sparql_query']}"
+                "user": f"User Question: {oq}",
+                "assistant": f"Assistant Answer: {fq}"
             })
 
         return examples
