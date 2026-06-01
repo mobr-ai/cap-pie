@@ -17,6 +17,17 @@
 namespace cap {
 namespace {
 
+long long normalize_epoch_ms(long long value)
+{
+  // Binance API usually returns milliseconds.
+  // Some archive CSVs may contain microseconds.
+  if(value > 99999999999999LL) {
+    return value / 1000LL;
+  }
+
+  return value;
+}
+
 void upsert_checkpoint(
   Db& db,
   const std::string& source,
@@ -254,7 +265,7 @@ void upsert_ohlcv_rows(
   long long max_open_ms = 0;
 
   for(const auto& row : rows) {
-    long long open_ms = std::stoll(row[0]);
+    long long open_ms = normalize_epoch_ms(std::stoll(row[0]));
     max_open_ms = std::max(max_open_ms, open_ms);
 
     db.exec(
@@ -364,7 +375,7 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
       std::vector<std::vector<std::string>> filtered;
 
       for(const auto& row : rows) {
-        long long open_ms = std::stoll(row[0]);
+        long long open_ms = normalize_epoch_ms(std::stoll(row[0]));
 
         if(open_ms >= bootstrap_ms) {
           filtered.push_back(row);
