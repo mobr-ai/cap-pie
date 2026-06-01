@@ -385,13 +385,19 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
       upsert_checkpoint(db, "ohlcv", entity, checkpoint_key, "processed");
       std::filesystem::remove(local_zip);
     } catch(const std::exception& e) {
-      log(
-        "WARN",
-        "Binance archive unavailable for " + key +
-        "; API sync will backfill missing candles automatically: " +
-        std::string(e.what())
-      );
+      const std::string error = e.what();
 
+      if (error.find("HTTP 404 for ") != std::string::npos) {
+        upsert_checkpoint(db, "ohlcv", entity, checkpoint_key, "missing_404");
+
+      } else {
+        log(
+          "WARN",
+          "Binance archive unavailable for " + key +
+          "; API sync will backfill missing candles automatically: " +
+          error
+        );
+      }
       std::filesystem::remove(local_zip);
       continue;
     }
