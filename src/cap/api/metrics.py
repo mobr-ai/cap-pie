@@ -2,6 +2,8 @@
 Metrics reporting API.
 """
 from datetime import UTC, datetime, timedelta
+from typing import Any
+from typing import cast as type_cast
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import Float, Integer, and_, case, cast, func, or_, select
@@ -31,14 +33,14 @@ def get_aggregated_metrics(
     """Get aggregated metrics for all success dimensions."""
 
     # Date filtering
-    filters = []
+    filters: list[Any] = []
     if start_date:
         filters.append(QueryMetrics.created_at >= datetime.fromisoformat(start_date))
     if end_date:
         filters.append(QueryMetrics.created_at <= datetime.fromisoformat(end_date))
 
     # Dimension 1: LLM Capability
-    llm_stats = (
+    llm_stats = type_cast(Any, (
         db.query(
             func.count(QueryMetrics.id).label("total"),
             func.sum(cast(cast(QueryMetrics.sparql_valid, Integer), Float)).label(
@@ -54,9 +56,9 @@ def get_aggregated_metrics(
                 "unique_languages"
             ),
         )
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .first()
-    )
+    ))
 
     llm_capability = {
         "total_queries": llm_stats.total or 0,
@@ -77,7 +79,7 @@ def get_aggregated_metrics(
     # Language breakdown
     lang_breakdown = (
         db.query(QueryMetrics.detected_language, func.count(QueryMetrics.id).label("count"))
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .group_by(QueryMetrics.detected_language)
         .all()
     )
@@ -92,7 +94,7 @@ def get_aggregated_metrics(
     ]
 
     # Dimension 2: Knowledge Graph
-    kg_stats = (
+    kg_stats = type_cast(Any, (
         db.query(
             func.count(KGMetrics.id).label("total_loads"),
             func.sum(KGMetrics.triples_loaded).label("total_triples"),
@@ -104,17 +106,17 @@ def get_aggregated_metrics(
             ),
         )
         .first()
-    )
+    ))
 
-    query_kg_stats = (
+    query_kg_stats = type_cast(Any, (
         db.query(
             func.sum(
                 cast(cast(QueryMetrics.has_offchain_metadata, Integer), Float)
             ).label("queries_with_metadata")
         )
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .first()
-    )
+    ))
 
     knowledge_graph = {
         "total_triples_loaded": kg_stats.total_triples or 0,
@@ -129,13 +131,13 @@ def get_aggregated_metrics(
     }
 
     # Dimension 3: Dashboard Adoption (authoritative counts)
-    dash_counts = (
+    dash_counts = type_cast(Any, (
         db.query(
             func.count(Dashboard.id).label("total_dashboards"),
             func.count(func.distinct(Dashboard.user_id)).label("unique_users"),
         )
         .first()
-    )
+    ))
 
     avg_items = db.query(
         func.avg(
@@ -155,7 +157,7 @@ def get_aggregated_metrics(
     }
 
     # Dimension 4: Performance
-    perf_stats = (
+    perf_stats = type_cast(Any, (
         db.query(
             func.avg(QueryMetrics.llm_latency_ms).label("avg_llm"),
             func.percentile_cont(0.95)
@@ -167,9 +169,9 @@ def get_aggregated_metrics(
             .label("p95_sparql"),
             func.avg(QueryMetrics.total_latency_ms).label("avg_total"),
         )
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .first()
-    )
+    ))
 
     performance = {
         "avg_llm_latency_ms": float(perf_stats.avg_llm or 0),
@@ -202,20 +204,20 @@ def get_aggregated_metrics(
     }
 
     # Dimension 6: Query Complexity
-    complexity_stats = (
+    complexity_stats = type_cast(Any, (
         db.query(
             func.avg(QueryMetrics.complexity_score).label("avg_complexity"),
             func.sum(
                 cast(cast(QueryMetrics.has_multi_relationship, Integer), Float)
             ).label("multi_rel"),
         )
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .first()
-    )
+    ))
 
     complexity_dist = (
         db.query(QueryMetrics.complexity_score, func.count(QueryMetrics.id).label("count"))
-        .filter(and_(*filters) if filters else True)
+        .filter(*filters)
         .group_by(QueryMetrics.complexity_score)
         .all()
     )
@@ -240,7 +242,7 @@ def get_aggregated_metrics(
     }
 
 
-def _query_metrics_to_dict(r: QueryMetrics) -> dict:
+def _query_metrics_to_dict(r: QueryMetrics) -> dict[str, Any]:
     return {
         # cards / lists
         "id": r.id,
@@ -254,7 +256,7 @@ def _query_metrics_to_dict(r: QueryMetrics) -> dict:
         "created_at": r.created_at.isoformat() if r.created_at else None,
 
         # details / modal
-        "sparql_query": getattr(r, "sparql_query", None),
+        "federated_query": getattr(r, "federated_query", None),
         "sparql_valid": getattr(r, "sparql_valid", None),
         "semantic_valid": getattr(r, "semantic_valid", None),
         "is_sequential": getattr(r, "is_sequential", None),
@@ -548,3 +550,5 @@ def get_user_query_summary_admin(
         "avg_complexity_score": float(stats.avg_complexity_score or 0.0),
         "last_query_at": (stats.last_query_at.isoformat() if stats.last_query_at else None),
     }
+
+

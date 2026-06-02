@@ -2,6 +2,7 @@ import logging
 import os
 import secrets
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -157,7 +158,7 @@ def _active_plan_bundle(db: Session, plan_code: str, network: str):
     return plan, price, payment_address
 
 
-def _session_response(session: PaymentSession):
+def _session_response(session: PaymentSession) -> dict[str, Any]:
     return {
         "session_id": session.session_id,
         "kind": getattr(session, "kind", PAYMENT_KIND_PLAN_PURCHASE),
@@ -351,7 +352,7 @@ def _debit_user_balance_for_entitlement(
     amount_lovelace: int,
     reason: str,
     entitlement: UserEntitlement,
-    metadata: dict | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> UserCreditBalance:
     balance = db.scalar(
         select(UserCreditBalance)
@@ -372,6 +373,17 @@ def _debit_user_balance_for_entitlement(
                 "balance_lovelace": current_balance,
                 "required_lovelace": int(amount_lovelace),
                 "missing_lovelace": int(amount_lovelace) - current_balance,
+            },
+        )
+
+    if balance is None:
+        raise HTTPException(
+            status_code=402,
+            detail={
+                "code": "insufficientBalance",
+                "balance_lovelace": 0,
+                "required_lovelace": int(amount_lovelace),
+                "missing_lovelace": int(amount_lovelace),
             },
         )
 
@@ -458,7 +470,7 @@ def _credit_user_balance(
     return balance
 
 
-def _credit_balance_payload(row: UserCreditBalance | None):
+def _credit_balance_payload(row: UserCreditBalance | None) -> dict[str, Any]:
     balance = int(row.balance or 0) if row else 0
     return {
         "currency": row.currency if row else "lovelace",
@@ -495,7 +507,7 @@ def _get_or_create_billing_preferences(
     return row
 
 
-def _billing_preferences_payload(row: UserBillingPreference) -> dict:
+def _billing_preferences_payload(row: UserBillingPreference) -> dict[str, Any]:
     return {
         "auto_renew_premium_enabled": bool(row.auto_renew_premium_enabled),
         "auto_renew_plan_code": row.auto_renew_plan_code or "cap_premium_access",
@@ -526,7 +538,7 @@ def _maybe_auto_renew_premium_from_balance(
     db: Session,
     *,
     user: User,
-) -> dict:
+) -> dict[str, Any]:
     preferences = db.scalar(
         select(UserBillingPreference).where(
             UserBillingPreference.user_id == user.user_id,

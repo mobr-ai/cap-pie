@@ -8,7 +8,7 @@ from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
 from cap.services.redis_nl_client import RedisNLClient
 from cap.services.similarity_service import SimilarityService
-from cap.util.sparql_result_processor import convert_sparql_to_kv, format_for_llm
+from cap.util.sparql_result_processor import convert_sparql_to_kv
 
 
 @tool
@@ -29,7 +29,7 @@ async def get_cached_federated_query(
     if not cached_data:
         return None
 
-    payload = cached_data["sparql_query"]
+    payload = cached_data["federated_query"]
 
     try:
         parsed = json.loads(payload)
@@ -96,7 +96,10 @@ def format_execution_context(
             sparql_results,
             federated_query.sparql,
         )
-        sections.append(format_for_llm(kv_results))
+        sections.append(
+            "SPARQL results:\n"
+            + json.dumps(kv_results, default=str, ensure_ascii=False, indent=2)
+        )
 
     if federated_query.sql:
         sql_kv = {

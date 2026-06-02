@@ -137,7 +137,6 @@ class ValueExtractor:
                     values["quantifiers"].append(pattern)
                     break  # Only need one
 
-        logger.info(f"Extracted values from '{nl_query}': {values}")
         return values
 
     @staticmethod

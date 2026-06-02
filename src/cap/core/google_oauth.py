@@ -7,7 +7,7 @@ from google.oauth2 import id_token
 GOOGLE_USERINFO = "https://openidconnect.googleapis.com/v1/userinfo"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
-def get_userinfo_from_access_token_or_idtoken(token: str, token_type: str = None):
+def get_userinfo_from_access_token_or_idtoken(token: str, token_type: str | None = None):
     """
     Verifies either an access_token (via /userinfo) or an id_token (JWT)
     from Google OAuth or One Tap.
@@ -51,3 +51,5 @@ def get_userinfo_from_access_token_or_idtoken(token: str, token_type: str = None
         raise Exception(
             f"userinfo_error: {e}"
         ) from e
+
+

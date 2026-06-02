@@ -1,4 +1,3 @@
-# nl_query.py
 """
 Natural language query API endpoint using LLM.
 Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
@@ -299,6 +298,7 @@ async def natural_language_query(
 
             # word-safe streaming buffer
             pending_text = ""
+            carry = ""
             stop_stream = False
 
             async def flush_pending(force: bool = False):
@@ -346,22 +346,17 @@ async def natural_language_query(
                 else:
                     text = str(chunk)
 
-                # query_with_stream_response may return partial lines; we need a small carry buffer
-                # to safely split into full lines.
-                # We'll handle this by accumulating into a local buffer per-iteration.
-                # (Keep it inside generator state.)
-                if not hasattr(stream_and_persist, "_carry"):
-                    stream_and_persist._carry = ""
-                carry = stream_and_persist._carry
+                # query_with_stream_response may return partial lines; keep a typed
+                # local carry buffer instead of mutating the function object.
                 carry += text
                 lines = carry.splitlines(keepends=False)
 
                 # If the chunk did not end in a newline, last element is incomplete.
                 # Keep it in carry for next iteration.
                 if carry and not carry.endswith("\n") and not carry.endswith("\r\n"):
-                    stream_and_persist._carry = lines.pop() if lines else carry
+                    carry = lines.pop() if lines else carry
                 else:
-                    stream_and_persist._carry = ""
+                    carry = ""
 
                 for raw_line in lines:
                     line = raw_line.rstrip("\r")
@@ -612,3 +607,5 @@ async def get_cache_stats():
     except Exception as e:
         logger.error(f"Cache stats error: {e}")
         return {"error": str(e)}
+
+

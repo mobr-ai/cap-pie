@@ -5,16 +5,14 @@ Multi-stage pipeline: NL -> FederatedQuery(SPARQL/SQL) -> Execute -> Contextuali
 import logging
 import time
 
-from opentelemetry import trace
-
+from cap.services.agentic.graph import build_agentic_query_graph
 from cap.services.llm_client import get_llm_client
 from cap.services.metrics_service import MetricsService
 from cap.services.redis_nl_client import get_redis_nl_client
 from cap.util.status_message import StatusMessage
+from cap.util.json_util import json_safe
 
 logger = logging.getLogger(__name__)
-tracer = trace.get_tracer(__name__)
-
 
 async def query_with_stream_response(
     query,
@@ -31,8 +29,6 @@ async def query_with_stream_response(
 
         llm_client = get_llm_client()
         redis_client = get_redis_nl_client()
-
-        from cap.services.agentic.graph import build_agentic_query_graph
 
         user_query = query
         if context:
@@ -81,7 +77,7 @@ async def query_with_stream_response(
                 nl_query=query,
                 normalized_query=final_state.get("normalized_query", ""),
                 sparql_query=federated_query.model_dump_json() if federated_query else "",
-                kv_results=final_state.get("kv_results"),
+                kv_results=json_safe(final_state.get("kv_results")),
                 is_sequential=False,
                 sparql_valid=bool(final_state.get("query_valid")),
                 query_succeeded=bool(execution_result and execution_result.has_data),
@@ -92,4 +88,6 @@ async def query_with_stream_response(
                 error_message=final_state.get("error"),
             )
         except Exception as metrics_error:
-            logger.error("Failed to record metrics: %s", metrics_error)
+            if db:
+                db.rollback()
+            logger.error(f"Failed to record metrics: {metrics_error}")

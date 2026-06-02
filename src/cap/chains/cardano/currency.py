@@ -9,18 +9,19 @@ ADA_CURRENCY_URI = "https://mobr.ai/ont/cardano#cnt/ada"
 LOVELACE_TO_ADA = Decimal("1000000")
 
 
-def _query_text(sparql_query: str | list | dict) -> str:
+def _query_text(sparql_query: str | list[Any] | dict[str, Any]) -> str:
     if isinstance(sparql_query, list):
         return " ".join(
             q.get("query", "") if isinstance(q, dict) else str(q)
             for q in sparql_query
         )
     if isinstance(sparql_query, dict):
-        return sparql_query.get("query", str(sparql_query))
+        query = sparql_query.get("query")
+        return query if isinstance(query, str) else str(sparql_query)
     return sparql_query or ""
 
 
-def detect_ada_variables(sparql_query: str | list | dict) -> set[str]:
+def detect_ada_variables(sparql_query: str | list[Any] | dict[str, Any]) -> set[str]:
     query_text = _query_text(sparql_query)
     if not query_text:
         return set()

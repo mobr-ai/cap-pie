@@ -83,7 +83,7 @@ class NLNormalizationTester:
             cached_data = await self.redis_client.get_cached_query_with_original(normalized, query)
 
             if cached_data:
-                cached_data = cached_data["sparql_query"]
+                cached_data = cached_data["federated_query"]
 
             # Store the query pair
             self.query_pairs.append((normalized, cached_data))

@@ -70,7 +70,7 @@ class RedisSPARQLClient:
             count_key = self._make_count_key(sparql_query)
 
             cache_data = {
-                "sparql_query": sparql_query,
+                "federated_query": sparql_query,
                 "results": results
             }
 

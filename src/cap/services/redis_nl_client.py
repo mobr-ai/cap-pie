@@ -5,17 +5,28 @@ import json
 import logging
 import os
 import re
-from typing import Any
+from typing import Any, TypedDict
 
 import redis.asyncio as redis
 from opentelemetry import trace
 
-from cap.util.query_file_parser import QueryFileParser
 from cap.chains.registry import get_chain
 from cap.federated.models import QuerySource
+from cap.util.query_file_parser import QueryFileParser
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
+
+
+class PrecacheStats(TypedDict):
+    """Statistics returned by RedisNLClient.precache_from_file."""
+
+    total_queries: int
+    cached_successfully: int
+    failed: int
+    skipped_duplicates: int
+    errors: list[str]
+
 
 class RedisNLClient:
     """Redis client for caching natural language to sparql mappings. Main goal is to reduce usage of llm model."""
@@ -96,7 +107,7 @@ class RedisNLClient:
                 cache_data = {
                     "original_query": nl_query,
                     "normalized_query": user_query,
-                    "sparql_query": normalized_payload,
+                    "federated_query": normalized_payload,
                     "placeholder_map": placeholder_map,
                     "is_sequential": isinstance(sparql_query, str) and sparql_query.strip().startswith('['),
                     "precached": False,
@@ -120,17 +131,17 @@ class RedisNLClient:
         file_path: str,
         ttl: int | None = None,
         normalize: bool = True
-    ) -> dict[str, Any]:
+    ) -> PrecacheStats:
         """Pre-cache natural language to SPARQL mappings from a file."""
         with tracer.start_as_current_span("precache_from_file") as span:
             span.set_attribute("file_path", file_path)
 
-            stats = {
+            stats: PrecacheStats = {
                 "total_queries": 0,
                 "cached_successfully": 0,
                 "failed": 0,
                 "skipped_duplicates": 0,
-                "errors": []
+                "errors": [],
             }
 
             try:
@@ -141,8 +152,8 @@ class RedisNLClient:
                 stats["total_queries"] = len(queries)
                 client = await self._get_nlr_client()
                 ttl_value = ttl or self.ttl
-                skipped_keys = []
-                cached_keys = []
+                skipped_keys: list[str] = []
+                cached_keys: list[str] = []
 
                 canonizer = get_chain().query_canonizer()
 
@@ -304,7 +315,7 @@ class RedisNLClient:
 
                 # Restore placeholders
                 restored_payload = self._restore_federated_payload(
-                    data["sparql_query"],
+                    data["federated_query"],
                     placeholder_map,
                     current_values,
                 )
@@ -317,7 +328,7 @@ class RedisNLClient:
                     span.set_attribute("cache_hit", False)
                     return None
 
-                data["sparql_query"] = restored_payload
+                data["federated_query"] = restored_payload
                 span.set_attribute("cache_hit", True)
                 return data
 

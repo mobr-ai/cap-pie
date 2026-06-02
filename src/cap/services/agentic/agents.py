@@ -15,10 +15,13 @@ class CacheAgent:
         self.redis_client = redis_client
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+        user_query = state.get("user_query", "")
+        normalized_query = state.get("normalized_query", user_query)
+
         cached = await get_cached_federated_query(
             redis_client=self.redis_client,
-            normalized_query=state["normalized_query"],
-            user_query=state["user_query"],
+            normalized_query=normalized_query,
+            user_query=user_query,
         )
 
         state["cached"] = cached is not None
@@ -37,7 +40,7 @@ class PlanningAgent:
             return state
 
         federated_query, refer_decision = await self.llm_client.nl_to_federated_query(
-            natural_query=state["user_query"],
+            natural_query=state.get("user_query", ""),
             conversation_history=state.get("conversation_history") or [],
         )
 
@@ -64,7 +67,7 @@ class CriticAgent:
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         result = state.get("execution_result")
 
-        if result and result.has_data:
+        if result and (result.has_data or result.sql_results):
             state["error"] = None
             return state
 
@@ -83,7 +86,7 @@ class CriticAgent:
                 "content": (
                     "The generated federated query failed.\n"
                     f"Error: {state.get('error')}\n"
-                    f"Original question: {state['user_query']}\n"
+                    f"Original question: {state.get('user_query', '')}\n"
                     "Regenerate a corrected federated JSON query."
                 ),
             }
@@ -99,9 +102,34 @@ class ContextAgent:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
-        if not query or not result or not result.has_data:
+        if not query or not result:
             state["formatted_results"] = ""
             state["kv_results"] = None
+            return state
+
+        has_sparql_data = bool(result.sparql_results)
+        has_sql_data = bool(result.sql_results)
+
+        if not has_sparql_data and not has_sql_data:
+            if query.sql:
+                state["formatted_results"] = (
+                    "SQL / OHLCV results:\n"
+                    "[]\n\n"
+                    "The SQL query executed successfully but returned no rows."
+                )
+                state["kv_results"] = {
+                    "result_type": "table",
+                    "data": [],
+                    "metadata": {
+                        "count": 0,
+                        "reason": "SQL query executed successfully but returned no rows.",
+                    },
+                }
+
+            else:
+                state["formatted_results"] = ""
+                state["kv_results"] = None
+
             return state
 
         formatted, kv_results = format_execution_context(
@@ -125,11 +153,15 @@ class AnswerAgent:
         query = state.get("federated_query")
         serialized_query = query.model_dump_json() if query else ""
 
+        kv_results = state.get("kv_results")
+        if not isinstance(kv_results, dict):
+            kv_results = {}
+
         stream = self.llm_client.generate_answer_with_context(
-            user_query=state["user_query"],
-            sparql_query=serialized_query,
-            sparql_results=state.get("formatted_results", ""),
-            kv_results=state.get("kv_results"),
+            user_query=state.get("user_query", ""),
+            federated_query=serialized_query,
+            formatted_results=state.get("formatted_results", ""),
+            kv_results=kv_results,
             system_prompt="",
             conversation_history=state.get("conversation_history"),
         )
@@ -155,7 +187,7 @@ class PersistenceAgent:
         if result and result.has_data and query:
             await cache_successful_query(
                 redis_client=self.redis_client,
-                user_query=state["user_query"],
+                user_query=state.get("user_query", ""),
                 federated_query=query,
             )
 

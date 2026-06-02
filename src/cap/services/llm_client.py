@@ -72,7 +72,7 @@ class LLMClient:
     def __init__(
         self,
         base_url: str | None = None,
-        llm_model: str = None,
+        llm_model: str | None = None,
         timeout: float = 360.0
     ):
         """
@@ -280,12 +280,12 @@ class LLMClient:
     async def nl_to_federated_query(
         self,
         natural_query: str,
-        conversation_history: list[dict] | None,
+        conversation_history: list[dict[str, Any]] | None,
         use_ontology: bool = True,
         use_fewshot: bool = True,
         fewshot_strategy: SearchStrategy = SearchStrategy.auto,
         fewshot_top_n: int = -1,
-        _eval_retrieved_out: list[dict] | None = None,
+        _eval_retrieved_out: list[dict[str, Any]] | None = None,
     ) -> tuple[FederatedQuery, Any]:
         ontology_block = self.ontology_prompt if use_ontology else ""
 
@@ -293,7 +293,7 @@ class LLMClient:
         if use_fewshot and fewshot_strategy != SearchStrategy.none:
             # Reuse existing retrieval, but now the returned assistant payload may be
             # SPARQL-only, SQL-only, or federated JSON.
-            retrieved: list[dict] = []
+            retrieved: list[dict[str, Any]] = []
             prompt_seed = ""
             prompt_seed = await self._add_few_shot_learning(
                 nl_query=natural_query,
@@ -378,7 +378,7 @@ class LLMClient:
         return subtype_to_result.get(decision.chart_subtype or "", "")
 
 
-    async def format_kv(self, user_query: str, sparql_query: str, kv_results: dict) -> tuple[str, str]:
+    async def format_kv(self, user_query: str, federated_query: str, kv_results: dict) -> tuple[str, str]:
         result_type = await self._classify_render_type(user_query, kv_results)
 
         if result_type:
@@ -397,7 +397,7 @@ class LLMClient:
                 vega_data = VegaUtil.convert_to_vega_format(
                     kv_results,
                     user_query,
-                    sparql_query,
+                    federated_query,
                 )
 
                 columns = []
@@ -432,23 +432,14 @@ class LLMClient:
     async def generate_answer_with_context(
         self,
         user_query: str,
-        sparql_query: str,
-        sparql_results: str | dict[str, Any],
+        federated_query: str,
+        formatted_results: str | dict[str, Any],
         kv_results: dict[str, Any],
-        system_prompt: str = None,
-        conversation_history: list[dict] | None = None
+        system_prompt: str | None = None,
+        conversation_history: list[dict[str, Any]] | None = None
     ) -> AsyncIterator[str]:
         """
         Generate contextualized answer based on SPARQL results.
-
-        Args:
-            user_query: Original natural language query
-            sparql_query: SPARQL query that was executed
-            sparql_results: Results from SPARQL execution (formatted string or raw dict)
-            system_prompt: System prompt for answer generation
-
-        Yields:
-            Chunks of contextualized answer
         """
         with tracer.start_as_current_span("contextualized answer") as span:
             # Stream kv_results first if present
@@ -457,7 +448,7 @@ class LLMClient:
                 try:
                     kv_formatted, result_type = await self.format_kv(
                         user_query=user_query,
-                        sparql_query=sparql_query,
+                        federated_query=federated_query,
                         kv_results=kv_results
                     )
                     logger.info(f"Sending data to feed widget: \n   {kv_formatted}")
@@ -472,13 +463,13 @@ class LLMClient:
             context_res = ""
             try:
                 # If results are already formatted as string, use directly
-                if isinstance(sparql_results, str):
-                    context_res = sparql_results
+                if isinstance(formatted_results, str):
+                    context_res = formatted_results
                     span.set_attribute("format", "string")
                 # Otherwise, serialize dict to JSON
-                elif sparql_results:
-                    sparql_results = convert_results_to_explorer_links(sparql_results, sparql_query)
-                    context_res = json.dumps(sparql_results, indent=2)
+                elif formatted_results:
+                    formatted_results = convert_results_to_explorer_links(formatted_results, federated_query)
+                    context_res = json.dumps(formatted_results, indent=2)
                     span.set_attribute("format", "dict")
                 else:
                     context_res = ""
@@ -486,7 +477,7 @@ class LLMClient:
 
             except Exception as e:
                 logger.warning(f"Result formatting failed: {e}")
-                context_res = str(sparql_results)
+                context_res = str(formatted_results)
 
             current_date = f"Current utc date and time: {datetime.now(UTC)}."
             current_his = None
@@ -495,7 +486,7 @@ class LLMClient:
             if "chart" in result_type or "table" in result_type:
                 known_info = f"""
                 {current_date}
-                {self.chart_prompt}
+                {self.default_chart_prompt}
                 The system is showing an artifact to the user using the data below. Always write a SHORT insight about it.
                 {kv_results}
                 """
@@ -532,8 +523,8 @@ class LLMClient:
             )
 
             logger.info(f"Prompting LLM (truncated): \n{prompt[:1000] + ('...' if len(prompt) > 1000 else '')}")
-            if (not sparql_results or len(sparql_results) == 0):
-                logger.info(f" Sparql query returned empty: \n{sparql_query}")
+            if (not formatted_results or len(formatted_results) == 0):
+                logger.info(f" Federated query returned empty: \n{federated_query}")
 
             async for chunk in self.generate_stream(
                 prompt=prompt,
@@ -543,14 +534,6 @@ class LLMClient:
             ):
                 yield chunk
 
-            # Yield SPARQL query as metadata after the response
-            # if sparql_query:
-            #     metadata = {
-            #         "type": "metadata",
-            #         "sparql_query": sparql_query
-            #     }
-            #     yield f"\n__METADATA__:{json.dumps(metadata)}"
-
 
     async def _add_few_shot_learning(
         self,
@@ -559,7 +542,7 @@ class LLMClient:
         strategy: SearchStrategy = SearchStrategy.auto,
         top_n: int = 3,
         min_similarity: float = 0.0,
-        _eval_retrieved_out: list[dict] | None = None,
+        _eval_retrieved_out: list[dict[str, Any]] | None = None,
     ) -> str:
         """Use similar queries as few-shot examples."""
 
@@ -587,18 +570,18 @@ class LLMClient:
     def _add_history(
         self,
         prompt: str,
-        conversation_history: list[dict] | None = None
-    ) -> list[dict]:
+        conversation_history: list[dict[str, Any]] | None = None
+    ) -> str:
         """
         Prepare messages for chat API with token limit.
         """
 
-        history = []
+        history: list[dict[str, Any]] = []
 
         # Add conversation history (most recent first after reversing)
         if conversation_history:
             reversed_history = list(reversed(conversation_history))
-            kept_history = []
+            kept_history: list[dict[str, Any]] = []
             current_size = len(prompt)
 
             for msg in reversed_history:
@@ -640,3 +623,5 @@ async def cleanup_llm_client():
     if _llm_client:
         await _llm_client._close()
         _llm_client = None
+
+

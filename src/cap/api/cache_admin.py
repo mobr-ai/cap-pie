@@ -94,7 +94,7 @@ async def precache_from_upload(
         Statistics about the pre-caching operation
     """
     with tracer.start_as_current_span("precache_upload") as span:
-        span.set_attribute("filename", file.filename)
+        span.set_attribute("filename", file.filename or "")
 
         try:
             # Create temporary file
@@ -260,3 +260,5 @@ async def get_nl_cache_info():
             raise HTTPException(
                 status_code=500, detail=str(e)
             ) from e
+
+

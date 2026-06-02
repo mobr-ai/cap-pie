@@ -341,6 +341,9 @@ def _consume_free_query_token(
         lock=True,
     )
 
+    if usage is None:
+        raise RuntimeError("Failed to create or load billing usage period.")
+
     bucket = _free_query_bucket_state(
         usage,
         limit_count=int(usage.limit_count or config.free_limit_count),
