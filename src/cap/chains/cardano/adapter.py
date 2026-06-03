@@ -56,9 +56,14 @@ class CardanoChainModule:
         var_name: str,
         value: Any,
         sparql_query: str = "",
+        row_context: dict[str, Any] | None = None,
     ) -> str:
-        return convert_entity_to_cardanoscan_link(var_name, value, sparql_query)
-
+        return convert_entity_to_cardanoscan_link(
+            var_name,
+            value,
+            sparql_query,
+            row_context=row_context,
+        )
     def convert_result_value(
         self,
         var_name: str,

@@ -1132,7 +1132,12 @@ class VegaUtil:
 
                 # Convert URLs to clickable links
                 # Convert blockchain entities to the active chain explorer links
-                value = get_chain().convert_entity_to_explorer_link(col_name, value, sparql_query)
+                value = get_chain().convert_entity_to_explorer_link(
+                    col_name,
+                    value,
+                    sparql_query,
+                    row_context=row,
+                )
 
                 # Convert ipfs (if not already converted)
                 if not str(value).startswith('<a href='):

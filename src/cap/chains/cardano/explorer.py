@@ -97,7 +97,32 @@ def _detect_entity_from_ontology(var_name: str, sparql_query: str) -> str | None
     return None
 
 
-def convert_entity_to_cardanoscan_link(var_name: str, value: Any, sparql_query: str = "") -> str:
+def _extract_plain_value(value: Any) -> str:
+    if isinstance(value, dict):
+        value = value.get("value", value.get("decoded", value))
+
+    return str(value).strip()
+
+
+def _find_block_number(row_context: dict[str, Any] | None) -> str | None:
+    if not row_context:
+        return None
+
+    for key, value in row_context.items():
+        key_lower = key.lower()
+        if "block" in key_lower and "number" in key_lower:
+            block_number = _extract_plain_value(value)
+            return block_number if block_number else None
+
+    return None
+
+
+def convert_entity_to_cardanoscan_link(
+    var_name: str,
+    value: Any,
+    sparql_query: str = "",
+    row_context: dict[str, Any] | None = None,
+) -> str:
     if value is None:
         return ""
 
@@ -114,9 +139,17 @@ def convert_entity_to_cardanoscan_link(var_name: str, value: Any, sparql_query: 
     if not entity_type:
         return value_clean
 
+    block_url_value = value_clean
+
+    if entity_type == "block" and "hash" in var_name.lower():
+        block_number = _find_block_number(row_context)
+        if not block_number:
+            return value_clean
+        block_url_value = block_number
+
     url_map = {
         "transaction": f"{CARDANOSCAN_BASE}/transaction/{value_clean}",
-        "block": f"{CARDANOSCAN_BASE}/block/{value_clean}",
+        "block": f"{CARDANOSCAN_BASE}/block/{block_url_value}",
         "epoch": f"{CARDANOSCAN_BASE}/epoch/{value_clean}",
         "address": f"{CARDANOSCAN_BASE}/address/{value_clean}",
         "pool": f"{CARDANOSCAN_BASE}/pool/{value_clean}",
