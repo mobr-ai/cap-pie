@@ -4,142 +4,132 @@ from typing import Any
 # Cardanoscan base URLs
 CARDANOSCAN_BASE = "https://cardanoscan.io"
 
-# Property to entity type mapping from ontology
 PROPERTY_TO_ENTITY = {
-    # Block properties
-    'hasBlockNumber': 'block',
-
-    # Transaction properties
-    'hasTxID': 'transaction',  # b:Transaction hasTxID
-
-    # Epoch properties
-    'hasEpochNumber': 'epoch',  # c:Epoch hasEpochNumber
-
-    # Address properties
-    'hasAddressId': 'address',  # c:TransactionOutput hasAddressId
-
-    # Pool properties
-    'hasHash': 'pool',  # c:Delegation hasDelegatee
-
-    # Policy properties
-    'hasPolicyId': 'policy',  # c:NFT, c:MultiAssetCNT hasPolicyId
+    "hasBlockNumber": "block",
+    "hasTxID": "transaction",
+    "hasEpochNumber": "epoch",
+    "hasAddressId": "address",
+    "hasPolicyId": "policy",
 }
 
+
+def _normalize_query_text(sparql_query: Any) -> str:
+    if isinstance(sparql_query, list):
+        return " ".join(
+            q.get("query", "") if isinstance(q, dict) else str(q)
+            for q in sparql_query
+        )
+
+    if isinstance(sparql_query, dict):
+        return sparql_query.get("query", str(sparql_query))
+
+    return str(sparql_query or "")
+
+
+def _subject_has_block_context(subject: str, query_text: str) -> bool:
+    block_context_props = (
+        "hasBlockNumber",
+        "hasTxCount",
+        "hasTimestamp",
+        "hasTx",
+    )
+
+    return any(
+        re.search(
+            rf"{re.escape(subject)}\s+(?:b:|c:)?{prop}\b",
+            query_text,
+            re.IGNORECASE,
+        )
+        for prop in block_context_props
+    )
+
+
 def _detect_entity_from_ontology(var_name: str, sparql_query: str) -> str | None:
-    """
-    Detect entity type by analyzing SPARQL query for ontology property usage.
-
-    Args:
-        var_name: Variable name from SPARQL results
-        sparql_query: The SPARQL query to analyze
-
-    Returns:
-        Entity type or None
-    """
-    if not sparql_query:
+    query_text = _normalize_query_text(sparql_query)
+    if not query_text:
         return None
 
-    query_text = sparql_query
-    if isinstance(sparql_query, list):
-        query_text = " ".join([q.get('query', '') if isinstance(q, dict) else str(q) for q in sparql_query])
-    elif isinstance(sparql_query, dict):
-        query_text = sparql_query.get('query', str(sparql_query))
+    var = var_name.lstrip("?")
 
-    # Search for property patterns with this variable
+    # Strong hint from result variable names.
+    var_lower = var.lower()
+    if "block" in var_lower and "hash" in var_lower:
+        return "block"
+    if "tx" in var_lower and ("hash" in var_lower or "id" in var_lower):
+        return "transaction"
+    if "policy" in var_lower:
+        return "policy"
+    if "address" in var_lower:
+        return "address"
+    if "epoch" in var_lower:
+        return "epoch"
+
+    # Direct ontology-property mapping.
     for property_name, entity_type in PROPERTY_TO_ENTITY.items():
-        # Look for patterns like: ?something property ?var_name
         patterns = [
-            rf'{property_name}\s+\?{var_name}\b',
-            rf'b:{property_name}\s+\?{var_name}\b',
-            rf'c:{property_name}\s+\?{var_name}\b',
+            rf"(?:b:|c:)?{property_name}\s+\?{re.escape(var)}\b",
         ]
 
-        for pattern in patterns:
-            if re.search(pattern, query_text, re.IGNORECASE):
-                return entity_type
+        if any(re.search(pattern, query_text, re.IGNORECASE) for pattern in patterns):
+            return entity_type
+
+    # Special case: hasHash is shared. Detect block hash by the subject context:
+    # ?block b:hasHash ?block_hash ;
+    #        c:hasBlockNumber ?block_number ;
+    #        b:hasTimestamp ?timestamp .
+    hash_patterns = [
+        rf"(?P<subject>\?\w+)\s+(?:b:|c:)?hasHash\s+\?{re.escape(var)}\b",
+    ]
+
+    for pattern in hash_patterns:
+        match = re.search(pattern, query_text, re.IGNORECASE)
+        if not match:
+            continue
+
+        subject = match.group("subject")
+
+        if "block" in subject.lower() or _subject_has_block_context(subject, query_text):
+            return "block"
+
+        if "pool" in subject.lower():
+            return "pool"
 
     return None
 
 
 def convert_entity_to_cardanoscan_link(var_name: str, value: Any, sparql_query: str = "") -> str:
-    """
-    Convert blockchain entities to Cardanoscan links using ontology mappings.
+    if value is None:
+        return ""
 
-    Args:
-        var_name: Variable name from SPARQL query
-        value: The value to convert
-        sparql_query: The SPARQL query for ontology analysis
+    value_clean = str(value).strip()
 
-    Returns:
-        HTML link string if entity detected, original value otherwise
-    """
-    if not isinstance(value, str):
-        return str(value)
+    if value_clean.startswith("<a href="):
+        return value_clean
 
-    value_clean = value.strip()
-
-    # Detect entity type from ontology property usage
     entity_type = _detect_entity_from_ontology(var_name, sparql_query)
 
-    # Handle multiple use of hasHash: could be block or pool
-    if entity_type == 'pool' and not value_clean.startswith('pool1'):
+    if entity_type == "pool" and not value_clean.startswith("pool1"):
         entity_type = None
 
     if not entity_type:
-        return value
+        return value_clean
 
-    # Build Cardanoscan URL based on entity type
     url_map = {
-        'transaction': f"{CARDANOSCAN_BASE}/transaction/{value_clean}",
-        'block': f"{CARDANOSCAN_BASE}/block/{value_clean}",
-        'epoch': f"{CARDANOSCAN_BASE}/epoch/{value_clean}",
-        'address': f"{CARDANOSCAN_BASE}/address/{value_clean}",
-        'pool': f"{CARDANOSCAN_BASE}/pool/{value_clean}",
-        'policy': f"{CARDANOSCAN_BASE}/tokenPolicy/{value_clean}",
-        'metadata': f"{CARDANOSCAN_BASE}/transaction/{value_clean}#metadata",
+        "transaction": f"{CARDANOSCAN_BASE}/transaction/{value_clean}",
+        "block": f"{CARDANOSCAN_BASE}/block/{value_clean}",
+        "epoch": f"{CARDANOSCAN_BASE}/epoch/{value_clean}",
+        "address": f"{CARDANOSCAN_BASE}/address/{value_clean}",
+        "pool": f"{CARDANOSCAN_BASE}/pool/{value_clean}",
+        "policy": f"{CARDANOSCAN_BASE}/tokenPolicy/{value_clean}",
+        "metadata": f"{CARDANOSCAN_BASE}/transaction/{value_clean}#metadata",
     }
 
     url = url_map.get(entity_type)
     if not url:
-        return value
+        return value_clean
 
-    # Abbreviate long hashes for display
     display_value = value_clean
-    if entity_type in ['transaction', 'block', 'metadata', 'policy']:
-        if len(value_clean) > 19:
-            display_value = f"{value_clean[:8]}...{value_clean[-8:]}"
+    if entity_type in {"transaction", "block", "metadata", "policy"} and len(value_clean) > 19:
+        display_value = f"{value_clean[:8]}...{value_clean[-8:]}"
 
     return f'<a href="{url}" target="_blank" title="{value_clean}">{display_value}</a>'
-
-def convert_sparql_results_to_links(sparql_results: Any, sparql_query: str = "") -> Any:
-    """
-    Convert blockchain entities in SPARQL results to Cardanoscan links.
-
-    Args:
-        sparql_results: The SPARQL query results (can be dict, list, or other types)
-        sparql_query: The SPARQL query for ontology analysis
-
-    Returns:
-        Modified results with Cardanoscan links
-    """
-    if not sparql_results:
-        return sparql_results
-
-    # Handle list of results
-    if isinstance(sparql_results, list):
-        return [convert_sparql_results_to_links(item, sparql_query) for item in sparql_results]
-
-    # Handle dictionary results
-    if isinstance(sparql_results, dict):
-        converted = {}
-        for key, value in sparql_results.items():
-            # Skip nested structures that aren't actual result values
-            if isinstance(value, (dict, list)):
-                converted[key] = convert_sparql_results_to_links(value, sparql_query)
-            else:
-                # Convert the value using the existing function
-                converted[key] = convert_entity_to_cardanoscan_link(key, value, sparql_query)
-        return converted
-
-    # Return as-is for other types
-    return sparql_results

@@ -379,6 +379,7 @@ class LLMClient:
 
 
     async def format_kv(self, user_query: str, federated_query: str, kv_results: dict) -> tuple[str, str]:
+        kv_results = convert_results_to_explorer_links(kv_results, federated_query)
         result_type = await self._classify_render_type(user_query, kv_results)
 
         if result_type:
