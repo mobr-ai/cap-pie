@@ -107,12 +107,22 @@ def detect_ada_variables(sparql_query: str | list[Any] | dict[str, Any]) -> set[
 def convert_lovelace_to_ada(value: str) -> dict[str, Any]:
     try:
         lovelace = Decimal(str(value))
+        ada = lovelace / LOVELACE_TO_ADA
+
         return {
+            "value": str(ada),
+            "type": "literal",
+            "datatype": "decimal",
+            "unit": "ADA",
             "lovelace": str(value),
-            "ada": str(lovelace / LOVELACE_TO_ADA),
+            "ada": str(ada),
         }
+
     except (ValueError, TypeError, InvalidOperation):
-        return {"lovelace": str(value).split(".")[0]}
+        return {
+            "value": str(value),
+            "lovelace": str(value).split(".")[0],
+        }
 
 
 def convert_cardano_result_value(
@@ -139,6 +149,6 @@ def format_cardano_result_value(value: Any) -> str | None:
         return None
 
     if "lovelace" in value and "ada" in value:
-        return f"{value.get('ada', '')} ADA"
+        return f"{value.get('ada', '')} ADA ({value.get('lovelace', '')} lovelace)"
 
     return None
