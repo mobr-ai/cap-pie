@@ -41,8 +41,6 @@ class VegaUtil:
             )):
                 return True
 
-            value = value.get('value', value.get('ada', value.get('lovelace', None)))
-
         if isinstance(value, (int, float)):
             return True
 
@@ -461,8 +459,7 @@ class VegaUtil:
 
                 amt_val = item.get(value_key, 0)
                 if isinstance(amt_val, dict):
-                    # Handle ADA/lovelace conversions
-                    amt_val = amt_val.get('ada', amt_val.get('lovelace', amt_val.get('value', 0)))
+                    continue
 
                 try:
                     values.append({
@@ -519,7 +516,7 @@ class VegaUtil:
                 cat_val = item.get(category_key, "")
                 val = item.get(value_key, 0)
                 if isinstance(val, dict):
-                    val = val.get('ada', val.get('lovelace', val.get('value', 0)))
+                    continue
 
                 try:
                     values.append({
@@ -648,10 +645,7 @@ class VegaUtil:
     def _extract_y_value(y_val: Any) -> Any:
         """Extract numeric value from potentially nested structures."""
         if isinstance(y_val, dict):
-            extracted = y_val.get('value', y_val.get('ada', y_val.get('lovelace', None)))
-            if extracted is None and isinstance(y_val, dict):
-                return next(iter(y_val.values()), 0)
-            return extracted
+            return next(iter(y_val.values()), 0)
         return y_val
 
     @staticmethod
@@ -1132,7 +1126,12 @@ class VegaUtil:
 
                 # Convert URLs to clickable links
                 # Convert blockchain entities to the active chain explorer links
-                value = get_chain().convert_entity_to_explorer_link(col_name, value, sparql_query)
+                value = get_chain().convert_entity_to_explorer_link(
+                    col_name,
+                    value,
+                    sparql_query,
+                    row_context=row,
+                )
 
                 # Convert ipfs (if not already converted)
                 if not str(value).startswith('<a href='):

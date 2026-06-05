@@ -37,6 +37,7 @@ MAX_CONTEXT_CHARS = 18000 # CHAR_PER_TOKEN * MODEL_CONTEXT_CAP
 def convert_results_to_explorer_links(
     results: Any,
     sparql_query: str = "",
+    row_context: dict[str, Any] | None = None,
 ) -> Any:
     if not results:
         return results
@@ -44,14 +45,32 @@ def convert_results_to_explorer_links(
     chain = get_chain()
 
     if isinstance(results, list):
-        return [convert_results_to_explorer_links(item, sparql_query) for item in results]
+        return [
+            convert_results_to_explorer_links(
+                item,
+                sparql_query,
+                row_context=item if isinstance(item, dict) else row_context,
+            )
+            for item in results
+        ]
 
     if isinstance(results, dict):
+        current_row_context = row_context or results
+
         return {
             key: (
-                convert_results_to_explorer_links(value, sparql_query)
+                convert_results_to_explorer_links(
+                    value,
+                    sparql_query,
+                    row_context=current_row_context,
+                )
                 if isinstance(value, (dict, list))
-                else chain.convert_entity_to_explorer_link(key, value, sparql_query)
+                else chain.convert_entity_to_explorer_link(
+                    key,
+                    value,
+                    sparql_query,
+                    row_context=current_row_context,
+                )
             )
             for key, value in results.items()
         }

@@ -171,26 +171,62 @@ class ValueExtractor:
     @staticmethod
     def _extract_limits(nl_query: str, values: dict[str, list[str]]) -> None:
         """Extract limit values."""
+
+        def add_limit(raw_limit: str) -> None:
+            limit = re.sub(r'[,._]', '', raw_limit)
+            if limit and limit not in values["limits"]:
+                values["limits"].append(limit)
+
+        # Explicit sample limits:
+        # "sample of 100 transactions"
+        # "random sample of 1,000 transactions"
+        sample_patterns = [
+            r'\b(?:random\s+)?sample\s+of\s+(\d{1,3}(?:[,._]\d{3})*|\d+)\b',
+            r'\brandom\s+(\d{1,3}(?:[,._]\d{3})*|\d+)\s+\w+\b',
+        ]
+
+        for pattern in sample_patterns:
+            for match in re.finditer(pattern, nl_query, re.IGNORECASE):
+                add_limit(match.group(1))
+
         # Explicit limits (top N)
         str_top_names = '|'.join(re.escape(m) for m in PatternRegistry.TOP_TERMS)
-        for match in re.finditer(rf'\b({str_top_names})\s+(\d+)\b', nl_query, re.IGNORECASE):
-            limit = match.group(2)
-            if limit not in values["limits"]:
-                values["limits"].append(limit)
+        for match in re.finditer(
+            rf'\b({str_top_names})\s+(\d{{1,3}}(?:[,._]\d{{3}})*|\d+)\b',
+            nl_query,
+            re.IGNORECASE,
+        ):
+            add_limit(match.group(2))
 
         # Explicit limits (latest N, first N, etc.)
-        limit_terms = PatternRegistry.build_pattern(PatternRegistry.LATEST_TERMS + PatternRegistry.EARLIEST_TERMS)
-        for match in re.finditer(limit_terms + r'\s+(\d+)(?!\s*(?:hour|day|week|month|year|epoch)s?)\b', nl_query, re.IGNORECASE):
-            limit = match.group(2)
-            if limit not in values["limits"]:
-                values["limits"].append(limit)
+        limit_terms = PatternRegistry.build_pattern(
+            PatternRegistry.LATEST_TERMS + PatternRegistry.EARLIEST_TERMS
+        )
+        for match in re.finditer(
+            limit_terms + r'\s+(\d{1,3}(?:[,._]\d{3})*|\d+)(?!\s*(?:hour|day|week|month|year|epoch)s?)\b',
+            nl_query,
+            re.IGNORECASE,
+        ):
+            add_limit(match.group(2))
 
-        # Implicit limit of 1 for singular nouns without a number
-        limit_pattern = PatternRegistry.build_pattern(PatternRegistry.LATEST_TERMS + PatternRegistry.EARLIEST_TERMS)
-        entity_pattern = PatternRegistry.build_pattern(PatternRegistry.get_entities(), word_boundary=False)
-        if re.search(limit_pattern + r'\s+' + entity_pattern + r'\b(?!s)', nl_query, re.IGNORECASE):
-            if "1" not in values["limits"]:
-                values["limits"].append("1")
+        # Implicit limit of 1 for singular nouns without a number.
+        # Do not add this if we already found an explicit limit.
+        if values["limits"]:
+            return
+
+        limit_pattern = PatternRegistry.build_pattern(
+            PatternRegistry.LATEST_TERMS + PatternRegistry.EARLIEST_TERMS
+        )
+        entity_pattern = PatternRegistry.build_pattern(
+            PatternRegistry.get_entities(),
+            word_boundary=False,
+        )
+        if re.search(
+            limit_pattern + r'\s+' + entity_pattern + r'\b(?!s)',
+            nl_query,
+            re.IGNORECASE,
+        ):
+            values["limits"].append("1")
 
     @staticmethod
     def _extract_tokens(nl_query: str, values: dict[str, list[str]]) -> None:
