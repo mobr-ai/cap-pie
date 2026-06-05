@@ -1,27 +1,38 @@
 {
-    "short_name": "CAP",
-    "name": "Cardano Analytics Platform",
-    "icons": [
-        {
-            "src": "/icons/logo.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/logo.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "/icons/logo.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        }
-    ],
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#0a2540",
-    "background_color": "#ffffff",
-    "orientation": "portrait"
+  "short_name": "CAP",
+  "name": "Cardano Analytics Platform",
+  "description": "CAP – Cardano Analytics Platform for semantic search, AI-assisted analytics, and blockchain insights.",
+  "icons": [
+    {
+      "src": "/icons/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/logo-share-1200x630.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Cardano Analytics Platform"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0a2540",
+  "background_color": "#ffffff",
+  "orientation": "portrait"
 }
+
