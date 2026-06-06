@@ -149,7 +149,7 @@ class ContextAgent:
             sql_results=result.sql_results,
         )
 
-        logger.info(f"Query kv_results={result.kv_results}")
+        logger.info(f"Query kv_results={kv_results}")
 
         state["formatted_results"] = formatted
         state["kv_results"] = kv_results
