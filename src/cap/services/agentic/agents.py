@@ -139,6 +139,7 @@ class ContextAgent:
 
             return state
 
+        logger.info(f"Query={query}")
         logger.info(f"Query has_sql={has_sql_data} has_sparql={has_sparql_data} ")
         logger.info(f"Query sql_results={result.sql_results}")
         logger.info(f"Query sparql_results={result.sparql_results}")
