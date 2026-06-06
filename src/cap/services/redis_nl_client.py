@@ -77,7 +77,7 @@ class RedisNLClient:
         nl_query: str,
         sparql_query: str,
         ttl: int | None = None,
-        normalize: bool = False
+        normalize: bool = True
     ) -> int:
         """Cache query with placeholder normalization."""
         with tracer.start_as_current_span("cache_sparql_query") as span:
@@ -130,7 +130,7 @@ class RedisNLClient:
         self,
         file_path: str,
         ttl: int | None = None,
-        normalize: bool = False
+        normalize: bool = True
     ) -> PrecacheStats:
         """Pre-cache natural language to SPARQL mappings from a file."""
         with tracer.start_as_current_span("precache_from_file") as span:
@@ -252,7 +252,7 @@ class RedisNLClient:
         if canonizer is not None and normalize_query:
             return canonizer.normalize_payload(
                 assistant_payload,
-                normalize_query=True,
+                normalize_query=normalize_query,
             )
 
         query_type = self._detect_cached_query_type(assistant_payload)
@@ -283,7 +283,7 @@ class RedisNLClient:
         self,
         normalized_query: str,
         original_query: str,
-        normalize: bool = False,
+        normalize: bool = True,
     ) -> dict[str, Any] | None:
         """Retrieve cached query and restore placeholders."""
         with tracer.start_as_current_span("get_cached_query_with_original") as span:

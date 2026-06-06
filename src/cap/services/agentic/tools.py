@@ -23,7 +23,7 @@ async def get_cached_federated_query(
     redis_client: RedisNLClient,
     normalized_query: str,
     user_query: str,
-    normalize: bool = False,
+    normalize: bool = True,
 ) -> FederatedQuery | None:
     cached_data = await redis_client.get_cached_query_with_original(
         normalized_query=normalized_query,
@@ -63,7 +63,7 @@ async def cache_successful_query(
     redis_client: RedisNLClient,
     user_query: str,
     federated_query: FederatedQuery,
-    normalize: bool = False,
+    normalize: bool = True,
 ) -> None:
 
     payload = json.dumps(

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
         self.redis_client = redis_client
-        self.use_canonizer = False
+        self.use_canonizer = True
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         user_query = state.get("user_query", "")
@@ -109,6 +109,7 @@ class ContextAgent:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
+        logger.info(f"Query={query}")
         if not query or not result:
             state["formatted_results"] = ""
             state["kv_results"] = None
@@ -139,7 +140,6 @@ class ContextAgent:
 
             return state
 
-        logger.info(f"Query={query}")
         logger.info(f"Query has_sql={has_sql_data} has_sparql={has_sparql_data} ")
         logger.info(f"Query sql_results={result.sql_results}")
         logger.info(f"Query sparql_results={result.sparql_results}")
