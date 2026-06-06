@@ -65,28 +65,55 @@ class VegaUtil:
 
         return False
 
+
+    @staticmethod
+    def _all_keys(data: list[DataRow]) -> list[str]:
+        keys: list[str] = []
+
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+
+            for key in item.keys():
+                if key not in keys:
+                    keys.append(key)
+
+        return keys
+
+
+    @staticmethod
+    def _first_value_for_key(data: list[DataRow], key: str) -> Any:
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+
+            value = item.get(key)
+
+            if value is not None:
+                return value
+
+        return None
+
+
+    @staticmethod
+    def _is_numeric_field(data: list[DataRow], key: str) -> bool:
+        return any(
+            VegaUtil._is_numeric_value(item.get(key))
+            for item in data
+            if isinstance(item, dict) and item.get(key) is not None
+        )
+
+
     @staticmethod
     def _classify_fields(data: list[DataRow]) -> tuple[list[str], list[str]]:
-        """
-        Classify all fields in the data as either categorical or numeric.
-
-        Args:
-            data: List of data items
-
-        Returns:
-            Tuple of (categorical_keys, numeric_keys)
-        """
         if not data:
             return [], []
 
-        first_item = data[0]
         categorical_keys = []
         numeric_keys = []
 
-        for key in first_item.keys():
-            value = first_item[key]
-
-            if VegaUtil._is_numeric_value(value):
+        for key in VegaUtil._all_keys(data):
+            if VegaUtil._is_numeric_field(data, key):
                 numeric_keys.append(key)
             else:
                 categorical_keys.append(key)
@@ -97,14 +124,16 @@ class VegaUtil:
     def _get_x_candidates(first_item: DataRow, keys: list[str]) -> list[str]:
         x_candidates = VegaUtil.x_candidates.copy()
 
-        # Extend x_candidates with any keys containing 'date' or having datetime values
         for k in keys:
-            val = first_item[k]
-            # Add keys with 'date' in the name
+            val = first_item.get(k)
+
             if 'date' in k.lower() and k.lower() not in [c.lower() for c in x_candidates]:
                 x_candidates.append(k)
-            # Add keys with datetime type values
-            elif isinstance(val, dict) and val.get('type') == 'datetime' and k.lower() not in [c.lower() for c in x_candidates]:
+            elif (
+                isinstance(val, dict)
+                and val.get('type') == 'datetime'
+                and k.lower() not in [c.lower() for c in x_candidates]
+            ):
                 x_candidates.append(k)
 
         return x_candidates
@@ -201,33 +230,17 @@ class VegaUtil:
         return coordinates
 
     @staticmethod
-    def _match_coordinate_to_field(coordinate_desc: str, data: list[DataRow],
-                                   exclude_keys: list[str] | None = None) -> str | None:
-        """
-        Match a coordinate description from the query to an actual field in the data.
+    def _match_coordinate_to_field(
+        coordinate_desc: str,
+        data: list[DataRow],
+        exclude_keys: list[str] | None = None
+    ) -> str | None:
 
-        This function uses fuzzy matching to find the best field in the data that corresponds
-        to a user's description of what they want plotted on a coordinate.
-
-        Examples:
-            "transfer count" might match "transferCount" or "transfer_count"
-            "unique sending accounts" might match "uniqueSenders" or "senderCount"
-            "total votes" might match "totalVotes" or "voteCount"
-
-        Args:
-            coordinate_desc: Description of the coordinate from the user query
-            data: The data list containing the fields
-            exclude_keys: List of keys to exclude from matching (already assigned coordinates)
-
-        Returns:
-            The best matching field key, or None if no good match found
-        """
         if not data or not coordinate_desc:
             return None
 
         exclude_keys = exclude_keys or []
-        first_item = data[0]
-        available_keys = [k for k in first_item.keys() if k not in exclude_keys]
+        available_keys = [k for k in VegaUtil._all_keys(data) if k not in exclude_keys]
 
         if not available_keys:
             return None
@@ -425,7 +438,7 @@ class VegaUtil:
         """Convert data to bar chart format."""
         if isinstance(data, list) and len(data) > 0:
             first_item = data[0]
-            keys = list(first_item.keys())
+            keys = VegaUtil._all_keys(data)
 
             # Parse coordinate assignments from user query
             coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
@@ -444,7 +457,7 @@ class VegaUtil:
             # Value field is typically numeric - find first numeric field that's not the category
             if not value_key:
                 for k in keys:
-                    if k != category_key and VegaUtil._is_numeric_value(first_item[k]):
+                    if k != category_key and VegaUtil._is_numeric_field(data, k):
                         value_key = k
                         break
 
@@ -504,8 +517,7 @@ class VegaUtil:
                 return {"values": values}
 
         elif isinstance(data, list) and len(data) > 0:
-            first_item = data[0]
-            keys = list(first_item.keys())
+            keys = VegaUtil._all_keys(data)
 
             # Find category and value keys
             category_key = next((k for k in keys if k.lower() in ['category', 'label', 'name', 'group']), keys[0])
@@ -609,9 +621,10 @@ class VegaUtil:
 
         # Find columns that could contain series identifiers
         # (not x-axis, not y-axis/series values)
-        first_item = data[0]
-        candidate_keys = [k for k in first_item.keys()
-                        if k != x_key and k not in series_keys]
+        candidate_keys = [
+            k for k in VegaUtil._all_keys(data)
+            if k != x_key and k not in series_keys
+        ]
 
         if not candidate_keys:
             return [f"Series {i+1}" for i in range(repetition_count)]
@@ -656,7 +669,7 @@ class VegaUtil:
             return {"values": []}
 
         first_item = data[0]
-        keys = list(first_item.keys())
+        keys = VegaUtil._all_keys(data)
 
         # Parse coordinate assignments from user query
         coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
@@ -680,7 +693,7 @@ class VegaUtil:
         else:
             # Auto-detect: all numeric fields except x_key
             for k in keys:
-                if k != x_key and VegaUtil._is_numeric_value(first_item[k]):
+                if k != x_key and VegaUtil._is_numeric_field(data, k):
                     series_keys.append(k)
 
         # If no series keys found, skip this conversion
@@ -723,9 +736,8 @@ class VegaUtil:
         label_key = None
 
         if repetition_count > 1 and len(series_keys) == 1:
-            first_item = data[0]
             candidate_keys = [
-                k for k in first_item.keys()
+                k for k in VegaUtil._all_keys(data)
                 if k != x_key and k not in series_keys
             ]
             if candidate_keys:
@@ -757,8 +769,7 @@ class VegaUtil:
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        first_item = data[0]
-        keys = list(first_item.keys())
+        keys = VegaUtil._all_keys(data)
 
         # Parse coordinate assignments from user query
         coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
@@ -770,7 +781,7 @@ class VegaUtil:
         y_key = field_assignments.get('y')
 
         # Find numeric fields for fallback
-        numeric_keys = [k for k in keys if VegaUtil._is_numeric_value(first_item[k])]
+        numeric_keys = [k for k in keys if VegaUtil._is_numeric_field(data, k)]
 
         # Fallback to heuristic if coordinates not specified
         used_keys = [k for k in [x_key, y_key] if k is not None]
@@ -792,7 +803,7 @@ class VegaUtil:
         if not category_key:
             # Heuristic: first non-numeric, non-coordinate field
             for k in keys:
-                if k not in [x_key, y_key] and not VegaUtil._is_numeric_value(first_item[k]):
+                if k not in [x_key, y_key] and not VegaUtil._is_numeric_field(data, k):
                     category_key = k
                     break
 
@@ -836,8 +847,7 @@ class VegaUtil:
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        first_item = data[0]
-        keys = list(first_item.keys())
+        keys = VegaUtil._all_keys(data)
 
         # Parse coordinate assignments from user query
         coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
@@ -850,7 +860,7 @@ class VegaUtil:
         size_key = field_assignments.get('size')
 
         # Find numeric fields for fallback
-        numeric_keys = [k for k in keys if VegaUtil._is_numeric_value(first_item[k])]
+        numeric_keys = [k for k in keys if VegaUtil._is_numeric_field(data, k)]
 
         # Filter out already assigned keys from numeric_keys for fallback selection
         used_keys = [k for k in [x_key, y_key, size_key] if k is not None]
@@ -879,7 +889,7 @@ class VegaUtil:
         if not label_key:
             # Heuristic: first non-numeric field
             for k in keys:
-                if k not in [x_key, y_key, size_key] and not VegaUtil._is_numeric_value(first_item[k]):
+                if k not in [x_key, y_key, size_key] and not VegaUtil._is_numeric_field(data, k):
                     label_key = k
                     break
 
@@ -930,8 +940,7 @@ class VegaUtil:
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        first_item = data[0]
-        keys = list(first_item.keys())
+        keys = VegaUtil._all_keys(data)
 
         # Find name/label and size fields
         name_key = next((k for k in keys if k.lower() in ['name', 'label', 'category', 'group', 'policyid', 'policy', 'token']), keys[0])
@@ -939,7 +948,7 @@ class VegaUtil:
         # Find numeric field for size - use centralized numeric detection
         size_key = None
         for k in keys:
-            if k != name_key and VegaUtil._is_numeric_value(first_item[k]):
+            if k != name_key and VegaUtil._is_numeric_field(data, k):
                 size_key = k
                 break
 
@@ -995,8 +1004,7 @@ class VegaUtil:
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        first_item = data[0]
-        keys = list(first_item.keys())
+        keys = VegaUtil._all_keys(data)
 
         # Parse coordinate assignments from user query
         coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
@@ -1104,11 +1112,7 @@ class VegaUtil:
             return {"values": []}
 
         # Get all unique keys from all rows (in case structure varies)
-        all_keys = []
-        for item in table_data:
-            for key in item.keys():
-                if key not in all_keys:
-                    all_keys.append(key)
+        all_keys = VegaUtil._all_keys(table_data)
 
         # Build column-based structure
         columns = []

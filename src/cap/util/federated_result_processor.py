@@ -87,6 +87,17 @@ def merge_federated_kv_results(
 
     data = sorted(merged_by_date.values(), key=lambda row: row["date"])
 
+    all_keys: list[str] = []
+    for row in data:
+        for key in row.keys():
+            if key not in all_keys:
+                all_keys.append(key)
+
+    data = [
+        {key: row.get(key) for key in all_keys}
+        for row in data
+    ]
+
     return {
         "result_type": "multiple",
         "count": len(data),

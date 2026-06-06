@@ -422,7 +422,7 @@ class LLMClient:
                 columns = []
                 if kv_results.get("data"):
                     if isinstance(kv_results["data"], list):
-                        columns = list(kv_results["data"][0].keys())
+                        columns = VegaUtil._all_keys(kv_results["data"])
                     elif isinstance(kv_results["data"], dict):
                         columns = list(kv_results["data"].keys())
 
