@@ -77,7 +77,7 @@ class RedisNLClient:
         nl_query: str,
         sparql_query: str,
         ttl: int | None = None,
-        normalize: bool = True
+        normalize: bool = False
     ) -> int:
         """Cache query with placeholder normalization."""
         with tracer.start_as_current_span("cache_sparql_query") as span:
@@ -130,7 +130,7 @@ class RedisNLClient:
         self,
         file_path: str,
         ttl: int | None = None,
-        normalize: bool = True
+        normalize: bool = False
     ) -> PrecacheStats:
         """Pre-cache natural language to SPARQL mappings from a file."""
         with tracer.start_as_current_span("precache_from_file") as span:
@@ -282,7 +282,8 @@ class RedisNLClient:
     async def get_cached_query_with_original(
         self,
         normalized_query: str,
-        original_query: str
+        original_query: str,
+        normalize: bool = False,
     ) -> dict[str, Any] | None:
         """Retrieve cached query and restore placeholders."""
         with tracer.start_as_current_span("get_cached_query_with_original") as span:
@@ -303,7 +304,7 @@ class RedisNLClient:
                 canonizer = get_chain().query_canonizer()
                 current_values = (
                     canonizer.extract_values(original_query)
-                    if canonizer is not None
+                    if normalize and canonizer is not None
                     else {}
                 )
                 placeholder_map = data.get("placeholder_map", {})
@@ -314,10 +315,14 @@ class RedisNLClient:
                     return data
 
                 # Restore placeholders
-                restored_payload = self._restore_federated_payload(
-                    data["federated_query"],
-                    placeholder_map,
-                    current_values,
+                restored_payload = (
+                    self._restore_federated_payload(
+                        data["federated_query"],
+                        placeholder_map,
+                        current_values,
+                    )
+                    if normalize
+                    else data["federated_query"]
                 )
 
                 remaining_placeholders = re.findall(r'<<[A-Z_]+_\d+>>', restored_payload)

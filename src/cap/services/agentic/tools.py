@@ -22,10 +22,12 @@ async def get_cached_federated_query(
     redis_client: RedisNLClient,
     normalized_query: str,
     user_query: str,
+    normalize: bool = False,
 ) -> FederatedQuery | None:
     cached_data = await redis_client.get_cached_query_with_original(
-        normalized_query,
-        user_query,
+        normalized_query=normalized_query,
+        original_query=user_query,
+        normalize=normalize,
     )
     if not cached_data:
         return None
@@ -60,7 +62,9 @@ async def cache_successful_query(
     redis_client: RedisNLClient,
     user_query: str,
     federated_query: FederatedQuery,
+    normalize: bool = False,
 ) -> None:
+
     payload = json.dumps(
         {
             "source": federated_query.source.value,
@@ -74,6 +78,7 @@ async def cache_successful_query(
     result = await redis_client.cache_query(
         nl_query=user_query,
         sparql_query=payload,
+        normalize=normalize,
     )
 
     if result == 1:

@@ -13,15 +13,19 @@ from cap.services.redis_nl_client import RedisNLClient
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
         self.redis_client = redis_client
+        self.use_canonizer = False
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         user_query = state.get("user_query", "")
-        normalized_query = state.get("normalized_query", user_query)
+        query = user_query
+        if self.use_canonizer:
+            query = state.get("normalized_query", user_query)
 
         cached = await get_cached_federated_query(
             redis_client=self.redis_client,
-            normalized_query=normalized_query,
+            normalized_query=query,
             user_query=user_query,
+            normalize=self.use_canonizer
         )
 
         state["cached"] = cached is not None
