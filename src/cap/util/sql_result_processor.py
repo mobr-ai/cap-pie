@@ -1,6 +1,7 @@
-from typing import Any
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
+
 
 def sql_chart_safe_value(value: Any) -> Any:
     if isinstance(value, Decimal):

@@ -1,3 +1,5 @@
+import logging
+
 from cap.federated.planner import FederatedPlanner
 from cap.services.agentic.state import AgenticQueryState
 from cap.services.agentic.tools import (
@@ -9,6 +11,7 @@ from cap.services.agentic.tools import (
 from cap.services.llm_client import LLMClient
 from cap.services.redis_nl_client import RedisNLClient
 
+logger = logging.getLogger(__name__)
 
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
@@ -136,11 +139,17 @@ class ContextAgent:
 
             return state
 
+        logger.info(f"Query has_sql={has_sql_data} has_sparql={has_sparql_data} ")
+        logger.info(f"Query sql_results={result.sql_results}")
+        logger.info(f"Query sparql_results={result.sparql_results}")
+
         formatted, kv_results = format_execution_context(
             federated_query=query,
             sparql_results=result.sparql_results,
             sql_results=result.sql_results,
         )
+
+        logger.info(f"Query kv_results={result.kv_results}")
 
         state["formatted_results"] = formatted
         state["kv_results"] = kv_results

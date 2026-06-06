@@ -553,7 +553,10 @@ class VegaUtil:
         if len(data) < 2:
             return 1
 
-        x_values = [item.get(x_key) for item in data]
+        x_values = [
+            VegaUtil._format_x_value(item.get(x_key), x_key)
+            for item in data
+        ]
         x_counts = Counter(x_values)
         unique_counts = set(x_counts.values())
 

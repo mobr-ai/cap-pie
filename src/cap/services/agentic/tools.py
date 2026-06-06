@@ -12,6 +12,7 @@ from cap.util.federated_result_processor import merge_federated_kv_results
 from cap.util.sparql_result_processor import convert_sparql_to_kv
 from cap.util.sql_result_processor import normalize_sql_results
 
+
 @tool
 async def normalize_query_tool(user_query: str) -> str:
     """Normalize a natural-language query for cache lookup."""
