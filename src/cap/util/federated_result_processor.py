@@ -1,5 +1,6 @@
 from typing import Any
 
+
 def _kv_rows(kv: dict[str, Any]) -> list[dict[str, Any]]:
     data = kv.get("data")
 
@@ -36,8 +37,101 @@ def _find_time_key(rows: list[dict[str, Any]]) -> str | None:
     if not rows:
         return None
 
-    keys = rows[0].keys()
-    return next((key for key in keys if _is_time_key(key)), None)
+    for row in rows:
+        for key in row.keys():
+            if _is_time_key(key):
+                return key
+
+    return None
+
+
+def _is_numeric_value(value: Any) -> bool:
+    if isinstance(value, bool):
+        return False
+
+    if isinstance(value, int | float):
+        return True
+
+    if isinstance(value, dict):
+        value = value.get("value")
+
+    if isinstance(value, str):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    return False
+
+
+def _to_number(value: Any) -> int | float | None:
+    if isinstance(value, dict):
+        value = value.get("value")
+
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, int | float):
+        return value
+
+    if isinstance(value, str):
+        try:
+            parsed = float(value)
+            return int(parsed) if parsed.is_integer() else parsed
+        except ValueError:
+            return None
+
+    return None
+
+
+def _metric_label(source: str, key: str) -> str:
+    key_lower = key.lower()
+
+    if source == "sparql":
+        if "tps" in key_lower:
+            return "Average TPS"
+        return key
+
+    if source == "sql":
+        if key_lower in {"close", "price", "ada_price", "adaPrice"}:
+            return "ADA Price"
+        return key
+
+    return key
+
+
+def _time_series_rows(
+    rows: list[dict[str, Any]],
+    time_key: str,
+    source: str,
+) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+
+    for row in rows:
+        date_key = _normalize_time_value(row.get(time_key))
+
+        for key, raw_value in row.items():
+            if key == time_key:
+                continue
+
+            if not _is_numeric_value(raw_value):
+                continue
+
+            value = _to_number(raw_value)
+            if value is None:
+                continue
+
+            out.append(
+                {
+                    "date": date_key,
+                    "metric": _metric_label(source, key),
+                    "value": value,
+                    "source": source,
+                }
+            )
+
+    return out
 
 
 def merge_federated_kv_results(
@@ -50,52 +144,28 @@ def merge_federated_kv_results(
     sparql_time_key = _find_time_key(sparql_rows)
     sql_time_key = _find_time_key(sql_rows)
 
-    if not sparql_time_key or not sql_time_key:
-        data = [
-            {**row, "source": "sparql"} for row in sparql_rows
-        ] + [
-            {**row, "source": "sql"} for row in sql_rows
-        ]
+    if sparql_time_key and sql_time_key:
+        data = (
+            _time_series_rows(sparql_rows, sparql_time_key, "sparql")
+            + _time_series_rows(sql_rows, sql_time_key, "sql")
+        )
+
+        data = sorted(data, key=lambda row: (row["date"], row["source"], row["metric"]))
 
         return {
             "result_type": "multiple",
             "count": len(data),
             "data": data,
-            "metadata": {"source": "federated"},
+            "metadata": {
+                "source": "federated",
+                "shape": "time_series_long",
+            },
         }
 
-    merged_by_date: dict[str, dict[str, Any]] = {}
-
-    for row in sparql_rows:
-        date_key = _normalize_time_value(row.get(sparql_time_key))
-        merged_by_date.setdefault(date_key, {"date": date_key})
-
-        for key, value in row.items():
-            if key != sparql_time_key:
-                merged_by_date[date_key][key] = value
-
-    for row in sql_rows:
-        date_key = _normalize_time_value(row.get(sql_time_key))
-        merged_by_date.setdefault(date_key, {"date": date_key})
-
-        for key, value in row.items():
-            if key != sql_time_key:
-                target_key = key
-                if target_key in merged_by_date[date_key]:
-                    target_key = f"sql_{key}"
-                merged_by_date[date_key][target_key] = value
-
-    data = sorted(merged_by_date.values(), key=lambda row: row["date"])
-
-    all_keys: list[str] = []
-    for row in data:
-        for key in row.keys():
-            if key not in all_keys:
-                all_keys.append(key)
-
     data = [
-        {key: row.get(key) for key in all_keys}
-        for row in data
+        {**row, "source": "sparql"} for row in sparql_rows
+    ] + [
+        {**row, "source": "sql"} for row in sql_rows
     ]
 
     return {
