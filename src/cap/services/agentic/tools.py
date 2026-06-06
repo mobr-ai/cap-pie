@@ -103,13 +103,16 @@ def format_execution_context(
 
     if federated_query.sql:
         sql_kv = {
-            "result_type": "table",
+            "result_type": "multiple" if len(sql_results) > 1 else "single",
+            "count": len(sql_results),
             "data": sql_results,
         }
+
         sections.append(
-            "SQL / OHLCV results:\n"
+            "SQL results:\n"
             + json.dumps(sql_results, default=str, ensure_ascii=False, indent=2)
         )
+
         if kv_results is None:
             kv_results = sql_kv
 

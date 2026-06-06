@@ -113,7 +113,7 @@ class ContextAgent:
         if not has_sparql_data and not has_sql_data:
             if query.sql:
                 state["formatted_results"] = (
-                    "SQL / OHLCV results:\n"
+                    "SQL results:\n"
                     "[]\n\n"
                     "The SQL query executed successfully but returned no rows."
                 )

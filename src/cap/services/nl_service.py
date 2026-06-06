@@ -9,8 +9,8 @@ from cap.services.agentic.graph import build_agentic_query_graph
 from cap.services.llm_client import get_llm_client
 from cap.services.metrics_service import MetricsService
 from cap.services.redis_nl_client import get_redis_nl_client
-from cap.util.status_message import StatusMessage
 from cap.util.json_util import json_safe
+from cap.util.status_message import StatusMessage
 
 logger = logging.getLogger(__name__)
 
