@@ -9,7 +9,7 @@ from cap.federated.service import execute_federated_query
 from cap.services.redis_nl_client import RedisNLClient
 from cap.services.similarity_service import SimilarityService
 from cap.util.sparql_result_processor import convert_sparql_to_kv
-
+from cap.util.sql_result_processor import normalize_sql_results
 
 @tool
 async def normalize_query_tool(user_query: str) -> str:
@@ -102,15 +102,17 @@ def format_execution_context(
         )
 
     if federated_query.sql:
+        normalized_sql_results = normalize_sql_results(sql_results)
+
         sql_kv = {
-            "result_type": "multiple" if len(sql_results) > 1 else "single",
-            "count": len(sql_results),
-            "data": sql_results,
+            "result_type": "multiple" if len(normalized_sql_results) > 1 else "single",
+            "count": len(normalized_sql_results),
+            "data": normalized_sql_results,
         }
 
         sections.append(
             "SQL results:\n"
-            + json.dumps(sql_results, default=str, ensure_ascii=False, indent=2)
+            + json.dumps(normalized_sql_results, default=str, ensure_ascii=False, indent=2)
         )
 
         if kv_results is None:
