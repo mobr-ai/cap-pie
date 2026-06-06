@@ -8,6 +8,7 @@ from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
 from cap.services.redis_nl_client import RedisNLClient
 from cap.services.similarity_service import SimilarityService
+from cap.util.federated_result_processor import merge_federated_kv_results
 from cap.util.sparql_result_processor import convert_sparql_to_kv
 from cap.util.sql_result_processor import normalize_sql_results
 
@@ -89,16 +90,18 @@ def format_execution_context(
     sql_results: list[dict[str, Any]],
 ) -> tuple[str, Any]:
     sections: list[str] = []
-    kv_results: Any = None
+
+    sparql_kv: dict[str, Any] | None = None
+    sql_kv: dict[str, Any] | None = None
 
     if federated_query.sparql:
-        kv_results = convert_sparql_to_kv(
+        sparql_kv = convert_sparql_to_kv(
             sparql_results,
             federated_query.sparql,
         )
         sections.append(
             "SPARQL results:\n"
-            + json.dumps(kv_results, default=str, ensure_ascii=False, indent=2)
+            + json.dumps(sparql_kv, default=str, ensure_ascii=False, indent=2)
         )
 
     if federated_query.sql:
@@ -112,11 +115,13 @@ def format_execution_context(
 
         sections.append(
             "SQL results:\n"
-            + json.dumps(normalized_sql_results, default=str, ensure_ascii=False, indent=2)
+            + json.dumps(sql_kv, default=str, ensure_ascii=False, indent=2)
         )
 
-        if kv_results is None:
-            kv_results = sql_kv
+    if sparql_kv and sql_kv:
+        kv_results = merge_federated_kv_results(sparql_kv, sql_kv)
+    else:
+        kv_results = sparql_kv or sql_kv
 
     return "\n\n".join(sections), kv_results
 
