@@ -6,24 +6,23 @@ import json
 import logging
 import os
 from collections.abc import AsyncIterator
-from datetime import UTC, datetime
 from typing import Any
 
 import httpx
 from opentelemetry import trace
 
 from cap.chains.cardano.canon.semantic_matcher import SemanticMatcher
-from cap.chains.registry import get_chain
 from cap.config import settings
 from cap.federated.models import FederatedQuery
 from cap.federated.planner import FederatedPlanner
 from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
-from cap.services.msg_formatter import MessageFormatter
-from cap.services.similarity_service import SearchStrategy, SimilarityService
-from cap.util.str_util import get_file_content
+from cap.services.prompt_builder import PromptBuilder
+from cap.services.similarity_service import SearchStrategy
+from cap.util.federated_result_processor import format_kv
+from cap.util.sparql_result_processor import convert_results_to_explorer_links
+from cap.util.str_util import matches_keyword
 from cap.util.tag_filter import TagFilter
-from cap.util.vega_util import VegaUtil
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -33,57 +32,6 @@ MODEL_CONTEXT_CAP = settings.MODEL_CONTEXT_CAP * 1000
 CHAR_PER_TOKEN = settings.CHAR_PER_TOKEN
 MAX_CONTEXT_CHARS = 18000 # CHAR_PER_TOKEN * MODEL_CONTEXT_CAP
 
-
-def convert_results_to_explorer_links(
-    results: Any,
-    sparql_query: str = "",
-    row_context: dict[str, Any] | None = None,
-) -> Any:
-    if not results:
-        return results
-
-    chain = get_chain()
-
-    if isinstance(results, list):
-        return [
-            convert_results_to_explorer_links(
-                item,
-                sparql_query,
-                row_context=item if isinstance(item, dict) else row_context,
-            )
-            for item in results
-        ]
-
-    if isinstance(results, dict):
-        current_row_context = row_context or results
-
-        return {
-            key: (
-                convert_results_to_explorer_links(
-                    value,
-                    sparql_query,
-                    row_context=current_row_context,
-                )
-                if isinstance(value, (dict, list))
-                else chain.convert_entity_to_explorer_link(
-                    key,
-                    value,
-                    sparql_query,
-                    row_context=current_row_context,
-                )
-            )
-            for key, value in results.items()
-        }
-
-    return results
-
-
-def matches_keyword(low_uq: str, keywords):
-    return any(
-        form in low_uq
-        for keyword in keywords
-        for form in (keyword, f"{keyword}s", f"{keyword}es", f"{keyword}ies", f"{keyword}ing")
-    )
 
 class LLMClient:
     """Client for interacting with LLM service."""
@@ -111,7 +59,7 @@ class LLMClient:
         )
         self.api_key = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY", "")
         self.timeout = timeout
-        self.fewshot_top_n = int(os.getenv("FEWSHOT_TOP_N") or "3")
+        self.prompt_builder = PromptBuilder()
 
         self._client: httpx.AsyncClient | None = None
 
@@ -130,10 +78,6 @@ class LLMClient:
         self._intent_warmup_lock = asyncio.Lock()
         self._intent_warmed_up = False
 
-    def _load_prompt(self, env_key: str, default: str = "") -> str:
-        """Load prompt from environment, refreshed on each call."""
-        return os.getenv(env_key, default)
-
     async def warmup_intent_indices(self, force: bool = False) -> None:
         if self._intent_warmed_up and not force:
             return
@@ -145,39 +89,6 @@ class LLMClient:
             await self._refer_classifier.warmup()
             await self._render_classifier.warmup()
             self._intent_warmed_up = True
-
-    @property
-    def default_nl_to_sparql_prompt(self) -> str:
-        return self._load_prompt(
-            "NL_TO_SPARQL_PROMPT",
-            get_chain().default_nl_to_sparql_prompt(),
-        )
-
-
-    @property
-    def default_chart_prompt(self) -> str:
-        return self._load_prompt(
-            "CHART_PROMPT",
-            get_chain().default_chart_prompt(),
-        )
-
-    @property
-    def ontology_prompt(self) -> str:
-        """Add ontology to prompt (refreshed from env)."""
-        if settings.LLM_ONTOLOGY_PATH != "":
-            onto = get_file_content(settings.LLM_ONTOLOGY_PATH)
-            return f"ALWAYS USE THIS ONTOLOGY:\n{onto}"
-        else:
-            logger.warning("** MINI ONTOLOGY NOT FOUND!!!")
-        return ""
-
-    @property
-    def contextualize_prompt(self) -> str:
-        """Get contextualization prompt (refreshed from env)."""
-        return self._load_prompt(
-            "CONTEXTUALIZE_PROMPT",
-            "Based on the query results, provide a clear and helpful answer."
-        )
 
     async def _get_nl_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
@@ -306,22 +217,20 @@ class LLMClient:
         fewshot_top_n: int = -1,
         _eval_retrieved_out: list[dict[str, Any]] | None = None,
     ) -> tuple[FederatedQuery, Any]:
-        ontology_block = self.ontology_prompt if use_ontology else ""
+
+        ontology_block = self.prompt_builder.ontology_prompt if use_ontology else ""
 
         fewshot_block = ""
         if use_fewshot and fewshot_strategy != SearchStrategy.none:
             # Reuse existing retrieval, but now the returned assistant payload may be
             # SPARQL-only, SQL-only, or federated JSON.
             retrieved: list[dict[str, Any]] = []
-            prompt_seed = ""
-            prompt_seed = await self._add_few_shot_learning(
+            fewshot_block = await self.prompt_builder.build_fewshot_block(
                 nl_query=natural_query,
-                prompt=prompt_seed,
                 strategy=fewshot_strategy,
-                top_n=fewshot_top_n if fewshot_top_n != -1 else self.fewshot_top_n,
+                top_n=fewshot_top_n,
                 _eval_retrieved_out=retrieved,
             )
-            fewshot_block = prompt_seed
 
         refer_decision = await self._refer_classifier.classify(natural_query)
 
@@ -397,57 +306,6 @@ class LLMClient:
         return subtype_to_result.get(decision.chart_subtype or "", "")
 
 
-    async def format_kv(self, user_query: str, federated_query: str, kv_results: dict) -> tuple[str, str]:
-        result_type = await self._classify_render_type(user_query, kv_results)
-
-        if result_type:
-            kv_results["result_type"] = result_type
-
-            if result_type in {
-                "bar_chart",
-                "pie_chart",
-                "line_chart",
-                "scatter_chart",
-                "bubble_chart",
-                "treemap",
-                "heatmap",
-                "table",
-            }:
-                vega_data = VegaUtil.convert_to_vega_format(
-                    kv_results,
-                    user_query,
-                    federated_query,
-                )
-
-                columns = []
-                if kv_results.get("data"):
-                    if isinstance(kv_results["data"], list):
-                        columns = VegaUtil._all_keys(kv_results["data"])
-                    elif isinstance(kv_results["data"], dict):
-                        columns = list(kv_results["data"].keys())
-
-                metadata_columns = vega_data.get("_columns")
-                formatted_columns = (
-                    metadata_columns
-                    if metadata_columns
-                    else [VegaUtil._format_column_name(col) for col in columns]
-                )
-
-                vega_data = {k: v for k, v in vega_data.items() if not k.startswith("_")}
-
-                output_data = {
-                    "result_type": result_type,
-                    "data": vega_data,
-                    "metadata": {
-                        "count": kv_results.get("count", 0),
-                        "columns": formatted_columns,
-                    },
-                }
-                return json.dumps(output_data, indent=2), result_type
-
-        return json.dumps(kv_results, indent=2), result_type
-
-
     async def generate_answer_with_context(
         self,
         user_query: str,
@@ -465,7 +323,9 @@ class LLMClient:
             result_type = ""
             if kv_results:
                 try:
-                    kv_formatted, result_type = await self.format_kv(
+                    result_type = await self._classify_render_type(user_query, kv_results)
+                    kv_formatted, result_type = format_kv(
+                        result_type=result_type,
                         user_query=user_query,
                         federated_query=federated_query,
                         kv_results=kv_results
@@ -498,47 +358,12 @@ class LLMClient:
                 logger.warning(f"Result formatting failed: {e}")
                 context_res = str(formatted_results)
 
-            current_date = f"Current utc date and time: {datetime.now(UTC)}."
-            current_his = None
-            known_info = ""
-            temperature = 0.1
-            if "chart" in result_type or "table" in result_type:
-                known_info = f"""
-                {current_date}
-                {self.default_chart_prompt}
-                The system is showing an artifact to the user using the data below. Always write a SHORT insight about it.
-                {kv_results}
-                """
-
-            elif context_res != "":
-                known_info = f"""
-                {current_date}
-                This is the current value you MUST consider in your answer:
-                {context_res}
-
-                {self.contextualize_prompt}
-                """
-                current_his = conversation_history
-
-            else:
-                known_info = """
-                    Answer with a text similar to the following message:
-                    I do not have this information or I was not capable of retrieving it correctly.
-                    We would appreciate it if you could specify here what you wanted to do as a feature and we will try to make your prompt work asap.
-                    If you think this feature is already supported, try specifying the entire command in a unique prompt.
-                """
-
-            # Format the prompt with query and results
-            prompt = f"""
-                User Question: {user_query}
-
-                {known_info}
-            """
-
-            # Prepare messages with history and all context
-            prompt = self._add_history(
-                prompt=prompt,
-                conversation_history=current_his,
+            prompt, _, temperature = self.prompt_builder.build_answer_prompt(
+                user_query=user_query,
+                context_res=context_res,
+                result_type=result_type,
+                kv_results=kv_results,
+                conversation_history=conversation_history,
             )
 
             logger.info(f"Prompting LLM (truncated): \n{prompt[:1000] + ('...' if len(prompt) > 1000 else '')}")
@@ -552,77 +377,6 @@ class LLMClient:
                 temperature=temperature
             ):
                 yield chunk
-
-
-    async def _add_few_shot_learning(
-        self,
-        nl_query: str,
-        prompt: str,
-        strategy: SearchStrategy = SearchStrategy.auto,
-        top_n: int = 3,
-        min_similarity: float = 0.0,
-        _eval_retrieved_out: list[dict[str, Any]] | None = None,
-    ) -> str:
-        """Use similar queries as few-shot examples."""
-
-        similar = await SimilarityService.find_similar_queries(
-            strategy=strategy,
-            nl_query=nl_query,
-            top_n=top_n,
-            min_similarity=min_similarity,
-        )
-
-        if _eval_retrieved_out is not None:
-            _eval_retrieved_out.extend(similar)
-
-        messages = MessageFormatter.format_similar_queries_to_examples(
-            similar_queries=similar,
-            max_examples=top_n
-        )
-
-        return MessageFormatter.append_examples_to_prompt(
-            examples=messages,
-            existing_prompt=prompt
-        )
-
-
-    def _add_history(
-        self,
-        prompt: str,
-        conversation_history: list[dict[str, Any]] | None = None
-    ) -> str:
-        """
-        Prepare messages for chat API with token limit.
-        """
-
-        history: list[dict[str, Any]] = []
-
-        # Add conversation history (most recent first after reversing)
-        if conversation_history:
-            reversed_history = list(reversed(conversation_history))
-            kept_history: list[dict[str, Any]] = []
-            current_size = len(prompt)
-
-            for msg in reversed_history:
-                msg_size = len(msg.get("content", ""))
-                if current_size + msg_size < MAX_CONTEXT_CHARS:
-                    kept_history.append(msg)
-                    current_size += msg_size
-                else:
-                    logger.info(f"Truncated conversation history at {len(kept_history)} messages due to context limit")
-                    break
-
-            # Reverse back to chronological order
-            history = list(reversed(kept_history))
-
-        # Format each message as "role: content"
-        str_history = "\n".join([
-            f"{msg.get('role', 'unknown')}: {msg.get('content', '')}"
-            for msg in history
-        ])
-
-        return f"{prompt}\nPrevious messages:\n{str_history}" if str_history else prompt
-
 
 # Global client instance
 _llm_client: LLMClient | None = None

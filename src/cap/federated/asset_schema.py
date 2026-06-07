@@ -28,4 +28,5 @@ Unique key: (asset_id, ts, interval, source)
 
 Use asset_ohlcv for price, OHLCV, candles, market volume, high, low, open, close, moving averages, returns, volatility, and time-series asset-market queries.
 Join asset when the user names a token by symbol, name, policy_id, or asset_name_hex.
+Interval data available is 1h.
 """

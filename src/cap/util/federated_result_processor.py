@@ -1,4 +1,7 @@
+import json
 from typing import Any
+
+from cap.util.vega_util import VegaUtil
 
 
 def _kv_rows(kv: dict[str, Any]) -> list[dict[str, Any]]:
@@ -134,6 +137,55 @@ def _time_series_rows(
     return out
 
 
+def format_kv(result_type: Any, user_query: str, federated_query: str, kv_results: dict) -> tuple[str, str]:
+    if result_type:
+        kv_results["result_type"] = result_type
+
+        if result_type in {
+            "bar_chart",
+            "pie_chart",
+            "line_chart",
+            "scatter_chart",
+            "bubble_chart",
+            "treemap",
+            "heatmap",
+            "table",
+        }:
+            vega_data = VegaUtil.convert_to_vega_format(
+                kv_results,
+                user_query,
+                federated_query,
+            )
+
+            columns = []
+            if kv_results.get("data"):
+                if isinstance(kv_results["data"], list):
+                    columns = VegaUtil._all_keys(kv_results["data"])
+                elif isinstance(kv_results["data"], dict):
+                    columns = list(kv_results["data"].keys())
+
+            metadata_columns = vega_data.get("_columns")
+            formatted_columns = (
+                metadata_columns
+                if metadata_columns
+                else [VegaUtil._format_column_name(col) for col in columns]
+            )
+
+            vega_data = {k: v for k, v in vega_data.items() if not k.startswith("_")}
+
+            output_data = {
+                "result_type": result_type,
+                "data": vega_data,
+                "metadata": {
+                    "count": kv_results.get("count", 0),
+                    "columns": formatted_columns,
+                },
+            }
+            return json.dumps(output_data, indent=2), result_type
+
+    return json.dumps(kv_results, indent=2), result_type
+
+
 def merge_federated_kv_results(
     sparql_kv: dict[str, Any],
     sql_kv: dict[str, Any],
@@ -174,3 +226,4 @@ def merge_federated_kv_results(
         "data": data,
         "metadata": {"source": "federated"},
     }
+

@@ -64,6 +64,7 @@ class CardanoChainModule:
             sparql_query,
             row_context=row_context,
         )
+
     def convert_result_value(
         self,
         var_name: str,

@@ -5,37 +5,15 @@ from typing import Any
 from cap.federated.asset_schema import ASSET_OHLCV_SCHEMA
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.sql_util import clean_sql
+from cap.services.prompt_builder import PromptBuilder
 from cap.util.sparql_util import ensure_validity
 
 logger = logging.getLogger(__name__)
 
-
-FEDERATED_PROMPT = """
-You are a federated query planner.
-
-Generate a JSON object only, with this exact shape:
-{
-  "source": "onchain" | "asset" | "federated",
-  "sparql": "...",
-  "sql": "...",
-  "explanation": "short internal reason"
-}
-
-Rules:
-- Use SPARQL for on-chain knowledge graph questions.
-- Use SQL for asset market data / OHLCV questions.
-- Use both when the answer requires joining on-chain facts with market data.
-- For only on-chain queries, sql MUST be "".
-- For only asset/OHLCV queries, sparql MUST be "".
-- Never generate SQL outside SELECT/WITH.
-- Never generate SPARQL updates.
-- Return JSON only. No markdown. No comments.
-""".strip()
-
-
 class FederatedPlanner:
     def __init__(self, llm_client: Any):
         self.llm_client = llm_client
+        self.prompt_builder = PromptBuilder()
 
     async def generate(
         self,
@@ -46,7 +24,7 @@ class FederatedPlanner:
     ) -> FederatedQuery:
 
         prompt = f"""
-{FEDERATED_PROMPT}
+{self.prompt_builder.federated_prompt}
 
 Ontology:
 {ontology_block}
