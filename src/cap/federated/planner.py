@@ -51,6 +51,7 @@ User Question:
         raw = "".join(chunks).strip()
         parsed = self._parse_json(raw)
 
+        visualization_type = parsed.get("visualization_type", "") or ""
         sparql = parsed.get("sparql", "") or ""
         sql = clean_sql(parsed.get("sql", "") or "")
         source = parsed.get("source") or self._infer_source(sparql, sql)
@@ -59,6 +60,7 @@ User Question:
             sparql = ensure_validity(sparql, natural_query)
 
         return FederatedQuery(
+            visualization_type=visualization_type,
             sparql=sparql,
             sql=sql,
             source=QuerySource(source),

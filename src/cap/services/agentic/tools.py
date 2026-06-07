@@ -38,20 +38,24 @@ async def get_cached_federated_query(
     try:
         parsed = json.loads(payload)
         if isinstance(parsed, dict):
+            visualization_type = parsed.get("visualization_type", "") or ""
             sparql = parsed.get("sparql", "") or ""
             sql = parsed.get("sql", "") or ""
             source = parsed.get("source") or _infer_source(sparql, sql).value
 
             return FederatedQuery(
+                visualization_type=visualization_type,
                 sparql=sparql,
                 sql=sql,
                 source=QuerySource(source),
                 explanation=parsed.get("explanation", "cached federated query"),
             )
+
     except json.JSONDecodeError:
         pass
 
     return FederatedQuery(
+        visualization_type="",
         sparql=payload,
         sql="",
         source=QuerySource.ONCHAIN,

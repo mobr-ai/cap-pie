@@ -197,12 +197,39 @@ def merge_federated_kv_results(
     sql_time_key = _find_time_key(sql_rows)
 
     if sparql_time_key and sql_time_key:
-        data = (
-            _time_series_rows(sparql_rows, sparql_time_key, "sparql")
-            + _time_series_rows(sql_rows, sql_time_key, "sql")
-        )
+        by_date: dict[str, dict[str, Any]] = {}
 
-        data = sorted(data, key=lambda row: (row["date"], row["source"], row["metric"]))
+        for row in sparql_rows:
+            date_key = _normalize_time_value(row.get(sparql_time_key))
+            out_row = by_date.setdefault(date_key, {"date": date_key})
+
+            for key, raw_value in row.items():
+                if key == sparql_time_key:
+                    continue
+
+                if not _is_numeric_value(raw_value):
+                    continue
+
+                value = _to_number(raw_value)
+                if value is not None:
+                    out_row[key] = value
+
+        for row in sql_rows:
+            date_key = _normalize_time_value(row.get(sql_time_key))
+            out_row = by_date.setdefault(date_key, {"date": date_key})
+
+            for key, raw_value in row.items():
+                if key == sql_time_key:
+                    continue
+
+                if not _is_numeric_value(raw_value):
+                    continue
+
+                value = _to_number(raw_value)
+                if value is not None:
+                    out_row[key] = value
+
+        data = sorted(by_date.values(), key=lambda row: row["date"])
 
         return {
             "result_type": "multiple",
@@ -210,7 +237,7 @@ def merge_federated_kv_results(
             "data": data,
             "metadata": {
                 "source": "federated",
-                "shape": "time_series_long",
+                "shape": "time_series_wide",
             },
         }
 
