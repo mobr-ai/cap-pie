@@ -1,5 +1,5 @@
 asset_id,symbol,name,policy_id,asset_name_hex,decimals,source,source_asset_id,quote_asset,bootstrap_from
-lovelace,ADA,Cardano,,,6,binance_spot,ADAUSDT,USDT,2017-10-01T00:00:00Z
+ada,ADA,Cardano,,,6,binance_spot,ADAUSDT,USDT,2017-10-01T00:00:00Z
 night,NIGHT,Midnight,,,6,binance_spot,NIGHTUSDT,USDT,2017-10-01T00:00:00Z
 snek,SNEK,SNEK,,,6,binance_spot,SNEKUSDT,USDT,2017-10-01T00:00:00Z
 agix,AGIX,SingularityNET,,,8,binance_spot,AGIXUSDT,USDT,2017-10-01T00:00:00Z

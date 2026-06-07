@@ -80,7 +80,7 @@ Example:
 
 ```json
 {
-  "asset_id": "lovelace",
+  "asset_id": "ada",
   "symbol": "ADAUSDT"
 }
 ```
