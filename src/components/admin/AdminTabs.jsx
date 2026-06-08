@@ -14,6 +14,7 @@ export function AdminTabs({ activeTab, onChange, t }) {
       { key: "users", label: t("admin.tabUsers") },
       { key: "billing", label: t("admin.tabBilling") },
       { key: "metrics", label: t("admin.tabMetrics") },
+      { key: "data-console", label: t("admin.tabDataConsole") },
       { key: "system", label: t("admin.tabSystem") },
       { key: "alerts", label: t("admin.tabAlerts") },
     ],

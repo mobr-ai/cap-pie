@@ -6,5 +6,6 @@
 @import "./admin/AdminTables.css";
 @import "./admin/AdminNotifications.css";
 @import "./admin/AdminMetrics.css";
+@import "./admin/AdminDataConsole.css";
 @import "./admin/AdminQueryDetailsModal.css";
 @import "./admin/AdminUtilities.css";
