@@ -1,20 +1,25 @@
-# src/tests/conftest.py
 import logging
 from collections.abc import AsyncGenerator
+from pathlib import Path
 
 import pytest
+from dotenv import load_dotenv
 from httpx import AsyncClient
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 from cap.config import settings
 from cap.rdf.triplestore import TriplestoreClient
 
-# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture(scope="session")
 def virtuoso_client():
     return TriplestoreClient()
+
 
 @pytest.fixture
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
@@ -24,6 +29,6 @@ async def async_client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         base_url=base_url,
         follow_redirects=True,
-        timeout=300.0
+        timeout=300.0,
     ) as client:
         yield client

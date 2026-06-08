@@ -5,8 +5,6 @@ import re
 from typing import Any
 from opentelemetry import trace
 
-from cap.util.sparql_util import ensure_validity
-
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
 
@@ -75,7 +73,14 @@ class QueryFileParser:
 
         if payload_text.startswith('"""') and payload_text.endswith('"""'):
             return {
-                "sparql": payload_text[3:-3].strip()
+                "sparql": payload_text[3:-3].strip(),
+                "sql": "",
+            }
+
+        if not payload_text.startswith("{"):
+            return {
+                "sparql": payload_text,
+                "sql": "",
             }
 
         return json.loads(payload_text)
