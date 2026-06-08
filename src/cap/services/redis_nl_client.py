@@ -152,6 +152,11 @@ class RedisNLClient:
                 stats["total_queries"] = len(queries)
                 client = await self._get_nlr_client()
                 ttl_value = ttl or self.ttl
+                src_stats = {
+                    QuerySource.FEDERATED.value: 0,
+                    QuerySource.ONCHAIN.value: 0,
+                    QuerySource.ASSET.value: 0,
+                }
                 skipped_keys: list[str] = []
                 cached_keys: list[str] = []
 
@@ -176,9 +181,12 @@ class RedisNLClient:
                                 await client.setex(cache_key, ttl_value, json.dumps(data))
                                 cached_keys.append(cache_key)
 
+                            q_source = self._detect_cached_query_type(payload)
+                            src_stats[q_source] += 1
                             logger.debug ("query cached ")
                             logger.debug (f"    nl query {nl_query} ")
                             logger.debug (f"    payload {payload} ")
+                            logger.debug (f"    source {q_source} ")
                             logger.debug (f"    ttl {ttl_value} ")
 
                             stats["cached_successfully"] += 1
@@ -207,6 +215,7 @@ class RedisNLClient:
                     f"Original queries: \n{nl_queries} \n"
                     f"Cached keys: \n{cached_keys} \n"
                     f"Skipped keys: \n{skipped_keys} \n"
+                    f"Sources: \n{src_stats} \n"
                 )
                 return stats
 
