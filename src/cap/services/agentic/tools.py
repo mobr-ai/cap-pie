@@ -83,7 +83,7 @@ async def cache_successful_query(
 
     result = await redis_client.cache_query(
         nl_query=user_query,
-        sparql_query=payload,
+        payload=payload,
         normalize=normalize,
     )
 

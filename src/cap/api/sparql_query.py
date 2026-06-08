@@ -61,7 +61,7 @@ async def execute_query(request: QueryRequest):
             client = TriplestoreClient()
             results = await client.execute_query(user_query)
             if results.get('results', {}).get('bindings') and results['results']['bindings']:
-                await redis_client.cache_query(sparql_query=user_query, results=results)
+                await redis_client.cache_sparql_query(sparql_query=user_query, results=results)
 
             return QueryResponse(results=results)
 
