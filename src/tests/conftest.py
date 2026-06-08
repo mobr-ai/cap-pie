@@ -1,4 +1,6 @@
 import logging
+import os
+
 from collections.abc import AsyncGenerator
 from pathlib import Path
 
@@ -15,6 +17,17 @@ from cap.rdf.triplestore import TriplestoreClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+@pytest.fixture(scope="session", autouse=True)
+def set_test_env():
+    old = os.environ.get("REDIS_HOST")
+    os.environ["REDIS_HOST"] = "localhost"
+
+    yield
+
+    if old is None:
+        os.environ.pop("REDIS_HOST", None)
+    else:
+        os.environ["REDIS_HOST"] = old
 
 @pytest.fixture(scope="session")
 def virtuoso_client():
