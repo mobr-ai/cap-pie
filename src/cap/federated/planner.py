@@ -55,6 +55,7 @@ User Question:
         sparql = parsed.get("sparql", "") or ""
         sql = clean_sql(parsed.get("sql", "") or "")
         source = parsed.get("source") or self._infer_source(sparql, sql)
+        explanation=parsed.get("explanation", "") or ""
 
         if sparql:
             sparql = ensure_validity(sparql, natural_query)
@@ -64,7 +65,7 @@ User Question:
             sparql=sparql,
             sql=sql,
             source=QuerySource(source),
-            explanation=parsed.get("explanation", ""),
+            explanation=explanation,
         )
 
     @staticmethod

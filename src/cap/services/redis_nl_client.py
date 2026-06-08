@@ -247,35 +247,42 @@ class RedisNLClient:
         assistant_payload: str,
         normalize_query: bool = True,
     ) -> tuple[str, dict[str, str], str]:
-        canonizer = get_chain().query_canonizer()
-
-        if canonizer is not None and normalize_query:
-            return canonizer.normalize_payload(
-                assistant_payload,
-                normalize_query=normalize_query,
-            )
 
         query_type = self._detect_cached_query_type(assistant_payload)
 
         if assistant_payload.strip().startswith("{"):
             parsed = json.loads(assistant_payload)
+            visualization_type = parsed.get("visualization_type", "") or ""
+            source = parsed.get("source", query_type) or query_type
             sparql = parsed.get("sparql", "") or ""
             sql = parsed.get("sql", "") or ""
+            explanation=parsed.get("explanation", "") or ""
         else:
+            visualization_type = ""
+            source = query_type
             sparql = assistant_payload if query_type == QuerySource.ONCHAIN.value else ""
             sql = assistant_payload if query_type == QuerySource.ASSET.value else ""
+            explanation = ""
+
+        assistant_payload_dict = {
+            "visualization_type": visualization_type,
+            "source": source,
+            "sparql": sparql,
+            "sql": sql,
+            "explanation": explanation
+        }
+
+        canonizer = get_chain().query_canonizer()
+        if canonizer is not None and normalize_query:
+            return canonizer.normalize_payload(
+                assistant_payload_dict=assistant_payload_dict,
+                normalize_query=normalize_query,
+            )
 
         return (
-            json.dumps(
-                {
-                    "source": query_type,
-                    "sparql": sparql,
-                    "sql": sql,
-                },
-                sort_keys=True,
-            ),
+            json.dumps(assistant_payload_dict, sort_keys=True),
             {},
-            query_type,
+            source,
         )
 
 
@@ -296,8 +303,8 @@ class RedisNLClient:
 
                 if not cached:
                     span.set_attribute("cache_hit", False)
-                    logger.debug ("Cache MISS")
-                    logger.debug (f" query normalized to {normalized_query}")
+                    logger.info ("***Cache MISS")
+                    logger.info (f" query normalized to {normalized_query}")
                     return None
 
                 data = json.loads(cached)
@@ -311,7 +318,7 @@ class RedisNLClient:
 
                 if not placeholder_map:
                     span.set_attribute("cache_hit", True)
-                    logger.debug ("Cache HIT without placeholders")
+                    logger.info ("***Cache HIT without placeholders")
                     return data
 
                 # Restore placeholders
@@ -335,6 +342,7 @@ class RedisNLClient:
 
                 data["federated_query"] = restored_payload
                 span.set_attribute("cache_hit", True)
+                logger.info (f"***Cache HIT: {data}")
                 return data
 
             except Exception as e:

@@ -42,13 +42,14 @@ async def get_cached_federated_query(
             sparql = parsed.get("sparql", "") or ""
             sql = parsed.get("sql", "") or ""
             source = parsed.get("source") or _infer_source(sparql, sql).value
+            explanation=parsed.get("explanation", "cached federated query") or ""
 
             return FederatedQuery(
                 visualization_type=visualization_type,
                 sparql=sparql,
                 sql=sql,
                 source=QuerySource(source),
-                explanation=parsed.get("explanation", "cached federated query"),
+                explanation=explanation,
             )
 
     except json.JSONDecodeError:
