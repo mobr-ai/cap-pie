@@ -1,0 +1,542 @@
+/* src/styles/admin/AdminDataConsole.css */
+
+.admin-data-console-shell {
+  border: 1px solid var(--theme-border);
+  border-radius: 18px;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--theme-accent, #38bdf8) 10%, transparent), transparent 28%),
+    var(--theme-surface-2);
+}
+
+.admin-data-console-main-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-data-console-modes {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-surface) 86%, transparent);
+}
+
+.admin-data-console-mode {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  color: var(--theme-text-muted);
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.admin-data-console-mode:hover {
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-surface-3, var(--theme-surface)) 74%, transparent);
+}
+
+.admin-data-console-mode.is-active {
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  box-shadow: 0 8px 22px color-mix(in srgb, #000 22%, transparent);
+}
+
+.admin-data-console-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-data-console-workarea,
+.admin-data-console-result-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--theme-surface) 88%, transparent);
+}
+
+.admin-data-console-workarea {
+  padding: 1rem;
+}
+
+.admin-data-console-result-panel {
+  position: sticky;
+  top: 1rem;
+  overflow: hidden;
+}
+
+.admin-data-console-panel-head,
+.admin-data-console-result-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.admin-data-console-kicker {
+  margin-bottom: 0.2rem;
+  color: var(--theme-text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.admin-data-console-panel-title,
+.admin-data-console-result-title {
+  margin: 0;
+  color: var(--theme-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.admin-data-console-panel-subtitle,
+.admin-data-console-result-meta {
+  margin-top: 0.25rem;
+  color: var(--theme-text-muted);
+  font-size: 0.84rem;
+}
+
+.admin-data-console-mode-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-data-console-subpanel {
+  border: 1px solid color-mix(in srgb, var(--theme-border) 82%, transparent);
+  border-radius: 14px;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--theme-surface-2) 82%, transparent);
+}
+
+.admin-data-console-subpanel-title {
+  margin-bottom: 0.65rem;
+  color: var(--theme-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-data-console-inline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-data-console-inline-grid.is-tight {
+  grid-template-columns: minmax(120px, 190px);
+}
+
+.admin-data-console-inline-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.admin-data-console-inline-action .admin-data-console-field {
+  margin-bottom: 0;
+}
+
+.admin-data-console-inline-action .admin-data-console-action {
+  min-height: 31px;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.admin-data-console-command-strip,
+.admin-data-console-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-data-console-command-strip {
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--theme-border) 82%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--theme-surface-2) 82%, transparent);
+}
+
+.admin-data-console-field {
+  flex: 1;
+  margin-bottom: 0.7rem;
+}
+
+.admin-data-console-field.is-compact {
+  margin-bottom: 0.4rem;
+}
+
+.admin-data-console-label {
+  display: block;
+  margin-bottom: 0.24rem;
+  color: var(--theme-text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-data-console-help {
+  margin-top: 0.25rem;
+  color: var(--theme-text-muted);
+  font-size: 0.78rem;
+}
+
+.AdminPage .admin-data-console-input,
+.AdminPage .admin-data-console-textarea {
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+  background: color-mix(in srgb, var(--theme-surface) 92%, transparent);
+}
+
+.AdminPage input[type="file"].admin-data-console-input {
+  min-height: 31px;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+
+.AdminPage .admin-data-console-input:focus,
+.AdminPage .admin-data-console-textarea:focus {
+  color: var(--theme-text);
+  border-color: var(--theme-border-strong, var(--theme-border));
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.admin-data-console-mono,
+.admin-data-console-json {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.8rem;
+}
+
+.admin-data-console-action {
+  min-height: 31px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.admin-data-console-result-panel {
+  padding: 0;
+}
+
+.admin-data-console-result-head {
+  padding: 1rem 1rem 0;
+  margin-bottom: 0.45rem;
+}
+
+.admin-data-console-result-meta {
+  padding: 0 1rem 0.65rem;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.admin-data-console-status-pill {
+  flex: 0 0 auto;
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  padding: 0.24rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-data-console-status-pill.is-idle {
+  color: var(--theme-text-muted);
+  background: color-mix(in srgb, var(--theme-surface-2) 90%, transparent);
+}
+
+.admin-data-console-status-pill.is-success {
+  color: color-mix(in srgb, #22c55e 78%, var(--theme-text));
+  border-color: color-mix(in srgb, #22c55e 45%, var(--theme-border));
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+}
+
+.admin-data-console-status-pill.is-error {
+  color: color-mix(in srgb, #ef4444 78%, var(--theme-text));
+  border-color: color-mix(in srgb, #ef4444 45%, var(--theme-border));
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+}
+
+.admin-data-console-result-body {
+  min-height: 180px;
+  max-height: 560px;
+  overflow: auto;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.admin-data-console-json {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--theme-text);
+}
+
+.admin-data-console-empty,
+.admin-data-console-inline-error {
+  border: 1px dashed var(--theme-border);
+  border-radius: 12px;
+  padding: 0.8rem;
+  color: var(--theme-text-muted);
+  font-size: 0.84rem;
+  background: color-mix(in srgb, var(--theme-surface-2) 78%, transparent);
+}
+
+.admin-data-console-inline-error {
+  margin-bottom: 0.75rem;
+  color: color-mix(in srgb, #ef4444 78%, var(--theme-text));
+  border-color: color-mix(in srgb, #ef4444 40%, var(--theme-border));
+}
+
+.admin-data-console-clear {
+  margin: 0 1rem 1rem;
+}
+
+@media (max-width: 1100px) {
+  .admin-data-console-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-data-console-result-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-data-console-main-head {
+    flex-direction: column;
+  }
+
+  .admin-data-console-modes {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .admin-data-console-mode {
+    flex: 1;
+  }
+
+  .admin-data-console-inline-grid,
+  .admin-data-console-inline-action {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-data-console-inline-error.is-dependency {
+  color: color-mix(in srgb, #f59e0b 82%, var(--theme-text));
+  border-color: color-mix(in srgb, #f59e0b 42%, var(--theme-border));
+  background: color-mix(in srgb, #f59e0b 10%, var(--theme-surface));
+}
+
+.admin-data-console-error-title {
+  margin-bottom: 0.25rem;
+  color: var(--theme-text);
+  font-weight: 800;
+}
+
+.admin-data-console-error-hint {
+  margin-top: 0.45rem;
+  color: var(--theme-text-muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 768px) {
+  .admin-data-console-inline-action .admin-data-console-action {
+    width: 100%;
+  }
+}
+
+.admin-data-console-running-hint {
+  margin: 0.65rem 1rem 0;
+  border: 1px solid color-mix(in srgb, #38bdf8 36%, var(--theme-border));
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  color: color-mix(in srgb, #38bdf8 74%, var(--theme-text));
+  background: color-mix(in srgb, #38bdf8 8%, var(--theme-surface));
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-data-console-inline-action {
+  align-items: end;
+}
+
+.admin-data-console-inline-action .admin-data-console-action {
+  min-width: 132px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .admin-data-console-inline-action .admin-data-console-action {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Compact inline feedback replaces the old large status panel. */
+
+.admin-data-console-workspace {
+  display: block;
+}
+
+.admin-data-console-workarea {
+  width: 100%;
+}
+
+.admin-data-console-result-panel {
+  display: none;
+}
+
+.admin-data-console-feedback {
+  margin-top: 0.85rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  color: var(--theme-text-muted);
+  background: color-mix(in srgb, var(--theme-surface-2) 78%, transparent);
+  font-size: 0.82rem;
+}
+
+.admin-data-console-feedback.is-idle {
+  border-style: dashed;
+}
+
+.admin-data-console-feedback.is-running {
+  color: color-mix(in srgb, #38bdf8 76%, var(--theme-text));
+  border-color: color-mix(in srgb, #38bdf8 38%, var(--theme-border));
+  background: color-mix(in srgb, #38bdf8 7%, var(--theme-surface));
+}
+
+.admin-data-console-feedback.is-success {
+  color: color-mix(in srgb, #22c55e 76%, var(--theme-text));
+  border-color: color-mix(in srgb, #22c55e 36%, var(--theme-border));
+  background: color-mix(in srgb, #22c55e 7%, var(--theme-surface));
+}
+
+.admin-data-console-feedback.is-error {
+  color: color-mix(in srgb, #ef4444 78%, var(--theme-text));
+  border-color: color-mix(in srgb, #ef4444 36%, var(--theme-border));
+  background: color-mix(in srgb, #ef4444 7%, var(--theme-surface));
+}
+
+.admin-data-console-feedback.is-dependency {
+  color: color-mix(in srgb, #f59e0b 82%, var(--theme-text));
+  border-color: color-mix(in srgb, #f59e0b 42%, var(--theme-border));
+  background: color-mix(in srgb, #f59e0b 8%, var(--theme-surface));
+}
+
+.admin-data-console-feedback-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-weight: 800;
+}
+
+.admin-data-console-feedback-time {
+  flex: 0 0 auto;
+  color: var(--theme-text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.admin-data-console-feedback-detail {
+  margin-top: 0.35rem;
+  color: inherit;
+  opacity: 0.92;
+  overflow-wrap: anywhere;
+}
+
+.admin-data-console-result-details {
+  margin-top: 0.45rem;
+}
+
+.admin-data-console-result-details summary {
+  cursor: pointer;
+  color: var(--theme-text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-data-console-result-details .admin-data-console-json {
+  margin-top: 0.55rem;
+  max-height: 260px;
+  overflow: auto;
+  border-top: 1px solid var(--theme-border);
+  padding-top: 0.55rem;
+}
+
+.admin-data-console-action-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-data-console-warning-balloon {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  width: min(320px, 70vw);
+  border: 1px solid color-mix(in srgb, #f59e0b 46%, var(--theme-border));
+  border-radius: 12px;
+  padding: 0.6rem 0.7rem;
+  color: color-mix(in srgb, #f59e0b 82%, var(--theme-text));
+  background: color-mix(in srgb, var(--theme-surface) 92%, #f59e0b);
+  box-shadow: 0 12px 32px color-mix(in srgb, #000 34%, transparent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.admin-data-console-warning-balloon::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 100%;
+  border-width: 7px 7px 0 7px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--theme-surface) 92%, #f59e0b) transparent transparent transparent;
+}
+
+@media (max-width: 768px) {
+  .admin-data-console-action-wrap {
+    width: 100%;
+  }
+
+  .admin-data-console-warning-balloon {
+    right: auto;
+    left: 0;
+    width: min(320px, 85vw);
+  }
+
+  .admin-data-console-warning-balloon::after {
+    right: auto;
+    left: 18px;
+  }
+
+  .admin-data-console-feedback-main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+.admin-data-console-warning-balloon {
+  display: none;
+}

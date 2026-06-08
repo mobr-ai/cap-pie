@@ -12,6 +12,7 @@ import { useAdminBillingNotifications } from "@/hooks/useAdminBillingNotificatio
 import { useAdminWaitlist } from "@/hooks/useAdminWaitlist";
 import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { useAdminMetrics } from "@/hooks/useAdminMetrics";
+import { useAdminDataConsole } from "@/hooks/useAdminDataConsole";
 import { useSwipeTabs } from "@/hooks/useSwipeTabs";
 
 import { AdminTabs } from "@/components/admin/AdminTabs";
@@ -28,6 +29,7 @@ import { NewUserAlertsPanel } from "@/components/admin/NewUserAlertsPanel";
 import { WaitlistAlertsPanel } from "@/components/admin/WaitlistAlertsPanel";
 import { UserConfirmedAlertsPanel } from "@/components/admin/UserConfirmedAlertsPanel";
 import { MetricsOverview } from "@/components/admin/MetricsOverview";
+import { AdminDataConsole } from "@/components/admin/AdminDataConsole";
 import { AlertsRecipientsPool } from "@/components/admin/AlertsRecipientsPool";
 import QueryDetailsModal from "@/components/admin/QueryDetailsModal";
 
@@ -77,12 +79,14 @@ export default function AdminPage() {
   });
   const notifications = useAdminNotifications(authFetch, showToast, t);
   const metrics = useAdminMetrics(authFetch, activeTab === "metrics");
+  const dataConsole = useAdminDataConsole(authFetch, showToast, t);
 
   const tabs = [
     { key: "overview" },
     { key: "users" },
     { key: "billing" },
     { key: "metrics" },
+    { key: "data-console" },
     { key: "system" },
     { key: "alerts" },
   ];
@@ -189,10 +193,10 @@ export default function AdminPage() {
         )}
 
         {activeTab === "billing" && (
-          <div data-swipe-tabs-disabled="true">
+          <>
             <BillingAccessDirectory t={t} {...billing} />
             <BillingNotificationSettings t={t} {...billingNotifications} />
-          </div>
+          </>
         )}
 
         {activeTab === "metrics" && (
@@ -203,6 +207,10 @@ export default function AdminPage() {
               onOpenQuery={(q) => setSelectedQuery(q)}
             />
           </>
+        )}
+
+        {activeTab === "data-console" && (
+          <AdminDataConsole t={t} dataConsole={dataConsole} />
         )}
 
         {activeTab === "system" && <SystemDetails t={t} {...system} />}
