@@ -52,7 +52,7 @@ class RedisSPARQLClient:
         """Create count key from normalized natural language query."""
         return f"sparql:count:{normalized_nl}"
 
-    async def cache_query(
+    async def cache_sparql_query(
         self,
         sparql_query: str,
         results: dict,

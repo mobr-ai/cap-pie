@@ -12,6 +12,7 @@ This preprocessor handles:
 - Preserves query structure and formatting
 """
 
+import calendar
 import logging
 import re
 from datetime import UTC, datetime, timedelta
@@ -77,6 +78,45 @@ class SparqlDateProcessor:
         if self.reference_time:
             return self.reference_time
         return datetime.now(UTC)
+
+    def _add_months(self, dt: datetime, months: int) -> datetime:
+        """Add or subtract calendar months without approximating days."""
+        month_index = dt.month - 1 + months
+        year = dt.year + month_index // 12
+        month = month_index % 12 + 1
+        day = min(dt.day, calendar.monthrange(year, month)[1])
+        return dt.replace(year=year, month=month, day=day)
+
+    def _parse_year_month_duration(self, duration_str: str) -> int | None:
+        """
+        Parse ISO 8601 year/month duration into total months.
+
+        Examples:
+        - P6M -> 6
+        - P1Y -> 12
+        - P1Y6M -> 18
+
+        Returns None if the duration is not year/month based.
+        """
+        match = re.fullmatch(
+            r'P(?:(\d+)Y)?(?:(\d+)M)?',
+            duration_str
+        )
+        if not match:
+            return None
+
+        years = int(match.group(1) or 0)
+        months = int(match.group(2) or 0)
+
+        if years == 0 and months == 0:
+            return None
+
+        return years * 12 + months
+
+    def _get_start_of_today(self) -> datetime:
+        """Get today's UTC midnight."""
+        now = self._get_now()
+        return now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     def _parse_duration(self, duration_str: str) -> timedelta:
         """
@@ -235,7 +275,12 @@ class SparqlDateProcessor:
 
             # Determine base datetime
             if datetime_expr.strip().upper().startswith('NOW'):
-                base_dt = self._get_now()
+                # For day-based relative periods like P5D, align to UTC midnight
+                # so daily aggregates cover complete calendar days.
+                if re.fullmatch(r'P\d+(?:\.\d+)?D', duration_str):
+                    base_dt = self._get_start_of_today()
+                else:
+                    base_dt = self._get_now()
             else:
                 # Extract datetime from literal
                 dt_match = self.DATETIME_LITERAL_PATTERN.search(datetime_expr)
@@ -245,14 +290,22 @@ class SparqlDateProcessor:
                     logger.warning(f"Could not extract datetime from: {datetime_expr}")
                     return match.group(0)
 
-            # Parse the duration
-            duration = self._parse_duration(duration_str)
+            # Apply calendar-aware year/month durations first.
+            year_months = self._parse_year_month_duration(duration_str)
+            if year_months is not None:
+                if operator == '-':
+                    result_dt = self._add_months(base_dt, -year_months)
+                else:
+                    result_dt = self._add_months(base_dt, year_months)
+            else:
+                # Parse normal day/time duration
+                duration = self._parse_duration(duration_str)
 
-            # Apply the operation
-            if operator == '-':
-                result_dt = base_dt - duration
-            else:  # operator == '+'
-                result_dt = base_dt + duration
+                # Apply the operation
+                if operator == '-':
+                    result_dt = base_dt - duration
+                else:
+                    result_dt = base_dt + duration
 
             # Format as xsd:dateTime
             formatted_date = self._format_datetime(result_dt)
@@ -293,7 +346,12 @@ class SparqlDateProcessor:
 
             # Determine base datetime
             if datetime_expr.strip().upper().startswith('NOW'):
-                base_dt = self._get_now()
+                # For day-based relative periods like P5D, align to UTC midnight
+                # so daily aggregates cover complete calendar days.
+                if re.fullmatch(r'P\d+(?:\.\d+)?D', duration_str):
+                    base_dt = self._get_start_of_today()
+                else:
+                    base_dt = self._get_now()
             else:
                 # Extract datetime from literal
                 dt_match = self.DATETIME_LITERAL_PATTERN.search(datetime_expr)
@@ -303,14 +361,22 @@ class SparqlDateProcessor:
                     logger.warning(f"Could not extract datetime from: {datetime_expr}")
                     return match.group(0)
 
-            # Parse the duration
-            duration = self._parse_duration(duration_str)
+            # Apply calendar-aware year/month durations first.
+            year_months = self._parse_year_month_duration(duration_str)
+            if year_months is not None:
+                if operator == '-':
+                    result_dt = self._add_months(base_dt, -year_months)
+                else:
+                    result_dt = self._add_months(base_dt, year_months)
+            else:
+                # Parse normal day/time duration
+                duration = self._parse_duration(duration_str)
 
-            # Apply the operation
-            if operator == '-':
-                result_dt = base_dt - duration
-            else:  # operator == '+'
-                result_dt = base_dt + duration
+                # Apply the operation
+                if operator == '-':
+                    result_dt = base_dt - duration
+                else:
+                    result_dt = base_dt + duration
 
             # Format as xsd:dateTime
             formatted_date = self._format_datetime(result_dt)

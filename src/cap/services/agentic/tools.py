@@ -8,7 +8,9 @@ from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
 from cap.services.redis_nl_client import RedisNLClient
 from cap.services.similarity_service import SimilarityService
+from cap.util.federated_result_processor import merge_federated_kv_results
 from cap.util.sparql_result_processor import convert_sparql_to_kv
+from cap.util.sql_result_processor import normalize_sql_results
 
 
 @tool
@@ -21,10 +23,12 @@ async def get_cached_federated_query(
     redis_client: RedisNLClient,
     normalized_query: str,
     user_query: str,
+    normalize: bool = True,
 ) -> FederatedQuery | None:
     cached_data = await redis_client.get_cached_query_with_original(
-        normalized_query,
-        user_query,
+        normalized_query=normalized_query,
+        original_query=user_query,
+        normalize=normalize,
     )
     if not cached_data:
         return None
@@ -34,20 +38,25 @@ async def get_cached_federated_query(
     try:
         parsed = json.loads(payload)
         if isinstance(parsed, dict):
+            visualization_type = parsed.get("visualization_type", "") or ""
             sparql = parsed.get("sparql", "") or ""
             sql = parsed.get("sql", "") or ""
             source = parsed.get("source") or _infer_source(sparql, sql).value
+            explanation=parsed.get("explanation", "cached federated query") or ""
 
             return FederatedQuery(
+                visualization_type=visualization_type,
                 sparql=sparql,
                 sql=sql,
                 source=QuerySource(source),
-                explanation=parsed.get("explanation", "cached federated query"),
+                explanation=explanation,
             )
+
     except json.JSONDecodeError:
         pass
 
     return FederatedQuery(
+        visualization_type="",
         sparql=payload,
         sql="",
         source=QuerySource.ONCHAIN,
@@ -59,7 +68,9 @@ async def cache_successful_query(
     redis_client: RedisNLClient,
     user_query: str,
     federated_query: FederatedQuery,
+    normalize: bool = True,
 ) -> None:
+
     payload = json.dumps(
         {
             "source": federated_query.source.value,
@@ -72,7 +83,8 @@ async def cache_successful_query(
 
     result = await redis_client.cache_query(
         nl_query=user_query,
-        sparql_query=payload,
+        payload=payload,
+        normalize=normalize,
     )
 
     if result == 1:
@@ -89,29 +101,38 @@ def format_execution_context(
     sql_results: list[dict[str, Any]],
 ) -> tuple[str, Any]:
     sections: list[str] = []
-    kv_results: Any = None
+
+    sparql_kv: dict[str, Any] | None = None
+    sql_kv: dict[str, Any] | None = None
 
     if federated_query.sparql:
-        kv_results = convert_sparql_to_kv(
+        sparql_kv = convert_sparql_to_kv(
             sparql_results,
             federated_query.sparql,
         )
         sections.append(
             "SPARQL results:\n"
-            + json.dumps(kv_results, default=str, ensure_ascii=False, indent=2)
+            + json.dumps(sparql_kv, default=str, ensure_ascii=False, indent=2)
         )
 
     if federated_query.sql:
+        normalized_sql_results = normalize_sql_results(sql_results)
+
         sql_kv = {
-            "result_type": "table",
-            "data": sql_results,
+            "result_type": "multiple" if len(normalized_sql_results) > 1 else "single",
+            "count": len(normalized_sql_results),
+            "data": normalized_sql_results,
         }
+
         sections.append(
-            "SQL / OHLCV results:\n"
-            + json.dumps(sql_results, default=str, ensure_ascii=False, indent=2)
+            "SQL results:\n"
+            + json.dumps(sql_kv, default=str, ensure_ascii=False, indent=2)
         )
-        if kv_results is None:
-            kv_results = sql_kv
+
+    if sparql_kv and sql_kv:
+        kv_results = merge_federated_kv_results(sparql_kv, sql_kv)
+    else:
+        kv_results = sparql_kv or sql_kv
 
     return "\n\n".join(sections), kv_results
 

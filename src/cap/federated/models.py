@@ -11,6 +11,7 @@ class QuerySource(StrEnum):
 
 
 class FederatedQuery(BaseModel):
+    visualization_type: str = ""
     sparql: str = ""
     sql: str = ""
     source: QuerySource

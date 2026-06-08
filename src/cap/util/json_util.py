@@ -2,6 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
+
 def json_safe(value: Any) -> Any:
     if isinstance(value, datetime):
         return value.isoformat()

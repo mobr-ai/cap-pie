@@ -1,3 +1,5 @@
+import logging
+
 from cap.federated.planner import FederatedPlanner
 from cap.services.agentic.state import AgenticQueryState
 from cap.services.agentic.tools import (
@@ -9,19 +11,24 @@ from cap.services.agentic.tools import (
 from cap.services.llm_client import LLMClient
 from cap.services.redis_nl_client import RedisNLClient
 
+logger = logging.getLogger(__name__)
 
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
         self.redis_client = redis_client
+        self.use_canonizer = True
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         user_query = state.get("user_query", "")
-        normalized_query = state.get("normalized_query", user_query)
+        query = user_query
+        if self.use_canonizer:
+            query = state.get("normalized_query", user_query)
 
         cached = await get_cached_federated_query(
             redis_client=self.redis_client,
-            normalized_query=normalized_query,
+            normalized_query=query,
             user_query=user_query,
+            normalize=self.use_canonizer
         )
 
         state["cached"] = cached is not None
@@ -102,6 +109,7 @@ class ContextAgent:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
+        logger.info(f"Query={query}")
         if not query or not result:
             state["formatted_results"] = ""
             state["kv_results"] = None
@@ -113,7 +121,7 @@ class ContextAgent:
         if not has_sparql_data and not has_sql_data:
             if query.sql:
                 state["formatted_results"] = (
-                    "SQL / OHLCV results:\n"
+                    "SQL results:\n"
                     "[]\n\n"
                     "The SQL query executed successfully but returned no rows."
                 )
@@ -132,11 +140,17 @@ class ContextAgent:
 
             return state
 
+        logger.info(f"Query has_sql={has_sql_data} has_sparql={has_sparql_data} ")
+        logger.info(f"Query sql_results={result.sql_results}")
+        logger.info(f"Query sparql_results={result.sparql_results}")
+
         formatted, kv_results = format_execution_context(
             federated_query=query,
             sparql_results=result.sparql_results,
             sql_results=result.sql_results,
         )
+
+        logger.info(f"Query kv_results={kv_results}")
 
         state["formatted_results"] = formatted
         state["kv_results"] = kv_results

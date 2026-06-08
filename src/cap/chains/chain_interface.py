@@ -8,8 +8,7 @@ class QueryCanonizer(Protocol):
 
     def normalize_payload(
         self,
-        assistant_payload: str,
-        *,
+        assistant_payload_dict: dict[str, str],
         normalize_query: bool = True,
     ) -> tuple[str, dict[str, str], str]: ...
 

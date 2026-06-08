@@ -33,6 +33,7 @@ from cap.config import settings
 from cap.database.model import Base
 from cap.database.session import engine
 from cap.services.llm_client import cleanup_llm_client, get_llm_client
+from cap.services.prompt_builder import PromptBuilder
 from cap.services.redis_nl_client import cleanup_redis_nl_client
 from cap.telemetry import instrument_app, setup_telemetry
 
@@ -65,8 +66,9 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     try:
         llm_client = get_llm_client()
+        prompt_builder = PromptBuilder()
         try:
-            check = llm_client.ontology_prompt
+            check = prompt_builder.ontology_prompt
             logger.info(f"Ontology prompt is {check}")
 
             await llm_client.warmup_intent_indices()

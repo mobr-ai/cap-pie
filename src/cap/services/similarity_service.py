@@ -44,7 +44,7 @@ class SimilarityService:
 
     Public surface:
         find_similar_queries()   — called by LLMClient for few-shot examples.
-        notify_new_cache_entry() — called by nl_service after a successful cache_query().
+        notify_new_cache_entry() — called by nl_service after a successful cache query.
     """
 
     # ------------------------------------------------------------------
