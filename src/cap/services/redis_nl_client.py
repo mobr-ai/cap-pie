@@ -164,6 +164,7 @@ class RedisNLClient:
 
                 for nl_query, payload in queries:
                     try:
+                        logger.info (f"processing nl query: {nl_query} ")
                         user_query = (
                             canonizer.normalize_nl(nl_query)
                             if normalize and canonizer is not None

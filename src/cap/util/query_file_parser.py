@@ -83,4 +83,13 @@ class QueryFileParser:
                 "sql": "",
             }
 
-        return json.loads(payload_text)
+        try:
+            return json.loads(payload_text)
+
+        except json.JSONDecodeError as e:
+            logger.info("\n" + "=" * 80)
+            logger.info("INVALID JSON PAYLOAD")
+            logger.info("=" * 80)
+            logger.info(payload_text)
+            logger.info("=" * 80)
+            raise
