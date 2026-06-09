@@ -197,7 +197,8 @@
     "conversationsLoadFailed": "Failed to load conversations",
     "renameFailed": "Failed to rename conversation",
     "deleteFailed": "Failed to delete conversation",
-    "analyses": "My analyses"
+    "analyses": "My analyses",
+    "billing": "Billing & Access"
   },
   "analyses": {
     "title": "My Analyses",
@@ -1028,7 +1029,7 @@
       "billing": "Billing & Access"
     },
     "paywall": {
-      "message": "You reached your free query limit. Open [Billing & Access](/settings?billing=1&action=premium) to add Balance and activate Premium.",
+      "message": "You reached your free query limit. Open [Billing & Access](/billing?action=premium) to add Balance and activate Premium.",
       "toast": "Free query limit reached. Open Billing & Access to continue."
     }
   },

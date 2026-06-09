@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHouse,
   faGaugeHigh,
+  faCreditCard,
   faCog,
   faArrowRightFromBracket,
   faChevronLeft,
@@ -411,6 +412,16 @@ export default function NavigationSidebar({
           >
             <FontAwesomeIcon icon={faGaugeHigh} />
             <span>{t("nav.dashboard")}</span>
+          </Link>
+
+          <Link
+            to="/billing"
+            onClick={() => handleNav("/billing")}
+            className={`sidebar-item ${isActive("/billing", true) ? "active" : ""}`}
+            title={t("nav.billing")}
+          >
+            <FontAwesomeIcon icon={faCreditCard} />
+            <span>{t("nav.billing")}</span>
           </Link>
 
           <Link
