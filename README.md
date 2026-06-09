@@ -20,12 +20,16 @@ CAP is the **Cardano Analytics Platform**, an LLM-powered analytics platform tha
 
 During the Piece of Pie Hackathon, this repository is used to consolidate the backend and frontend work related to CAP’s productization path, especially features around:
 
+* federated SPARQL + SQL analytics
+* agentic AI query orchestration
 * Cardano wallet authentication
 * payment-gated access
 * billing and entitlement logic
 * admin controls
 * user-facing frontend integration
+* workspace theming and UI polish
 * hackathon delivery tracking
+* Cardano wallet authentication
 
 The goal is to keep a transparent, inspectable repository that shows the evolution of CAP during the hackathon while still preserving the original backend and frontend repositories as the preferred development sources.
 
