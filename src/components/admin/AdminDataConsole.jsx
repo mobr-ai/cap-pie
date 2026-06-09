@@ -60,12 +60,32 @@ function ModeButton({ mode, activeMode, setActiveMode, t }) {
 }
 
 function getResultErrorMessage(result, fallbackError) {
+  if (fallbackError) return fallbackError;
+  if (result?.error) return result.error;
+
+  const data = result?.data;
+  if (!data || typeof data !== "object") return null;
+
+  const explicitFailure =
+    data.success === false ||
+    data.ok === false ||
+    data.status === "error" ||
+    data.status === "failed";
+
+  if (!explicitFailure) return null;
+
+  return data.error || data.detail || data.message || "Operation failed";
+}
+
+function getResultSuccessMessage(result) {
+  const data = result?.data;
+  if (!data || typeof data !== "object") return null;
+
   return (
-    fallbackError ||
-    result?.error ||
-    result?.data?.error ||
-    result?.data?.detail ||
-    result?.data?.message ||
+    data.message ||
+    data.detail ||
+    data.status_message ||
+    data.status ||
     null
   );
 }
@@ -85,7 +105,8 @@ function isDependencyUnavailable(message) {
 function InlineFeedback({ t, dataConsole }) {
   const hasResult = Boolean(dataConsole.result);
   const resultError = getResultErrorMessage(dataConsole.result, dataConsole.error);
-  const isError = Boolean(resultError || dataConsole.result?.error);
+  const successMessage = getResultSuccessMessage(dataConsole.result);
+  const isError = Boolean(resultError);
   const dependencyUnavailable = isDependencyUnavailable(resultError);
 
   const timestamp = dataConsole.result?.at
@@ -134,6 +155,12 @@ function InlineFeedback({ t, dataConsole }) {
       {resultError && (
         <div className="admin-data-console-feedback-detail">
           {resultError}
+        </div>
+      )}
+
+      {hasResult && !isError && successMessage && (
+        <div className="admin-data-console-feedback-detail">
+          {successMessage}
         </div>
       )}
 
