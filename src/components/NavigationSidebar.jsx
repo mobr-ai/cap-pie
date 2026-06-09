@@ -577,28 +577,28 @@ export default function NavigationSidebar({
             </div>
           )}
 
-          <div className="sidebar-spacer" />
-
-          {/* Logout bottom */}
-          {user && (
-            <button
-              className="sidebar-item logout"
-              onClick={() => {
-                if (handleLogout) handleLogout();
-                setIsOpen(false);
-              }}
-              title={t("nav.logout")}
-            >
-              <FontAwesomeIcon icon={faArrowRightFromBracket} />
-              <span>{t("nav.logout")}</span>
-            </button>
-          )}
         </nav>
+      <footer className="sidebar-footer">
+        {user && (
+          <button
+            className="sidebar-item logout sidebar-footer-logout"
+            onClick={() => {
+              if (handleLogout) handleLogout();
+              setIsOpen(false);
+            }}
+            title={t("nav.logout")}
+          >
+            <FontAwesomeIcon icon={faArrowRightFromBracket} />
+            <span>{t("nav.logout")}</span>
+          </button>
+        )}
 
-        <footer className="sidebar-footer">
+        <div className="sidebar-footer-meta">
           <span>v0.1.0</span>
           <span className="muted">© MOBR Systems</span>
-        </footer>
+        </div>
+      </footer>
+
       </aside>
     </div>
   );
