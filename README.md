@@ -179,10 +179,14 @@ The main hackathon work includes:
 * billing notification controls
 * admin interfaces for operational oversight
 * backend endpoint protection and admin-only access
-* frontend UX polish for the payment and access flows
+* federated on-chain and off-chain analytics
+* SPARQL + SQL query orchestration
+* agentic AI query workflows
+* Cardano-specific value handling and explorer linking
+* frontend UX polish for payment, access, and analytics flows
 * deployment-ready integration between backend and frontend
 
-The broader objective is to demonstrate how CAP can evolve from a research and analytics platform into a usable Web3 SaaS product for Cardano data intelligence.
+The broader objective is to demonstrate how CAP can evolve from a research and analytics platform into a usable Web3 SaaS product for Cardano data intelligence, combining blockchain-native access control with federated on-chain/off-chain data analysis.
 
 ---
 
