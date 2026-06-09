@@ -136,7 +136,10 @@ function NavBar({
     displayName.length > 20 ? displayName.slice(0, 17) + "…" : displayName;
 
   const billingBadge = getBillingBadge(billingAccess, billingAccessLoading, t);
-  const balanceAmount = formatBillingAmountFromMinor(billingAccess?.balance_lovelace, { currency: "lovelace" });
+  const balanceAmount = formatBillingAmountFromMinor(
+    billingAccess?.balance_lovelace,
+    { currency: "lovelace" },
+  );
   const freeUsed = Number(billingAccess?.free_query_used ?? 0);
   const freeLimit = Number(billingAccess?.free_query_limit ?? 0);
   const freeRemaining = Number(billingAccess?.free_query_remaining ?? 0);
@@ -481,6 +484,15 @@ function NavBar({
                   </NavDropdown.Item>
 
                   <NavDropdown.Divider />
+                  <NavDropdown.Item
+                    className="nav-text"
+                    onClick={() => {
+                      navigate("/billing");
+                      setExpanded(false);
+                    }}
+                  >
+                    {t("nav.billing")}
+                  </NavDropdown.Item>
 
                   <NavDropdown.Item
                     className="nav-text"

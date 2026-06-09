@@ -1,10 +1,10 @@
-// src/pages/SettingsPage.jsx
+// src/pages/BillingPage.jsx
 import React, { useState, useEffect, useRef } from "react";
-import "../styles/SettingsPage.css";
+import "../styles/BillingPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
 import ThemeSelector from "../components/settings/ThemeSelector";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { getCardanoTxExplorerUrl } from "../billing/explorers";
 import {
   Container,
@@ -157,7 +157,7 @@ function getSessionWalletAddress(session, user) {
 
 const SUPPORT_CONTRIBUTION_PRESETS_ADA = [10, 25, 50];
 
-export default function SettingsPage() {
+export default function BillingPage() {
   const { t, i18n } = useTranslation();
   const outlet = useOutletContext() || {};
   const { user, setUser, showToast } = outlet;
@@ -219,7 +219,10 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const avatarInputRef = useRef(null);
+  const billingRef = useRef(null);
+  const billingDeepLinkHandledRef = useRef("");
   const hasPremiumAccess = hasEntitlement(
     billingEntitlements,
     "cap_premium_access",
@@ -446,7 +449,7 @@ export default function SettingsPage() {
         showToast?.(t("settingsBilling.balanceActivationSuccess"), "success");
       } catch (err) {
         console.error(
-          "[Settings] Balance-funded premium activation failed:",
+          "[BillingPage] Balance-funded premium activation failed:",
           err,
         );
         setBillingError(t("settingsBilling.errors.balanceActivationFailed"));
@@ -492,6 +495,39 @@ export default function SettingsPage() {
     );
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search || "");
+    const action = params.get("action") || "";
+    if (!action) return;
+    const deepLinkKey = `${location.search || ""}${location.hash || ""}`;
+
+    if (billingDeepLinkHandledRef.current === deepLinkKey) return;
+    if (billingLoading && action === "premium") return;
+
+    billingDeepLinkHandledRef.current = deepLinkKey;
+
+    window.requestAnimationFrame(() => {
+      billingRef.current?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    if (action === "premium") {
+      window.setTimeout(() => {
+        handlePremiumAccessAction({ skipScroll: true });
+      }, 300);
+    }
+
+    if (action === "balance") {
+      window.setTimeout(() => {
+        const input = document.querySelector(".Settings-deposit-custom-input");
+        input?.focus?.();
+        input?.select?.();
+      }, 350);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, location.hash, billingLoading]);
 
   // ---- Helpers -------------------------------------------------------------
 
@@ -725,7 +761,7 @@ export default function SettingsPage() {
         "success",
       );
     } catch (err) {
-      console.error("[Settings] Auto-renew preference update failed:", err);
+      console.error("[BillingPage] Auto-renew preference update failed:", err);
       setBillingPreferences(previousPreferences || null);
       setBillingError(t("settingsBilling.errors.autoRenewSaveFailed"));
     } finally {
@@ -736,207 +772,41 @@ export default function SettingsPage() {
   return (
     <div className="Settings-body">
       <Container className="Settings-container">
-        <div className="Settings-topbar">
-          <h2 className="Settings-title">{t("settings")}</h2>
-
-          <Form
-            onSubmit={(e) => e.preventDefault()}
-            className="Settings-language-form"
-          >
-            <Form.Group
-              controlId="languageSelect"
-              className="Settings-language"
-            >
-              <Form.Label>{t("languageConf")}</Form.Label>
-              <Form.Select value={language} onChange={handleLanguageChange}>
-                <option value="en">🇺🇸 English (US)</option>
-                <option value="pt">🇧🇷 Português (BR)</option>
-              </Form.Select>
-            </Form.Group>
-          </Form>
+        <div className="Settings-topbar BillingPage-topbar">
+          <h2 className="Settings-title">{t("settingsBilling.title")}</h2>
         </div>
 
-        <div className="Settings-user-box">
-          <Row className="align-items-center">
-            <Col xs={4}>
-              <div
-                className="Settings-avatar-wrapper"
-                onMouseEnter={() => setEditingAvatar(true)}
-                onMouseLeave={() => setEditingAvatar(false)}
-                onClick={() => avatarInputRef.current?.click()}
-                title={t("tooltipAvatar")}
-              >
-                <Image
-                  src={user.avatar || avatarImg}
-                  alt="Avatar"
-                  className="Settings-avatar-img"
-                  onError={(e) => (e.currentTarget.src = avatarImg)}
-                  roundedCircle
-                  fluid
-                />
-                {isSavingAvatar ? (
-                  <Spinner
-                    animation="border"
-                    size="sm"
-                    className="Settings-avatar-icon"
-                  />
-                ) : (
-                  editingAvatar && (
-                    <FontAwesomeIcon
-                      icon={faUpload}
-                      className="Settings-avatar-icon"
-                    />
-                  )
-                )}
-                <input
-                  type="file"
-                  ref={avatarInputRef}
-                  style={{ display: "none" }}
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                />
-              </div>
-            </Col>
-
-            <Col xs={8}>
-              {/* Display name (primary) */}
-              <div
-                className="Settings-name-row"
-                ref={displayNameRef}
-                title={t("tooltipDisplayName")}
-              >
-                {editingDisplayName ? (
-                  <input
-                    type="text"
-                    value={newDisplayName}
-                    onChange={(e) => setNewDisplayName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleDisplayNameSubmit();
-                      if (e.key === "Escape") {
-                        setNewDisplayName(user.display_name || "");
-                        setEditingDisplayName(false);
-                      }
-                    }}
-                    autoFocus
-                    className="Settings-inline-input"
-                  />
-                ) : (
-                  <div
-                    className="Settings-editable-line"
-                    onClick={() => setEditingDisplayName(true)}
-                  >
-                    <span className="Settings-primary-name">
-                      {user.display_name || displayHeaderName(user)}
-                    </span>
-                    {isSavingDisplayName ? (
-                      <Spinner animation="border" size="sm" />
-                    ) : (
-                      <FontAwesomeIcon
-                        icon={faPen}
-                        className="Settings-username-icon"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Username (secondary) */}
-              <div
-                className="Settings-handle-row"
-                ref={usernameRef}
-                title={t("tooltipUsername")}
-              >
-                {editingUsername ? (
-                  <input
-                    type="text"
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleUsernameSubmit();
-                      if (e.key === "Escape") {
-                        setNewUsername(user.username || "");
-                        setEditingUsername(false);
-                      }
-                    }}
-                    className="Settings-inline-input"
-                  />
-                ) : (
-                  <div
-                    className="Settings-editable-line"
-                    onClick={() => setEditingUsername(true)}
-                  >
-                    <span className="Settings-secondary-handle">
-                      @
-                      {user.username ||
-                        (user.email ? user.email.split("@")[0] : "")}
-                    </span>
-                    {isSavingUsername ? (
-                      <Spinner animation="border" size="sm" />
-                    ) : (
-                      <FontAwesomeIcon
-                        icon={faPen}
-                        className="Settings-username-icon"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Email */}
-              <p className="Settings-username-wallet mb-1">
-                {user.email || ""}
-              </p>
-
-              <small className="Settings-referral-row">
-                {t("referralLink")}:
-                <div>
-                  <a
-                    href={generateReferralLink(user.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="Settings-referral-link"
-                  >
-                    {generateReferralLink(user.id)}
-                  </a>
-                </div>
-                <div className="Settings-referral-buttons">
-                  <Button
-                    size="sm"
-                    variant="outline-light"
-                    onClick={copyReferralMessage}
-                  >
-                    <FontAwesomeIcon icon={faCopy} className="Settings-icon" />
-                    {t("copyLink")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline-light"
-                    onClick={() => setShowShareModal(true)}
-                  >
-                    <FontAwesomeIcon
-                      icon={faShareAlt}
-                      className="Settings-icon"
-                    />
-                    {t("share")}
-                  </Button>
-                </div>
-              </small>
-            </Col>
-          </Row>
-        </div>
-
-
-        <ThemeSelector />
-
-        <div className="mt-4 Settings-support-section">
-          <div className="Settings-support-section-header">
+        <div
+          ref={billingRef}
+          id="billing-access"
+          className="mt-4 p-3 Settings-billing-zone"
+        >
+          <div className="Settings-billing-header">
             <div>
-              <h5>{t("settingsBilling.supportTitle")}</h5>
-              <p>{t("settingsBilling.supportDescription")}</p>
+              <h5 className="Settings-section-title">
+                {t("settingsBilling.title")}
+              </h5>
+              <p className="Settings-section-subtitle">
+                {t("settingsBilling.subtitle")}
+              </p>
+            </div>
+
+            <div
+              className={
+                hasPremiumAccess
+                  ? "Settings-billing-status is-active"
+                  : "Settings-billing-status"
+              }
+            >
+              {billingLoading
+                ? t("settingsBilling.status.loading")
+                : hasPremiumAccess
+                  ? t("settingsBilling.status.premium")
+                  : t("settingsBilling.status.free")}
             </div>
           </div>
 
-          <div className="Settings-payment-methods Settings-support-wallet-methods">
+          <div className="Settings-payment-methods">
             <div className="Settings-payment-methods-title">
               {billingWalletApi
                 ? t("settingsBilling.connectedWallet", {
@@ -990,87 +860,259 @@ export default function SettingsPage() {
             ) : null}
           </div>
 
-          <div className="Settings-billing-panel Settings-support-panel">
-            <div className="Settings-support-main">
-              <div>
-                <div className="Settings-billing-plan">
-                  {t("settingsBilling.supportCardTitle")}
-                </div>
-                <div className="Settings-billing-copy">
-                  {t("settingsBilling.supportCardDescription")}
-                </div>
-                <div className="Settings-support-disclaimer">
-                  {t("settingsBilling.supportDisclaimer")}
-                </div>
+          <div className="Settings-billing-panel Settings-balance-panel">
+            <div className="Settings-balance-main">
+              <div className="Settings-billing-plan">
+                {t("settingsBilling.currentBalanceTitle")}
+              </div>
+              <div className="Settings-billing-balance">
+                {formatBillingAmountFromMinor(
+                  creditBalance?.balance_lovelace ||
+                    creditBalance?.balance ||
+                    0,
+                  { currency: "lovelace" },
+                )}
+              </div>
+              <div className="Settings-billing-copy">
+                {t("settingsBilling.prepaidDescription")}
+              </div>
+            </div>
+
+            <div className="Settings-deposit-panel">
+              <div className="Settings-deposit-options">
+                {DEPOSIT_OPTIONS_ADA.map((option) => (
+                  <button
+                    key={option.amount}
+                    type="button"
+                    className={
+                      Number(customDepositAda || selectedDepositAda) ===
+                      option.amount
+                        ? "Settings-deposit-chip is-selected"
+                        : "Settings-deposit-chip"
+                    }
+                    title={t(option.hintKey)}
+                    onClick={() => {
+                      setSelectedDepositAda(option.amount);
+                      setCustomDepositAda(String(option.amount));
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={option.icon}
+                      className="Settings-deposit-chip-icon"
+                    />
+                    <span className="Settings-deposit-chip-amount">
+                      {formatBillingAmountFromMajor(option.amount, {
+                        currency: "lovelace",
+                      })}
+                    </span>
+                    <span className="Settings-deposit-chip-label">
+                      {t(option.labelKey)}
+                    </span>
+                  </button>
+                ))}
               </div>
 
-              <div className="Settings-support-actions">
-                <div
-                  className="Settings-support-presets"
-                  aria-label={t("settingsBilling.supportAmountLabel")}
-                >
-                  {SUPPORT_CONTRIBUTION_PRESETS_ADA.map((amount) => (
-                    <button
-                      key={amount}
-                      type="button"
-                      className="Settings-support-preset"
-                      data-active={
-                        Number(selectedSupportAda) === amount &&
-                        String(customSupportAda) === String(amount)
-                      }
-                      onClick={() => handleSupportPresetClick(amount)}
-                    >
-                      ₳{amount}
-                    </button>
-                  ))}
-                </div>
-
-                <label className="Settings-support-custom">
-                  <span>{t("settingsBilling.supportCustomAmount")}</span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={customSupportAda}
-                    onChange={(event) =>
-                      setCustomSupportAda(event.target.value)
-                    }
-                    aria-label={t("settingsBilling.supportCustomAmount")}
-                  />
-                </label>
+              <div className="Settings-deposit-custom-row">
+                <Form.Control
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={customDepositAda}
+                  placeholder={t("settingsBilling.customDepositPlaceholder")}
+                  onChange={(e) => setCustomDepositAda(e.target.value)}
+                  className="Settings-deposit-custom-input"
+                />
 
                 <Button
-                  type="button"
+                  size="sm"
                   variant="primary"
-                  className="Settings-premium-action-btn"
-                  onClick={handleSupportAction}
-                  disabled={
-                    !billingWalletApi || effectiveSupportLovelace < 1_000_000
-                  }
-                  title={
-                    billingWalletApi
-                      ? t("settingsBilling.supportActionHint")
-                      : t("settingsBilling.errors.connectWalletToAddBalance")
-                  }
+                  onClick={handleOpenDepositModal}
+                  disabled={!billingWalletApi || !effectiveDepositLovelace}
                 >
-                  {t("settingsBilling.supportAction")}
+                  {t("settingsBilling.addBalance")}
                 </Button>
+              </div>
+
+              <div className="Settings-billing-hint">
+                {t("settingsBilling.prepaidHint")}
               </div>
             </div>
           </div>
+
+          <div className="Settings-billing-panel Settings-premium-card">
+            <div className="Settings-premium-main">
+              <div className="Settings-billing-plan">
+                {t("settingsBilling.premiumPlan")}
+              </div>
+              <div className="Settings-billing-copy">
+                {t("settingsBilling.premiumDescription")}
+              </div>
+
+              <div className="Settings-premium-metrics Settings-premium-metrics-single">
+                <div>
+                  <span>{t("settingsBilling.planPrice")}</span>
+                  <strong>{premiumPriceLabel}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="Settings-premium-actions">
+              <Button
+                size="sm"
+                variant={hasPremiumAccess ? "outline-light" : "primary"}
+                onClick={handlePremiumAccessAction}
+                disabled={premiumBalanceActionDisabled}
+                title={
+                  hasEnoughBalanceForPremium
+                    ? t("settingsBilling.balanceActionHint")
+                    : t("settingsBilling.addBalanceBeforePremiumHint", {
+                        amount: missingPremiumAmountLabel,
+                      })
+                }
+              >
+                {isActivatingFromBalance
+                  ? t("settingsBilling.activating")
+                  : hasPremiumAccess
+                    ? t("settingsBilling.extendWithBalance")
+                    : t("settingsBilling.activateWithBalance")}
+              </Button>
+
+              <div className="Settings-premium-action-hint">
+                {premiumExtensionHint}
+              </div>
+
+              <div className="Settings-premium-optin-row">
+                <label className="Settings-billing-toggle">
+                  <input
+                    type="checkbox"
+                    checked={autoRenewPremiumEnabled}
+                    disabled={isSavingBillingPreferences}
+                    onChange={handleAutoRenewToggle}
+                  />
+                  <span
+                    className="Settings-billing-toggle-ui"
+                    aria-hidden="true"
+                  />
+                  <span className="Settings-billing-toggle-copy">
+                    <strong>{t("settingsBilling.autoRenewOptIn")}</strong>
+                    <span>{t("settingsBilling.autoRenewHint")}</span>
+                    <small>{t("settingsBilling.autoRenewWalletNote")}</small>
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  className="Settings-premium-optin-chip"
+                  disabled
+                  title={t("settingsBilling.paygHint")}
+                >
+                  {t("settingsBilling.paygOptIn")}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="Settings-billing-panel Settings-activity-panel">
+            <div className="Settings-activity-header">
+              <div>
+                <div className="Settings-billing-plan">
+                  {t("settingsBilling.activityTitle")}
+                </div>
+                <div className="Settings-billing-copy">
+                  {t("settingsBilling.activityDescription")}
+                </div>
+              </div>
+            </div>
+
+            {billingTransactions.length > 0 ? (
+              <div className="Settings-activity-list">
+                {billingTransactions.map((item) => {
+                  const amount = Number(item?.amount || 0);
+                  const isPositive = amount > 0;
+                  const isNegative = amount < 0;
+                  const reasonKey = getBillingActivityReasonKey(item?.reason);
+
+                  return (
+                    <div
+                      key={`${item?.id || item?.created_at || "tx"}-${item?.reason || "item"}`}
+                      className="Settings-activity-row"
+                    >
+                      <div className="Settings-activity-main">
+                        <div className="Settings-activity-reason">
+                          {t(`settingsBilling.activityReasons.${reasonKey}`)}
+                          {item?.status && item.status !== "posted" ? (
+                            <span
+                              className="Settings-activity-status"
+                              data-status={item.status}
+                            >
+                              {t(
+                                `settingsBilling.activityStatus.${item.status}`,
+                                item.status,
+                              )}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="Settings-activity-date">
+                          {formatBillingActivityDate(item?.created_at)}
+                          {item?.metadata?.tx_hash ? (
+                            <a
+                              className="Settings-activity-hash"
+                              href={getCardanoTxExplorerUrl(
+                                item.metadata.tx_hash,
+                                item.metadata.network,
+                              )}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={item.metadata.tx_hash}
+                            >
+                              {item.metadata.tx_hash.slice(0, 10)}...
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div
+                        className="Settings-activity-amount"
+                        data-direction={
+                          isPositive
+                            ? "credit"
+                            : isNegative
+                              ? "debit"
+                              : "neutral"
+                        }
+                      >
+                        {formatBillingAmountFromMinor(amount, {
+                          currency: item?.currency || "lovelace",
+                        })}
+                      </div>
+
+                      <div className="Settings-activity-balance">
+                        <span>{t("settingsBilling.activityBalanceAfter")}</span>
+                        <strong>
+                          {formatBillingAmountFromMinor(
+                            item?.balance_after || 0,
+                            {
+                              currency: item?.currency || "lovelace",
+                            },
+                          )}
+                        </strong>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="Settings-activity-empty">
+                {t("settingsBilling.activityEmpty")}
+              </div>
+            )}
+          </div>
+
+          <div className="Settings-billing-future">
+            <span>{t("settingsBilling.futurePayg")}</span>
+            <span>{t("settingsBilling.futurePlanControls")}</span>
+          </div>
         </div>
 
-        <div className="mt-4 p-3 Settings-danger-zone">
-          <h5 className="text-danger">{t("dangerZone")}</h5>
-          <Button
-            variant="danger"
-            onClick={deleteAccount}
-            disabled={isDeleting}
-          >
-            <FontAwesomeIcon icon={faTrash} className="me-2" />
-            {isDeleting ? t("deleting") : t("deleteAccount")}
-          </Button>
-        </div>
       </Container>
 
       <CardanoPaymentModal
@@ -1104,16 +1146,6 @@ export default function SettingsPage() {
         amountLovelace={effectiveSupportLovelace}
       />
 
-      <ShareModal
-        show={showShareModal}
-        onHide={() => setShowShareModal(false)}
-        title={t("shareMessageIntro")}
-        hashtags={t("shareMessageOutro")
-          .split(/\s+/)
-          .map((tag) => tag.replace(/^#/, ""))}
-        link={generateReferralLink(user.id)}
-        message={`${t("shareMessageIntro")}\n\n${generateReferralLink(user.id)}\n\n${t("shareMessageOutro")}`}
-      />
     </div>
   );
 }

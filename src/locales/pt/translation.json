@@ -196,7 +196,8 @@
     "conversationsLoadFailed": "Falha ao carregar análises",
     "renameFailed": "Falha ao renomear análise",
     "deleteFailed": "Falha ao deletar análise",
-    "analyses": "Minhas análises"
+    "analyses": "Minhas análises",
+    "billing": "Cobrança e Acesso"
   },
   "analyses": {
     "title": "Minhas Análises",
@@ -1029,7 +1030,7 @@
       "billing": "Cobrança e Acesso"
     },
     "paywall": {
-      "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/settings?billing=1&action=premium) para adicionar Saldo e ativar Premium.",
+      "message": "Você atingiu o limite de consultas grátis. Abra [Cobrança e Acesso](/billing?action=premium) para adicionar Saldo e ativar Premium.",
       "toast": "Limite de consultas grátis atingido. Abra Cobrança e Acesso para continuar."
     }
   },
