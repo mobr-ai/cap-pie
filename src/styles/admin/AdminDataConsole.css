@@ -5,7 +5,11 @@
   border-radius: 18px;
   padding: 1rem;
   background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--theme-accent, #38bdf8) 10%, transparent), transparent 28%),
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--theme-accent, #38bdf8) 10%, transparent),
+      transparent 28%
+    ),
     var(--theme-surface-2);
 }
 
@@ -36,12 +40,19 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .admin-data-console-mode:hover {
   color: var(--theme-text);
-  background: color-mix(in srgb, var(--theme-surface-3, var(--theme-surface)) 74%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--theme-surface-3, var(--theme-surface)) 74%,
+    transparent
+  );
 }
 
 .admin-data-console-mode.is-active {
@@ -162,6 +173,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-direction: row;
 }
 
 .admin-data-console-command-strip {
@@ -219,7 +232,9 @@
 
 .admin-data-console-mono,
 .admin-data-console-json {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
   font-size: 0.8rem;
 }
 
@@ -511,7 +526,8 @@
   top: 100%;
   border-width: 7px 7px 0 7px;
   border-style: solid;
-  border-color: color-mix(in srgb, var(--theme-surface) 92%, #f59e0b) transparent transparent transparent;
+  border-color: color-mix(in srgb, var(--theme-surface) 92%, #f59e0b)
+    transparent transparent transparent;
 }
 
 @media (max-width: 768px) {
