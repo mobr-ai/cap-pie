@@ -29,7 +29,6 @@ During the Piece of Pie Hackathon, this repository is used to consolidate the ba
 * user-facing frontend integration
 * workspace theming and UI polish
 * hackathon delivery tracking
-* Cardano wallet authentication
 
 The goal is to keep a transparent, inspectable repository that shows the evolution of CAP during the hackathon while still preserving the original backend and frontend repositories as the preferred development sources.
 
