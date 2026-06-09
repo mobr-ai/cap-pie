@@ -309,7 +309,7 @@ class LLMClient:
     async def generate_answer_with_context(
         self,
         user_query: str,
-        federated_query: str,
+        federated_query: FederatedQuery,
         formatted_results: str | dict[str, Any],
         kv_results: dict[str, Any],
         system_prompt: str | None = None,
@@ -321,13 +321,17 @@ class LLMClient:
         with tracer.start_as_current_span("contextualized answer") as span:
             # Stream kv_results first if present
             result_type = ""
+            serialized_query = federated_query.model_dump_json() if federated_query else ""
             if kv_results:
                 try:
-                    result_type = await self._classify_render_type(user_query, kv_results)
+                    result_type = federated_query.visualization_type if federated_query else ""
+                    if not result_type:
+                        result_type = await self._classify_render_type(user_query, kv_results)
+
                     kv_formatted, result_type = format_kv(
                         result_type=result_type,
                         user_query=user_query,
-                        federated_query=federated_query,
+                        federated_query=serialized_query,
                         kv_results=kv_results
                     )
                     logger.info(f"Sending data to feed widget: \n   {kv_formatted}")
@@ -347,7 +351,7 @@ class LLMClient:
                     span.set_attribute("format", "string")
                 # Otherwise, serialize dict to JSON
                 elif formatted_results:
-                    formatted_results = convert_results_to_explorer_links(formatted_results, federated_query)
+                    formatted_results = convert_results_to_explorer_links(formatted_results, serialized_query)
                     context_res = json.dumps(formatted_results, indent=2)
                     span.set_attribute("format", "dict")
                 else:
@@ -368,7 +372,7 @@ class LLMClient:
 
             logger.info(f"Prompting LLM (truncated): \n{prompt[:1000] + ('...' if len(prompt) > 1000 else '')}")
             if (not formatted_results or len(formatted_results) == 0):
-                logger.info(f" Federated query returned empty: \n{federated_query}")
+                logger.info(f" Federated query returned empty: \n{serialized_query}")
 
             async for chunk in self.generate_stream(
                 prompt=prompt,
@@ -377,6 +381,7 @@ class LLMClient:
                 temperature=temperature
             ):
                 yield chunk
+
 
 # Global client instance
 _llm_client: LLMClient | None = None

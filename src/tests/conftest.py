@@ -1,6 +1,5 @@
 import logging
 import os
-
 from collections.abc import AsyncGenerator
 from pathlib import Path
 
@@ -8,11 +7,11 @@ import pytest
 from dotenv import load_dotenv
 from httpx import AsyncClient
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-load_dotenv(PROJECT_ROOT / ".env", override=True)
-
 from cap.config import settings
 from cap.rdf.triplestore import TriplestoreClient
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

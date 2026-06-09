@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from cap.services.redis_nl_client import get_redis_nl_client, cleanup_redis_nl_client
+from cap.services.redis_nl_client import cleanup_redis_nl_client, get_redis_nl_client
 from cap.services.similarity_service import SearchStrategy, SimilarityService
 
 pytestmark = pytest.mark.asyncio

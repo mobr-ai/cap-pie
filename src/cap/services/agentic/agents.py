@@ -164,16 +164,14 @@ class AnswerAgent:
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         chunks: list[str] = []
 
-        query = state.get("federated_query")
-        serialized_query = query.model_dump_json() if query else ""
-
+        federated_query = state.get("federated_query")
         kv_results = state.get("kv_results")
         if not isinstance(kv_results, dict):
             kv_results = {}
 
         stream = self.llm_client.generate_answer_with_context(
             user_query=state.get("user_query", ""),
-            federated_query=serialized_query,
+            federated_query=federated_query,
             formatted_results=state.get("formatted_results", ""),
             kv_results=kv_results,
             system_prompt="",

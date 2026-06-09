@@ -1,8 +1,7 @@
 import json
 import logging
-import re
-
 from typing import Any
+
 from opentelemetry import trace
 
 logger = logging.getLogger(__name__)
@@ -86,7 +85,7 @@ class QueryFileParser:
         try:
             return json.loads(payload_text)
 
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             logger.info("\n" + "=" * 80)
             logger.info("INVALID JSON PAYLOAD")
             logger.info("=" * 80)

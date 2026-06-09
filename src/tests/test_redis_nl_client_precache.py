@@ -1,14 +1,12 @@
 # tests/integration/test_redis_nl_client_precache_from_file.py
 
 import json
+from pathlib import Path
 
 import pytest
 import redis.asyncio as redis
 
-from pathlib import Path
-
 from cap.services.redis_nl_client import RedisNLClient
-
 
 pytestmark = pytest.mark.asyncio
 

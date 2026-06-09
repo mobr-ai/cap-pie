@@ -4,7 +4,6 @@ from cap.chains.cardano.canon.placeholder_restorer import PlaceholderRestorer
 from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.chains.cardano.canon.sparql_normalizer import SPARQLNormalizer
 from cap.chains.cardano.canon.value_extractor import ValueExtractor
-from cap.federated.models import QuerySource
 
 
 class CardanoQueryCanonizer:
