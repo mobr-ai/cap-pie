@@ -41,6 +41,36 @@ CREATE TABLE IF NOT EXISTS asset_ohlcv (
 CREATE INDEX IF NOT EXISTS ix_asset_ohlcv_asset_ts ON asset_ohlcv(asset_id, ts);
 CREATE INDEX IF NOT EXISTS ix_asset_ohlcv_ts_interval ON asset_ohlcv(ts, interval);
 
+CREATE TABLE IF NOT EXISTS asset_indicator (
+    id BIGSERIAL PRIMARY KEY,
+
+    asset_id TEXT NOT NULL REFERENCES asset(asset_id) ON DELETE CASCADE,
+    ts TIMESTAMPTZ NOT NULL,
+    interval TEXT NOT NULL,
+
+    ohlcv_source TEXT NOT NULL,
+
+    indicator TEXT NOT NULL,
+    period INTEGER NOT NULL,
+    value NUMERIC(38, 18) NOT NULL,
+    params JSONB NOT NULL DEFAULT '{}'::jsonb,
+
+    source TEXT NOT NULL DEFAULT 'cap-offchain-etl',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT uq_asset_indicator
+      UNIQUE(asset_id, ts, interval, ohlcv_source, indicator, period, params, source)
+);
+
+CREATE INDEX IF NOT EXISTS ix_asset_indicator_lookup
+ON asset_indicator(asset_id, interval, indicator, period, ts);
+
+CREATE INDEX IF NOT EXISTS ix_asset_indicator_ts
+ON asset_indicator(ts, interval);
+
+CREATE INDEX IF NOT EXISTS ix_asset_indicator_latest
+ON asset_indicator(asset_id, interval, ohlcv_source, indicator, period, ts DESC);
+
 CREATE TABLE IF NOT EXISTS etl_checkpoint (
   source TEXT NOT NULL,
   entity_id TEXT NOT NULL,

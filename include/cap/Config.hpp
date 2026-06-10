@@ -33,6 +33,22 @@ struct Config {
   int request_pause_ms = 250;
   int empty_advances = 50;
 
+  bool indicators_enabled = true;
+  std::string indicator_source = "cap-offchain-etl";
+  int indicator_warmup_candles = 1200;
+
+  std::vector<int> sma_periods = {20, 50, 100, 200};
+  std::vector<int> ema_periods = {9, 20, 50, 100, 200};
+  std::vector<int> rsi_periods = {14};
+
+  int bb_period = 20;
+  double bb_stddev = 2.0;
+
+  bool macd_enabled = true;
+  int macd_fast = 12;
+  int macd_slow = 26;
+  int macd_signal = 9;
+
   std::string gov_provider = "govtool_public";
   std::string gov_manual = "/app/config/governance_sources.csv";
   int gov_pause_ms = 500;

@@ -4,10 +4,11 @@
 
 CAP Offchain ETL (`cap-offchain-etl`) is a C++ ETL pipeline designed to continuously synchronize offchain Cardano data into PostgreSQL.
 
-Currently, the project has two components:
+Currently, the project has three components:
 
 1. OHLCV market data synchronization
-2. Offchain governance metadata synchronization
+2. Technical indicator synchronization
+3. Offchain governance metadata synchronization
 
 Supporting:
 
@@ -101,6 +102,40 @@ Why this separation?
 - there is no universal identifier standard
 
 The ETL therefore maintains explicit mappings.
+
+---
+
+# Technical Indicator Synchronization
+
+## Goal
+
+The indicator component keeps commonly used market indicators synchronized in PostgreSQL.
+
+The ETL calculates indicators from the synchronized 1-hour OHLCV candles and stores the results in `asset_indicator`.
+
+The default indicators are:
+
+- SMA: 20, 50, 100, 200
+- EMA: 9, 20, 50, 100, 200
+- RSI: 14
+- Bollinger Bands: 20-period, 2 standard deviations
+- MACD: 12/26/9
+
+Indicators are calculated after each OHLCV synchronization cycle.
+
+This means the standard production flow is:
+
+```text
+fetch OHLCV candles
+        ↓
+upsert asset_ohlcv
+        ↓
+calculate indicators
+        ↓
+upsert asset_indicator
+        ↓
+sync governance metadata
+```
 
 ---
 
@@ -229,6 +264,8 @@ The standard execution mode continuously synchronizes:
 
 - OHLCV data
 - governance metadata
+- technical indicator periods
+- indicator warmup window
 
 Run:
 
@@ -349,6 +386,7 @@ The ETL maintains synchronization checkpoints inside PostgreSQL.
 Examples:
 
 - latest synchronized OHLC candle timestamp
+- latest synchronized indicator timestamp per asset/source
 - latest governance metadata fetch timestamp
 - retry states
 - synchronization cursors
@@ -420,6 +458,7 @@ Execute:
 DROP TABLE IF EXISTS offchain_governance_metadata_fetch_log CASCADE;
 DROP TABLE IF EXISTS offchain_governance_metadata CASCADE;
 DROP TABLE IF EXISTS etl_checkpoint CASCADE;
+DROP TABLE IF EXISTS asset_indicator CASCADE;
 DROP TABLE IF EXISTS asset_ohlcv CASCADE;
 DROP TABLE IF EXISTS asset_market_source CASCADE;
 DROP TABLE IF EXISTS asset CASCADE;

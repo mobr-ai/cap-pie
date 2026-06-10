@@ -28,6 +28,20 @@
     "archive_tmp_dir": "/tmp/cap-offchain-etl/binance-klines",
     "mapping_file": "/app/config/asset_mapping.csv"
   },
+  "indicators": {
+    "enabled": true,
+    "source": "cap-offchain-etl",
+    "warmup_candles": 1200,
+    "sma_periods": "20,50,100,200",
+    "ema_periods": "9,20,50,100,200",
+    "rsi_periods": "14",
+    "bb_period": 20,
+    "bb_stddev": "2.0",
+    "macd_enabled": true,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9
+  },
   "governance": {
     "enabled": true,
     "provider": "govtool_public",

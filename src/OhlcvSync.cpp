@@ -80,13 +80,31 @@ bool checkpoint_exists(
 
 std::string latest_ohlcv_checkpoint(Db& db, const AssetMap& asset)
 {
-  return get_checkpoint(
+  const std::string entity = asset.source + ":" + asset.source_asset;
+
+  std::string last_open = get_checkpoint(
     db,
     "ohlcv",
-    asset.source + ":" + asset.source_asset,
+    entity,
     "last_open_time_ms",
-    ""
+    "0"
   );
+
+  std::string last_empty_search = get_checkpoint(
+    db,
+    "ohlcv",
+    entity,
+    "last_empty_search_ms",
+    "0"
+  );
+
+  long long last_open_ms = last_open.empty() ? 0 : std::stoll(last_open);
+  long long last_empty_search_ms =
+    last_empty_search.empty() ? 0 : std::stoll(last_empty_search);
+
+  long long latest_attempt_ms = std::max(last_open_ms, last_empty_search_ms);
+
+  return latest_attempt_ms == 0 ? "" : std::to_string(latest_attempt_ms);
 }
 
 long long effective_bootstrap_ms(const Config& config, const AssetMap& asset)
@@ -400,6 +418,11 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
 
       if (error.find("HTTP 404 for ") != std::string::npos) {
         upsert_checkpoint(db, "ohlcv", entity, checkpoint_key, "missing_404");
+        log(
+          "WARN",
+          "Binance archive missing for " + key +
+          "; marking as missing_404 and skipping in later cycles"
+        );
 
       } else {
         log(
