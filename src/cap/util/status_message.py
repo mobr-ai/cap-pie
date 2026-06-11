@@ -8,8 +8,8 @@ class StatusMessage:
         "execute": "status: Executing query\n",
         "critic": "status: Validating execution result\n",
         "context": "status: Formatting execution context\n",
-        "answer": "status: Generating response\n",
-        "persist": "status: Saving successful query\n",
+        "answer": "",
+        "persist": "",
     }
 
     @staticmethod

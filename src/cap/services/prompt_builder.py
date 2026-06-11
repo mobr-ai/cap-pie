@@ -14,6 +14,7 @@ from cap.config import settings
 from cap.services.msg_formatter import MessageFormatter
 from cap.services.similarity_service import SearchStrategy, SimilarityService
 from cap.util.str_util import get_file_content
+from cap.util.vega_util import VegaUtil
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +152,7 @@ class PromptBuilder:
         current_his = None
         temperature = 0.1
 
-        if "chart" in result_type or "table" in result_type:
+        if result_type in VegaUtil.known_types:
             known_info = f"""
                 {current_date}
                 {self.default_chart_prompt}
