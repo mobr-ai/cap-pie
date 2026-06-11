@@ -89,7 +89,13 @@ Config load_config(const std::string& path)
     {"ohlcv", "empty_window_max_advances_per_cycle"},
     config.empty_advances
   );
+  config.asset_relationships_file = json_string_at(
+    root,
+    {"ohlcv", "asset_relationships_file"},
+    config.asset_relationships_file
+  );
   config.mapping_file = json_string_at(root, {"ohlcv", "mapping_file"}, config.mapping_file);
+
 
 
   config.indicators_enabled = json_bool_at(

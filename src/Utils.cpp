@@ -57,9 +57,17 @@ std::vector<std::string> split_csv(const std::string& line)
   std::string current;
   bool quoted = false;
 
-  for(char c : line) {
+  for(size_t i = 0; i < line.size(); ++i) {
+    char c = line[i];
+
     if(c == '"') {
-      quoted = !quoted;
+      if(quoted && i + 1 < line.size() && line[i + 1] == '"') {
+        current.push_back('"');
+        ++i;
+      } else {
+        quoted = !quoted;
+      }
+
       continue;
     }
 

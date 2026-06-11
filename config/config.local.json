@@ -26,6 +26,7 @@
     "binance_data_base_url": "https://data.binance.vision",
     "archive_bootstrap_enabled": true,
     "archive_tmp_dir": "/tmp/cap-offchain-etl/binance-klines",
+    "asset_relationships_file": "config/asset_relationships.csv",
     "mapping_file": "config/asset_mapping.csv"
   },
   "indicators": {

@@ -28,6 +28,7 @@ struct Config {
   std::string quote = "USDT";
   std::string interval = "1h";
   std::string bootstrap_from = "2017-01-01T00:00:00Z";
+  std::string asset_relationships_file = "config/asset_relationships.csv";
   std::string mapping_file = "/app/config/asset_mapping.csv";
   int request_limit = 1000;
   int request_pause_ms = 250;
