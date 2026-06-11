@@ -39,22 +39,41 @@ async def query_with_stream_response(
             redis_client=redis_client,
         )
 
-        final_state = await graph.ainvoke(
-            {
-                "user_query": user_query,
-                "context": context,
-                "conversation_history": conversation_history,
-                "retry_count": 0,
-                "max_retries": 2,
-            }
-        )
+        initial_state = {
+            "user_query": user_query,
+            "context": context,
+            "conversation_history": conversation_history,
+            "retry_count": 0,
+            "max_retries": 2,
+        }
 
-        answer = final_state.get("final_answer")
-        if answer:
-            yield answer
-        elif final_state.get("error"):
+        final_state = {}
+
+        async for mode, payload in graph.astream(
+            initial_state,
+            stream_mode=["updates", "custom"],
+        ):
+            if mode == "custom":
+                if isinstance(payload, dict) and payload.get("type") == "answer_chunk":
+                    yield payload["content"]
+                continue
+
+            update = payload
+            for step_name, step_state in update.items():
+                yield StatusMessage.graph_step(step_name)
+
+                if isinstance(step_state, dict):
+                    final_state.update(step_state)
+
+                if step_name == "cache" and final_state.get("cached"):
+                    yield StatusMessage.cache_hit()
+
+                if step_name == "critic" and final_state.get("federated_query") is None:
+                    yield StatusMessage.retry_query(final_state.get("retry_count", 0))
+
+        if final_state.get("error"):
             yield StatusMessage.error(final_state["error"])
-        else:
+        elif not final_state.get("final_answer"):
             yield StatusMessage.no_data()
 
         yield StatusMessage.data_done()

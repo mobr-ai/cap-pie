@@ -1,32 +1,35 @@
-"""
-Natural language query API endpoint using LLM.
-Multi-stage pipeline: NL -> SPARQL -> Execute -> Contextualize -> Stream
-"""
-import logging
-
-from opentelemetry import trace
-
-logger = logging.getLogger(__name__)
-tracer = trace.get_tracer(__name__)
-
 class StatusMessage:
     """Helper for creating consistent status messages with rotation support."""
 
-    # Extended status messages for long-running queries
-    THINKING_MESSAGES = [
-        "status: Analyzing your query deeply\n",
-        "status: Exploring the knowledge graph\n",
-        "status: Finding relevant connections\n",
-        "status: Processing complex relationships\n",
-        "status: Gathering comprehensive data\n",
-        "status: Cross-referencing information\n",
-        "status: Validating query results\n",
-        "status: Optimizing data retrieval\n",
-    ]
+    GRAPH_STEP_MESSAGES = {
+        "normalize": "status: Normalizing query\n",
+        "cache": "status: Checking semantic cache\n",
+        "plan": "status: Planning federated query\n",
+        "execute": "status: Executing query\n",
+        "critic": "status: Validating execution result\n",
+        "context": "status: Formatting execution context\n",
+        "answer": "status: Generating response\n",
+        "persist": "status: Saving successful query\n",
+    }
 
     @staticmethod
     def processing_query() -> str:
         return "status: Processing your query\n"
+
+    @staticmethod
+    def graph_step(step_name: str) -> str:
+        return StatusMessage.GRAPH_STEP_MESSAGES.get(
+            step_name,
+            f"status: Running {step_name}\n",
+        )
+
+    @staticmethod
+    def cache_hit() -> str:
+        return "status: Reusing cached query\n"
+
+    @staticmethod
+    def retry_query(retry_count: int) -> str:
+        return f"status: Regenerating query after failed attempt {retry_count}\n"
 
     @staticmethod
     def no_data() -> str:

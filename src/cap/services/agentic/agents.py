@@ -1,4 +1,5 @@
 import logging
+from langgraph.config import get_stream_writer
 
 from cap.federated.planner import FederatedPlanner
 from cap.services.agentic.state import AgenticQueryState
@@ -163,6 +164,7 @@ class AnswerAgent:
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         chunks: list[str] = []
+        writer = get_stream_writer()
 
         federated_query = state.get("federated_query")
         kv_results = state.get("kv_results")
@@ -180,6 +182,11 @@ class AnswerAgent:
 
         async for chunk in stream:
             chunks.append(chunk)
+
+            writer({
+                "type": "answer_chunk",
+                "content": chunk,
+            })
 
         state["final_answer"] = "".join(chunks)
         return state
