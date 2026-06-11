@@ -23,6 +23,7 @@ from cap.util.federated_result_processor import format_kv
 from cap.util.sparql_result_processor import convert_results_to_explorer_links
 from cap.util.str_util import matches_keyword
 from cap.util.tag_filter import TagFilter
+from cap.util.vega_util import VegaUtil
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -325,7 +326,7 @@ class LLMClient:
             if kv_results:
                 try:
                     result_type = federated_query.visualization_type if federated_query else ""
-                    if not result_type:
+                    if not result_type or result_type not in VegaUtil.known_types:
                         result_type = await self._classify_render_type(user_query, kv_results)
 
                     kv_formatted, result_type = format_kv(

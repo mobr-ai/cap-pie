@@ -141,16 +141,7 @@ def format_kv(result_type: Any, user_query: str, federated_query: str, kv_result
     if result_type:
         kv_results["result_type"] = result_type
 
-        if result_type in {
-            "bar_chart",
-            "pie_chart",
-            "line_chart",
-            "scatter_chart",
-            "bubble_chart",
-            "treemap",
-            "heatmap",
-            "table",
-        }:
+        if result_type in VegaUtil.known_types:
             vega_data = VegaUtil.convert_to_vega_format(
                 kv_results,
                 user_query,

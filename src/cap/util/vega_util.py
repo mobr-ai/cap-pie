@@ -25,6 +25,17 @@ class VegaUtil:
         'name', 'label', 'category'
     ]
 
+    known_types = {
+        "bar_chart",
+        "pie_chart",
+        "line_chart",
+        "scatter_chart",
+        "bubble_chart",
+        "treemap",
+        "heatmap",
+        "table",
+    }
+
     @staticmethod
     def _is_numeric_value(value: Any) -> bool:
         """
