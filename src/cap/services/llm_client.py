@@ -28,6 +28,9 @@ from cap.util.vega_util import VegaUtil
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
 
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
+LLM_RETRY_BASE_SECONDS = float(os.getenv("LLM_RETRY_BASE_SECONDS", "1.0"))
+LLM_RETRY_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 
 MODEL_CONTEXT_CAP = settings.MODEL_CONTEXT_CAP * 1000
 CHAR_PER_TOKEN = settings.CHAR_PER_TOKEN
@@ -138,6 +141,16 @@ class LLMClient:
             return False
 
 
+    @staticmethod
+    def _is_retryable_http_error(exc: httpx.HTTPStatusError) -> bool:
+        return exc.response.status_code in LLM_RETRY_STATUS_CODES
+
+
+    @staticmethod
+    def _retry_delay(attempt: int) -> float:
+        return LLM_RETRY_BASE_SECONDS * (2 ** attempt)
+
+
     async def generate_stream(
         self,
         prompt: str,
@@ -146,13 +159,13 @@ class LLMClient:
         temperature: float = 0.1
     ) -> AsyncIterator[str]:
         """
-        vLLM OpenAI-compatible streaming Chat Completions.
-        Streams Server-Sent Events (SSE): lines start with 'data: ...' and end with 'data: [DONE]'.
+        vLLM/OpenAI-compatible streaming Chat Completions.
+
+        Retries transient provider failures before any content is emitted.
+        This covers OpenAI/server-side 5xx errors, rate limits, request timeout,
+        and temporary transport failures.
         """
         client = await self._get_nl_client()
-
-        tf = TagFilter()
-        tf.reset()
 
         messages = []
         if system_prompt:
@@ -166,46 +179,100 @@ class LLMClient:
             "stream": True,
         }
 
-        async with client.stream(
-            "POST",
-            f"{self.base_url}/v1/chat/completions",
-            json=request_data,
-            timeout=None,
-        ) as response:
-            response.raise_for_status()
+        last_exc: Exception | None = None
 
-            async for line in response.aiter_lines():
-                if not line:
-                    continue
+        for attempt in range(LLM_MAX_RETRIES + 1):
+            emitted_content = False
+            tf = TagFilter()
+            tf.reset()
 
-                if not line.startswith("data: "):
-                    continue
+            try:
+                async with client.stream(
+                    "POST",
+                    f"{self.base_url}/v1/chat/completions",
+                    json=request_data,
+                    timeout=None,
+                ) as response:
+                    response.raise_for_status()
 
-                payload = line[len("data: "):].strip()
-                if payload == "[DONE]":
-                    break
+                    async for line in response.aiter_lines():
+                        if not line:
+                            continue
 
-                try:
-                    chunk = json.loads(payload)
-                except json.JSONDecodeError:
-                    continue
+                        if not line.startswith("data: "):
+                            continue
 
-                delta = (
-                    chunk.get("choices", [{}])[0]
-                        .get("delta", {})
-                        .get("content")
+                        payload = line[len("data: "):].strip()
+                        if payload == "[DONE]":
+                            break
+
+                        try:
+                            chunk = json.loads(payload)
+                        except json.JSONDecodeError:
+                            continue
+
+                        delta = (
+                            chunk.get("choices", [{}])[0]
+                                .get("delta", {})
+                                .get("content")
+                        )
+
+                        if not delta:
+                            continue
+
+                        safe = tf.push(delta)
+                        if safe:
+                            emitted_content = True
+                            yield safe
+
+                leftover = tf.flush()
+                if leftover:
+                    emitted_content = True
+                    yield leftover
+
+                return
+
+            except httpx.HTTPStatusError as exc:
+                last_exc = exc
+
+                if emitted_content or not self._is_retryable_http_error(exc):
+                    raise
+
+                if attempt >= LLM_MAX_RETRIES:
+                    raise
+
+                delay = self._retry_delay(attempt)
+                logger.warning(
+                    "Retryable LLM HTTP error %s from %s; retrying attempt %s/%s after %.1fs",
+                    exc.response.status_code,
+                    exc.request.url,
+                    attempt + 1,
+                    LLM_MAX_RETRIES,
+                    delay,
                 )
+                await asyncio.sleep(delay)
 
-                if not delta:
-                    continue
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                last_exc = exc
 
-                safe = tf.push(delta)
-                if safe:
-                    yield safe
+                if emitted_content:
+                    raise
 
-        leftover = tf.flush()
-        if leftover:
-            yield leftover
+                if attempt >= LLM_MAX_RETRIES:
+                    raise
+
+                delay = self._retry_delay(attempt)
+                logger.warning(
+                    "Retryable LLM transport error: %s; retrying attempt %s/%s after %.1fs",
+                    exc,
+                    attempt + 1,
+                    LLM_MAX_RETRIES,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+
+        if last_exc:
+            raise last_exc
 
 
     async def nl_to_federated_query(
