@@ -52,6 +52,17 @@ class PromptBuilder:
         return ""
 
     @property
+    def infra_limit_exceeded_prompt(self) -> str:
+        return self._load_prompt(
+            "INFRA_LIMIT_EXCEEDED_PROMPT",
+            "Write a short, clear answer to the user. "
+            "Explain that the query was too demanding for the current infrastructure, "
+            "so it could not be completed right now. "
+            "Do not expose stack traces, HTTP details, internal service names, or raw errors. "
+            "Be polite and concise.\n\n",
+        )
+
+    @property
     def federated_prompt(self) -> str:
         return self._load_prompt(
             "FEDERATED_PROMPT",

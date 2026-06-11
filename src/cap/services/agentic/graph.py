@@ -57,6 +57,11 @@ def build_agentic_query_graph(
     def after_cache(state: AgenticQueryState) -> str:
         return "execute" if state.get("federated_query") else "plan"
 
+    def after_execute(state: AgenticQueryState) -> str:
+        if state.get("infrastructure_limit_exceeded"):
+            return "answer"
+        return "critic"
+
     def after_critic(state: AgenticQueryState) -> str:
         result = state.get("execution_result")
         if result and result.has_data:
@@ -64,6 +69,11 @@ def build_agentic_query_graph(
         if state.get("federated_query") is None:
             return "plan"
         return "context"
+
+    def after_answer(state: AgenticQueryState) -> str:
+        if state.get("infrastructure_limit_exceeded"):
+            return END
+        return "persist"
 
     workflow = StateGraph(AgenticQueryState)
 
@@ -80,10 +90,10 @@ def build_agentic_query_graph(
     workflow.add_edge("normalize", "cache")
     workflow.add_conditional_edges("cache", after_cache)
     workflow.add_edge("plan", "execute")
-    workflow.add_edge("execute", "critic")
+    workflow.add_conditional_edges("execute", after_execute)
     workflow.add_conditional_edges("critic", after_critic)
     workflow.add_edge("context", "answer")
-    workflow.add_edge("answer", "persist")
+    workflow.add_conditional_edges("answer", after_answer)
     workflow.add_edge("persist", END)
 
     return workflow.compile()

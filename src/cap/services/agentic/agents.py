@@ -1,4 +1,5 @@
 import logging
+
 from langgraph.config import get_stream_writer
 
 from cap.federated.planner import FederatedPlanner
@@ -10,9 +11,24 @@ from cap.services.agentic.tools import (
     get_cached_federated_query,
 )
 from cap.services.llm_client import LLMClient
+from cap.services.prompt_builder import PromptBuilder
 from cap.services.redis_nl_client import RedisNLClient
 
 logger = logging.getLogger(__name__)
+
+def is_infrastructure_limit_error(error_msg: str | None) -> bool:
+    if not error_msg:
+        return False
+
+    normalized = error_msg.lower()
+
+    return (
+        "infrastructure_limit_exceeded" in normalized
+        or "429" in normalized
+        or "network error" in normalized
+        or "too many requests" in normalized
+        or "operation timed out" in normalized
+    )
 
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
@@ -68,12 +84,16 @@ class ExecutionAgent:
         result = await execute_query_tool(query)
         state["execution_result"] = result
         state["error"] = result.error_msg or None
+        state["infrastructure_limit_exceeded"] = is_infrastructure_limit_error(result.error_msg)
         return state
 
 
 class CriticAgent:
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         result = state.get("execution_result")
+
+        if state.get("infrastructure_limit_exceeded"):
+            return state
 
         if result and (result.has_data or result.sql_results):
             state["error"] = None
@@ -161,6 +181,7 @@ class ContextAgent:
 class AnswerAgent:
     def __init__(self, llm_client: LLMClient):
         self.llm_client = llm_client
+        self.prompt_builder = PromptBuilder()
 
     async def run(self, state: AgenticQueryState) -> AgenticQueryState:
         chunks: list[str] = []
@@ -170,6 +191,24 @@ class AnswerAgent:
         kv_results = state.get("kv_results")
         if not isinstance(kv_results, dict):
             kv_results = {}
+
+        if state.get("infrastructure_limit_exceeded"):
+            prompt = self.prompt_builder.infra_limit_exceeded_prompt + f"\nUser question: {state.get('user_query', '')}"
+            async for chunk in self.llm_client.generate_stream(
+                prompt=prompt,
+                model=self.llm_client.llm_model,
+                system_prompt="",
+                temperature=0.1,
+            ):
+                chunks.append(chunk)
+
+                writer({
+                    "type": "answer_chunk",
+                    "content": chunk,
+                })
+
+            state["final_answer"] = "".join(chunks)
+            return state
 
         stream = self.llm_client.generate_answer_with_context(
             user_query=state.get("user_query", ""),
