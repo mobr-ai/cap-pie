@@ -2,8 +2,8 @@ import json
 import logging
 from typing import Any
 
-from cap.federated.asset_schema import ASSET_OHLCV_SCHEMA
 from cap.federated.models import FederatedQuery, QuerySource
+from cap.federated.offchain_schema import OFFCHAIN_SCHEMA
 from cap.federated.sql_util import clean_sql
 from cap.services.prompt_builder import PromptBuilder
 from cap.util.sparql_util import ensure_validity
@@ -29,8 +29,8 @@ class FederatedPlanner:
 Ontology:
 {ontology_block}
 
-Asset/OHLCV relational data model:
-{ASSET_OHLCV_SCHEMA}
+Offchain data relational data model:
+{OFFCHAIN_SCHEMA}
 
 Relevant cached query patterns:
 {fewshot_block}

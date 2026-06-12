@@ -2,13 +2,14 @@
 Finds similar cached NL queries.
 
 Strategy:
-  1. Embedding similarity (multilingual-e5-small + ChromaDB).
+  1. Embedding similarity.
      The index is rebuilt on demand per EmbeddingRegenerationPolicy.
   2. Jaccard token-overlap fallback — activated only when embeddings fail.
 
 The regeneration state lives here because SimilarityService is the only
 consumer of the policy. Neither RedisNLClient nor nl_service know it exists.
 """
+
 import json
 import logging
 from enum import StrEnum

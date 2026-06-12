@@ -1,5 +1,5 @@
 """
-Stateless policy that decides when the ChromaDB embedding index must be rebuilt.
+Stateless policy that decides when the VectorDB embedding index must be rebuilt.
 
 Triggers:
   - The index has never been built, OR
