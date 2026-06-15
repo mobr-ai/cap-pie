@@ -57,13 +57,13 @@ class TriplestoreClient:
     async def _get_http_client(self) -> httpx.AsyncClient:
         """Get or create reusable HTTP client with optimized settings."""
         if not self._http_client:
-            timeout = httpx.Timeout(360.0, connect=10.0)
+            timeout = httpx.Timeout(float(self.config.query_timeout), connect=10.0)
             self._http_client = httpx.AsyncClient(
                 timeout=timeout,
                 limits=httpx.Limits(
                     max_keepalive_connections=20,
                     max_connections=50,
-                    keepalive_expiry=360.0
+                    keepalive_expiry=float(self.config.query_timeout)
                 ),
                 http2=True  # Enable HTTP/2 for better performance
             )

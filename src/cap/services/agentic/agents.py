@@ -25,6 +25,7 @@ def is_infrastructure_limit_error(error_msg: str | None) -> bool:
     return (
         "infrastructure_limit_exceeded" in normalized
         or "429" in normalized
+        or "500" in normalized
         or "network error" in normalized
         or "too many requests" in normalized
         or "operation timed out" in normalized

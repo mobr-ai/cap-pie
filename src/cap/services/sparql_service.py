@@ -46,8 +46,8 @@ async def execute_sparql(sparql_query: str, is_sequential: bool, sparql_queries:
             # Convert HTTPException to regular exception to prevent propagation
             logger.error(f"SPARQL execution error (HTTP {http_err.status_code}): {http_err.detail}")
             logger.error(f"    SPARQL: {sparql_query}")
-            if http_err.status_code == 429:
-                error_msg = f"INFRASTRUCTURE_LIMIT_EXCEEDED: HTTP 429: {http_err.detail}"
+            if http_err.status_code == 429 or http_err.status_code == 500:
+                error_msg = f"INFRASTRUCTURE_LIMIT_EXCEEDED: HTTP {http_err.status_code}: {http_err.detail}"
             else:
                 error_msg = f"{http_err.status_code}: {http_err.detail}"
             has_data = False

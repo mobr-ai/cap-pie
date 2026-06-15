@@ -71,7 +71,7 @@ services:
       - /home/cap/data/qlever:/data
     working_dir: /data
     entrypoint: ["/bin/bash"]
-    command: ["-c", "ServerMain -i cardano -p 7000 -a ${VIRTUOSO_PASSWORD} --persist-updates --memory-max-size 16g"]
+    command: ["-c", "qlever-server -i cardano -p 7000 -m 56g -s 360s --persist-updates"]
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:7000/ >/dev/null || exit 1"]
       interval: 10s

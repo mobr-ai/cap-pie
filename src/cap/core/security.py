@@ -4,10 +4,13 @@ import secrets
 import unicodedata
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from dotenv import load_dotenv
 
 import bcrypt
 import jwt  # PyJWT
 from fastapi import HTTPException
+
+load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")
