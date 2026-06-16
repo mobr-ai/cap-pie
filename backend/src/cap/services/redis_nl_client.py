@@ -75,7 +75,7 @@ class RedisNLClient:
     async def cache_query(
         self,
         nl_query: str,
-        sparql_query: str,
+        payload: dict[str, Any],
         ttl: int | None = None,
         normalize: bool = True
     ) -> int:
@@ -99,17 +99,17 @@ class RedisNLClient:
                 if await client.exists(cache_key):
                     return 0  # Indicates duplicate, not cached
 
-                # Process SPARQL (single or sequential)
+                # Process payload
                 normalized_payload, placeholder_map, query_type = self._normalize_federated_query(
-                    sparql_query,
+                    payload=payload,
                     normalize_query=normalize,
                 )
                 cache_data = {
                     "original_query": nl_query,
                     "normalized_query": user_query,
-                    "sparql_query": normalized_payload,
+                    "federated_query": normalized_payload,
                     "placeholder_map": placeholder_map,
-                    "is_sequential": isinstance(sparql_query, str) and sparql_query.strip().startswith('['),
+                    "is_sequential": isinstance(payload.get("sparql"), list),
                     "precached": False,
                     "query_type": query_type,
                 }
@@ -152,13 +152,19 @@ class RedisNLClient:
                 stats["total_queries"] = len(queries)
                 client = await self._get_nlr_client()
                 ttl_value = ttl or self.ttl
+                src_stats = {
+                    QuerySource.FEDERATED.value: 0,
+                    QuerySource.ONCHAIN.value: 0,
+                    QuerySource.OFFCHAIN.value: 0,
+                }
                 skipped_keys: list[str] = []
                 cached_keys: list[str] = []
 
                 canonizer = get_chain().query_canonizer()
 
-                for nl_query, sparql_query in queries:
+                for nl_query, payload in queries:
                     try:
+                        logger.info (f"processing nl query: {nl_query} ")
                         user_query = (
                             canonizer.normalize_nl(nl_query)
                             if normalize and canonizer is not None
@@ -166,7 +172,7 @@ class RedisNLClient:
                         )
 
                         cache_key = self._make_cache_key(user_query)
-                        success = await self.cache_query(nl_query, sparql_query, ttl_value, normalize)
+                        success = await self.cache_query(nl_query, payload, ttl_value, normalize)
                         if success == 1:
                             # major trust on predefined (precached) queries
                             cached_data = await client.get(cache_key)
@@ -176,9 +182,12 @@ class RedisNLClient:
                                 await client.setex(cache_key, ttl_value, json.dumps(data))
                                 cached_keys.append(cache_key)
 
+                            q_source = self._detect_cached_query_type(payload)
+                            src_stats[q_source] += 1
                             logger.debug ("query cached ")
                             logger.debug (f"    nl query {nl_query} ")
-                            logger.debug (f"    sparql query {sparql_query} ")
+                            logger.debug (f"    payload {payload} ")
+                            logger.debug (f"    source {q_source} ")
                             logger.debug (f"    ttl {ttl_value} ")
 
                             stats["cached_successfully"] += 1
@@ -207,6 +216,7 @@ class RedisNLClient:
                     f"Original queries: \n{nl_queries} \n"
                     f"Cached keys: \n{cached_keys} \n"
                     f"Skipped keys: \n{skipped_keys} \n"
+                    f"Sources: \n{src_stats} \n"
                 )
                 return stats
 
@@ -218,71 +228,44 @@ class RedisNLClient:
                 return stats
 
 
-    def _detect_cached_query_type(self, assistant_payload: str) -> str:
-        text = assistant_payload.strip()
+    def _detect_cached_query_type(self, payload: dict[str, Any]) -> str:
+        has_sparql = bool(payload.get("sparql"))
+        has_sql = bool(payload.get("sql"))
 
-        try:
-            parsed = json.loads(text)
-            has_sparql = bool(parsed.get("sparql"))
-            has_sql = bool(parsed.get("sql"))
-            if has_sparql and has_sql:
-                return QuerySource.FEDERATED.value
-            if has_sql:
-                return QuerySource.ASSET.value
-            return QuerySource.ONCHAIN.value
-        except Exception:
-            upper = text.upper()
-            has_sparql = any(k in upper for k in ["PREFIX ", "SELECT ", "ASK ", "CONSTRUCT ", "DESCRIBE "]) and "WHERE" in upper
-            has_sql = any(k in upper for k in ["FROM ASSET_OHLCV", "JOIN ASSET", "WITH ", "SELECT "]) and "PREFIX " not in upper
-
-            if has_sparql and has_sql:
-                return QuerySource.FEDERATED.value
-            if has_sql:
-                return QuerySource.ASSET.value
-            return QuerySource.ONCHAIN.value
+        if has_sparql and has_sql:
+            return QuerySource.FEDERATED.value
+        if has_sql:
+            return QuerySource.OFFCHAIN.value
+        return QuerySource.ONCHAIN.value
 
 
     def _normalize_federated_query(
         self,
-        assistant_payload: str,
+        payload: dict[str, Any],
         normalize_query: bool = True,
     ) -> tuple[str, dict[str, str], str]:
-        canonizer = get_chain().query_canonizer()
 
+        query_type = self._detect_cached_query_type(payload)
+        source = payload.get("source", query_type) or query_type
+        canonizer = get_chain().query_canonizer()
         if canonizer is not None and normalize_query:
             return canonizer.normalize_payload(
-                assistant_payload,
-                normalize_query=True,
+                assistant_payload_dict=payload,
+                normalize_query=normalize_query,
             )
 
-        query_type = self._detect_cached_query_type(assistant_payload)
-
-        if assistant_payload.strip().startswith("{"):
-            parsed = json.loads(assistant_payload)
-            sparql = parsed.get("sparql", "") or ""
-            sql = parsed.get("sql", "") or ""
-        else:
-            sparql = assistant_payload if query_type == QuerySource.ONCHAIN.value else ""
-            sql = assistant_payload if query_type == QuerySource.ASSET.value else ""
-
         return (
-            json.dumps(
-                {
-                    "source": query_type,
-                    "sparql": sparql,
-                    "sql": sql,
-                },
-                sort_keys=True,
-            ),
+            json.dumps(payload, sort_keys=True),
             {},
-            query_type,
+            source,
         )
 
 
     async def get_cached_query_with_original(
         self,
         normalized_query: str,
-        original_query: str
+        original_query: str,
+        normalize: bool = True,
     ) -> dict[str, Any] | None:
         """Retrieve cached query and restore placeholders."""
         with tracer.start_as_current_span("get_cached_query_with_original") as span:
@@ -295,29 +278,33 @@ class RedisNLClient:
 
                 if not cached:
                     span.set_attribute("cache_hit", False)
-                    logger.debug ("Cache MISS")
-                    logger.debug (f" query normalized to {normalized_query}")
+                    logger.info ("***Cache MISS")
+                    logger.info (f" query normalized to {normalized_query}")
                     return None
 
                 data = json.loads(cached)
                 canonizer = get_chain().query_canonizer()
                 current_values = (
                     canonizer.extract_values(original_query)
-                    if canonizer is not None
+                    if normalize and canonizer is not None
                     else {}
                 )
                 placeholder_map = data.get("placeholder_map", {})
 
                 if not placeholder_map:
                     span.set_attribute("cache_hit", True)
-                    logger.debug ("Cache HIT without placeholders")
+                    logger.info ("***Cache HIT without placeholders")
                     return data
 
                 # Restore placeholders
-                restored_payload = self._restore_federated_payload(
-                    data["sparql_query"],
-                    placeholder_map,
-                    current_values,
+                restored_payload = (
+                    self._restore_federated_payload(
+                        data["federated_query"],
+                        placeholder_map,
+                        current_values,
+                    )
+                    if normalize
+                    else data["federated_query"]
                 )
 
                 remaining_placeholders = re.findall(r'<<[A-Z_]+_\d+>>', restored_payload)
@@ -328,8 +315,9 @@ class RedisNLClient:
                     span.set_attribute("cache_hit", False)
                     return None
 
-                data["sparql_query"] = restored_payload
+                data["federated_query"] = restored_payload
                 span.set_attribute("cache_hit", True)
+                logger.info (f"***Cache HIT: {data}")
                 return data
 
             except Exception as e:

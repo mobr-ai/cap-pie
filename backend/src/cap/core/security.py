@@ -7,7 +7,10 @@ from typing import Any
 
 import bcrypt
 import jwt  # PyJWT
+from dotenv import load_dotenv
 from fastapi import HTTPException
+
+load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = os.getenv("JWT_ALG", "HS256")

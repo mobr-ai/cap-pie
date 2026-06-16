@@ -112,6 +112,14 @@ class PlaceholderRestorer:
 
         return None
 
+
+    @staticmethod
+    def _placeholder_index(placeholder: str) -> int | None:
+        match = re.search(r'_(\d+)>>', placeholder)
+        if match is None:
+            return None
+        return int(match.group(1))
+
     @staticmethod
     def _restore_currency(
         placeholder: str,
@@ -123,7 +131,9 @@ class PlaceholderRestorer:
 
         if currencies:
             try:
-                idx = int(re.search(r'_(\d+)>>', placeholder).group(1))
+                idx = PlaceholderRestorer._placeholder_index(placeholder)
+                if idx is None:
+                    raise ValueError(f'Invalid placeholder index: {placeholder}')
                 # Use modulo for cyclic access - always succeeds if list is non-empty
                 currency_uri = currencies[idx % len(currencies)]
                 currency_uri = currency_uri.strip('<>')
@@ -159,7 +169,9 @@ class PlaceholderRestorer:
 
         if pool_ids:
             try:
-                idx = int(re.search(r'_(\d+)>>', placeholder).group(1))
+                idx = PlaceholderRestorer._placeholder_index(placeholder)
+                if idx is None:
+                    raise ValueError(f'Invalid placeholder index: {placeholder}')
                 pool_id = pool_ids[idx % len(pool_ids)]
                 return f'"{pool_id}"'
             except (AttributeError, ValueError, IndexError) as e:
@@ -178,7 +190,9 @@ class PlaceholderRestorer:
 
         if utxo_refs:
             try:
-                idx = int(re.search(r'_(\d+)>>', placeholder).group(1))
+                idx = PlaceholderRestorer._placeholder_index(placeholder)
+                if idx is None:
+                    raise ValueError(f'Invalid placeholder index: {placeholder}')
                 utxo_ref = utxo_refs[idx % len(utxo_refs)]
                 tx_hash, tx_index = utxo_ref.split('#')
                 return f'("{tx_hash}" "{tx_index}"^^xsd:decimal)'
@@ -203,7 +217,9 @@ class PlaceholderRestorer:
 
         if addresses:
             try:
-                idx = int(re.search(r'_(\d+)>>', placeholder).group(1))
+                idx = PlaceholderRestorer._placeholder_index(placeholder)
+                if idx is None:
+                    raise ValueError(f'Invalid placeholder index: {placeholder}')
                 address = addresses[idx % len(addresses)]
                 return f'"{address}"'
             except (AttributeError, ValueError, IndexError) as e:
@@ -300,7 +316,9 @@ class PlaceholderRestorer:
         tokens = current_values.get("tokens")
         if tokens:
             try:
-                idx = int(re.search(r'_(\d+)>>', placeholder).group(1))
+                idx = PlaceholderRestorer._placeholder_index(placeholder)
+                if idx is None:
+                    raise ValueError(f'Invalid placeholder index: {placeholder}')
                 if idx < len(tokens):
                     token = tokens[idx]
                     return f'{quote_char}{token}{quote_char}'

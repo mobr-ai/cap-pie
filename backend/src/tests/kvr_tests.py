@@ -9,10 +9,7 @@ import logging
 import time
 from pathlib import Path
 
-from cap.services.llm_client import LLMClient, get_llm_client
-from cap.services.nl_service import execute_sparql, nlq_to_sparql
-from cap.services.redis_nl_client import get_redis_nl_client
-from cap.util.sparql_result_processor import convert_sparql_to_kv
+from cap.services.llm_client import LLMClient
 
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.ERROR)
@@ -68,37 +65,6 @@ class NLQueryTester:
             for m in self.metrics:
                 status_icon = "v" if m['status'] == 'success' else "x"
                 print(f"  {status_icon} {m['execution_time']:.2f}s - {m['query'][:60]}...")
-
-
-    @staticmethod
-    async def get_kvr_from_query(query:str):
-        llm_client = get_llm_client()
-        redis_client = get_redis_nl_client()
-        _, sparql_query, sparql_queries, is_sequential, sparql_valid, cache_hit, _ = await nlq_to_sparql(
-            user_query=query,
-            redis_client=redis_client,
-            llm_client=llm_client,
-            conversation_history=None
-        )
-
-        assert (sparql_valid)
-        sparql_dict = await execute_sparql(sparql_query, is_sequential, sparql_queries)
-        has_data = sparql_dict["has_data"]
-        sparql_results = sparql_dict["sparql_results"]
-
-        if has_data:
-            print(f"sparql_results (cache hit {cache_hit})")
-            print(sparql_results)
-            kv_results = convert_sparql_to_kv(sparql_results, sparql_query=sparql_query)
-            if kv_results:
-                return LLMClient.format_kv(
-                    user_query=query,
-                    sparql_query=sparql_query,
-                    kv_results=kv_results
-                )
-
-        return ""
-
 
     async def test_query(self, query: str) -> bool:
         """Test a natural language query."""

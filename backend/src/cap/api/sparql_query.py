@@ -2,7 +2,7 @@ import logging
 import re
 from urllib.parse import unquote_plus
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from opentelemetry import trace
 
 from cap.api.models import (
@@ -14,6 +14,7 @@ from cap.api.models import (
     SuccessResponse,
 )
 from cap.chains.registry import get_chain
+from cap.core.auth_dependencies import get_current_admin_user
 from cap.rdf.triplestore import TriplestoreClient
 from cap.services.redis_sparql_client import get_redis_sparql_client
 
@@ -34,7 +35,11 @@ async def get_sync_data():
         logger.error(f"get_sync_data execution error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e)) from e
 
-@router.post("/query", response_model=QueryResponse)
+@router.post(
+    "/query",
+    response_model=QueryResponse,
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def execute_query(request: QueryRequest):
     """Execute a SPARQL query."""
     with tracer.start_as_current_span("execute_query_endpoint") as span:
@@ -61,7 +66,7 @@ async def execute_query(request: QueryRequest):
             client = TriplestoreClient()
             results = await client.execute_query(user_query)
             if results.get('results', {}).get('bindings') and results['results']['bindings']:
-                await redis_client.cache_query(sparql_query=user_query, results=results)
+                await redis_client.cache_sparql_query(sparql_query=user_query, results=results)
 
             return QueryResponse(results=results)
 
@@ -73,7 +78,11 @@ async def execute_query(request: QueryRequest):
                 status_code=400, detail=str(e)
             ) from e
 
-@router.post("/graphs", response_model=SuccessResponse)
+@router.post(
+    "/graphs",
+    response_model=SuccessResponse,
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def create_graph(request: GraphCreateRequest):
     """Create a new graph with the provided Turtle data."""
     with tracer.start_as_current_span("create_graph_endpoint") as span:
@@ -90,7 +99,10 @@ async def create_graph(request: GraphCreateRequest):
                 status_code=400, detail=str(e)
             ) from e
 
-@router.get("/graphs/{graph_uri:path}")
+@router.get(
+    "/graphs/{graph_uri:path}",
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def read_graph(graph_uri: str):
     """Read all triples from a graph."""
     try:
@@ -116,7 +128,10 @@ async def read_graph(graph_uri: str):
             status_code=400, detail=str(e)
         ) from e
 
-@router.patch("/graphs/{graph_uri:path}")
+@router.patch(
+    "/graphs/{graph_uri:path}",
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def update_graph(graph_uri: str, update_request: GraphUpdateRequest):
     """Update a graph with INSERT and/or DELETE operations."""
     try:
@@ -153,7 +168,10 @@ async def update_graph(graph_uri: str, update_request: GraphUpdateRequest):
             status_code=400, detail=str(e)
         ) from e
 
-@router.delete("/graphs/{graph_uri:path}")
+@router.delete(
+    "/graphs/{graph_uri:path}",
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def delete_graph(graph_uri: str):
     """Delete an entire graph."""
     try:

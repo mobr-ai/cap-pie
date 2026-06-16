@@ -27,7 +27,7 @@ class CardanoChainModule:
         return "Convert the following natural language query to SPARQL for Cardano blockchain data."
 
     def default_chart_prompt(self) -> str:
-        return "You are a blockchain analytics chart analyzer."
+        return "You are a cardano analytics chart analyzer."
 
     def detect_amount_variables(self, sparql_query: str) -> set[str]:
         return detect_ada_variables(sparql_query)
@@ -56,8 +56,14 @@ class CardanoChainModule:
         var_name: str,
         value: Any,
         sparql_query: str = "",
+        row_context: dict[str, Any] | None = None,
     ) -> str:
-        return convert_entity_to_cardanoscan_link(var_name, value, sparql_query)
+        return convert_entity_to_cardanoscan_link(
+            var_name,
+            value,
+            sparql_query,
+            row_context=row_context,
+        )
 
     def convert_result_value(
         self,

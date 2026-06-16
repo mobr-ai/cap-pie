@@ -6,15 +6,15 @@ from opentelemetry import trace
 
 from cap.config import settings
 
-# Static global for preserved expressions
-_PRESERVED_EXPRESSIONS = []
+# Static globals for preserved expressions
+_preserved_expressions: list[str] = []
 
-_ENTITIES = []
+_entities: list[str] = []
 
-def _load_ontology_labels(onto_path: str) -> tuple[list, list]:
+def _load_ontology_labels(onto_path: str) -> tuple[list[str], list[str]]:
     """Load rdfs:label values from the Turtle ontology file."""
-    entity_labels = []
-    reserved_labels = []
+    entity_labels: list[str] = []
+    reserved_labels: list[str] = []
     try:
         path = Path(onto_path)
         if not path.exists():
@@ -216,10 +216,10 @@ class PatternRegistry:
 
     @staticmethod
     def ensure_expressions() -> None:
-        global _PRESERVED_EXPRESSIONS
-        global _ENTITIES
+        global _preserved_expressions
+        global _entities
 
-        if not _PRESERVED_EXPRESSIONS:
+        if not _preserved_expressions:
             # Load labels from ontology
             reserved_labels, entity_labels = _load_ontology_labels(settings.ONTOLOGY_PATH)
 
@@ -228,20 +228,18 @@ class PatternRegistry:
                 logger.warning("No ontology labels loaded, using default preserved expressions")
                 reserved_labels = PatternRegistry.DEFAULT_PRESERVED_EXPRESSIONS
 
-            _PRESERVED_EXPRESSIONS = reserved_labels + PatternRegistry.RESERVED_WORDS
-            _ENTITIES = entity_labels
+            _preserved_expressions = reserved_labels + PatternRegistry.RESERVED_WORDS
+            _entities = entity_labels
 
     @staticmethod
-    def get_preserved_expressions() -> list:
-        global _PRESERVED_EXPRESSIONS
+    def get_preserved_expressions() -> list[str]:
         PatternRegistry.ensure_expressions()
-        return _PRESERVED_EXPRESSIONS
+        return _preserved_expressions
 
     @staticmethod
-    def get_entities() -> list:
-        global _ENTITIES
+    def get_entities() -> list[str]:
         PatternRegistry.ensure_expressions()
-        return _ENTITIES
+        return _entities
 
     @staticmethod
     def build_pattern(terms: list[str], word_boundary: bool = True) -> str:

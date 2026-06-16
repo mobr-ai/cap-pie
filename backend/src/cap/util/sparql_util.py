@@ -1,6 +1,5 @@
 """
 SPARQL Results to Key-Value Converter for Blockchain Data
-Handles large integers (ADA amounts in lovelace) and nested structures
 """
 import logging
 import re

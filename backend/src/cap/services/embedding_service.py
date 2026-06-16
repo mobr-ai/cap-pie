@@ -140,7 +140,7 @@ class EmbeddingService:
                             {
                                 "original_query": e["original_query"],
                                 "normalized_query": e.get("normalized_query", ""),
-                                "sparql_query": e.get("sparql_query", ""),
+                                "federated_query": e.get("federated_query", ""),
                                 "is_sequential": str(e.get("is_sequential", False)),
                                 "precached": str(e.get("precached", False)),
                             }
@@ -211,14 +211,18 @@ class EmbeddingService:
                     cached_normalized = meta.get("normalized_query", "")
                     original_nl = meta.get("original_query", "")
                     redis_client = get_redis_nl_client()
-                    sparql_data = await redis_client.get_cached_query_with_original(
+                    federated_data = await redis_client.get_cached_query_with_original(
                         normalized_query=cached_normalized,
                         original_query=original_nl,
                     )
+                    federated_query = ""
+                    if federated_data:
+                        federated_query = federated_data.get("federated_query", "")
+
                     results.append({
                         "original_query": meta.get("original_query", ""),
                         "normalized_query": meta.get("normalized_query", ""),
-                        "sparql_query": sparql_data["sparql_query"],
+                        "federated_query": federated_query,
                         "is_sequential": meta.get("is_sequential", "False") == "True",
                         "precached": meta.get("precached", "False") == "True",
                         "similarity_score": similarity,

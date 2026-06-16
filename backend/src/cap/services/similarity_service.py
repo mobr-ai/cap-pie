@@ -2,13 +2,14 @@
 Finds similar cached NL queries.
 
 Strategy:
-  1. Embedding similarity (multilingual-e5-small + ChromaDB).
+  1. Embedding similarity.
      The index is rebuilt on demand per EmbeddingRegenerationPolicy.
   2. Jaccard token-overlap fallback — activated only when embeddings fail.
 
 The regeneration state lives here because SimilarityService is the only
 consumer of the policy. Neither RedisNLClient nor nl_service know it exists.
 """
+
 import json
 import logging
 from enum import StrEnum
@@ -44,7 +45,7 @@ class SimilarityService:
 
     Public surface:
         find_similar_queries()   — called by LLMClient for few-shot examples.
-        notify_new_cache_entry() — called by nl_service after a successful cache_query().
+        notify_new_cache_entry() — called by nl_service after a successful cache query.
     """
 
     # ------------------------------------------------------------------
@@ -99,6 +100,7 @@ class SimilarityService:
                     logger.error(f"Jaccard fallback also failed: {jaccard_exc}", exc_info=True)
                     return []
 
+        logger.error("No similar queries found using jaccard")
         return []
 
 
@@ -179,14 +181,18 @@ class SimilarityService:
                 continue
 
             original_nl = entry.get("original_query", "")
-            sparql_data = await redis_client.get_cached_query_with_original(
+            federated_data = await redis_client.get_cached_query_with_original(
                 normalized_query=cached_normalized,
                 original_query=original_nl,
             )
+            federated_query = ""
+            if federated_data:
+                federated_query = federated_data.get("federated_query", "")
+
             candidates.append({
                 "original_query": original_nl,
                 "normalized_query": cached_normalized,
-                "sparql_query": sparql_data["sparql_query"],
+                "federated_query": federated_query,
                 "similarity_score": score,
                 "is_sequential": entry.get("is_sequential", False),
                 "precached": entry.get("precached", False),

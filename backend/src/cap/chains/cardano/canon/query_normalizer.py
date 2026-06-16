@@ -173,11 +173,17 @@ class QueryNormalizer:
             address_counter += 1
 
         # Normalize visualization terms to <<VIZ>> placeholder
-        viz_terms = (PatternRegistry.BAR_CHART_TERMS +
+        viz_terms = (
+            PatternRegistry.BAR_CHART_TERMS +
             PatternRegistry.LINE_CHART_TERMS +
             PatternRegistry.PIE_CHART_TERMS +
+            PatternRegistry.SCATTER_CHART_TERMS +
+            PatternRegistry.BUBBLE_CHART_TERMS +
+            PatternRegistry.TREEMAP_TERMS +
+            PatternRegistry.HEATMAP_TERMS +
             PatternRegistry.TABLE_TERMS +
-            PatternRegistry.CHART_SUFFIXES)
+            PatternRegistry.CHART_SUFFIXES
+        )
         viz_pattern = PatternRegistry.build_entity_pattern(viz_terms)
         # Check if any visualization terms exist
         if re.search(viz_pattern, normalized):

@@ -2,7 +2,8 @@
 Metrics reporting API.
 """
 from datetime import UTC, datetime, timedelta
-from typing import Any, cast as type_cast
+from typing import Any
+from typing import cast as type_cast
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import Float, Integer, and_, case, cast, func, or_, select
@@ -255,7 +256,7 @@ def _query_metrics_to_dict(r: QueryMetrics) -> dict[str, Any]:
         "created_at": r.created_at.isoformat() if r.created_at else None,
 
         # details / modal
-        "sparql_query": getattr(r, "sparql_query", None),
+        "federated_query": getattr(r, "federated_query", None),
         "sparql_valid": getattr(r, "sparql_valid", None),
         "semantic_valid": getattr(r, "semantic_valid", None),
         "is_sequential": getattr(r, "is_sequential", None),

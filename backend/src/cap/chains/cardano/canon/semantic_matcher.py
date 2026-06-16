@@ -45,7 +45,7 @@ class SemanticMatcher:
     SEMANTIC_SUGAR = PatternRegistry.SEMANTIC_SUGAR
 
     @staticmethod
-    def get_semantic_dicts() -> list:
+    def get_semantic_dicts() -> list[dict[str, list[str]]]:
         return [
             SemanticMatcher.COMPARISON_EQUIVALENTS,
             SemanticMatcher.POSSESSION_EQUIVALENTS,

@@ -6,16 +6,21 @@ import logging
 import os
 import tempfile
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
+from cap.core.auth_dependencies import get_current_admin_user
 from cap.services.redis_nl_client import get_redis_nl_client
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
 
-router = APIRouter(prefix="/api/v1/admin/cache", tags=["cache"])
+router = APIRouter(
+    prefix="/api/v1/admin/cache",
+    tags=["cache"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 
 class PrecacheRequest(BaseModel):

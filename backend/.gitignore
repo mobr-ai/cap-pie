@@ -158,5 +158,5 @@ src/cap/static/*
 
 # Runtime / local data (do not commit)
 data/
-
+test.messages
 src/ontologies/mini.ttl

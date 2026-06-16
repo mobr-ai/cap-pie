@@ -1,8 +1,9 @@
 import asyncio
 import logging
-import urllib
+import urllib.parse
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any, cast
 
 import httpx
 from fastapi import HTTPException
@@ -24,11 +25,11 @@ def _default_prefix_block() -> str:
 class TriplestoreConfig:
     """Configuration settings for Virtuoso connection."""
     host: str = settings.TRIPLESTORE_HOST
-    port: int = settings.TRIPLESTORE_PORT
+    port: int = int(settings.TRIPLESTORE_PORT)
     username: str = settings.TRIPLESTORE_USER
     password: str = settings.TRIPLESTORE_PASSWORD
     sparql_str_endpoint: str = settings.TRIPLESTORE_ENDPOINT
-    query_timeout: int = settings.TRIPLESTORE_TIMEOUT
+    query_timeout: int = int(settings.TRIPLESTORE_TIMEOUT)
 
     @property
     def base_url(self) -> str:
@@ -48,33 +49,33 @@ class TriplestoreConfig:
 class TriplestoreClient:
     def __init__(self, config: TriplestoreConfig | None = None):
         self.config = config or TriplestoreConfig()
-        self._sparql_wrapper = None
-        self._http_client = None
+        self._sparql_wrapper: SPARQLWrapper | None = None
+        self._http_client: httpx.AsyncClient | None = None
         self._query_lock = asyncio.Lock()
         self._initialize_sparql_wrapper()
 
-    async def _get_http_client(self):
+    async def _get_http_client(self) -> httpx.AsyncClient:
         """Get or create reusable HTTP client with optimized settings."""
         if not self._http_client:
-            timeout = httpx.Timeout(360.0, connect=10.0)
+            timeout = httpx.Timeout(float(self.config.query_timeout), connect=10.0)
             self._http_client = httpx.AsyncClient(
                 timeout=timeout,
                 limits=httpx.Limits(
                     max_keepalive_connections=20,
                     max_connections=50,
-                    keepalive_expiry=360.0
+                    keepalive_expiry=float(self.config.query_timeout)
                 ),
                 http2=True  # Enable HTTP/2 for better performance
             )
         return self._http_client
 
-    async def _close(self):
+    async def _close(self) -> None:
         """Close the HTTP client connection."""
         if self._http_client:
             await self._http_client.aclose()
             self._http_client = None
 
-    def _initialize_sparql_wrapper(self):
+    def _initialize_sparql_wrapper(self) -> None:
         """Initialize the SPARQL wrapper with proper configuration."""
         try:
             self._sparql_wrapper = SPARQLWrapper(self.config.sparql_endpoint)
@@ -87,7 +88,23 @@ class TriplestoreClient:
                 f"SPARQL wrapper initialization failed: {e}"
             ) from e
 
-    def _build_prefixes(self, prefix_statement, default_prefixes, additional_prefixes: dict[str, str] | None = None) -> str:
+
+    def _get_sparql_wrapper(self) -> SPARQLWrapper:
+        """Get or create the configured SPARQL wrapper."""
+        if self._sparql_wrapper is None:
+            self._initialize_sparql_wrapper()
+
+        if self._sparql_wrapper is None:
+            raise RuntimeError("SPARQL wrapper initialization failed")
+
+        return self._sparql_wrapper
+
+    def _build_prefixes(
+        self,
+        prefix_statement: str,
+        default_prefixes: str,
+        additional_prefixes: dict[str, str] | None = None,
+    ) -> str:
         """Build prefix declarations including any additional prefixes."""
         prefix_str = default_prefixes
         if additional_prefixes:
@@ -105,7 +122,7 @@ class TriplestoreClient:
             additional_prefixes
         )
 
-    async def _execute_sparql_query_async(self, sparql_query: str) -> dict:
+    async def _execute_sparql_query_async(self, sparql_query: str) -> dict[str, Any]:
         """Execute SPARQL query asynchronously."""
 
         async with self._query_lock:
@@ -129,7 +146,7 @@ class TriplestoreClient:
                         headers={"Accept": "application/sparql-results+json"}
                     )
                     response.raise_for_status()
-                    ret_ = response.json()
+                    ret_ = cast(dict[str, Any], response.json())
                     await self._close()
                     return ret_
 
@@ -158,14 +175,12 @@ class TriplestoreClient:
                         status_code=500, detail=str(e)
                     ) from e
 
-            def _execute_sync():
+            def _execute_sync() -> dict[str, Any]:
                 try:
-                    if not self._sparql_wrapper:
-                        self._initialize_sparql_wrapper()
-
-                    self._sparql_wrapper.setQuery(query)
-                    result = self._sparql_wrapper.query()
-                    return result.convert()
+                    sparql_wrapper = self._get_sparql_wrapper()
+                    sparql_wrapper.setQuery(query)
+                    result = sparql_wrapper.query()
+                    return cast(dict[str, Any], result.convert())
                 except Exception as e:
                     logger.error("SPARQL query execution failed!")
                     logger.error(f"     query: {query}")
@@ -181,7 +196,7 @@ class TriplestoreClient:
                     status_code=500, detail=f"SPARQL query failed: {str(e)}"
                 ) from e
 
-    async def execute_query(self, query: str) -> dict:
+    async def execute_query(self, query: str) -> dict[str, Any]:
         """Execute a SPARQL query."""
         with tracer.start_as_current_span("execute_query") as span:
             span.set_attribute("query_type", "SELECT" if "SELECT" in query.upper() else "OTHER")
@@ -308,6 +323,11 @@ class TriplestoreClient:
                     status_code=500, detail=error_msg
                 ) from e
 
+            raise HTTPException(
+                status_code=500,
+                detail=f"{method} operation failed without a response",
+            )
+
 
     async def create_graph(
             self,
@@ -340,7 +360,7 @@ class TriplestoreClient:
                 logger.error(f"Unexpected error creating graph {graph_uri}: {e}")
                 raise
 
-    async def read_graph(self, graph_uri: str) -> dict:
+    async def read_graph(self, graph_uri: str) -> dict[str, Any]:
         """Read all triples from a graph."""
         with tracer.start_as_current_span("read_graph") as span:
             span.set_attribute("graph_uri", graph_uri)
@@ -379,7 +399,8 @@ class TriplestoreClient:
                 raise ValueError("Either insert_data or delete_data must be provided")
 
             try:
-                self._sparql_wrapper.setMethod('POST')
+                sparql_wrapper = self._get_sparql_wrapper()
+                sparql_wrapper.setMethod("POST")
                 prefixes = self._build_sparql_prefixes(additional_prefixes)
 
                 # Handle DELETE operation

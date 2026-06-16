@@ -8,6 +8,51 @@ from cap.util.str_util import hex_to_string, is_hex_string
 logger = logging.getLogger(__name__)
 
 
+def convert_results_to_explorer_links(
+    results: Any,
+    sparql_query: str = "",
+    row_context: dict[str, Any] | None = None,
+) -> Any:
+    if not results:
+        return results
+
+    chain = get_chain()
+
+    if isinstance(results, list):
+        return [
+            convert_results_to_explorer_links(
+                item,
+                sparql_query,
+                row_context=item if isinstance(item, dict) else row_context,
+            )
+            for item in results
+        ]
+
+    if isinstance(results, dict):
+        current_row_context = row_context or results
+
+        return {
+            key: (
+                convert_results_to_explorer_links(
+                    value,
+                    sparql_query,
+                    row_context=current_row_context,
+                )
+                if isinstance(value, (dict, list))
+                else chain.convert_entity_to_explorer_link(
+                    key,
+                    value,
+                    sparql_query,
+                    row_context=current_row_context,
+                )
+            )
+            for key, value in results.items()
+        }
+
+    return results
+
+
+
 def convert_sparql_to_kv(
     sparql_results: dict,
     sparql_query: str = "",

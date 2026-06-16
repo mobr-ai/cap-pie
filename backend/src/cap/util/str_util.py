@@ -1,6 +1,5 @@
 """
 SPARQL Results to Key-Value Converter for Blockchain Data
-Handles large integers (ADA amounts in lovelace) and nested structures
 """
 import logging
 import re
@@ -75,6 +74,15 @@ def hex_to_string(hex_value: str) -> str:
     except (ValueError, TypeError) as e:
         logger.debug(f"Could not decode hex string '{hex_value}': {e}")
         return hex_value
+
+
+def matches_keyword(low_uq: str, keywords):
+    return any(
+        form in low_uq
+        for keyword in keywords
+        for form in (keyword, f"{keyword}s", f"{keyword}es", f"{keyword}ies", f"{keyword}ing")
+    )
+
 
 def get_file_content(file_path: str) -> str:
     if file_path == "":
