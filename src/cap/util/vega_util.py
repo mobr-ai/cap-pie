@@ -576,6 +576,14 @@ class VegaUtil:
         return 1
 
     @staticmethod
+    def _is_temporal_key(key: str) -> bool:
+        key_lower = key.lower()
+        return any(
+            token in key_lower
+            for token in ("time", "date", "timestamp", "hour", "ts")
+        )
+
+    @staticmethod
     def _format_display_value(value: Any, key: str) -> str:
         """Format values used as visual labels across all chart types."""
         if isinstance(value, dict):
@@ -1132,12 +1140,24 @@ class VegaUtil:
             VegaUtil._format_column_name(value_key)
         ]
 
+        x_is_temporal = VegaUtil._is_temporal_key(x_key)
+        y_is_temporal = VegaUtil._is_temporal_key(y_key)
+
         return {
             "values": values,
             "_x_key": x_key,
             "_y_key": y_key,
             "_value_key": value_key,
-            "_columns": formatted_columns
+            "_columns": formatted_columns,
+            "_field_types": {
+                "x": "temporal" if x_is_temporal else "nominal",
+                "y": "temporal" if y_is_temporal else "nominal",
+                "value": "quantitative",
+            },
+            "_axis_formats": {
+                "x": "%d %b %Hh" if x_is_temporal else None,
+                "y": "%d %b %Hh" if y_is_temporal else None,
+            },
         }
 
     @staticmethod
