@@ -1,8 +1,6 @@
-"""
-Vega util to convert data to vega format.
-"""
 import logging
 import re
+from datetime import datetime
 from collections import Counter
 from typing import Any, TypeAlias
 
@@ -35,6 +33,60 @@ class VegaUtil:
         "heatmap",
         "table",
     }
+
+    @staticmethod
+    def convert_to_vega_format(
+        kv_results: dict[str, Any],
+        user_query: str,
+        sparql_query: str
+    ) -> dict[str, Any]:
+        """
+        Convert kv_results to Vega-compatible format based on result_type and data structure.
+
+        Args:
+            kv_results: The key-value results from SPARQL
+            user_query: Original natural language query for context
+            sparql_query: SPARQL query for understanding data structure
+
+        Returns:
+            Dictionary with 'values' key containing formatted data for Vega
+        """
+        result_type = kv_results.get("result_type", "")
+        data = kv_results.get("data", [])
+
+        if not data:
+            return {"values": []}
+
+        try:
+            if result_type == "bar_chart":
+                return VegaUtil._convert_bar_chart(data, user_query, sparql_query)
+
+            elif result_type == "pie_chart":
+                return VegaUtil._convert_pie_chart(data, user_query, sparql_query)
+
+            elif result_type == "line_chart":
+                return VegaUtil._convert_line_chart(data, user_query, sparql_query)
+
+            elif result_type == "table":
+                return VegaUtil._convert_table(data, user_query, sparql_query)
+
+            elif result_type == "scatter_chart":
+                return VegaUtil._convert_scatter_chart(data, user_query, sparql_query)
+
+            elif result_type == "bubble_chart":
+                return VegaUtil._convert_bubble_chart(data, user_query, sparql_query)
+
+            elif result_type == "treemap":
+                return VegaUtil._convert_treemap(data, user_query, sparql_query)
+
+            elif result_type == "heatmap":
+                return VegaUtil._convert_heatmap(data, user_query, sparql_query)
+            else:
+                return {"values": []}
+
+        except Exception as e:
+            logger.error(f"Error converting to Vega format: {e}")
+            return {"values": []}
 
     @staticmethod
     def _is_numeric_value(value: Any) -> bool:
@@ -391,60 +443,6 @@ class VegaUtil:
         return formatted.strip()
 
     @staticmethod
-    def convert_to_vega_format(
-        kv_results: dict[str, Any],
-        user_query: str,
-        sparql_query: str
-    ) -> dict[str, Any]:
-        """
-        Convert kv_results to Vega-compatible format based on result_type and data structure.
-
-        Args:
-            kv_results: The key-value results from SPARQL
-            user_query: Original natural language query for context
-            sparql_query: SPARQL query for understanding data structure
-
-        Returns:
-            Dictionary with 'values' key containing formatted data for Vega
-        """
-        result_type = kv_results.get("result_type", "")
-        data = kv_results.get("data", [])
-
-        if not data:
-            return {"values": []}
-
-        try:
-            if result_type == "bar_chart":
-                return VegaUtil._convert_bar_chart(data, user_query, sparql_query)
-
-            elif result_type == "pie_chart":
-                return VegaUtil._convert_pie_chart(data, user_query, sparql_query)
-
-            elif result_type == "line_chart":
-                return VegaUtil._convert_line_chart(data, user_query, sparql_query)
-
-            elif result_type == "table":
-                return VegaUtil._convert_table(data, user_query, sparql_query)
-
-            elif result_type == "scatter_chart":
-                return VegaUtil._convert_scatter_chart(data, user_query, sparql_query)
-
-            elif result_type == "bubble_chart":
-                return VegaUtil._convert_bubble_chart(data, user_query, sparql_query)
-
-            elif result_type == "treemap":
-                return VegaUtil._convert_treemap(data, user_query, sparql_query)
-
-            elif result_type == "heatmap":
-                return VegaUtil._convert_heatmap(data, user_query, sparql_query)
-            else:
-                return {"values": []}
-
-        except Exception as e:
-            logger.error(f"Error converting to Vega format: {e}")
-            return {"values": []}
-
-    @staticmethod
     def _convert_bar_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to bar chart format."""
         if isinstance(data, list) and len(data) > 0:
@@ -487,7 +485,7 @@ class VegaUtil:
 
                 try:
                     values.append({
-                        "category": str(cat_val),
+                        "category": VegaUtil._format_display_value(cat_val, category_key),
                         "amount": float(amt_val)
                     })
                 except (ValueError, TypeError) as e:
@@ -543,7 +541,7 @@ class VegaUtil:
 
                 try:
                     values.append({
-                        "category": str(cat_val),
+                        "category": VegaUtil._format_display_value(cat_val, category_key),
                         "value": float(val)
                     })
                 except (ValueError, TypeError) as e:
@@ -578,12 +576,43 @@ class VegaUtil:
         return 1
 
     @staticmethod
-    def _format_x_value(x_val: Any, x_key: str) -> str:
-        """Extract and format x-axis value for line charts."""
-        if isinstance(x_val, dict):
-            x_val = x_val.get('value', str(x_val))
+    def _format_display_value(value: Any, key: str) -> str:
+        """Format values used as visual labels across all chart types."""
+        if isinstance(value, dict):
+            value = value.get("value", str(value))
 
-        if isinstance(x_val, str) and 'epoch' in x_key.lower():
+        if value is None:
+            return ""
+
+        value_str = str(value)
+
+        key_lower = key.lower()
+        looks_temporal_key = any(
+            token in key_lower
+            for token in ("time", "date", "timestamp", "hour", "ts")
+        )
+
+        if looks_temporal_key:
+            try:
+                clean_value = value_str.replace("Z", "+00:00")
+                dt = datetime.fromisoformat(clean_value)
+
+                if dt.minute == 0 and dt.second == 0:
+                    return dt.strftime("%d %b %Hh")
+
+                return dt.strftime("%d %b %H:%M")
+            except ValueError:
+                pass
+
+        return value_str
+
+    @staticmethod
+    def _format_x_value(x_val: Any, x_key: str) -> str:
+        """Extract and format x-axis value for charts."""
+        if isinstance(x_val, dict):
+            x_val = x_val.get("value", str(x_val))
+
+        if isinstance(x_val, str) and "epoch" in x_key.lower():
             try:
                 epoch_num = int(float(x_val))
                 return get_chain().format_axis_value(x_key, epoch_num)
@@ -599,7 +628,7 @@ class VegaUtil:
                 logger.warning(f"Failed to convert epoch {x_val}: {e}")
                 return str(x_val)
 
-        return str(x_val) if x_val is not None else ""
+        return VegaUtil._format_display_value(x_val, x_key)
 
     @staticmethod
     def _abbreviate_label(label: str, max_length: int = 11) -> str:
@@ -833,7 +862,8 @@ class VegaUtil:
                         cat_val = item.get(category_key, "")
                         if isinstance(cat_val, dict):
                             cat_val = cat_val.get('value', str(cat_val))
-                        point["category"] = str(cat_val)
+
+                        point["category"] = VegaUtil._format_display_value(cat_val, category_key)
                     values.append(point)
                 except (ValueError, TypeError) as e:
                     logger.warning(f"Skipping scatter point: {e}")
@@ -924,7 +954,8 @@ class VegaUtil:
                         label_val = item.get(label_key, "")
                         if isinstance(label_val, dict):
                             label_val = label_val.get('value', str(label_val))
-                        bubble["label"] = str(label_val)
+
+                        bubble["label"] = VegaUtil._format_display_value(label_val, label_key)
                     values.append(bubble)
                 except (ValueError, TypeError) as e:
                     logger.warning(f"Skipping bubble: {e}")
@@ -983,7 +1014,7 @@ class VegaUtil:
             if size_val is not None:
                 try:
                     node = {
-                        "name": str(name_val),
+                        "name": VegaUtil._format_display_value(name_val, name_key),
                         "value": float(size_val)
                     }
                     if parent_key:
@@ -1071,8 +1102,8 @@ class VegaUtil:
             if heat_val is not None:
                 try:
                     values.append({
-                        "x": str(x_val),
-                        "y": str(y_val),
+                        "x": VegaUtil._format_display_value(x_val, x_key),
+                        "y": VegaUtil._format_display_value(y_val, y_key),
                         "value": float(heat_val)
                     })
                 except (ValueError, TypeError) as e:
