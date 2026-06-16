@@ -1,0 +1,2 @@
+from_asset_id,to_asset_id,relationship_type,effective_at,metadata
+agix,fet,migrated_to,2024-07-01T00:00:00Z,"{""note"":""AGIX migrated into ASI/FET. Keep historical AGIX OHLCV separate but queryable through relationship graph.""}"

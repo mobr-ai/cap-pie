@@ -1,9 +1,34 @@
+#include <sstream>
+
 #include "cap/Config.hpp"
 
 #include "cap/Json.hpp"
 #include "cap/Utils.hpp"
 
 namespace cap {
+
+
+std::vector<int> parse_int_list(const std::string& value, const std::vector<int>& fallback)
+{
+  if(value.empty()) {
+    return fallback;
+  }
+
+  std::vector<int> output;
+  std::stringstream stream(value);
+  std::string item;
+
+  while(std::getline(stream, item, ',')) {
+    item = trim(item);
+
+    if(!item.empty()) {
+      output.push_back(std::stoi(item));
+    }
+  }
+
+  return output.empty() ? fallback : output;
+}
+
 
 Config load_config(const std::string& path)
 {
@@ -64,7 +89,86 @@ Config load_config(const std::string& path)
     {"ohlcv", "empty_window_max_advances_per_cycle"},
     config.empty_advances
   );
+  config.asset_relationships_file = json_string_at(
+    root,
+    {"ohlcv", "asset_relationships_file"},
+    config.asset_relationships_file
+  );
   config.mapping_file = json_string_at(root, {"ohlcv", "mapping_file"}, config.mapping_file);
+
+
+
+  config.indicators_enabled = json_bool_at(
+    root,
+    {"indicators", "enabled"},
+    config.indicators_enabled
+  );
+
+  config.indicator_source = json_string_at(
+    root,
+    {"indicators", "source"},
+    config.indicator_source
+  );
+
+  config.indicator_warmup_candles = json_int_at(
+    root,
+    {"indicators", "warmup_candles"},
+    config.indicator_warmup_candles
+  );
+
+  config.sma_periods = parse_int_list(
+    json_string_at(root, {"indicators", "sma_periods"}, ""),
+    config.sma_periods
+  );
+
+  config.ema_periods = parse_int_list(
+    json_string_at(root, {"indicators", "ema_periods"}, ""),
+    config.ema_periods
+  );
+
+  config.rsi_periods = parse_int_list(
+    json_string_at(root, {"indicators", "rsi_periods"}, ""),
+    config.rsi_periods
+  );
+
+  config.bb_period = json_int_at(
+    root,
+    {"indicators", "bb_period"},
+    config.bb_period
+  );
+
+  config.bb_stddev = std::stod(
+    json_string_at(
+      root,
+      {"indicators", "bb_stddev"},
+      std::to_string(config.bb_stddev)
+    )
+  );
+
+  config.macd_enabled = json_bool_at(
+    root,
+    {"indicators", "macd_enabled"},
+    config.macd_enabled
+  );
+
+  config.macd_fast = json_int_at(
+    root,
+    {"indicators", "macd_fast"},
+    config.macd_fast
+  );
+
+  config.macd_slow = json_int_at(
+    root,
+    {"indicators", "macd_slow"},
+    config.macd_slow
+  );
+
+  config.macd_signal = json_int_at(
+    root,
+    {"indicators", "macd_signal"},
+    config.macd_signal
+  );
+
 
   config.gov_enabled = json_bool_at(root, {"governance", "enabled"}, config.gov_enabled);
   config.gov_provider = json_string_at(

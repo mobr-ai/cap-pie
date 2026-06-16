@@ -1,6 +1,7 @@
 #include "cap/Config.hpp"
 #include "cap/Db.hpp"
 #include "cap/GovernanceSync.hpp"
+#include "cap/IndicatorSync.hpp"
 #include "cap/OhlcvSync.hpp"
 #include "cap/Utils.hpp"
 
@@ -84,6 +85,18 @@ int main(int argc, char** argv)
           cap::log(
             "ERROR",
             "OHLCV source cycle failed; will retry after sleep: " +
+            std::string(e.what())
+          );
+        }
+      }
+
+      if(config.indicators_enabled) {
+        try {
+          cap::sync_indicators(db, config);
+        } catch(const std::exception& e) {
+          cap::log(
+            "ERROR",
+            "Indicator source cycle failed; will retry after sleep: " +
             std::string(e.what())
           );
         }

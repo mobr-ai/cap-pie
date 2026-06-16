@@ -1,6 +1,7 @@
-asset_id,symbol,name,policy_id,asset_name_hex,decimals,source,source_asset_id,quote_asset,bootstrap_from
-lovelace,ADA,Cardano,,,6,binance_spot,ADAUSDT,USDT,2017-10-01T00:00:00Z
-night,NIGHT,Midnight,,,6,binance_spot,NIGHTUSDT,USDT,2017-10-01T00:00:00Z
-snek,SNEK,SNEK,,,6,binance_spot,SNEKUSDT,USDT,2017-10-01T00:00:00Z
-agix,AGIX,SingularityNET,,,8,binance_spot,AGIXUSDT,USDT,2017-10-01T00:00:00Z
-iag,IAG,IAGON,,,6,binance_spot,IAGUSDT,USDT,2017-10-01T00:00:00Z
+asset_id,symbol,name,policy_id,asset_name_hex,decimals,source,source_asset_id,quote_asset,bootstrap_from,valid_from,valid_to,base_asset_symbol,source_market_id
+ada,ADA,Cardano,,,6,binance_spot,ADAUSDT,USDT,2018-04-16T00:00:00Z,2018-04-16T00:00:00Z,,ADA,binance_spot:ADAUSDT
+night,NIGHT,Midnight,,,6,binance_spot,NIGHTUSDT,USDT,2025-01-01T00:00:00Z,2025-01-01T00:00:00Z,,NIGHT,binance_spot:NIGHTUSDT
+snek,SNEK,SNEK,,,6,binance_spot,SNEKUSDT,USDT,2025-01-01T00:00:00Z,2025-01-01T00:00:00Z,,SNEK,binance_spot:SNEKUSDT
+agix,AGIX,SingularityNET,,,8,binance_spot,AGIXUSDT,USDT,2018-04-16T00:00:00Z,2018-04-16T00:00:00Z,2024-07-01T00:00:00Z,AGIX,binance_spot:AGIXUSDT
+fet,FET,Artificial Superintelligence Alliance,,,8,binance_spot,FETUSDT,USDT,2024-07-01T00:00:00Z,2024-07-01T00:00:00Z,,FET,binance_spot:FETUSDT
+iag,IAG,IAGON,,,6,binance_spot,IAGUSDT,USDT,2025-01-01T00:00:00Z,2025-01-01T00:00:00Z,,IAG,binance_spot:IAGUSDT

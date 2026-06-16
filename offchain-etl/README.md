@@ -4,10 +4,11 @@
 
 CAP Offchain ETL (`cap-offchain-etl`) is a C++ ETL pipeline designed to continuously synchronize offchain Cardano data into PostgreSQL.
 
-Currently, the project has two components:
+Currently, the project has three components:
 
 1. OHLCV market data synchronization
-2. Offchain governance metadata synchronization
+2. Technical indicator synchronization
+3. Offchain governance metadata synchronization
 
 Supporting:
 
@@ -74,33 +75,75 @@ The ETL therefore uses Binance Spot as the default market source.
 
 ## Asset Mapping
 
-Asset mapping defines how Cardano assets map to centralized exchange market symbols.
+Asset mapping defines how CAP assets map to external market instruments.
+
+This separation is important because a Cardano asset, a centralized exchange symbol, and a market data provider identifier are not the same thing.
+
+For example:
+
+```csv
+asset_id,symbol,name,policy_id,asset_name_hex,decimals,source,source_asset_id,quote_asset,bootstrap_from,valid_from,valid_to,base_asset_symbol,source_market_id
+agix,AGIX,SingularityNET,,,8,binance_spot,AGIXUSDT,USDT,2018-04-16T00:00:00Z,2018-04-16T00:00:00Z,2024-07-01T00:00:00Z,AGIX,binance_spot:AGIXUSDT
+fet,FET,Artificial Superintelligence Alliance,,,8,binance_spot,FETUSDT,USDT,2024-07-01T00:00:00Z,2024-07-01T00:00:00Z,,FET,binance_spot:FETUSDT
+```
+
+---
+
+## Asset Relationships and Token Migrations
+
+Some assets change identity over time.
+
+Examples include:
+
+- token migrations
+- ticker changes
+- protocol mergers
+- rebrands
+- wrapped-to-native transitions
+- deprecated markets replaced by successor markets
+
+The ETL models these cases explicitly through `asset_relationship`.
 
 Example:
 
-```json
-{
-  "asset_id": "lovelace",
-  "symbol": "ADAUSDT"
-}
+```csv
+from_asset_id,to_asset_id,relationship_type,effective_at,metadata
+agix,fet,migrated_to,2024-07-01T00:00:00Z,"{""note"":""AGIX migrated into ASI/FET. Keep historical AGIX OHLCV separate but queryable through relationship graph.""}"
 ```
 
-or:
+---
 
-```json
-{
-  "asset_id": "policyid.assethex",
-  "symbol": "SNEKUSDT"
-}
+# Technical Indicator Synchronization
+
+## Goal
+
+The indicator component keeps commonly used market indicators synchronized in PostgreSQL.
+
+The ETL calculates indicators from the synchronized 1-hour OHLCV candles and stores the results in `asset_indicator`.
+
+The default indicators are:
+
+- SMA: 20, 50, 100, 200
+- EMA: 9, 20, 50, 100, 200
+- RSI: 14
+- Bollinger Bands: 20-period, 2 standard deviations
+- MACD: 12/26/9
+
+Indicators are calculated after each OHLCV synchronization cycle.
+
+This means the standard production flow is:
+
+```text
+fetch OHLCV candles
+        ↓
+upsert asset_ohlcv
+        ↓
+calculate indicators
+        ↓
+upsert asset_indicator
+        ↓
+sync governance metadata
 ```
-
-Why this separation?
-
-- Cardano native assets use policy IDs and asset names
-- centralized exchanges use trading symbols
-- there is no universal identifier standard
-
-The ETL therefore maintains explicit mappings.
 
 ---
 
@@ -216,6 +259,8 @@ The configuration controls:
 - governance synchronization
 - scheduler intervals
 - asset mappings
+- asset market source mappings
+- asset relationship mappings for migrations and ticker changes
 - governance metadata sources
 - logging
 
@@ -229,6 +274,8 @@ The standard execution mode continuously synchronizes:
 
 - OHLCV data
 - governance metadata
+- technical indicator periods
+- indicator warmup window
 
 Run:
 
@@ -349,6 +396,7 @@ The ETL maintains synchronization checkpoints inside PostgreSQL.
 Examples:
 
 - latest synchronized OHLC candle timestamp
+- latest synchronized indicator timestamp per asset/source
 - latest governance metadata fetch timestamp
 - retry states
 - synchronization cursors
@@ -359,6 +407,12 @@ This guarantees:
 - crash recovery
 - incremental synchronization
 - reduced API usage
+
+OHLCV checkpoints are tracked by `source_market_id`, not only by `asset_id`.
+
+This matters for edge cases such as AGIX → FET, where the historical market `binance_spot:AGIXUSDT` and the successor market `binance_spot:FETUSDT` must have independent checkpoints.
+
+This prevents the ETL from repeatedly querying inactive or missing Binance archive files after a market has ended.
 
 ---
 
@@ -419,9 +473,12 @@ Execute:
 ```sql
 DROP TABLE IF EXISTS offchain_governance_metadata_fetch_log CASCADE;
 DROP TABLE IF EXISTS offchain_governance_metadata CASCADE;
+DROP TABLE IF EXISTS offchain_governance_source CASCADE;
 DROP TABLE IF EXISTS etl_checkpoint CASCADE;
+DROP TABLE IF EXISTS asset_indicator CASCADE;
 DROP TABLE IF EXISTS asset_ohlcv CASCADE;
 DROP TABLE IF EXISTS asset_market_source CASCADE;
+DROP TABLE IF EXISTS asset_relationship CASCADE;
 DROP TABLE IF EXISTS asset CASCADE;
 ```
 

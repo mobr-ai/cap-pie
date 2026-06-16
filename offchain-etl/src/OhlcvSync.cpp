@@ -17,6 +17,17 @@
 namespace cap {
 namespace {
 
+long long normalize_epoch_ms(long long value)
+{
+  // Binance API usually returns milliseconds.
+  // Some archive CSVs may contain microseconds.
+  if(value > 99999999999999LL) {
+    return value / 1000LL;
+  }
+
+  return value;
+}
+
 void upsert_checkpoint(
   Db& db,
   const std::string& source,
@@ -69,39 +80,71 @@ bool checkpoint_exists(
 
 std::string latest_ohlcv_checkpoint(Db& db, const AssetMap& asset)
 {
-  return get_checkpoint(
+  const std::string entity = asset.source_market_id;
+
+  std::string last_open = get_checkpoint(
     db,
     "ohlcv",
-    asset.source + ":" + asset.source_asset,
+    entity,
     "last_open_time_ms",
-    ""
+    "0"
   );
+
+  std::string last_empty_search = get_checkpoint(
+    db,
+    "ohlcv",
+    entity,
+    "last_empty_search_ms",
+    "0"
+  );
+
+  long long last_open_ms = last_open.empty() ? 0 : std::stoll(last_open);
+  long long last_empty_search_ms =
+    last_empty_search.empty() ? 0 : std::stoll(last_empty_search);
+
+  long long latest_attempt_ms = std::max(last_open_ms, last_empty_search_ms);
+
+  return latest_attempt_ms == 0 ? "" : std::to_string(latest_attempt_ms);
 }
 
 long long effective_bootstrap_ms(const Config& config, const AssetMap& asset)
 {
   long long config_bootstrap_ms = parse_utc_ms(config.bootstrap_from);
 
-  if(asset.bootstrap.empty()) {
-    return config_bootstrap_ms;
+  long long asset_bootstrap_ms = asset.bootstrap.empty()
+    ? config_bootstrap_ms
+    : parse_utc_ms(asset.bootstrap);
+
+  long long valid_from_ms = asset.valid_from.empty()
+    ? asset_bootstrap_ms
+    : parse_utc_ms(asset.valid_from);
+
+  return std::max({config_bootstrap_ms, asset_bootstrap_ms, valid_from_ms});
+}
+
+long long effective_end_ms(const AssetMap& asset, long long fallback_end_ms)
+{
+  if(asset.valid_to.empty()) {
+    return fallback_end_ms;
   }
 
-  long long asset_bootstrap_ms = parse_utc_ms(asset.bootstrap);
-
-  /*
-   * The config bootstrap_from is a global lower bound requested by the
-   * operator. Asset mappings may define an older listing/bootstrap date, but
-   * they must not make this run fetch data before the configured timestamp.
-   *
-   * If an asset-specific bootstrap is later than the config timestamp, keep the
-   * later date to avoid wasting cycles on ranges where the market did not yet
-   * exist.
-   */
-  return std::max(config_bootstrap_ms, asset_bootstrap_ms);
+  return std::min(fallback_end_ms, parse_utc_ms(asset.valid_to) - 1);
 }
 
 void upsert_asset_source(Db& db, const AssetMap& asset)
 {
+  std::string source_market_id = asset.source_market_id.empty()
+    ? asset.source + ":" + asset.source_asset
+    : asset.source_market_id;
+
+  std::string valid_from = asset.valid_from.empty()
+    ? asset.bootstrap
+    : asset.valid_from;
+
+  std::string valid_to_sql = asset.valid_to.empty()
+    ? "NULL"
+    : "'" + shell_escape(asset.valid_to) + "'::timestamptz";
+
   std::string sql =
     "INSERT INTO asset(asset_id,symbol,name,policy_id,asset_name_hex,decimals) "
     "VALUES('" + shell_escape(asset.asset_id) + "','" +
@@ -119,17 +162,44 @@ void upsert_asset_source(Db& db, const AssetMap& asset)
   db.exec(sql);
 
   sql =
-    "INSERT INTO asset_market_source"
-    "(asset_id,source,source_asset_id,quote_asset,bootstrap_from) "
-    "VALUES('" + shell_escape(asset.asset_id) + "','" +
+    "INSERT INTO asset_market_source("
+    "asset_id,source,source_asset_id,quote_asset,base_asset_symbol,"
+    "source_market_id,valid_from,valid_to,bootstrap_from"
+    ") VALUES('" +
+    shell_escape(asset.asset_id) + "','" +
     shell_escape(asset.source) + "','" +
     shell_escape(asset.source_asset) + "','" +
     shell_escape(asset.quote) + "','" +
+    shell_escape(asset.base_asset_symbol) + "','" +
+    shell_escape(source_market_id) + "','" +
+    shell_escape(valid_from) + "'::timestamptz," +
+    valid_to_sql + ",'" +
     shell_escape(asset.bootstrap) + "'::timestamptz) "
-    "ON CONFLICT(asset_id,source,source_asset_id,quote_asset) "
-    "DO UPDATE SET enabled=true, bootstrap_from=EXCLUDED.bootstrap_from";
+    "ON CONFLICT(source,source_market_id) DO UPDATE SET "
+    "asset_id=EXCLUDED.asset_id,"
+    "source_asset_id=EXCLUDED.source_asset_id,"
+    "quote_asset=EXCLUDED.quote_asset,"
+    "base_asset_symbol=EXCLUDED.base_asset_symbol,"
+    "valid_from=EXCLUDED.valid_from,"
+    "valid_to=EXCLUDED.valid_to,"
+    "bootstrap_from=EXCLUDED.bootstrap_from,"
+    "enabled=true";
 
   db.exec(sql);
+}
+
+std::string market_source_db_id(Db& db, const AssetMap& asset)
+{
+  std::string source_market_id = asset.source_market_id.empty()
+    ? asset.source + ":" + asset.source_asset
+    : asset.source_market_id;
+
+  return db.scalar(
+    "SELECT id::text FROM asset_market_source "
+    "WHERE source='" + shell_escape(asset.source) + "' "
+    "AND source_market_id='" + shell_escape(source_market_id) + "'",
+    ""
+  );
 }
 
 std::vector<std::vector<std::string>> parse_klines(const std::string& body)
@@ -251,17 +321,27 @@ void upsert_ohlcv_rows(
     return;
   }
 
+  const std::string market_id = market_source_db_id(db, asset);
+
+  if(market_id.empty()) {
+    throw std::runtime_error(
+      "asset_market_source not found for " + asset.source + ":" + asset.source_asset
+    );
+  }
+
   long long max_open_ms = 0;
 
   for(const auto& row : rows) {
-    long long open_ms = std::stoll(row[0]);
+    long long open_ms = normalize_epoch_ms(std::stoll(row[0]));
     max_open_ms = std::max(max_open_ms, open_ms);
 
     db.exec(
       "INSERT INTO asset_ohlcv("
-      "asset_id,ts,interval,open,high,low,close,volume,source"
+      "asset_id,market_source_id,ts,interval,open,high,low,close,volume,"
+      "source,source_asset_id,quote_asset"
       ") VALUES("
-      "'" + shell_escape(asset.asset_id) + "',"
+      "'" + shell_escape(asset.asset_id) + "'," +
+      market_id + ","
       "to_timestamp(" + std::to_string(open_ms / 1000) + "),"
       "'1h'," +
       row[1] + "," +
@@ -269,18 +349,26 @@ void upsert_ohlcv_rows(
       row[3] + "," +
       row[4] + "," +
       row[5] + ","
-      "'" + shell_escape(asset.source) + "'"
+      "'" + shell_escape(asset.source) + "',"
+      "'" + shell_escape(asset.source_asset) + "',"
+      "'" + shell_escape(asset.quote) + "'"
       ") "
-      "ON CONFLICT(asset_id,ts,interval,source) DO UPDATE SET "
+      "ON CONFLICT(market_source_id,ts,interval) DO UPDATE SET "
       "open=EXCLUDED.open,"
       "high=EXCLUDED.high,"
       "low=EXCLUDED.low,"
       "close=EXCLUDED.close,"
-      "volume=EXCLUDED.volume"
+      "volume=EXCLUDED.volume,"
+      "asset_id=EXCLUDED.asset_id,"
+      "source=EXCLUDED.source,"
+      "source_asset_id=EXCLUDED.source_asset_id,"
+      "quote_asset=EXCLUDED.quote_asset"
     );
   }
 
-  const std::string entity = asset.source + ":" + asset.source_asset;
+  const std::string entity = asset.source_market_id.empty()
+    ? asset.source + ":" + asset.source_asset
+    : asset.source_market_id;
 
   std::string current_checkpoint = get_checkpoint(
     db,
@@ -313,7 +401,10 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
     return;
   }
 
-  const std::string entity = asset.source + ":" + asset.source_asset;
+  const std::string entity = asset.source_market_id.empty()
+    ? asset.source + ":" + asset.source_asset
+    : asset.source_market_id;
+
   const long long bootstrap_ms = effective_bootstrap_ms(config, asset);
 
   long long now_ms = static_cast<long long>(time(nullptr)) * 1000LL;
@@ -327,7 +418,16 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
 
   long long today_midnight_ms =
     static_cast<long long>(timegm(&utc_now)) * 1000LL;
-  long long archive_end_ms = today_midnight_ms - 1;
+
+  long long archive_end_ms = effective_end_ms(asset, today_midnight_ms - 1);
+
+  if(archive_end_ms < bootstrap_ms) {
+    log(
+      "INFO",
+      "Skipping Binance archives for inactive market " + asset.source_asset
+    );
+    return;
+  }
 
   auto keys = generate_binance_daily_kline_archive_keys(
     config,
@@ -359,14 +459,14 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
       std::string csv = run_command_capture(
         "unzip -p '" + shell_escape(local_zip) + "'"
       );
-      auto rows = parse_binance_kline_csv(csv);
 
+      auto rows = parse_binance_kline_csv(csv);
       std::vector<std::vector<std::string>> filtered;
 
       for(const auto& row : rows) {
-        long long open_ms = std::stoll(row[0]);
+        long long open_ms = normalize_epoch_ms(std::stoll(row[0]));
 
-        if(open_ms >= bootstrap_ms) {
+        if(open_ms >= bootstrap_ms && open_ms <= archive_end_ms) {
           filtered.push_back(row);
         }
       }
@@ -379,18 +479,29 @@ void sync_binance_archives(Db& db, const Config& config, const AssetMap& asset)
           std::to_string(filtered.size())
         );
       } else {
-        log("INFO", "Skipped Binance archive before bootstrap range: " + key);
+        log("INFO", "Skipped Binance archive outside valid market range: " + key);
       }
 
       upsert_checkpoint(db, "ohlcv", entity, checkpoint_key, "processed");
       std::filesystem::remove(local_zip);
     } catch(const std::exception& e) {
-      log(
-        "WARN",
-        "Binance archive unavailable for " + key +
-        "; API sync will backfill missing candles automatically: " +
-        std::string(e.what())
-      );
+      const std::string error = e.what();
+
+      if(error.find("HTTP 404 for ") != std::string::npos) {
+        upsert_checkpoint(db, "ohlcv", entity, checkpoint_key, "missing_404");
+        log(
+          "WARN",
+          "Binance archive missing for " + key +
+          "; marking as missing_404 and skipping in later cycles"
+        );
+      } else {
+        log(
+          "WARN",
+          "Binance archive unavailable for " + key +
+          "; API sync will backfill missing candles automatically: " +
+          error
+        );
+      }
 
       std::filesystem::remove(local_zip);
       continue;
@@ -432,13 +543,13 @@ std::vector<AssetMap> load_assets(const std::string& file)
 
     first = false;
 
-    if(values.size() == 11 && values[5].empty()) {
-      values.erase(values.begin() + 5);
-    }
-
-    if(values.size() < 10) {
+    if(values.size() < 14) {
       throw std::runtime_error("invalid asset mapping line: " + line);
     }
+
+    std::string source_market_id = values[13].empty()
+      ? values[6] + ":" + values[7]
+      : values[13];
 
     output.push_back({
       values[0],
@@ -450,17 +561,103 @@ std::vector<AssetMap> load_assets(const std::string& file)
       values[6],
       values[7],
       values[8],
-      values[9]
+      values[9],
+      values[10],
+      values[11],
+      values[12],
+      source_market_id
     });
   }
 
   return output;
 }
 
+std::vector<AssetRelationshipMap> load_asset_relationships(const std::string& file)
+{
+  std::vector<AssetRelationshipMap> output;
+  std::ifstream stream(file);
+
+  if(!stream) {
+    log("WARN", "asset relationship file not found: " + file);
+    return output;
+  }
+
+  std::string line;
+  bool first = true;
+
+  while(std::getline(stream, line)) {
+    line = trim(line);
+
+    if(line.empty() || line[0] == '#') {
+      continue;
+    }
+
+    auto values = split_csv(line);
+
+    if(first && !values.empty() && values[0] == "from_asset_id") {
+      first = false;
+      continue;
+    }
+
+    first = false;
+
+    if(values.size() < 5) {
+      throw std::runtime_error("invalid asset relationship line: " + line);
+    }
+
+    output.push_back({
+      values[0],
+      values[1],
+      values[2],
+      values[3],
+      values[4]
+    });
+  }
+
+  return output;
+}
+
+void upsert_asset_relationships(Db& db, const std::vector<AssetRelationshipMap>& relationships)
+{
+  for(const auto& relationship : relationships) {
+    std::string effective_at_sql = relationship.effective_at.empty()
+      ? "NULL"
+      : "'" + shell_escape(relationship.effective_at) + "'::timestamptz";
+
+    std::string metadata = relationship.metadata.empty()
+      ? "{}"
+      : relationship.metadata;
+
+    db.exec(
+      "INSERT INTO asset_relationship("
+      "from_asset_id,to_asset_id,relationship_type,effective_at,metadata"
+      ") VALUES('" +
+      shell_escape(relationship.from_asset_id) + "','" +
+      shell_escape(relationship.to_asset_id) + "','" +
+      shell_escape(relationship.relationship_type) + "'," +
+      effective_at_sql + ",'" +
+      shell_escape(metadata) + "'::jsonb) "
+      "ON CONFLICT(from_asset_id,to_asset_id,relationship_type) "
+      "DO UPDATE SET "
+      "effective_at=EXCLUDED.effective_at,"
+      "metadata=EXCLUDED.metadata"
+    );
+  }
+}
+
 void sync_ohlcv(Db& db, const Config& config)
 {
   auto assets = load_assets(config.mapping_file);
   log("INFO", "OHLCV mappings loaded: " + std::to_string(assets.size()));
+
+  for(const auto& asset : assets) {
+    upsert_asset_source(db, asset);
+  }
+
+  upsert_asset_relationships(
+    db,
+    load_asset_relationships(config.asset_relationships_file)
+  );
 
   CURL* encoder_curl = curl_easy_init();
 
@@ -470,10 +667,19 @@ void sync_ohlcv(Db& db, const Config& config)
 
   for(const auto& asset : assets) {
     try {
-      upsert_asset_source(db, asset);
       sync_binance_archives(db, config, asset);
 
       const long long bootstrap_ms = effective_bootstrap_ms(config, asset);
+      const long long valid_end_ms = effective_end_ms(
+        asset,
+        static_cast<long long>(time(nullptr)) * 1000LL
+      );
+
+      if(valid_end_ms < bootstrap_ms) {
+        log("INFO", "Skipping inactive market " + asset.source_asset);
+        continue;
+      }
+
       std::string checkpoint = latest_ohlcv_checkpoint(db, asset);
       long long start = bootstrap_ms;
 
@@ -482,14 +688,15 @@ void sync_ohlcv(Db& db, const Config& config)
       }
 
       long long now_ms = static_cast<long long>(time(nullptr)) * 1000LL;
+      long long sync_until_ms = std::min(now_ms, valid_end_ms);
       int empty_count = 0;
 
-      while(start < now_ms - 3600000LL) {
+      while(start < sync_until_ms - 3600000LL) {
         long long end = start +
           static_cast<long long>(config.request_limit - 1) * 3600000LL;
 
-        if(end > now_ms) {
-          end = now_ms;
+        if(end > sync_until_ms) {
+          end = sync_until_ms;
         }
 
         std::string url = config.ohlcv_base +
@@ -526,7 +733,7 @@ void sync_ohlcv(Db& db, const Config& config)
           upsert_checkpoint(
             db,
             "ohlcv",
-            asset.source + ":" + asset.source_asset,
+            asset.source_market_id,
             "last_empty_search_ms",
             std::to_string(end)
           );
@@ -551,7 +758,7 @@ void sync_ohlcv(Db& db, const Config& config)
         empty_count = 0;
         upsert_ohlcv_rows(db, asset, rows);
 
-        long long last = std::stoll(rows.back()[0]);
+        long long last = normalize_epoch_ms(std::stoll(rows.back()[0]));
         log(
           "INFO",
           "OHLCV API synced " + asset.source_asset +

@@ -17,6 +17,7 @@ add_executable(
   src/Db.cpp
   src/GovernanceSync.cpp
   src/Http.cpp
+  src/IndicatorSync.cpp
   src/Json.cpp
   src/OhlcvSync.cpp
   src/Utils.cpp
