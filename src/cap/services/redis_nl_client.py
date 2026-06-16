@@ -155,7 +155,7 @@ class RedisNLClient:
                 src_stats = {
                     QuerySource.FEDERATED.value: 0,
                     QuerySource.ONCHAIN.value: 0,
-                    QuerySource.ASSET.value: 0,
+                    QuerySource.OFFCHAIN.value: 0,
                 }
                 skipped_keys: list[str] = []
                 cached_keys: list[str] = []
@@ -235,7 +235,7 @@ class RedisNLClient:
         if has_sparql and has_sql:
             return QuerySource.FEDERATED.value
         if has_sql:
-            return QuerySource.ASSET.value
+            return QuerySource.OFFCHAIN.value
         return QuerySource.ONCHAIN.value
 
 

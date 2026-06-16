@@ -86,5 +86,5 @@ User Question:
         if sparql and sql:
             return QuerySource.FEDERATED.value
         if sql:
-            return QuerySource.ASSET.value
+            return QuerySource.OFFCHAIN.value
         return QuerySource.ONCHAIN.value

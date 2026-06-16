@@ -141,5 +141,5 @@ def _infer_source(sparql: str, sql: str) -> QuerySource:
     if sparql and sql:
         return QuerySource.FEDERATED
     if sql:
-        return QuerySource.ASSET
+        return QuerySource.OFFCHAIN
     return QuerySource.ONCHAIN

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class QuerySource(StrEnum):
     ONCHAIN = "onchain"
-    ASSET = "asset"
+    OFFCHAIN = "offchain"
     FEDERATED = "federated"
 
 
