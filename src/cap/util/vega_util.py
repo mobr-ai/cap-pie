@@ -1124,9 +1124,23 @@ class VegaUtil:
 
             if heat_val is not None:
                 try:
+                    x_is_temporal = VegaUtil._is_temporal_key(x_key)
+                    y_is_temporal = VegaUtil._is_temporal_key(y_key)
+
+                    x_raw = VegaUtil._format_temporal_value(x_val) if x_is_temporal else str(x_val)
+                    y_raw = VegaUtil._format_temporal_value(y_val) if y_is_temporal else str(y_val)
+
                     values.append({
-                        "x": VegaUtil._format_display_value(x_val, x_key),
-                        "y": VegaUtil._format_display_value(y_val, y_key),
+                        "x": x_raw,
+                        "y": y_raw,
+                        "x_label": (
+                            datetime.fromisoformat(x_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
+                            if x_is_temporal else x_raw
+                        ),
+                        "y_label": (
+                            datetime.fromisoformat(y_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
+                            if y_is_temporal else y_raw
+                        ),
                         "value": float(heat_val)
                     })
                 except (ValueError, TypeError) as e:
@@ -1139,9 +1153,6 @@ class VegaUtil:
             VegaUtil._format_column_name(y_key),
             VegaUtil._format_column_name(value_key)
         ]
-
-        x_is_temporal = VegaUtil._is_temporal_key(x_key)
-        y_is_temporal = VegaUtil._is_temporal_key(y_key)
 
         return {
             "values": values,
