@@ -563,7 +563,7 @@ class VegaUtil:
             return 1
 
         x_values = [
-            VegaUtil._format_x_value(item.get(x_key), x_key)
+            str(VegaUtil._format_x_value(item.get(x_key), x_key))
             for item in data
         ]
         x_counts = Counter(x_values)
@@ -593,18 +593,33 @@ class VegaUtil:
         )
 
         if looks_temporal_key:
-            try:
-                clean_value = value_str.replace("Z", "+00:00")
-                dt = datetime.fromisoformat(clean_value)
-
-                if dt.minute == 0 and dt.second == 0:
-                    return dt.strftime("%d %b %Hh")
-
-                return dt.strftime("%d %b %H:%M")
-            except ValueError:
-                pass
+            return VegaUtil._format_temporal_value(value)
 
         return value_str
+
+    @staticmethod
+    def _format_temporal_value(value: Any) -> str:
+        """
+        Preserve temporal values in a Vega-parseable format.
+
+        Vega/Vega-Lite should receive ISO-like datetime strings for temporal axes.
+        Human-friendly labels such as '16 Jun 10h' should be handled by the Vega
+        axis format, not by mutating the raw data value.
+        """
+        if isinstance(value, dict):
+            value = value.get("value", str(value))
+
+        if isinstance(value, datetime):
+            return value.isoformat()
+
+        value_str = str(value)
+
+        try:
+            clean_value = value_str.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(clean_value)
+            return dt.isoformat()
+        except ValueError:
+            return value_str
 
     @staticmethod
     def _format_x_value(x_val: Any, x_key: str) -> str:
