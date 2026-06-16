@@ -19,8 +19,7 @@ class StatusMessage:
     @staticmethod
     def graph_step(step_name: str) -> str:
         return StatusMessage.GRAPH_STEP_MESSAGES.get(
-            step_name,
-            f"status: Running {step_name}\n",
+            step_name
         )
 
     @staticmethod
