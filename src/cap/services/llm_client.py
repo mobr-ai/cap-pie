@@ -44,7 +44,7 @@ class LLMClient:
         self,
         base_url: str | None = None,
         llm_model: str | None = None,
-        timeout: float = 360.0
+        timeout: float = 120.0
     ):
         """
         Initialize llm client.

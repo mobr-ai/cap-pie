@@ -58,18 +58,21 @@ async def query_with_stream_response(
                     yield payload["content"]
                 continue
 
+            answering = False
             update = payload
             for step_name, step_state in update.items():
-                yield StatusMessage.graph_step(step_name)
-
                 if isinstance(step_state, dict):
                     final_state.update(step_state)
 
-                if step_name == "cache" and final_state.get("cached"):
-                    yield StatusMessage.cache_hit()
+                if step_name == "answer":
+                    answering = True
 
                 if step_name == "critic" and final_state.get("federated_query") is None:
                     yield StatusMessage.retry_query(final_state.get("retry_count", 0))
+                    answering = False
+
+                if not answering:
+                    yield StatusMessage.graph_step(step_name)
 
         yield StatusMessage.data_done()
 

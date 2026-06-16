@@ -28,6 +28,14 @@ class StatusMessage:
         return "status: Reusing cached query\n"
 
     @staticmethod
+    def executing_query() -> str:
+        return "status: Executing query\n"
+
+    @staticmethod
+    def planning_query() -> str:
+        return "status: Planning query specification\n"
+
+    @staticmethod
     def retry_query(retry_count: int) -> str:
         return f"status: Regenerating query after failed attempt {retry_count}\n"
 

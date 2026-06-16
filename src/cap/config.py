@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     TRIPLESTORE_PORT: int
     TRIPLESTORE_USER: str
     TRIPLESTORE_PASSWORD: str
-    TRIPLESTORE_TIMEOUT: str = 360
+    TRIPLESTORE_TIMEOUT: str = 120
     TRIPLESTORE_ENDPOINT: str
     CHAIN_NAME: str = "cardano"
     KG_NAME: str
