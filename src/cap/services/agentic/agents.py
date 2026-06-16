@@ -11,25 +11,10 @@ from cap.services.agentic.tools import (
     get_cached_federated_query,
 )
 from cap.services.llm_client import LLMClient
-from cap.services.prompt_builder import PromptBuilder
+from cap.services.prompt_builder import INFRA_ISSUE, PromptBuilder, is_infrastructure_limit_error
 from cap.services.redis_nl_client import RedisNLClient
 
 logger = logging.getLogger(__name__)
-
-def is_infrastructure_limit_error(error_msg: str | None) -> bool:
-    if not error_msg:
-        return False
-
-    normalized = error_msg.lower()
-
-    return (
-        "infrastructure_limit_exceeded" in normalized
-        or "429" in normalized
-        or "500" in normalized
-        or "network error" in normalized
-        or "too many requests" in normalized
-        or "operation timed out" in normalized
-    )
 
 class CacheAgent:
     def __init__(self, redis_client: RedisNLClient):
@@ -194,27 +179,14 @@ class AnswerAgent:
             kv_results = {}
 
         if state.get("infrastructure_limit_exceeded"):
-            prompt = self.prompt_builder.infra_limit_exceeded_prompt + f"\nUser question: {state.get('user_query', '')}"
-            async for chunk in self.llm_client.generate_stream(
-                prompt=prompt,
-                model=self.llm_client.llm_model,
-                system_prompt="",
-                temperature=0.1,
-            ):
-                chunks.append(chunk)
-
-                writer({
-                    "type": "answer_chunk",
-                    "content": chunk,
-                })
-
-            state["final_answer"] = "".join(chunks)
-            return state
+            formatted_results=INFRA_ISSUE
+        else:
+            formatted_results=state.get("formatted_results", "")
 
         stream = self.llm_client.generate_answer_with_context(
             user_query=state.get("user_query", ""),
             federated_query=federated_query,
-            formatted_results=state.get("formatted_results", ""),
+            formatted_results=formatted_results,
             kv_results=kv_results,
             system_prompt="",
             conversation_history=state.get("conversation_history"),

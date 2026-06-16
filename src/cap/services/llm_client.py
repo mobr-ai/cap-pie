@@ -386,69 +386,57 @@ class LLMClient:
         """
         Generate contextualized answer based on SPARQL results.
         """
-        with tracer.start_as_current_span("contextualized answer") as span:
-            # Stream kv_results first if present
-            result_type = ""
-            serialized_query = federated_query.model_dump_json() if federated_query else ""
-            if kv_results:
-                try:
-                    result_type = federated_query.visualization_type if federated_query else ""
-                    if not result_type or result_type not in VegaUtil.known_types:
-                        result_type = await self._classify_render_type(user_query, kv_results)
-
-                    kv_formatted, result_type = format_kv(
-                        result_type=result_type,
-                        user_query=user_query,
-                        federated_query=serialized_query,
-                        kv_results=kv_results
-                    )
-                    logger.info(f"Sending data to feed widget: \n   {kv_formatted}")
-                    yield f"kv_results: {kv_formatted}\n\n"
-
-                except Exception as e:
-                    logger.warning(f"KV results formatting failed: {e}")
-                    yield f"kv_results: {str(kv_results)}\n\n"
-
-                yield "_kv_results_end_\n\n"
-
-            context_res = ""
+        # Stream kv_results first if present
+        result_type = ""
+        serialized_query = federated_query.model_dump_json() if federated_query else ""
+        if kv_results:
             try:
-                # If results are already formatted as string, use directly
-                if isinstance(formatted_results, str):
-                    context_res = formatted_results
-                    span.set_attribute("format", "string")
-                # Otherwise, serialize dict to JSON
-                elif formatted_results:
-                    formatted_results = convert_results_to_explorer_links(formatted_results, serialized_query)
-                    context_res = json.dumps(formatted_results, indent=2)
-                    span.set_attribute("format", "dict")
-                else:
-                    context_res = ""
-                    span.set_attribute("format", "empty")
+                result_type = federated_query.visualization_type if federated_query else ""
+                if not result_type or result_type not in VegaUtil.known_types:
+                    result_type = await self._classify_render_type(user_query, kv_results)
+
+                kv_formatted, result_type = format_kv(
+                    result_type=result_type,
+                    user_query=user_query,
+                    federated_query=serialized_query,
+                    kv_results=kv_results
+                )
+                logger.info(f"Sending data to feed widget: \n   {kv_formatted}")
+                yield f"kv_results: {kv_formatted}\n\n"
+
+            except Exception as e:
+                logger.warning(f"KV results formatting failed: {e}")
+                yield f"kv_results: {str(kv_results)}\n\n"
+
+            yield "_kv_results_end_\n\n"
+
+        if isinstance(formatted_results, dict):
+            try:
+                formatted_results = convert_results_to_explorer_links(formatted_results, serialized_query)
 
             except Exception as e:
                 logger.warning(f"Result formatting failed: {e}")
-                context_res = str(formatted_results)
+                formatted_results = str(formatted_results)
 
-            prompt, _, temperature = self.prompt_builder.build_answer_prompt(
-                user_query=user_query,
-                context_res=context_res,
-                result_type=result_type,
-                kv_results=kv_results,
-                conversation_history=conversation_history,
-            )
+        prompt, temperature = self.prompt_builder.build_answer_prompt(
+            user_query=user_query,
+            formatted_results=formatted_results,
+            result_type=result_type,
+            kv_results=kv_results,
+            conversation_history=conversation_history,
+        )
 
-            logger.info(f"Prompting LLM (truncated): \n{prompt[:1000] + ('...' if len(prompt) > 1000 else '')}")
-            if (not formatted_results or len(formatted_results) == 0):
-                logger.info(f" Federated query returned empty: \n{serialized_query}")
+        logger.info(f"Prompting LLM (truncated): \n{prompt[:1000] + ('...' if len(prompt) > 1000 else '')}")
+        if (not formatted_results or len(formatted_results) == 0):
+            logger.info(f" Federated query returned empty: \n{serialized_query}")
 
-            async for chunk in self.generate_stream(
-                prompt=prompt,
-                model=self.llm_model,
-                system_prompt=system_prompt,
-                temperature=temperature
-            ):
-                yield chunk
+        async for chunk in self.generate_stream(
+            prompt=prompt,
+            model=self.llm_model,
+            system_prompt=system_prompt,
+            temperature=temperature
+        ):
+            yield chunk
 
 
 # Global client instance

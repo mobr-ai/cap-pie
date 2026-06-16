@@ -4,10 +4,10 @@ import secrets
 import unicodedata
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from dotenv import load_dotenv
 
 import bcrypt
 import jwt  # PyJWT
+from dotenv import load_dotenv
 from fastapi import HTTPException
 
 load_dotenv()

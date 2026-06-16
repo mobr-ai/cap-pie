@@ -71,11 +71,6 @@ async def query_with_stream_response(
                 if step_name == "critic" and final_state.get("federated_query") is None:
                     yield StatusMessage.retry_query(final_state.get("retry_count", 0))
 
-        if final_state.get("error"):
-            yield StatusMessage.error(final_state["error"])
-        elif not final_state.get("final_answer"):
-            yield StatusMessage.no_data()
-
         yield StatusMessage.data_done()
 
     except Exception as exc:

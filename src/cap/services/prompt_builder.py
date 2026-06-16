@@ -4,6 +4,7 @@ Keeps prompt loading, ontology injection, few-shot examples, and history handlin
 outside the transport-focused LLM client.
 """
 
+import json
 import logging
 import os
 from datetime import UTC, datetime
@@ -19,6 +20,23 @@ from cap.util.vega_util import VegaUtil
 logger = logging.getLogger(__name__)
 
 MAX_CONTEXT_CHARS = 18000
+
+INFRA_ISSUE = "infra_issue"
+
+def is_infrastructure_limit_error(error_msg: str | None) -> bool:
+    if not error_msg:
+        return False
+
+    normalized_err = error_msg.lower()
+
+    return (
+        "infrastructure_limit_exceeded" in normalized_err
+        or "429" in normalized_err
+        or "500" in normalized_err
+        or "network error" in normalized_err
+        or "too many requests" in normalized_err
+        or "operation timed out" in normalized_err
+    )
 
 class PromptBuilder:
     """Builds prompts and prompt fragments used by LLM workflows."""
@@ -58,9 +76,24 @@ class PromptBuilder:
             "INFRA_LIMIT_EXCEEDED_PROMPT",
             "Write a short, clear answer to the user. "
             "Explain that the query was too demanding for the current infrastructure, "
-            "so it could not be completed right now. "
+            "so it could not be completed right now. If the user wants to support the project "
+            "to improve the infrastructure, donations and subscriptions are welcomed visiting https://cap.mobr.ai/settings"
             "Do not expose stack traces, HTTP details, internal service names, or raw errors. "
             "Be polite and concise.\n\n",
+        )
+
+    @property
+    def no_data_prompt(self) -> str:
+        return self._load_prompt(
+            "NO_DATA_PROMPT",
+            "Answer with a variation of to the following message:"
+            "I do not have this information or I was not capable of retrieving it correctly."
+            "We would appreciate it if you could specify here what you wanted to do as a feature "
+            "and we will try to make your prompt work asap. If you think this feature is already "
+            "supported, try specifying the entire command in a unique precise prompt.\n\n"
+            "In addition, ask if the user wants to support the project so this issue can be "
+            "addressed faster, by asking politely for donation and subscriptions, by "
+            "visiting https://cap.mobr.ai/settings",
         )
 
     @property
@@ -76,6 +109,7 @@ class PromptBuilder:
             "CONTEXTUALIZE_PROMPT",
             "Based on the query results, provide a clear and helpful answer.",
         )
+
 
     async def build_fewshot_block(
         self,
@@ -106,6 +140,7 @@ class PromptBuilder:
             examples=messages,
             existing_prompt="",
         )
+
 
     def add_history(
         self,
@@ -140,10 +175,11 @@ class PromptBuilder:
 
         return f"{prompt}\nPrevious messages:\n{str_history}" if str_history else prompt
 
+
     def build_answer_prompt(
         self,
         user_query: str,
-        context_res: str,
+        formatted_results: str | dict,
         result_type: str,
         kv_results: dict[str, Any],
         conversation_history: list[dict[str, Any]] | None,
@@ -152,13 +188,33 @@ class PromptBuilder:
         current_his = None
         temperature = 0.1
 
+        is_infra_issue = False
+        context_res = ""
+        try:
+            # If results are already formatted as string, use directly
+            if isinstance(formatted_results, str):
+                if formatted_results == INFRA_ISSUE:
+                    is_infra_issue = True
+                else:
+                    context_res = formatted_results
+
+            # Otherwise, serialize dict to JSON
+            elif formatted_results:
+                context_res = json.dumps(formatted_results, indent=2)
+            else:
+                context_res = ""
+
+        except Exception as e:
+            logger.warning(f"Result formatting failed: {e}")
+            context_res = str(formatted_results)
+
         if result_type in VegaUtil.known_types:
             known_info = f"""
                 {current_date}
                 {self.default_chart_prompt}
                 The system is showing an artifact to the user using the data below. Always write a SHORT insight about it.
                 {kv_results}
-                """
+            """
 
         elif context_res != "":
             known_info = f"""
@@ -167,21 +223,19 @@ class PromptBuilder:
                 {context_res}
 
                 {self.contextualize_prompt}
-                """
+            """
             current_his = conversation_history
 
         else:
-            known_info = """
-                    Answer with a text similar to the following message:
-                    I do not have this information or I was not capable of retrieving it correctly.
-                    We would appreciate it if you could specify here what you wanted to do as a feature and we will try to make your prompt work asap.
-                    If you think this feature is already supported, try specifying the entire command in a unique prompt.
-                """
+            if is_infra_issue:
+                known_info = self.infra_limit_exceeded_prompt
+            else:
+                known_info = self.no_data_prompt
 
         prompt = f"""
-                User Question: {user_query}
+            User Question: {user_query}
 
-                {known_info}
-            """
+            {known_info}
+        """
 
-        return self.add_history(prompt, current_his), current_his, temperature
+        return self.add_history(prompt, current_his), temperature
