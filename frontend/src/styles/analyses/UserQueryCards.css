@@ -1,0 +1,41 @@
+/* ─────────────────────────────
+   User Query cards (refined)
+   ───────────────────────────── */
+
+.uq-card-query {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.uq-card-header {
+  margin-bottom: 1rem;
+}
+
+.uq-card-metrics,
+.uq-card-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--theme-text-soft);
+  margin-top: 0.35rem;
+}
+
+.uq-card-metrics span,
+.uq-card-flags span {
+  background: var(--theme-surface-3);
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+}
+
+.uq-card-footer {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--theme-text-muted);
+}
+

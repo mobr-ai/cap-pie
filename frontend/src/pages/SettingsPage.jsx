@@ -4,7 +4,7 @@ import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
 import ThemeSelector from "../components/settings/ThemeSelector";
-import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { getCardanoTxExplorerUrl } from "../billing/explorers";
 import {
   Container,
@@ -161,6 +161,16 @@ export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const outlet = useOutletContext() || {};
   const { user, setUser, showToast } = outlet;
+  const billingWalletName = outlet.billingWalletName || "";
+  const billingWalletApi = outlet.billingWalletApi || null;
+  const billingWalletInfo = outlet.billingWalletInfo || null;
+  const billingWalletError = outlet.billingWalletError || "";
+  const detectWallets = outlet.detectBillingWallets || (() => []);
+  const connectBillingWallet =
+    outlet.connectBillingWallet ||
+    (async () => {
+      throw new Error("billingWalletContextUnavailable");
+    });
 
   // IMPORTANT: do NOT pass the raw user into useAuthRequest (it can clobber session).
   const { authFetch, authRequest } = useAuthRequest({
@@ -190,10 +200,6 @@ export default function SettingsPage() {
   const [isSavingBillingPreferences, setIsSavingBillingPreferences] =
     useState(false);
 
-  const [billingWalletName, setBillingWalletName] = useState("");
-  const [billingWalletApi, setBillingWalletApi] = useState(null);
-  const [billingWalletInfo, setBillingWalletInfo] = useState(null);
-  const autoBillingWalletTriedRef = useRef(false);
 
   // Editing states
   const [editingUsername, setEditingUsername] = useState(false);
@@ -213,10 +219,7 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const avatarInputRef = useRef(null);
-  const billingRef = useRef(null);
-  const billingDeepLinkHandledRef = useRef("");
   const hasPremiumAccess = hasEntitlement(
     billingEntitlements,
     "cap_premium_access",
@@ -391,89 +394,11 @@ export default function SettingsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outlet?.session?.access_token]);
 
-  const detectWallets = () => {
-    const w = window.cardano || {};
-    const allowed = new Set(
-      (SUPPORTED_WALLETS || []).map((x) => x.toLowerCase()),
-    );
 
-    return Object.keys(w)
-      .map((key) => ({ key, norm: key.toLowerCase() }))
-      .filter(({ norm }) => allowed.has(norm))
-      .map(({ key, norm }) => ({ key, norm }))
-      .sort((a, b) => a.norm.localeCompare(b.norm));
-  };
 
-  const connectBillingWallet = async (walletName, options = {}) => {
-    const { silent = false } = options;
-    setBillingError("");
 
-    try {
-      const w = window.cardano || {};
-      const exactKey =
-        Object.keys(w).find(
-          (k) => k.toLowerCase() === walletName.toLowerCase(),
-        ) || walletName;
 
-      if (!w[exactKey]) {
-        throw new Error("walletNotFound");
-      }
 
-      const api = await w[exactKey].enable();
-      const info = await getWalletInfo(exactKey, api);
-
-      setBillingWalletName(exactKey);
-      setBillingWalletApi(api);
-      setBillingWalletInfo(info);
-      if (!silent) {
-        showToast?.(
-          t("settingsBilling.walletConnected", {
-            wallet: formatWalletName(exactKey),
-          }),
-          "success",
-        );
-      }
-    } catch (err) {
-      console.error("[Settings] Billing wallet connect failed:", err);
-
-      if (!silent) {
-        setBillingError(t("settingsBilling.errors.walletConnectFailed"));
-      }
-
-      throw err;
-    }
-  };
-
-  useEffect(() => {
-    if (autoBillingWalletTriedRef.current) return;
-    if (billingWalletApi) return;
-
-    const sessionWallet = getSessionWalletName(outlet.session, user);
-    const sessionAddress = getSessionWalletAddress(outlet.session, user);
-
-    if (!sessionWallet) return;
-
-    autoBillingWalletTriedRef.current = true;
-
-    setBillingWalletName(sessionWallet);
-
-    if (sessionAddress) {
-      setBillingWalletInfo((prev) => ({
-        ...(prev || {}),
-        wallet: sessionWallet,
-        address: sessionAddress,
-      }));
-    }
-
-    connectBillingWallet(sessionWallet, { silent: true }).catch(() => {
-      setBillingError(
-        t("settingsBilling.errors.reconnectWalletForPayment", {
-          wallet: formatWalletName(sessionWallet),
-        }),
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [billingWalletApi, outlet?.session?.access_token, user?.id]);
 
   const handleBillingPaid = async () => {
     await refreshBilling();
@@ -567,45 +492,6 @@ export default function SettingsPage() {
     );
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search || "");
-    const shouldFocusBilling =
-      params.get("billing") === "1" ||
-      params.get("tab") === "billing" ||
-      location.hash === "#billing-access";
-
-    if (!shouldFocusBilling) return;
-
-    const action = params.get("action") || "";
-    const deepLinkKey = `${location.search || ""}${location.hash || ""}`;
-
-    if (billingDeepLinkHandledRef.current === deepLinkKey) return;
-    if (billingLoading && action === "premium") return;
-
-    billingDeepLinkHandledRef.current = deepLinkKey;
-
-    window.requestAnimationFrame(() => {
-      billingRef.current?.scrollIntoView?.({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-
-    if (action === "premium") {
-      window.setTimeout(() => {
-        handlePremiumAccessAction({ skipScroll: true });
-      }, 300);
-    }
-
-    if (action === "balance") {
-      window.setTimeout(() => {
-        const input = document.querySelector(".Settings-deposit-custom-input");
-        input?.focus?.();
-        input?.select?.();
-      }, 350);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, location.hash, billingLoading]);
 
   // ---- Helpers -------------------------------------------------------------
 
@@ -1039,37 +925,18 @@ export default function SettingsPage() {
           </Row>
         </div>
 
-        <div
-          ref={billingRef}
-          id="billing-access"
-          className="mt-4 p-3 Settings-billing-zone"
-        >
-          <div className="Settings-billing-header">
-            <div>
-              <h5 className="Settings-section-title">
-                {t("settingsBilling.title")}
-              </h5>
-              <p className="Settings-section-subtitle">
-                {t("settingsBilling.subtitle")}
-              </p>
-            </div>
 
-            <div
-              className={
-                hasPremiumAccess
-                  ? "Settings-billing-status is-active"
-                  : "Settings-billing-status"
-              }
-            >
-              {billingLoading
-                ? t("settingsBilling.status.loading")
-                : hasPremiumAccess
-                  ? t("settingsBilling.status.premium")
-                  : t("settingsBilling.status.free")}
+        <ThemeSelector />
+
+        <div className="mt-4 Settings-support-section">
+          <div className="Settings-support-section-header">
+            <div>
+              <h5>{t("settingsBilling.supportTitle")}</h5>
+              <p>{t("settingsBilling.supportDescription")}</p>
             </div>
           </div>
 
-          <div className="Settings-payment-methods">
+          <div className="Settings-payment-methods Settings-support-wallet-methods">
             <div className="Settings-payment-methods-title">
               {billingWalletApi
                 ? t("settingsBilling.connectedWallet", {
@@ -1090,7 +957,12 @@ export default function SettingsPage() {
                   key={formatWalletName(key)}
                   size="sm"
                   variant="outline-light"
-                  className="Settings-payment-method-btn"
+                  className={`Settings-payment-method-btn ${
+                    billingWalletName &&
+                    key.toLowerCase() === String(billingWalletName).toLowerCase()
+                      ? "is-connected"
+                      : ""
+                  }`}
                   onClick={() => connectBillingWallet(key)}
                 >
                   {WALLET_ICONS[norm] ? (
@@ -1111,272 +983,11 @@ export default function SettingsPage() {
               </div>
             ) : null}
 
-            {billingError ? (
-              <div className="Settings-billing-error">{billingError}</div>
+            {billingError || billingWalletError ? (
+              <div className="Settings-billing-error">
+                {billingError || billingWalletError}
+              </div>
             ) : null}
-          </div>
-
-          <div className="Settings-billing-panel Settings-balance-panel">
-            <div className="Settings-balance-main">
-              <div className="Settings-billing-plan">
-                {t("settingsBilling.currentBalanceTitle")}
-              </div>
-              <div className="Settings-billing-balance">
-                {formatBillingAmountFromMinor(
-                  creditBalance?.balance_lovelace ||
-                    creditBalance?.balance ||
-                    0,
-                  { currency: "lovelace" },
-                )}
-              </div>
-              <div className="Settings-billing-copy">
-                {t("settingsBilling.prepaidDescription")}
-              </div>
-            </div>
-
-            <div className="Settings-deposit-panel">
-              <div className="Settings-deposit-options">
-                {DEPOSIT_OPTIONS_ADA.map((option) => (
-                  <button
-                    key={option.amount}
-                    type="button"
-                    className={
-                      Number(customDepositAda || selectedDepositAda) ===
-                      option.amount
-                        ? "Settings-deposit-chip is-selected"
-                        : "Settings-deposit-chip"
-                    }
-                    title={t(option.hintKey)}
-                    onClick={() => {
-                      setSelectedDepositAda(option.amount);
-                      setCustomDepositAda(String(option.amount));
-                    }}
-                  >
-                    <FontAwesomeIcon
-                      icon={option.icon}
-                      className="Settings-deposit-chip-icon"
-                    />
-                    <span className="Settings-deposit-chip-amount">
-                      {formatBillingAmountFromMajor(option.amount, {
-                        currency: "lovelace",
-                      })}
-                    </span>
-                    <span className="Settings-deposit-chip-label">
-                      {t(option.labelKey)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="Settings-deposit-custom-row">
-                <Form.Control
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={customDepositAda}
-                  placeholder={t("settingsBilling.customDepositPlaceholder")}
-                  onChange={(e) => setCustomDepositAda(e.target.value)}
-                  className="Settings-deposit-custom-input"
-                />
-
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={handleOpenDepositModal}
-                  disabled={!billingWalletApi || !effectiveDepositLovelace}
-                >
-                  {t("settingsBilling.addBalance")}
-                </Button>
-              </div>
-
-              <div className="Settings-billing-hint">
-                {t("settingsBilling.prepaidHint")}
-              </div>
-            </div>
-          </div>
-
-          <div className="Settings-billing-panel Settings-premium-card">
-            <div className="Settings-premium-main">
-              <div className="Settings-billing-plan">
-                {t("settingsBilling.premiumPlan")}
-              </div>
-              <div className="Settings-billing-copy">
-                {t("settingsBilling.premiumDescription")}
-              </div>
-
-              <div className="Settings-premium-metrics Settings-premium-metrics-single">
-                <div>
-                  <span>{t("settingsBilling.planPrice")}</span>
-                  <strong>{premiumPriceLabel}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="Settings-premium-actions">
-              <Button
-                size="sm"
-                variant={hasPremiumAccess ? "outline-light" : "primary"}
-                onClick={handlePremiumAccessAction}
-                disabled={premiumBalanceActionDisabled}
-                title={
-                  hasEnoughBalanceForPremium
-                    ? t("settingsBilling.balanceActionHint")
-                    : t("settingsBilling.addBalanceBeforePremiumHint", {
-                        amount: missingPremiumAmountLabel,
-                      })
-                }
-              >
-                {isActivatingFromBalance
-                  ? t("settingsBilling.activating")
-                  : hasPremiumAccess
-                    ? t("settingsBilling.extendWithBalance")
-                    : t("settingsBilling.activateWithBalance")}
-              </Button>
-
-              <div className="Settings-premium-action-hint">
-                {premiumExtensionHint}
-              </div>
-
-              <div className="Settings-premium-optin-row">
-                <label className="Settings-billing-toggle">
-                  <input
-                    type="checkbox"
-                    checked={autoRenewPremiumEnabled}
-                    disabled={isSavingBillingPreferences}
-                    onChange={handleAutoRenewToggle}
-                  />
-                  <span
-                    className="Settings-billing-toggle-ui"
-                    aria-hidden="true"
-                  />
-                  <span className="Settings-billing-toggle-copy">
-                    <strong>{t("settingsBilling.autoRenewOptIn")}</strong>
-                    <span>{t("settingsBilling.autoRenewHint")}</span>
-                    <small>{t("settingsBilling.autoRenewWalletNote")}</small>
-                  </span>
-                </label>
-                <button
-                  type="button"
-                  className="Settings-premium-optin-chip"
-                  disabled
-                  title={t("settingsBilling.paygHint")}
-                >
-                  {t("settingsBilling.paygOptIn")}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="Settings-billing-panel Settings-activity-panel">
-            <div className="Settings-activity-header">
-              <div>
-                <div className="Settings-billing-plan">
-                  {t("settingsBilling.activityTitle")}
-                </div>
-                <div className="Settings-billing-copy">
-                  {t("settingsBilling.activityDescription")}
-                </div>
-              </div>
-            </div>
-
-            {billingTransactions.length > 0 ? (
-              <div className="Settings-activity-list">
-                {billingTransactions.map((item) => {
-                  const amount = Number(item?.amount || 0);
-                  const isPositive = amount > 0;
-                  const isNegative = amount < 0;
-                  const reasonKey = getBillingActivityReasonKey(item?.reason);
-
-                  return (
-                    <div
-                      key={`${item?.id || item?.created_at || "tx"}-${item?.reason || "item"}`}
-                      className="Settings-activity-row"
-                    >
-                      <div className="Settings-activity-main">
-                        <div className="Settings-activity-reason">
-                          {t(`settingsBilling.activityReasons.${reasonKey}`)}
-                          {item?.status && item.status !== "posted" ? (
-                            <span
-                              className="Settings-activity-status"
-                              data-status={item.status}
-                            >
-                              {t(
-                                `settingsBilling.activityStatus.${item.status}`,
-                                item.status,
-                              )}
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="Settings-activity-date">
-                          {formatBillingActivityDate(item?.created_at)}
-                          {item?.metadata?.tx_hash ? (
-                            <a
-                              className="Settings-activity-hash"
-                              href={getCardanoTxExplorerUrl(
-                                item.metadata.tx_hash,
-                                item.metadata.network,
-                              )}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={item.metadata.tx_hash}
-                            >
-                              {item.metadata.tx_hash.slice(0, 10)}...
-                            </a>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div
-                        className="Settings-activity-amount"
-                        data-direction={
-                          isPositive
-                            ? "credit"
-                            : isNegative
-                              ? "debit"
-                              : "neutral"
-                        }
-                      >
-                        {formatBillingAmountFromMinor(amount, {
-                          currency: item?.currency || "lovelace",
-                        })}
-                      </div>
-
-                      <div className="Settings-activity-balance">
-                        <span>{t("settingsBilling.activityBalanceAfter")}</span>
-                        <strong>
-                          {formatBillingAmountFromMinor(
-                            item?.balance_after || 0,
-                            {
-                              currency: item?.currency || "lovelace",
-                            },
-                          )}
-                        </strong>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="Settings-activity-empty">
-                {t("settingsBilling.activityEmpty")}
-              </div>
-            )}
-          </div>
-
-          <div className="Settings-billing-future">
-            <span>{t("settingsBilling.futurePayg")}</span>
-            <span>{t("settingsBilling.futurePlanControls")}</span>
-          </div>
-        </div>
-
-        <ThemeSelector />
-
-        <div className="mt-4 Settings-support-section">
-          <div className="Settings-support-section-header">
-            <div>
-              <h5>{t("settingsBilling.supportTitle")}</h5>
-              <p>{t("settingsBilling.supportDescription")}</p>
-            </div>
           </div>
 
           <div className="Settings-billing-panel Settings-support-panel">

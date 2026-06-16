@@ -1,0 +1,36 @@
+/* src/styles/NavigationSidebar.css */
+
+:root {
+  --cap-sidebar-expanded: 280px;
+  --cap-sidebar-collapsed: 64px;
+}
+
+/* Sidebar fixed on the left, app shifts via #page-wrap padding-left */
+.cap-sidebar-shell {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1200;
+}
+
+.cap-sidebar {
+  width: var(--cap-sidebar-expanded);
+  height: 100vh;
+  background: var(--theme-bg);
+  border-right: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-soft);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  transition: width 0.18s ease;
+}
+
+.cap-sidebar.collapsed {
+  width: var(--cap-sidebar-collapsed);
+}
+
+.cap-sidebar.expand-cursor {
+  cursor: e-resize;
+}
+

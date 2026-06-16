@@ -1,0 +1,46 @@
+/* Tables */
+[data-theme="midnight"] table,
+[data-theme="midnight"] .table,
+[data-theme="midnight"] .table-dark,
+[data-theme="midnight"] .table-striped,
+[data-theme="midnight"] .admin-users-table,
+[data-theme="midnight"] .kv-table {
+  --bs-table-bg: #0b1628;
+  --bs-table-color: var(--midnight-text);
+  --bs-table-border-color: var(--midnight-border);
+  --bs-table-striped-bg: #10213a;
+  --bs-table-striped-color: var(--midnight-text);
+  --bs-table-hover-bg: #172b49;
+  --bs-table-hover-color: var(--midnight-text);
+
+  background: #0b1628 !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] table thead,
+[data-theme="midnight"] table thead tr,
+[data-theme="midnight"] table thead th,
+[data-theme="midnight"] .table thead th,
+[data-theme="midnight"] .kv-table thead th {
+  background: #10213a !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] table tbody tr,
+[data-theme="midnight"] table tbody td,
+[data-theme="midnight"] .table tbody tr,
+[data-theme="midnight"] .table tbody td,
+[data-theme="midnight"] .kv-table tbody tr,
+[data-theme="midnight"] .kv-table tbody td {
+  background-color: #0b1628 !important;
+  color: var(--midnight-text) !important;
+  border-color: var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+[data-theme="midnight"] .admin-users-table tbody tr:nth-child(odd) td {
+  background-color: #10213a !important;
+}
+

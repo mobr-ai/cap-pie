@@ -1,0 +1,17 @@
+/* Charts and artifacts */
+[data-theme="graphite"] .chat-chart-slot,
+[data-theme="graphite"] .vega-chart-container,
+[data-theme="graphite"] .dashboard-widget .vega-chart-container {
+  background: #18181d !important;
+  border-color: var(--graphite-border) !important;
+}
+
+[data-theme="graphite"] .kv-table-link,
+[data-theme="graphite"] .Settings-referral-link,
+[data-theme="graphite"] .Settings-payment-address,
+[data-theme="graphite"] .Settings-activity-hash,
+[data-theme="graphite"] .dashboard-widget a,
+[data-theme="graphite"] .analyses-card a {
+  color: #d4d4d8 !important;
+}
+

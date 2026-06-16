@@ -12,7 +12,7 @@
 .AdminPage .admin-notify-card,
 .AdminPage .admin-table-wrapper * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  scrollbar-color: var(--theme-border-strong) transparent;
 }
 
 /* WebKit */
@@ -30,7 +30,7 @@
 /* Floating thumb */
 .AdminPage .admin-table-wrapper::-webkit-scrollbar-thumb,
 .AdminPage .admin-tabs-scroller::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: var(--theme-border);
   border-radius: 999px;
   opacity: 0;
   transition:
@@ -42,11 +42,11 @@
 .AdminPage .admin-table-wrapper:hover::-webkit-scrollbar-thumb,
 .AdminPage .admin-tabs-scroller:hover::-webkit-scrollbar-thumb {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.45);
+  background-color: var(--theme-border-strong);
 }
 
 /* Active drag */
 .AdminPage .admin-table-wrapper::-webkit-scrollbar-thumb:active,
 .AdminPage .admin-tabs-scroller::-webkit-scrollbar-thumb:active {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--theme-text-muted);
 }

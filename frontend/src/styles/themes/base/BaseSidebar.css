@@ -1,0 +1,54 @@
+/* Sidebar */
+.cap-sidebar {
+  background: var(--theme-shell-gradient);
+  border-right-color: var(--theme-border);
+  box-shadow: var(--theme-shadow-soft);
+}
+
+.sidebar-header-main,
+.sidebar-header-collapse,
+.sidebar-conversation,
+.sidebar-conv-menu-btn,
+.sidebar-conv-menu,
+.sidebar-conv-rename {
+  background: var(--theme-surface-glass);
+  border-color: var(--theme-border);
+  color: var(--theme-text-soft);
+}
+
+.sidebar-expand-chevron,
+.sidebar-header-collapse,
+.sidebar-header-collapse svg,
+.sidebar-item,
+.sidebar-item svg,
+.sidebar-conversation {
+  color: var(--theme-text-soft);
+}
+
+.sidebar-section,
+.sidebar-footer {
+  border-color: var(--theme-border);
+}
+
+.sidebar-section-title,
+.sidebar-footer,
+.sidebar-conversations-empty,
+.sidebar-conversation-preview,
+.sidebar-conversations-placeholder {
+  color: var(--theme-text-muted);
+}
+
+.sidebar-item:hover,
+.sidebar-conversation:hover,
+.sidebar-conv-menu-btn:hover,
+.sidebar-conv-menu-item:hover {
+  background: var(--theme-primary-soft);
+  border-color: var(--theme-primary);
+}
+
+.sidebar-item.active,
+.sidebar-conversation.active {
+  background: var(--theme-primary-soft);
+  border-color: var(--theme-primary);
+}
+

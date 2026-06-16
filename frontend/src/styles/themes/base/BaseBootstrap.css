@@ -1,0 +1,16 @@
+/* Bootstrap-ish surfaces */
+.dropdown-menu-dark,
+.navbar .dropdown-menu-dark {
+  background-color: var(--theme-surface) !important;
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow-soft);
+}
+
+.dropdown-menu-dark .dropdown-item {
+  color: var(--theme-text-soft);
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+  background: var(--theme-primary-soft);
+}
+

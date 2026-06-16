@@ -1,0 +1,50 @@
+/* Landing/chat scoped variables */
+.cap-root {
+  --primary: var(--theme-primary);
+  --primary-dark: var(--theme-primary-hover);
+  --secondary: var(--theme-text-muted);
+
+  --background: var(--theme-bg);
+  --surface: var(--theme-surface);
+  --surface-light: var(--theme-surface-3);
+
+  --text-primary: var(--theme-text);
+  --text-secondary: var(--theme-text-muted);
+
+  --border: var(--theme-border);
+
+  --success: var(--theme-success);
+  --error: var(--theme-danger);
+  --warning: var(--theme-warning);
+}
+
+.cap-root .chat-container,
+.cap-root .input-container,
+.cap-root textarea,
+.cap-root .message.assistant .message-bubble,
+.cap-root .message.assistant .message-avatar {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+}
+
+.cap-root .message.user .message-bubble {
+  background: color-mix(in srgb, var(--theme-primary) 28%, transparent);
+  color: var(--theme-text);
+}
+
+.cap-root .cap-send-tooltip,
+.cap-root .rm-chat pre,
+.cap-root .message-bubble.markdown-body pre {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--theme-text-soft);
+}
+
+.cap-root .message-bubble.markdown-body a,
+.cap-root .rm-chat a,
+.cap-root .markdown-body a,
+.kv-table-link {
+  color: var(--theme-primary-hover);
+}
+

@@ -1,0 +1,21 @@
+/* Subtle terminal scanline layer */
+[data-theme="terminal"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(57, 255, 136, 0.025) 50%, rgba(0, 0, 0, 0) 50%),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.015), rgba(0, 0, 0, 0));
+  background-size: 100% 4px, 6px 100%;
+  opacity: 0.42;
+}
+
+[data-theme="terminal"] #root,
+[data-theme="terminal"] #outer-container,
+[data-theme="terminal"] #page-wrap {
+  position: relative;
+  z-index: 1;
+}
+

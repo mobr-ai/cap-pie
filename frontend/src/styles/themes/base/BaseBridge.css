@@ -1,0 +1,17 @@
+/* src/styles/theme-overrides.css */
+
+/* Late theme bridge. Keep this after legacy CSS imports. */
+
+html,
+body,
+#root,
+#outer-container,
+#page-wrap {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+#page-wrap {
+  background: var(--theme-shell-gradient);
+}
+

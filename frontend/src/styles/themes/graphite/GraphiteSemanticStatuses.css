@@ -1,0 +1,15 @@
+/* Semantic statuses */
+[data-theme="graphite"] .Settings-billing-status.is-active,
+[data-theme="graphite"] .navbar-billing-badge.is-premium {
+  background: rgba(212, 212, 216, 0.1) !important;
+  border-color: rgba(212, 212, 216, 0.26) !important;
+  color: var(--graphite-text-soft) !important;
+}
+
+[data-theme="graphite"] .form-check-input:checked,
+[data-theme="graphite"] input[type="checkbox"]:checked,
+[data-theme="graphite"] .form-switch .form-check-input:checked {
+  background-color: #71717a !important;
+  border-color: #a1a1aa !important;
+}
+

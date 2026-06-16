@@ -1,0 +1,13 @@
+/* App shell */
+[data-theme="midnight"] html,
+[data-theme="midnight"] body,
+[data-theme="midnight"] #root,
+[data-theme="midnight"] #outer-container,
+[data-theme="midnight"] #page-wrap {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.09), transparent 32%),
+    linear-gradient(135deg, #030712 0%, #07111f 46%, #0b1628 100%) !important;
+  color: var(--midnight-text) !important;
+}
+

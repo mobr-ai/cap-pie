@@ -1,0 +1,52 @@
+/* Core surfaces */
+[data-theme="graphite"] .Settings-body,
+[data-theme="graphite"] .AdminPage,
+[data-theme="graphite"] .AdminPage-inner,
+[data-theme="graphite"] .AdminPage.container,
+[data-theme="graphite"] .DashboardPage,
+[data-theme="graphite"] .dashboard-page,
+[data-theme="graphite"] .dashboard-container,
+[data-theme="graphite"] .AnalysesPage,
+[data-theme="graphite"] .cap-root {
+  background:
+    radial-gradient(circle at top left, rgba(113, 113, 122, 0.14), transparent 34%),
+    linear-gradient(135deg, #0a0a0b 0%, #111113 48%, #18181b 100%) !important;
+  color: var(--graphite-text) !important;
+}
+
+[data-theme="graphite"] .Settings-container,
+[data-theme="graphite"] .Settings-user-box,
+[data-theme="graphite"] .Settings-billing-zone,
+[data-theme="graphite"] .Settings-billing-panel,
+[data-theme="graphite"] .Settings-balance-panel,
+[data-theme="graphite"] .Settings-payment-methods,
+[data-theme="graphite"] .Settings-deposit-panel,
+[data-theme="graphite"] .Settings-support-section,
+[data-theme="graphite"] .Settings-theme-section,
+[data-theme="graphite"] .Settings-activity-row,
+[data-theme="graphite"] .Settings-premium-metrics > div,
+[data-theme="graphite"] .Settings-billing-toggle,
+[data-theme="graphite"] .AdminPage .admin-section,
+[data-theme="graphite"] .AdminPage .admin-card,
+[data-theme="graphite"] .AdminPage .admin-metric-card,
+[data-theme="graphite"] .AdminPage .admin-stat-card,
+[data-theme="graphite"] .AdminPage .admin-notify-card,
+[data-theme="graphite"] .AdminPage .admin-table-wrapper,
+[data-theme="graphite"] .AdminPage .admin-table-card,
+[data-theme="graphite"] .AdminPage .admin-panel,
+[data-theme="graphite"] .dashboard-widget,
+[data-theme="graphite"] .dashboard-widget-card,
+[data-theme="graphite"] .dashboard-card,
+[data-theme="graphite"] .widget-card,
+[data-theme="graphite"] .dashboard-grid > *,
+[data-theme="graphite"] .analyses-note,
+[data-theme="graphite"] .analyses-loading,
+[data-theme="graphite"] .analyses-empty,
+[data-theme="graphite"] .analyses-card {
+  background:
+    linear-gradient(180deg, rgba(29, 29, 35, 0.96), rgba(18, 18, 22, 0.96)) !important;
+  color: var(--graphite-text) !important;
+  border-color: var(--graphite-border) !important;
+  box-shadow: var(--graphite-shadow) !important;
+}
+

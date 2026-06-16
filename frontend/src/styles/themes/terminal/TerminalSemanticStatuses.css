@@ -1,0 +1,15 @@
+/* Semantic statuses */
+[data-theme="terminal"] .Settings-billing-status.is-active,
+[data-theme="terminal"] .navbar-billing-badge.is-premium {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(57, 255, 136, 0.3) !important;
+  color: #bbf7d0 !important;
+}
+
+[data-theme="terminal"] .form-check-input:checked,
+[data-theme="terminal"] input[type="checkbox"]:checked,
+[data-theme="terminal"] .form-switch .form-check-input:checked {
+  background-color: #16a34a !important;
+  border-color: #86efac !important;
+}
+

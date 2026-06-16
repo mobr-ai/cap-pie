@@ -1,0 +1,116 @@
+/* ─────────────────────────────
+   Modal
+   ───────────────────────────── */
+
+.uq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--theme-surface);
+  backdrop-filter: blur(6px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uq-modal {
+  width: min(720px, 92vw);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: var(--theme-text);
+}
+
+.uq-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.uq-modal-close {
+  background: none;
+  border: none;
+  color: var(--theme-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.uq-modal-query {
+  background: var(--theme-surface-2);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+}
+
+.uq-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+.uq-modal-error {
+  margin-top: 0.75rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: rgba(220, 38, 38, 0.12);
+  color: #fecaca;
+  font-size: 0.8rem;
+}
+
+.uq-modal-tabs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0 0.75rem 0;
+}
+
+.uq-tab {
+  border: 1px solid var(--theme-border-strong);
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
+  border-radius: 10px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.uq-tab.active {
+  background: var(--theme-surface-3);
+  border-color: var(--theme-border-strong);
+}
+
+.uq-tabs-spacer {
+  flex: 1;
+}
+
+.uq-modal-code {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-2);
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+/* Open conversation button: always show pointer unless disabled */
+.uq-open-convo-btn {
+  cursor: pointer;
+}
+
+.uq-open-convo-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+

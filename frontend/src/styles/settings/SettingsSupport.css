@@ -1,0 +1,176 @@
+.Settings-topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.Settings-topbar .Settings-title {
+  margin-bottom: 0;
+}
+
+.Settings-language-form {
+  flex: 0 0 auto;
+}
+
+.Settings-topbar .Settings-language {
+  /* width: 6.25rem; */
+  margin-bottom: 0;
+}
+
+.Settings-topbar .form-label {
+  display: none;
+  margin-bottom: 0.35rem;
+  text-align: right;
+}
+
+@media (max-width: 620px) {
+  .Settings-topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .Settings-topbar .Settings-language {
+    width: 100%;
+  }
+
+  .Settings-topbar .form-label {
+    text-align: left;
+  }
+
+  .Settings-activity-list {
+    max-height: 240px;
+  }
+}
+
+.Settings-support-panel {
+  overflow: hidden;
+}
+
+.Settings-support-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: 1rem;
+  align-items: center;
+}
+
+.Settings-support-disclaimer {
+  margin-top: 0.65rem;
+  color: var(--theme-text-muted);
+  font-size: 0.76rem;
+}
+
+.Settings-support-actions {
+  display: grid;
+  gap: 0.65rem;
+  justify-items: stretch;
+}
+
+.Settings-support-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.Settings-support-preset {
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  background: var(--theme-surface-2);
+  color: var(--theme-text-soft);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.45rem 0.65rem;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.Settings-support-preset:hover,
+.Settings-support-preset[data-active="true"] {
+  border-color: var(--theme-primary);
+  background: var(--theme-primary-soft);
+  color: var(--theme-text);
+}
+
+.Settings-support-custom {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.Settings-support-custom span {
+  color: var(--theme-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.Settings-support-custom input {
+  width: 100%;
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface-2);
+  color: var(--theme-text);
+  font-size: 0.88rem;
+  padding: 0.58rem 0.7rem;
+  outline: none;
+}
+
+.Settings-support-custom input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px var(--theme-primary-soft);
+}
+
+@media (max-width: 760px) {
+  .Settings-support-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Settings-support-section {
+  padding: 1.2rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(59, 130, 246, 0.12),
+      transparent 34%
+    ),
+    rgba(15, 23, 42, 0.38);
+}
+
+.Settings-support-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.Settings-support-section-header h5 {
+  color: var(--theme-text);
+  font-size: 0.98rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+}
+
+.Settings-support-section-header p {
+  color: var(--theme-text-muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.Settings-support-custom input::-webkit-outer-spin-button,
+.Settings-support-custom input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.Settings-support-custom input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+

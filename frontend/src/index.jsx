@@ -32,6 +32,7 @@ import { useTranslation } from "react-i18next";
 import AuthPage from "./pages/AuthPage";
 import WaitingListPage from "./pages/WaitingListPage";
 import SettingsPage from "./pages/SettingsPage";
+import BillingPage from "./pages/BillingPage";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
@@ -48,6 +49,8 @@ import useSyncStatus from "./hooks/useSyncStatus";
 import Header from "./components/Header";
 import { fetchBillingAccess } from "./billing/api";
 import { installThemeRouteSync } from "./theme/themeStorage";
+import { SUPPORTED_WALLETS } from "./cardano/constants";
+import { getWalletInfo } from "./cardano/utils";
 
 installThemeRouteSync();
 
@@ -97,6 +100,34 @@ function getInitialSession() {
   return safeGetSession();
 }
 
+
+function formatWalletName(value) {
+  if (!value || typeof value !== "string") return "";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getSessionWalletName(session, user) {
+  return (
+    session?.wallet_info?.wallet ||
+    session?.wallet_info?.wallet_name ||
+    session?.wallet_name ||
+    user?.wallet_info?.wallet ||
+    user?.wallet_info?.wallet_name ||
+    user?.wallet_name ||
+    ""
+  );
+}
+
+function getSessionWalletAddress(session, user) {
+  return (
+    session?.wallet_info?.address ||
+    session?.wallet_address ||
+    user?.wallet_info?.address ||
+    user?.wallet_address ||
+    ""
+  );
+}
+
 function getInitialLoading() {
   try {
     const sess = canUseLocalStorage() ? safeGetSession() : null;
@@ -123,6 +154,12 @@ function Layout() {
   const [sidebarIsOpen, setSidebarOpen] = useState(false);
   const [billingAccess, setBillingAccess] = useState(null);
   const [billingAccessLoading, setBillingAccessLoading] = useState(false);
+
+  const [billingWalletName, setBillingWalletName] = useState("");
+  const [billingWalletApi, setBillingWalletApi] = useState(null);
+  const [billingWalletInfo, setBillingWalletInfo] = useState(null);
+  const [billingWalletError, setBillingWalletError] = useState("");
+  const autoBillingWalletTriedRef = useRef(false);
 
   const storageWorksRef = useRef(canUseLocalStorage());
   const storageWarnedRef = useRef(false);
@@ -262,6 +299,103 @@ function Layout() {
     [persistSessionOrWarn],
   );
 
+
+  const detectBillingWallets = useCallback(() => {
+    const w = window.cardano || {};
+    const allowed = new Set(
+      (SUPPORTED_WALLETS || []).map((x) => x.toLowerCase()),
+    );
+
+    return Object.keys(w)
+      .map((key) => ({ key, norm: key.toLowerCase() }))
+      .filter(({ norm }) => allowed.has(norm))
+      .sort((a, b) => a.norm.localeCompare(b.norm));
+  }, []);
+
+  const connectBillingWallet = useCallback(
+    async (walletName, options = {}) => {
+      const { silent = false } = options;
+      setBillingWalletError("");
+
+      try {
+        const w = window.cardano || {};
+        const exactKey =
+          Object.keys(w).find(
+            (k) => k.toLowerCase() === String(walletName).toLowerCase(),
+          ) || walletName;
+
+        if (!exactKey || !w[exactKey]) {
+          throw new Error("walletNotFound");
+        }
+
+        const api = await w[exactKey].enable();
+        const info = await getWalletInfo(exactKey, api);
+
+        setBillingWalletName(exactKey);
+        setBillingWalletApi(api);
+        setBillingWalletInfo(info);
+
+        if (!silent) {
+          showToast(
+            t("settingsBilling.walletConnected", {
+              wallet: formatWalletName(exactKey),
+            }),
+            "success",
+          );
+        }
+
+        return { walletName: exactKey, api, info };
+      } catch (err) {
+        console.error("[Layout] Billing wallet connect failed:", err);
+
+        if (!silent) {
+          setBillingWalletError(t("settingsBilling.errors.walletConnectFailed"));
+        }
+
+        throw err;
+      }
+    },
+    [showToast, t],
+  );
+
+  useEffect(() => {
+    if (!session) {
+      setBillingWalletName("");
+      setBillingWalletApi(null);
+      setBillingWalletInfo(null);
+      setBillingWalletError("");
+      autoBillingWalletTriedRef.current = false;
+      return;
+    }
+
+    if (autoBillingWalletTriedRef.current) return;
+    if (billingWalletApi) return;
+
+    const sessionWallet = getSessionWalletName(session, session);
+    const sessionAddress = getSessionWalletAddress(session, session);
+
+    if (!sessionWallet) return;
+
+    autoBillingWalletTriedRef.current = true;
+    setBillingWalletName(sessionWallet);
+
+    if (sessionAddress) {
+      setBillingWalletInfo((prev) => ({
+        ...(prev || {}),
+        wallet: sessionWallet,
+        address: sessionAddress,
+      }));
+    }
+
+    connectBillingWallet(sessionWallet, { silent: true }).catch(() => {
+      setBillingWalletError(
+        t("settingsBilling.errors.reconnectWalletForPayment", {
+          wallet: formatWalletName(sessionWallet),
+        }),
+      );
+    });
+  }, [billingWalletApi, connectBillingWallet, session, t]);
+
   const outletContext = useMemo(
     () => ({
       session,
@@ -281,6 +415,13 @@ function Layout() {
       billingAccess,
       billingAccessLoading,
       refreshBillingAccess,
+      billingWalletName,
+      billingWalletApi,
+      billingWalletInfo,
+      billingWalletError,
+      setBillingWalletError,
+      detectBillingWallets,
+      connectBillingWallet,
     }),
     [
       session,
@@ -298,6 +439,13 @@ function Layout() {
       billingAccess,
       billingAccessLoading,
       refreshBillingAccess,
+      billingWalletName,
+      billingWalletApi,
+      billingWalletInfo,
+      billingWalletError,
+      setBillingWalletError,
+      detectBillingWallets,
+      connectBillingWallet,
     ],
   );
 
@@ -418,6 +566,7 @@ function AppRouter() {
             <Route path="/welcome" element={<WelcomePage type="login" />} />
             <Route path="/signup" element={<WaitingListPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/billing" element={<BillingPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

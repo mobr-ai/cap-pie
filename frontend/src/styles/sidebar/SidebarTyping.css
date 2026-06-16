@@ -1,0 +1,49 @@
+/* ---- typing animation for newly created titles ---- */
+.sidebar-conversation-title.typing {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0ch;
+  animation: capTyping calc(var(--chars) * 0.055s) steps(var(--chars)) forwards;
+}
+
+@keyframes capTyping {
+  from {
+    width: 0ch;
+  }
+  to {
+    width: calc(var(--chars) * 1ch);
+  }
+}
+
+/* Hide menu button by default; show only on hover (or when open/focused) */
+.sidebar-conv-menu-btn {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+}
+
+.sidebar-conv-row:hover .sidebar-conv-menu-btn,
+.sidebar-conv-menu-btn.open,
+.sidebar-conv-menu-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Place the button in the upper-right of the row */
+.sidebar-conv-row {
+  position: relative;
+}
+
+.sidebar-conv-menu-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Ensure the conversation button has room (so text doesn’t sit under the menu button) */
+.sidebar-conversation {
+  padding-right: 44px;
+}
+

@@ -1,0 +1,49 @@
+.Settings-premium-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(320px, 1.15fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.Settings-premium-main,
+.Settings-premium-copy,
+.Settings-premium-actions {
+  min-width: 0;
+  width: 100%;
+}
+
+.Settings-premium-main h5,
+.Settings-premium-main p,
+.Settings-premium-copy h5,
+.Settings-premium-copy p {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.Settings-premium-actions {
+  display: grid;
+  gap: 0.75rem;
+  align-content: center;
+}
+
+.Settings-premium-opt-in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.Settings-premium-opt-in .Settings-billing-toggle {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .Settings-premium-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .Settings-premium-opt-in {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

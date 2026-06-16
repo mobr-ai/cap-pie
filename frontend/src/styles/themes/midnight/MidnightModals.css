@@ -1,0 +1,113 @@
+/* Modals */
+[data-theme="midnight"] .modal-content,
+[data-theme="midnight"] .CardanoPaymentModal-content,
+[data-theme="midnight"] .uq-modal {
+  background:
+    linear-gradient(180deg, rgba(16, 33, 58, 0.98), rgba(7, 17, 31, 0.98)) !important;
+  color: var(--midnight-text) !important;
+  border: 1px solid var(--midnight-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--midnight-shadow-large) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="midnight"] .modal-header,
+[data-theme="midnight"] .CardanoPaymentModal-header {
+  background:
+    linear-gradient(180deg, rgba(23, 43, 73, 0.98), rgba(11, 22, 40, 0.98)) !important;
+  color: var(--midnight-text) !important;
+  border-bottom: 1px solid var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .modal-body,
+[data-theme="midnight"] .CardanoPaymentModal-body {
+  background: transparent !important;
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .modal-footer,
+[data-theme="midnight"] .CardanoPaymentModal-footer {
+  background: rgba(3, 7, 18, 0.45) !important;
+  color: var(--midnight-text) !important;
+  border-top: 1px solid var(--midnight-border) !important;
+}
+
+[data-theme="midnight"] .modal-title,
+[data-theme="midnight"] .modal-header h1,
+[data-theme="midnight"] .modal-header h2,
+[data-theme="midnight"] .modal-header h3,
+[data-theme="midnight"] .modal-header h4,
+[data-theme="midnight"] .modal-header h5,
+[data-theme="midnight"] .CardanoPaymentModal-title {
+  color: var(--midnight-text) !important;
+}
+
+[data-theme="midnight"] .modal-content small,
+[data-theme="midnight"] .modal-content .text-muted,
+[data-theme="midnight"] .modal-content .muted,
+[data-theme="midnight"] .modal-content .help-text,
+[data-theme="midnight"] .CardanoPaymentModal-subtitle,
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="hint"],
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="meta"],
+[data-theme="midnight"] .CardanoPaymentModal-content [class*="note"] {
+  color: var(--midnight-muted) !important;
+}
+
+[data-theme="midnight"] .payment-modal-card,
+[data-theme="midnight"] .billing-modal-card,
+[data-theme="midnight"] .payment-summary-card,
+[data-theme="midnight"] .payment-benefit,
+[data-theme="midnight"] .payment-benefit-row,
+[data-theme="midnight"] .payment-wallet-row,
+[data-theme="midnight"] .payment-address-row,
+[data-theme="midnight"] .payment-method-row,
+[data-theme="midnight"] .billing-payment-card,
+[data-theme="midnight"] .billing-payment-summary,
+[data-theme="midnight"] .billing-payment-benefit,
+[data-theme="midnight"] .CardanoPaymentModal-plan,
+[data-theme="midnight"] .CardanoPaymentModal-summary,
+[data-theme="midnight"] .CardanoPaymentModal-balance,
+[data-theme="midnight"] .CardanoPaymentModal-wallet,
+[data-theme="midnight"] .CardanoPaymentModal-payment,
+[data-theme="midnight"] .CardanoPaymentModal-benefits,
+[data-theme="midnight"] .CardanoPaymentModal-note,
+[data-theme="midnight"] .CardanoPaymentModal-status,
+[data-theme="midnight"] .CardanoPaymentModal-address,
+[data-theme="midnight"] .CardanoPaymentModal-network,
+[data-theme="midnight"] .CardanoPaymentModal-section,
+[data-theme="midnight"] .CardanoPaymentModal-card,
+[data-theme="midnight"] .CardanoPaymentModal-row,
+[data-theme="midnight"] .share-preview,
+[data-theme="midnight"] .ShareModal-preview,
+[data-theme="midnight"] .dashboard-share-preview,
+[data-theme="midnight"] .widget-share-preview,
+[data-theme="midnight"] .share-image-preview,
+[data-theme="midnight"] .dashboard-widget-share-preview,
+[data-theme="midnight"] .widget-settings-section,
+[data-theme="midnight"] .widget-settings-card,
+[data-theme="midnight"] .widget-settings-group,
+[data-theme="midnight"] .widget-settings-panel,
+[data-theme="midnight"] .modal-content [class*="settings-section"],
+[data-theme="midnight"] .modal-content [class*="settings-card"],
+[data-theme="midnight"] .modal-content [class*="settings-group"],
+[data-theme="midnight"] .modal-content [class*="preview"] {
+  background: rgba(11, 22, 40, 0.92) !important;
+  background-image: none !important;
+  color: var(--midnight-text) !important;
+  border: 1px solid var(--midnight-border) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="midnight"] .ShareModal-share-icon p,
+[data-theme="midnight"] .ShareModal-share-icon span,
+[data-theme="midnight"] .ShareModal-share-icon small {
+  color: var(--midnight-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="midnight"] .modal-content .btn-close {
+  filter: invert(1) grayscale(1) !important;
+  opacity: 0.72 !important;
+}
+

@@ -5,7 +5,7 @@
 .AdminPage {
   padding-top: 1.5rem;
   padding-bottom: 2rem;
-  color: #e5e7eb;
+  color: var(--theme-text);
 }
 
 /* Center the content and constrain max width */
@@ -29,7 +29,7 @@
 
 .admin-subtitle {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--theme-text-muted);
   margin-bottom: 0;
 }
 
@@ -59,12 +59,12 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9ca3af;
+  color: var(--theme-text-muted);
 }
 
 .admin-section-subtitle {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--theme-text-muted);
 }
 
 /* Responsive tweaks that belong to the page shell / section headings */

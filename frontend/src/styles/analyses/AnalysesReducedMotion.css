@@ -1,0 +1,9 @@
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .analyses-card.processing::before,
+  .analyses-card.processing,
+  .analyses-card:hover::after {
+    animation: none;
+  }
+}
+

@@ -1,0 +1,29 @@
+.uq-modal-backdrop {
+  opacity: 1;
+  transition: opacity 140ms ease;
+}
+
+.uq-modal {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  transition:
+    transform 140ms ease,
+    opacity 140ms ease;
+  will-change: transform, opacity;
+}
+
+.uq-modal-backdrop--closing {
+  opacity: 0;
+}
+
+.uq-modal--closing {
+  opacity: 0;
+  transform: translateY(6px) scale(0.99);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uq-modal-backdrop,
+  .uq-modal {
+    transition: none;
+  }
+}
