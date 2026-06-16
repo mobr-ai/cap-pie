@@ -1074,20 +1074,15 @@ class VegaUtil:
 
         keys = VegaUtil._all_keys(data)
 
-        # Parse coordinate assignments from user query
         coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
         field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
 
-        # Determine x, y, and value keys
-        # Priority: user-specified coordinates > heuristic detection
-        x_key = field_assignments.get('x')
-        y_key = field_assignments.get('y')
-        value_key = field_assignments.get('z')  # z often used for heatmap intensity
+        x_key = field_assignments.get("x")
+        y_key = field_assignments.get("y")
+        value_key = field_assignments.get("z")
 
-        # Use centralized field classification for fallback
         categorical_keys, numeric_keys = VegaUtil._classify_fields(data)
 
-        # Fallback to heuristic if coordinates not specified
         used_keys = [k for k in [x_key, y_key, value_key] if k is not None]
         available_categorical = [k for k in categorical_keys if k not in used_keys]
         available_numeric = [k for k in numeric_keys if k not in used_keys]
@@ -1102,7 +1097,7 @@ class VegaUtil:
         if not value_key and available_numeric:
             value_key = available_numeric[0]
         elif not value_key and keys:
-            value_key = keys[-1]  # Last resort fallback
+            value_key = keys[-1]
 
         if not (x_key and y_key and value_key):
             logger.warning(
@@ -1110,48 +1105,57 @@ class VegaUtil:
             )
             return {"values": []}
 
+        x_is_temporal = VegaUtil._is_temporal_key(x_key)
+        y_is_temporal = VegaUtil._is_temporal_key(y_key)
+
         values = []
+
         for item in data:
             x_val = item.get(x_key, "")
             if isinstance(x_val, dict):
-                x_val = x_val.get('value', str(x_val))
+                x_val = x_val.get("value", str(x_val))
 
             y_val = item.get(y_key, "")
             if isinstance(y_val, dict):
-                y_val = y_val.get('value', str(y_val))
+                y_val = y_val.get("value", str(y_val))
 
             heat_val = VegaUtil._extract_y_value(item.get(value_key))
 
-            if heat_val is not None:
-                try:
-                    x_is_temporal = VegaUtil._is_temporal_key(x_key)
-                    y_is_temporal = VegaUtil._is_temporal_key(y_key)
+            if heat_val is None:
+                continue
 
-                    x_raw = VegaUtil._format_temporal_value(x_val) if x_is_temporal else str(x_val)
-                    y_raw = VegaUtil._format_temporal_value(y_val) if y_is_temporal else str(y_val)
+            try:
+                x_raw = VegaUtil._format_temporal_value(x_val) if x_is_temporal else str(x_val)
+                y_raw = VegaUtil._format_temporal_value(y_val) if y_is_temporal else str(y_val)
 
-                    values.append({
-                        "x": x_raw,
-                        "y": y_raw,
-                        "x_label": (
-                            datetime.fromisoformat(x_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
-                            if x_is_temporal else x_raw
-                        ),
-                        "y_label": (
-                            datetime.fromisoformat(y_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
-                            if y_is_temporal else y_raw
-                        ),
-                        "value": float(heat_val)
-                    })
-                except (ValueError, TypeError) as e:
-                    logger.warning(f"Skipping heatmap cell: {e}")
-                    continue
+                x_label = (
+                    datetime.fromisoformat(x_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
+                    if x_is_temporal
+                    else x_raw
+                )
 
-        # Format column names for metadata
+                y_label = (
+                    datetime.fromisoformat(y_raw.replace("Z", "+00:00")).strftime("%d %b %Hh")
+                    if y_is_temporal
+                    else y_raw
+                )
+
+                values.append({
+                    "x": x_label,
+                    "y": y_label,
+                    "x_raw": x_raw,
+                    "y_raw": y_raw,
+                    "value": float(heat_val),
+                })
+
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Skipping heatmap cell: {e}")
+                continue
+
         formatted_columns = [
             VegaUtil._format_column_name(x_key),
             VegaUtil._format_column_name(y_key),
-            VegaUtil._format_column_name(value_key)
+            VegaUtil._format_column_name(value_key),
         ]
 
         return {
@@ -1161,13 +1165,13 @@ class VegaUtil:
             "_value_key": value_key,
             "_columns": formatted_columns,
             "_field_types": {
-                "x": "temporal" if x_is_temporal else "nominal",
-                "y": "temporal" if y_is_temporal else "nominal",
+                "x": "nominal",
+                "y": "nominal",
                 "value": "quantitative",
             },
-            "_axis_formats": {
-                "x": "%d %b %Hh" if x_is_temporal else None,
-                "y": "%d %b %Hh" if y_is_temporal else None,
+            "_sort_fields": {
+                "x": "x_raw" if x_is_temporal else None,
+                "y": "y_raw" if y_is_temporal else None,
             },
         }
 
