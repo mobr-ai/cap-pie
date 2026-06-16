@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import logging
 
 from langgraph.config import get_stream_writer
@@ -13,15 +14,57 @@ from cap.services.agentic.tools import (
 from cap.services.llm_client import LLMClient
 from cap.services.prompt_builder import INFRA_ISSUE, PromptBuilder, is_infrastructure_limit_error
 from cap.services.redis_nl_client import RedisNLClient
+from cap.util.status_message import StatusMessage
 
 logger = logging.getLogger(__name__)
 
-class CacheAgent:
-    def __init__(self, redis_client: RedisNLClient):
+def write_on_stream(msg_type:str, msg_content:str) -> None:
+    if msg_type and msg_content:
+        writer = get_stream_writer()
+        writer({
+            "type": msg_type,
+            "content": msg_content,
+        })
+
+class WorkflowAgent(ABC):
+    """
+    Base class for all workflow agents.
+
+    Responsibilities:
+    - Provide a common name property
+    - Emit status messages automatically
+    - Enforce a common execution contract
+    """
+
+    def __init__(self, agent_name: str):
+        self._agent_name = agent_name
+
+    @property
+    def name(self) -> str:
+        return self._agent_name
+
+    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+        write_on_stream(
+            "status",
+            StatusMessage.graph_step(self.name),
+        )
+
+        return await self._run(state)
+
+    @abstractmethod
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
+        """
+        Agent-specific implementation.
+        """
+        raise NotImplementedError
+
+class CacheAgent(WorkflowAgent):
+    def __init__(self, redis_client: RedisNLClient, agent_name: str):
+        super.__init__(agent_name)
         self.redis_client = redis_client
         self.use_canonizer = True
 
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         user_query = state.get("user_query", "")
         query = user_query
         if self.use_canonizer:
@@ -40,12 +83,13 @@ class CacheAgent:
         return state
 
 
-class PlanningAgent:
-    def __init__(self, llm_client: LLMClient):
+class PlanningAgent(WorkflowAgent):
+    def __init__(self, llm_client: LLMClient, agent_name: str):
+        super.__init__(agent_name)
         self.llm_client = llm_client
         self.planner = FederatedPlanner(llm_client)
 
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         if state.get("federated_query"):
             return state
 
@@ -60,8 +104,11 @@ class PlanningAgent:
         return state
 
 
-class ExecutionAgent:
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+class ExecutionAgent(WorkflowAgent):
+    def __init__(self, agent_name: str):
+        super.__init__(agent_name)
+
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         query = state.get("federated_query")
         if not query:
             state["error"] = "No federated query was generated."
@@ -74,8 +121,11 @@ class ExecutionAgent:
         return state
 
 
-class CriticAgent:
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+class CriticAgent(WorkflowAgent):
+    def __init__(self, agent_name: str):
+        super.__init__(agent_name)
+
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         result = state.get("execution_result")
 
         if state.get("infrastructure_limit_exceeded"):
@@ -111,8 +161,11 @@ class CriticAgent:
         return state
 
 
-class ContextAgent:
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+class ContextAgent(WorkflowAgent):
+    def __init__(self, agent_name: str):
+        super.__init__(agent_name)
+
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         query = state.get("federated_query")
         result = state.get("execution_result")
 
@@ -164,14 +217,14 @@ class ContextAgent:
         return state
 
 
-class AnswerAgent:
-    def __init__(self, llm_client: LLMClient):
+class AnswerAgent(WorkflowAgent):
+    def __init__(self, llm_client: LLMClient, agent_name: str):
+        super.__init__(agent_name)
         self.llm_client = llm_client
         self.prompt_builder = PromptBuilder()
 
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         chunks: list[str] = []
-        writer = get_stream_writer()
 
         federated_query = state.get("federated_query")
         kv_results = state.get("kv_results")
@@ -194,21 +247,18 @@ class AnswerAgent:
 
         async for chunk in stream:
             chunks.append(chunk)
-
-            writer({
-                "type": "answer_chunk",
-                "content": chunk,
-            })
+            write_on_stream("answer_chunk", chunk)
 
         state["final_answer"] = "".join(chunks)
         return state
 
 
-class PersistenceAgent:
-    def __init__(self, redis_client: RedisNLClient):
+class PersistenceAgent(WorkflowAgent):
+    def __init__(self, redis_client: RedisNLClient, agent_name: str):
+        super.__init__(agent_name)
         self.redis_client = redis_client
 
-    async def run(self, state: AgenticQueryState) -> AgenticQueryState:
+    async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         if state.get("cached"):
             return state
 

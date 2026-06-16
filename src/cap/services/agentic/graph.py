@@ -19,13 +19,13 @@ def build_agentic_query_graph(
     llm_client: LLMClient,
     redis_client: RedisNLClient,
 ):
-    cache_agent = CacheAgent(redis_client)
-    planning_agent = PlanningAgent(llm_client)
-    execution_agent = ExecutionAgent()
-    critic_agent = CriticAgent()
-    context_agent = ContextAgent()
-    answer_agent = AnswerAgent(llm_client)
-    persistence_agent = PersistenceAgent(redis_client)
+    cache_agent = CacheAgent(redis_client, "cache")
+    planning_agent = PlanningAgent(llm_client, "plan")
+    execution_agent = ExecutionAgent("execute")
+    critic_agent = CriticAgent("critic")
+    context_agent = ContextAgent("context")
+    answer_agent = AnswerAgent(llm_client, "answer")
+    persistence_agent = PersistenceAgent(redis_client, "persitance")
 
     async def normalize_node(state: AgenticQueryState) -> AgenticQueryState:
         state["normalized_query"] = QueryNormalizer.normalize(state.get("user_query", ""))
@@ -55,45 +55,45 @@ def build_agentic_query_graph(
         return await persistence_agent.run(state)
 
     def after_cache(state: AgenticQueryState) -> str:
-        return "execute" if state.get("federated_query") else "plan"
+        return execution_agent.name if state.get("federated_query") else planning_agent.name
 
     def after_execute(state: AgenticQueryState) -> str:
         if state.get("infrastructure_limit_exceeded"):
-            return "answer"
-        return "critic"
+            return answer_agent.name
+        return critic_agent.name
 
     def after_critic(state: AgenticQueryState) -> str:
         result = state.get("execution_result")
         if result and result.has_data:
-            return "context"
+            return context_agent.name
         if state.get("federated_query") is None:
-            return "plan"
-        return "context"
+            return planning_agent.name
+        return context_agent.name
 
     def after_answer(state: AgenticQueryState) -> str:
         if state.get("infrastructure_limit_exceeded"):
             return END
-        return "persist"
+        return persistence_agent.name
 
     workflow = StateGraph(AgenticQueryState)
 
     workflow.add_node("normalize", normalize_node)
-    workflow.add_node("cache", cache_node)
-    workflow.add_node("plan", planning_node)
-    workflow.add_node("execute", execution_node)
-    workflow.add_node("critic", critic_node)
-    workflow.add_node("context", context_node)
-    workflow.add_node("answer", answer_node)
-    workflow.add_node("persist", persistence_node)
+    workflow.add_node(cache_agent.name, cache_node)
+    workflow.add_node(planning_agent.name, planning_node)
+    workflow.add_node(execution_agent.name, execution_node)
+    workflow.add_node(critic_agent.name, critic_node)
+    workflow.add_node(context_agent.name, context_node)
+    workflow.add_node(answer_agent.name, answer_node)
+    workflow.add_node(persistence_agent.name, persistence_node)
 
     workflow.set_entry_point("normalize")
-    workflow.add_edge("normalize", "cache")
-    workflow.add_conditional_edges("cache", after_cache)
-    workflow.add_edge("plan", "execute")
-    workflow.add_conditional_edges("execute", after_execute)
-    workflow.add_conditional_edges("critic", after_critic)
-    workflow.add_edge("context", "answer")
-    workflow.add_conditional_edges("answer", after_answer)
-    workflow.add_edge("persist", END)
+    workflow.add_edge("normalize", cache_agent.name)
+    workflow.add_conditional_edges(cache_agent.name, after_cache)
+    workflow.add_edge(planning_agent.name, execution_agent.name)
+    workflow.add_conditional_edges(execution_agent.name, after_execute)
+    workflow.add_conditional_edges(critic_agent.name, after_critic)
+    workflow.add_edge(context_agent.name, answer_agent.name)
+    workflow.add_conditional_edges(answer_agent.name, after_answer)
+    workflow.add_edge(persistence_agent.name, END)
 
     return workflow.compile()
