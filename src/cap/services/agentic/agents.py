@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 
 from langgraph.config import get_stream_writer
 
@@ -18,13 +18,18 @@ from cap.util.status_message import StatusMessage
 
 logger = logging.getLogger(__name__)
 
-def write_on_stream(msg_type:str, msg_content:str) -> None:
-    if msg_type and msg_content:
+def write_on_stream(msg_type: str, msg_content: str) -> None:
+    if not msg_type or not msg_content:
+        return
+
+    try:
         writer = get_stream_writer()
         writer({
             "type": msg_type,
             "content": msg_content,
         })
+    except RuntimeError:
+        logger.debug("No LangGraph stream writer available.")
 
 class WorkflowAgent(ABC):
     """
@@ -60,7 +65,7 @@ class WorkflowAgent(ABC):
 
 class CacheAgent(WorkflowAgent):
     def __init__(self, redis_client: RedisNLClient, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
         self.redis_client = redis_client
         self.use_canonizer = True
 
@@ -85,7 +90,7 @@ class CacheAgent(WorkflowAgent):
 
 class PlanningAgent(WorkflowAgent):
     def __init__(self, llm_client: LLMClient, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
         self.llm_client = llm_client
         self.planner = FederatedPlanner(llm_client)
 
@@ -106,7 +111,7 @@ class PlanningAgent(WorkflowAgent):
 
 class ExecutionAgent(WorkflowAgent):
     def __init__(self, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
 
     async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         query = state.get("federated_query")
@@ -123,7 +128,7 @@ class ExecutionAgent(WorkflowAgent):
 
 class CriticAgent(WorkflowAgent):
     def __init__(self, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
 
     async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         result = state.get("execution_result")
@@ -163,7 +168,7 @@ class CriticAgent(WorkflowAgent):
 
 class ContextAgent(WorkflowAgent):
     def __init__(self, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
 
     async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
         query = state.get("federated_query")
@@ -219,7 +224,7 @@ class ContextAgent(WorkflowAgent):
 
 class AnswerAgent(WorkflowAgent):
     def __init__(self, llm_client: LLMClient, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
         self.llm_client = llm_client
         self.prompt_builder = PromptBuilder()
 
@@ -232,9 +237,9 @@ class AnswerAgent(WorkflowAgent):
             kv_results = {}
 
         if state.get("infrastructure_limit_exceeded"):
-            formatted_results=INFRA_ISSUE
+            formatted_results = INFRA_ISSUE
         else:
-            formatted_results=state.get("formatted_results", "")
+            formatted_results = state.get("formatted_results", "")
 
         stream = self.llm_client.generate_answer_with_context(
             user_query=state.get("user_query", ""),
@@ -255,7 +260,7 @@ class AnswerAgent(WorkflowAgent):
 
 class PersistenceAgent(WorkflowAgent):
     def __init__(self, redis_client: RedisNLClient, agent_name: str):
-        super.__init__(agent_name)
+        super().__init__(agent_name)
         self.redis_client = redis_client
 
     async def _run(self, state: AgenticQueryState) -> AgenticQueryState:
