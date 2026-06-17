@@ -19,8 +19,8 @@ from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
 from cap.services.prompt_builder import PromptBuilder
 from cap.services.similarity_service import SearchStrategy
-from cap.util.federated_result_processor import format_kv
-from cap.util.sparql_result_processor import convert_results_to_explorer_links
+from cap.federated.federated_result_processor import format_kv
+from cap.federated.sparql.sparql_result_processor import convert_results_to_explorer_links
 from cap.util.str_util import matches_keyword
 from cap.util.tag_filter import TagFilter
 from cap.util.vega_util import VegaUtil
