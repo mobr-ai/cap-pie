@@ -67,7 +67,7 @@ class VegaTableConverter:
                 continue
 
             value_columns.append({
-                f"col{visible_col_idx}": col_name,
+                f"col{visible_col_idx}": cls._format_column_name(col_name),
                 "values": col_values,
             })
 
@@ -76,4 +76,5 @@ class VegaTableConverter:
         return {
             "context": context,
             "values": value_columns,
+            "_columns": value_columns,
         }

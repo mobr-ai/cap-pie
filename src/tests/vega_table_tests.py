@@ -25,6 +25,12 @@ def print_converted_table(result: dict) -> None:
         for i, name in enumerate(header_names)
     ]
 
+    print("headers")
+    print(headers)
+
+    print("header_names")
+    print(header_names)
+
     print(" | ".join(str(name).ljust(widths[i]) for i, name in enumerate(header_names)))
     print("-+-".join("-" * width for width in widths))
 
