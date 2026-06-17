@@ -47,6 +47,9 @@ class VegaTableConverter:
                     row_context=row,
                 )
 
+                v_dt = cls._parse_date_value(value)
+                value = v_dt.strftime("%d/%b/%y %Hh") if v_dt else value
+
                 if not str(value).startswith('<a href='):
                     value = cls._convert_url_to_link(value)
 
