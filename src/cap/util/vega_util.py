@@ -1177,9 +1177,7 @@ class VegaUtil:
             logger.warning(f"Returning empty table for {user_query} with data {table_data}")
             return {"context": {}, "values": []}
 
-        # Get all unique keys from all rows, in case structure varies
         all_keys = VegaUtil._all_keys(table_data)
-
         formatted_rows: list[dict[str, Any]] = []
 
         for row in table_data:
@@ -1204,7 +1202,6 @@ class VegaUtil:
                     if value.endswith(".0"):
                         value = value[:-2]
 
-                # Convert blockchain entities to the active chain explorer links
                 value = get_chain().convert_entity_to_explorer_link(
                     col_name,
                     value,
@@ -1212,7 +1209,6 @@ class VegaUtil:
                     row_context=row,
                 )
 
-                # Convert URLs to clickable links, if not already converted
                 if not str(value).startswith('<a href='):
                     value = VegaUtil._convert_url_to_link(value)
 
@@ -1223,6 +1219,7 @@ class VegaUtil:
         context: dict[str, Any] = {}
         value_columns: list[dict[str, Any]] = []
 
+        visible_col_idx = 1
         for col_name in all_keys:
             col_values = [row[col_name] for row in formatted_rows]
             unique_values = set(map(str, col_values))
