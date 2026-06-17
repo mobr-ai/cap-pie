@@ -2,7 +2,6 @@ import logging
 import re
 from datetime import datetime
 from collections import Counter
-from dataclasses import dataclass
 from typing import Any, TypeAlias
 
 from opentelemetry import trace
@@ -14,15 +13,6 @@ VegaValue: TypeAlias = dict[str, Any]
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
-
-
-@dataclass(frozen=True)
-class ChartFields:
-    keys: list[str]
-    categorical_keys: list[str]
-    numeric_keys: list[str]
-    assignments: dict[str, str]
-
 
 class VegaUtil:
     """Util to convert data to vega format."""
@@ -59,23 +49,35 @@ class VegaUtil:
         if not data:
             return {"values": []}
 
-        converters = {
-            "bar_chart": VegaUtil._convert_bar_chart,
-            "pie_chart": VegaUtil._convert_pie_chart,
-            "line_chart": VegaUtil._convert_line_chart,
-            "table": VegaUtil._convert_table,
-            "scatter_chart": VegaUtil._convert_scatter_chart,
-            "bubble_chart": VegaUtil._convert_bubble_chart,
-            "treemap": VegaUtil._convert_treemap,
-            "heatmap": VegaUtil._convert_heatmap,
-        }
-
-        converter = converters.get(result_type)
-        if not converter:
-            return {"values": []}
+        data = VegaUtil._preprocess_date_values(data)
 
         try:
-            return converter(data, user_query, sparql_query)
+            if result_type == "bar_chart":
+                return VegaUtil._convert_bar_chart(data, user_query, sparql_query)
+
+            elif result_type == "pie_chart":
+                return VegaUtil._convert_pie_chart(data, user_query, sparql_query)
+
+            elif result_type == "line_chart":
+                return VegaUtil._convert_line_chart(data, user_query, sparql_query)
+
+            elif result_type == "table":
+                return VegaUtil._convert_table(data, user_query, sparql_query)
+
+            elif result_type == "scatter_chart":
+                return VegaUtil._convert_scatter_chart(data, user_query, sparql_query)
+
+            elif result_type == "bubble_chart":
+                return VegaUtil._convert_bubble_chart(data, user_query, sparql_query)
+
+            elif result_type == "treemap":
+                return VegaUtil._convert_treemap(data, user_query, sparql_query)
+
+            elif result_type == "heatmap":
+                return VegaUtil._convert_heatmap(data, user_query, sparql_query)
+            else:
+                return {"values": []}
+
         except Exception as e:
             logger.error(f"Error converting to Vega format: {e}")
             return {"values": []}
@@ -109,6 +111,9 @@ class VegaUtil:
                 return False
             if ':' in clean_val:
                 return False
+            if len(clean_val) <= 2:
+                return False
+
             try:
                 float(clean_val)
                 return True
@@ -171,18 +176,14 @@ class VegaUtil:
     @staticmethod
     def _get_x_candidates(first_item: DataRow, keys: list[str]) -> list[str]:
         x_candidates = VegaUtil.x_candidates.copy()
+        candidate_names = {c.lower() for c in x_candidates}
 
         for k in keys:
             val = first_item.get(k)
 
-            if 'date' in k.lower() and k.lower() not in [c.lower() for c in x_candidates]:
+            if VegaUtil._is_date_value(val) and k.lower() not in candidate_names:
                 x_candidates.append(k)
-            elif (
-                isinstance(val, dict)
-                and val.get('type') == 'datetime'
-                and k.lower() not in [c.lower() for c in x_candidates]
-            ):
-                x_candidates.append(k)
+                candidate_names.add(k.lower())
 
         return x_candidates
 
@@ -190,22 +191,6 @@ class VegaUtil:
     def _parse_coordinate_assignments(user_query: str, data: list[DataRow]) -> dict[str, str]:
         """
         Parse user query to extract explicit coordinate assignments (x, y, z, size, color, etc.).
-
-        This function analyzes the user's natural language query to identify which data fields
-        should be mapped to which visual encoding channels (coordinates, size, color, etc.).
-
-        Examples:
-            "x = TPS, y = average fee" -> {"x": "TPS", "y": "average fee"}
-            "bubble size = total volume" -> {"size": "total volume"}
-            "positioned by votes and voters" -> {"x": "votes", "y": "voters"}
-            "color by category" -> {"color": "category"}
-
-        Args:
-            user_query: The natural language query from the user
-            data: The data list to match field names against
-
-        Returns:
-            Dictionary mapping coordinate names to field identifiers from the query
         """
         if not user_query or not data:
             return {}
@@ -395,276 +380,256 @@ class VegaUtil:
 
     @staticmethod
     def _format_column_name(column_name: str) -> str:
-        """
-        Convert camelCase/variable names to human-readable format.
-        """
-        # Split camelCase into words
+        """Convert camelCase and snake_case variable names to human-readable format."""
         import re
-        # Insert space before uppercase letters
-        spaced = re.sub(r'([A-Z])', r' \1', column_name)
-        # Split and capitalize each word
-        words = spaced.split()
 
-        if not words:
+        if not column_name:
             return column_name
 
-        # Capitalize all words
-        formatted = ' '.join(word.capitalize() for word in words)
-        return formatted.strip()
+        formatted = column_name.replace("_", " ")
+        formatted = re.sub(r'(?<!^)([A-Z])', r' \1', formatted)
+        words = formatted.split()
 
-    @staticmethod
-    def _prepare_fields(data: list[DataRow], user_query: str = "") -> ChartFields:
-        """Collect reusable field metadata once per chart conversion."""
-        keys = VegaUtil._all_keys(data)
-        categorical_keys, numeric_keys = VegaUtil._classify_fields(data)
-        coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
-        assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
-        return ChartFields(keys, categorical_keys, numeric_keys, assignments)
-
-    @staticmethod
-    def _as_row_list(data: Any) -> list[DataRow]:
-        if isinstance(data, dict):
-            return [data]
-        if isinstance(data, list):
-            return [row for row in data if isinstance(row, dict)]
-        return []
-
-    @staticmethod
-    def _literal_value(value: Any, default: Any = "") -> Any:
-        """Return the display/raw literal from SPARQL-ish nested values."""
-        if isinstance(value, dict):
-            if "decoded" in value and "hex" in value:
-                return value["decoded"]
-            if "value" in value:
-                return value["value"]
-            return next(iter(value.values()), default)
-        return default if value is None else value
-
-    @staticmethod
-    def _numeric_value(value: Any) -> float | None:
-        value = VegaUtil._literal_value(value, None)
-        if value is None:
-            return None
-        try:
-            return float(value)
-        except (ValueError, TypeError):
-            return None
-
-    @staticmethod
-    def _pick_first(keys: list[str], exclude: list[str] | None = None) -> str | None:
-        exclude = exclude or []
-        return next((key for key in keys if key not in exclude), None)
-
-    @staticmethod
-    def _pick_numeric(fields: ChartFields, exclude: list[str] | None = None) -> str | None:
-        return VegaUtil._pick_first(fields.numeric_keys, exclude)
-
-    @staticmethod
-    def _pick_categorical(fields: ChartFields, exclude: list[str] | None = None) -> str | None:
-        return VegaUtil._pick_first(fields.categorical_keys, exclude)
-
-    @staticmethod
-    def _pick_x_key(data: list[DataRow], fields: ChartFields, preferred: str | None = None) -> str | None:
-        if preferred:
-            return preferred
-        if not fields.keys:
-            return None
-
-        first_item = data[0] if data else {}
-        candidates = {candidate.lower() for candidate in VegaUtil._get_x_candidates(first_item, fields.keys)}
-        return next((key for key in fields.keys if key.lower() in candidates), fields.keys[0])
-
-    @staticmethod
-    def _pick_named_key(fields: ChartFields, names: set[str], exclude: list[str] | None = None) -> str | None:
-        exclude = exclude or []
-        return next((k for k in fields.keys if k not in exclude and k.lower() in names), None)
-
-    @staticmethod
-    def _format_columns(*keys: str | None) -> list[str]:
-        return [VegaUtil._format_column_name(key) for key in keys if key]
-
-    @staticmethod
-    def _build_xy_points(
-        data: list[DataRow],
-        x_key: str,
-        y_key: str,
-        *,
-        category_key: str | None = None,
-        size_key: str | None = None,
-        category_output_key: str = "category",
-    ) -> list[dict[str, Any]]:
-        """Build reusable numeric x/y point rows for scatter and bubble charts."""
-        values: list[dict[str, Any]] = []
-
-        for item in data:
-            x_val = VegaUtil._numeric_value(item.get(x_key))
-            y_val = VegaUtil._numeric_value(item.get(y_key))
-
-            if x_val is None or y_val is None:
-                continue
-
-            point: dict[str, Any] = {"x": x_val, "y": y_val}
-
-            if size_key:
-                size_val = VegaUtil._numeric_value(item.get(size_key))
-                if size_val is None:
-                    continue
-                point["size"] = size_val
-
-            if category_key:
-                point[category_output_key] = VegaUtil._format_display_value(
-                    item.get(category_key, ""),
-                    category_key,
-                )
-
-            values.append(point)
-
-        return values
-
-    @staticmethod
-    def _constant_context_and_columns(
-        rows: list[dict[str, Any]],
-        keys: list[str],
-    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-        """Move columns with a single repeated value to context, keep varying columns as values."""
-        context: dict[str, Any] = {}
-        value_columns: list[dict[str, Any]] = []
-
-        for idx, col_name in enumerate(keys):
-            col_values = [row.get(col_name, "") for row in rows]
-            unique_values = set(map(str, col_values))
-
-            if len(unique_values) == 1:
-                context[col_name] = col_values[0] if col_values else ""
-            else:
-                value_columns.append({f"col{idx + 1}": col_name, "values": col_values})
-
-        return context, value_columns
+        return " ".join(word.capitalize() for word in words)
 
     @staticmethod
     def _convert_bar_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to bar chart format."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
-            return {"values": []}
+        if isinstance(data, list) and len(data) > 0:
+            first_item = data[0]
+            keys = VegaUtil._all_keys(data)
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        category_key = VegaUtil._pick_x_key(rows, fields, fields.assignments.get("x"))
-        value_key = fields.assignments.get("y") or VegaUtil._pick_numeric(fields, [category_key] if category_key else [])
-        value_key = value_key or (fields.keys[-1] if fields.keys else None)
+            # Parse coordinate assignments from user query
+            coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
+            field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
 
-        if not (category_key and value_key):
-            return {"values": []}
+            # Determine category (x-axis) and value (y-axis) keys
+            # Priority: user-specified coordinates > heuristic detection
+            category_key = field_assignments.get('x')
+            value_key = field_assignments.get('y')
 
-        values = []
-        for item in rows:
-            amount = VegaUtil._numeric_value(item.get(value_key))
-            if amount is None:
-                logger.warning("Skipping bar chart entry: non-numeric amount")
-                continue
-            values.append({
-                "category": VegaUtil._format_display_value(item.get(category_key, ""), category_key),
-                "amount": amount,
-            })
+            # Fallback to heuristic if not specified
+            if not category_key:
+                category_candidates = VegaUtil._get_x_candidates(first_item, keys)
+                category_key = next((k for k in keys if k.lower() in [c.lower() for c in category_candidates]), keys[0])
 
-        return {"values": values}
+            # Value field is typically numeric - find first numeric field that's not the category
+            if not value_key:
+                for k in keys:
+                    if k != category_key and VegaUtil._is_numeric_field(data, k):
+                        value_key = k
+                        break
+
+            if not value_key:
+                value_key = keys[-1] if len(keys) > 1 else keys[0]
+
+            values = []
+            for item in data:
+                cat_val = item.get(category_key, "")
+                if isinstance(cat_val, dict):
+                    cat_val = cat_val.get('value', str(cat_val))
+
+                amt_val = item.get(value_key, 0)
+                if isinstance(amt_val, dict):
+                    continue
+
+                try:
+                    values.append({
+                        "category": VegaUtil._format_display_value(cat_val, category_key),
+                        "amount": float(amt_val)
+                    })
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping bar chart entry: {e}")
+                    continue
+
+            return {"values": values}
+
+        return {"values": []}
 
     @staticmethod
     def _convert_pie_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to pie chart format."""
+        # Pie chart data can be either a list or a nested dict
         if isinstance(data, dict):
+            # Handle nested structure like the top holders example
+            # Extract meaningful category-value pairs
             values = []
+
+            # Try to find percentage/ratio fields
             for key, value in data.items():
-                numeric_val = VegaUtil._numeric_value(value)
-                if numeric_val is None:
-                    continue
-                if 0 <= numeric_val <= 1:
-                    numeric_val *= 100
-                values.append({"category": key, "value": numeric_val})
+                if isinstance(value, (int, float, str)):
+                    try:
+                        numeric_val = float(value)
+                        # Convert ratios to percentages if needed
+                        if 0 <= numeric_val <= 1:
+                            numeric_val *= 100
+                        values.append({
+                            "category": key,
+                            "value": numeric_val
+                        })
+                    except Exception as e:
+                        logger.warning(f"Failed to convert value for key {key}: {e}")
+                        continue
+
+            # If we have meaningful data, return it; otherwise create a simple representation
             if values:
                 return {"values": values}
 
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
-            return {"values": []}
+        elif isinstance(data, list) and len(data) > 0:
+            keys = VegaUtil._all_keys(data)
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        category_key = (
-            fields.assignments.get("x")
-            or VegaUtil._pick_named_key(fields, {"category", "label", "name", "group"})
-            or VegaUtil._pick_categorical(fields)
-            or (fields.keys[0] if fields.keys else None)
-        )
-        value_key = fields.assignments.get("y") or VegaUtil._pick_numeric(fields, [category_key] if category_key else [])
-        value_key = value_key or VegaUtil._pick_first(fields.keys, [category_key] if category_key else [])
+            # Find category and value keys
+            category_key = next((k for k in keys if k.lower() in ['category', 'label', 'name', 'group']), keys[0])
+            value_key = next((k for k in keys if k != category_key), keys[-1])
 
-        if not (category_key and value_key):
-            return {"values": []}
+            values = []
+            for item in data:
+                cat_val = item.get(category_key, "")
+                val = item.get(value_key, 0)
+                if isinstance(val, dict):
+                    continue
 
-        values = []
-        for item in rows:
-            val = VegaUtil._numeric_value(item.get(value_key))
-            if val is None:
-                logger.warning("Skipping pie chart entry: non-numeric value")
-                continue
-            values.append({
-                "category": VegaUtil._format_display_value(item.get(category_key, ""), category_key),
-                "value": val,
-            })
+                try:
+                    values.append({
+                        "category": VegaUtil._format_display_value(cat_val, category_key),
+                        "value": float(val)
+                    })
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping pie chart entry: {e}")
+                    continue
 
-        return {"values": values}
+            return {"values": values}
+
+        return {"values": []}
 
     @staticmethod
     def _detect_repetition_pattern(data: list[DataRow], x_key: str) -> int:
-        """
-        Detect if x values repeat consistently, indicating multiple series in one variable.
-        """
+        """Detect if x values repeat consistently, indicating multiple series in one variable."""
         if len(data) < 2:
             return 1
 
-        x_values = [str(VegaUtil._format_x_value(item.get(x_key), x_key)) for item in data]
+        x_values = [
+            str(VegaUtil._format_x_value(item.get(x_key), x_key))
+            for item in data
+        ]
         x_counts = Counter(x_values)
         unique_counts = set(x_counts.values())
 
+        # Consistent repetition pattern exists if all x values repeat the same number of times
         if len(unique_counts) == 1 and list(unique_counts)[0] > 1:
             return list(unique_counts)[0]
+
         return 1
 
     @staticmethod
-    def _is_temporal_key(key: str) -> bool:
-        key_lower = key.lower()
-        return any(token in key_lower for token in ("time", "date", "timestamp", "hour", "ts"))
+    def _extract_raw_value(value: Any) -> Any:
+        """Extract the underlying scalar value without applying visualization formatting."""
+        if isinstance(value, dict):
+            if "value" in value:
+                return value["value"]
+            return str(value)
+
+        return value
 
     @staticmethod
-    def _format_display_value(value: Any, key: str) -> str:
+    def _parse_date_value(value: Any) -> datetime | None:
+        """Return a datetime only when the actual value has a recognized date format."""
+        raw_value = VegaUtil._extract_raw_value(value)
+
+        if isinstance(raw_value, datetime):
+            return raw_value
+
+        if not isinstance(raw_value, str):
+            return None
+
+        clean_value = raw_value.strip()
+        if not clean_value:
+            return None
+
+        # Keep this strict to avoid treating ordinary labels, numeric values,
+        # hashes, ratios, or ranges as dates.
+        date_patterns = (
+            r"^\d{4}-\d{2}$",
+            r"^\d{4}-\d{2}-\d{2}$",
+            r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?(Z|[+-]\d{2}:?\d{2})?$",
+        )
+
+        if not any(re.match(pattern, clean_value) for pattern in date_patterns):
+            return None
+
+        if re.match(r"^\d{4}-\d{2}$", clean_value):
+            clean_value = f"{clean_value}-01"
+
+        try:
+            normalized = clean_value.replace("Z", "+00:00")
+            return datetime.fromisoformat(normalized)
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _is_date_value(value: Any) -> bool:
+        """Determine date-ness from the value itself, not from the variable name."""
+        return VegaUtil._parse_date_value(value) is not None
+
+    @staticmethod
+    def _is_date_field(data: list[DataRow], key: str) -> bool:
+        return any(
+            VegaUtil._is_date_value(item.get(key))
+            for item in data
+            if isinstance(item, dict) and item.get(key) is not None
+        )
+
+    @staticmethod
+    def _normalize_date_value(value: Any) -> Any:
+        dt = VegaUtil._parse_date_value(value)
+        if dt is None:
+            return value
+        return dt.isoformat()
+
+    @staticmethod
+    def _preprocess_date_values(data: Any) -> Any:
+        """Normalize date-formatted values."""
+        if isinstance(data, list):
+            return [VegaUtil._preprocess_date_values(item) for item in data]
+
+        if isinstance(data, dict):
+            processed: dict[str, Any] = {}
+
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    nested = dict(value)
+                    if "value" in nested:
+                        nested["value"] = VegaUtil._normalize_date_value(nested["value"])
+                    processed[key] = nested
+                else:
+                    processed[key] = VegaUtil._normalize_date_value(value)
+
+            return processed
+
+        return VegaUtil._normalize_date_value(data)
+
+    @staticmethod
+    def _format_display_value(value: Any, key: str | None = None) -> str:
         """Format values used as visual labels across all chart types."""
-        value = VegaUtil._literal_value(value, "")
+        value = VegaUtil._extract_raw_value(value)
+
         if value is None:
             return ""
-        if VegaUtil._is_temporal_key(key):
-            return VegaUtil._format_temporal_value(value)
+
         return str(value)
-
-    @staticmethod
-    def _format_temporal_value(value: Any, include_time: bool = False) -> str:
-        """Format datetime-like values consistently before chart-specific conversion."""
-        value = VegaUtil._literal_value(value, "")
-
-        if isinstance(value, datetime):
-            dt = value
-        else:
-            value_str = str(value)
-            try:
-                dt = datetime.fromisoformat(value_str.replace("Z", "+00:00"))
-            except ValueError:
-                return value_str
-
-        return dt.strftime("%d %b %Y %Hh") if include_time else dt.strftime("%d %b %Y")
 
     @staticmethod
     def _format_x_value(x_val: Any, x_key: str) -> str:
         """Extract and format x-axis value for charts."""
-        x_val = VegaUtil._literal_value(x_val, "")
+        x_val = VegaUtil._extract_raw_value(x_val)
+
+        if isinstance(x_val, str) and "epoch" in x_key.lower():
+            try:
+                epoch_num = int(float(x_val))
+                return get_chain().format_axis_value(x_key, epoch_num)
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Failed to convert epoch {x_val}: {e}")
+                return str(x_val)
 
         if "epoch" in x_key.lower():
             try:
@@ -674,20 +639,17 @@ class VegaUtil:
                 logger.warning(f"Failed to convert epoch {x_val}: {e}")
                 return str(x_val)
 
-        return VegaUtil._format_display_value(x_val, x_key)
+        return VegaUtil._format_display_value(x_val)
 
     @staticmethod
     def _abbreviate_label(label: str, max_length: int = 11) -> str:
         """Abbreviate labels longer than max_length using ellipsis format."""
         if len(label) <= max_length:
             return label
+        # Keep first 7 and last 4 characters for identifiable abbreviation
         prefix_len = min(7, max_length - 7)
         suffix_len = 4
         return f"{label[:prefix_len]}...{label[-suffix_len:]}"
-
-    @staticmethod
-    def _series_label_key(data: list[DataRow], x_key: str, series_keys: list[str]) -> str | None:
-        return next((k for k in VegaUtil._all_keys(data) if k != x_key and k not in series_keys), None)
 
     @staticmethod
     def _extract_series_labels(
@@ -700,80 +662,146 @@ class VegaUtil:
         if repetition_count <= 1:
             return []
 
-        label_key = VegaUtil._series_label_key(data, x_key, series_keys)
-        if not label_key:
-            return [f"Series {i + 1}" for i in range(repetition_count)]
+        # Find columns that could contain series identifiers
+        # (not x-axis, not y-axis/series values)
+        candidate_keys = [
+            k for k in VegaUtil._all_keys(data)
+            if k != x_key and k not in series_keys
+        ]
 
-        labels: list[str] = []
-        seen: set[str] = set()
+        if not candidate_keys:
+            return [f"Series {i+1}" for i in range(repetition_count)]
+
+        # Use the first candidate column for labels
+        label_key = candidate_keys[0]
+        labels = []
+
+        # Extract unique values in the order they appear (one per series)
+        seen = set()
         for item in data:
-            label_str = str(VegaUtil._literal_value(item.get(label_key), ""))
+            label_val = item.get(label_key, "")
+            if isinstance(label_val, dict):
+                label_val = label_val.get('value', str(label_val))
+            label_str = str(label_val)
+
             if label_str not in seen:
                 seen.add(label_str)
                 labels.append(VegaUtil._abbreviate_label(label_str))
+
                 if len(labels) == repetition_count:
                     break
 
+        # Fill in any missing labels
         while len(labels) < repetition_count:
-            labels.append(f"Series {len(labels) + 1}")
+            labels.append(f"Series {len(labels)+1}")
+
         return labels
 
     @staticmethod
     def _extract_y_value(y_val: Any) -> Any:
-        """Backward-compatible alias for value extraction used by older callers/tests."""
-        return VegaUtil._literal_value(y_val, 0)
+        """Extract numeric value from potentially nested structures."""
+        if isinstance(y_val, dict):
+            return next(iter(y_val.values()), 0)
+        return y_val
 
     @staticmethod
     def _convert_line_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to line chart format with multi-series support."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
+        if not isinstance(data, list) or len(data) == 0:
             logger.warning("cant serialize trend if it is not a list")
             return {"values": []}
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        x_key = VegaUtil._pick_x_key(rows, fields, fields.assignments.get("x"))
+        first_item = data[0]
+        keys = VegaUtil._all_keys(data)
+
+        # Parse coordinate assignments from user query
+        coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
+        field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
+
+        # Determine x-axis field (typically time-based or sequential)
+        # Priority: user-specified coordinates > heuristic detection
+        x_key = field_assignments.get('x')
+
         if not x_key:
-            return {"values": []}
+            x_candidates = VegaUtil._get_x_candidates(first_item, keys)
+            x_key = next((k for k in keys if k.lower() in [c.lower() for c in x_candidates]), keys[0])
 
-        y_key = fields.assignments.get("y")
-        series_keys = [y_key] if y_key else [k for k in fields.numeric_keys if k != x_key]
+        # All other numeric fields are series (or user-specified y)
+        series_keys = []
+        y_key = field_assignments.get('y')
 
+        if y_key:
+            # User specified y coordinate, use that as the primary series
+            series_keys = [y_key]
+        else:
+            # Auto-detect: all numeric fields except x_key
+            for k in keys:
+                if k != x_key and VegaUtil._is_numeric_field(data, k):
+                    series_keys.append(k)
+
+        # If no series keys found, skip this conversion
         if not series_keys:
             logger.warning("No numeric series found in data for line chart")
             return {"values": []}
 
-        values: list[dict[str, Any]] = []
-        repetition_count = VegaUtil._detect_repetition_pattern(rows, x_key)
+        # Build line chart data with series index
+        values = []
+        repetition_count = VegaUtil._detect_repetition_pattern(data, x_key)
 
         if repetition_count > 1 and len(series_keys) == 1:
-            for idx, item in enumerate(rows):
-                y_val = VegaUtil._numeric_value(item.get(series_keys[0]))
-                if y_val is not None:
-                    values.append({"x": VegaUtil._format_x_value(item.get(x_key), x_key), "y": y_val, "c": idx % repetition_count})
-        else:
-            for item in rows:
+            # Single variable contains multiple series via repetition
+            for idx, item in enumerate(data):
+                series_idx = idx % repetition_count
                 x_display = VegaUtil._format_x_value(item.get(x_key), x_key)
-                for series_idx, series_key in enumerate(series_keys):
-                    y_val = VegaUtil._numeric_value(item.get(series_key))
-                    if y_val is not None:
-                        values.append({"x": x_display, "y": y_val, "c": series_idx})
+                y_val = VegaUtil._extract_y_value(item.get(series_keys[0]))
 
-        label_key = None
-        if repetition_count > 1 and len(series_keys) == 1:
-            label_key = VegaUtil._series_label_key(rows, x_key, series_keys)
-            series_labels = VegaUtil._extract_series_labels(rows, x_key, series_keys, repetition_count)
-        elif len(series_keys) > 1:
-            series_labels = [VegaUtil._format_column_name(series_key) for series_key in series_keys]
+                if y_val is not None:
+                    try:
+                        values.append({"x": x_display, "y": y_val, "c": series_idx})
+                    except Exception as e:
+                        logger.warning(f"Failed to build series {series_idx}: {e}")
         else:
-            series_labels = []
+            # Multiple variables each represent a series
+            for item in data:
+                x_display = VegaUtil._format_x_value(item.get(x_key), x_key)
+
+                for series_idx, series_key in enumerate(series_keys):
+                    y_val = VegaUtil._extract_y_value(item.get(series_key))
+
+                    if y_val is not None:
+                        try:
+                            values.append({"x": x_display, "y": y_val, "c": series_idx})
+                        except Exception as e:
+                            logger.warning(f"Failed to build series {series_idx}: {e}")
+
+        # Extract series labels if multiple series detected
+        series_labels = []
+        label_key = None
+
+        if repetition_count > 1 and len(series_keys) == 1:
+            candidate_keys = [
+                k for k in VegaUtil._all_keys(data)
+                if k != x_key and k not in series_keys
+            ]
+            if candidate_keys:
+                label_key = candidate_keys[0]
+
+            series_labels = VegaUtil._extract_series_labels(
+                data, x_key, series_keys, repetition_count
+            )
+
+        elif len(series_keys) > 1:
+            series_labels = [
+                VegaUtil._format_column_name(series_key)
+                for series_key in series_keys
+            ]
 
         line_chart = {
             "values": values,
             "_series_labels": series_labels if series_labels else None,
-            "_label_key": label_key,
-            "_x_key": x_key,
-            "_y_keys": series_keys,
+            "_label_key": label_key,  # Which column was used for series labels
+            "_x_key": x_key,  # X-axis column
+            "_y_keys": series_keys  # Y-axis column(s)
         }
         logger.debug(f"converted to line chart: {line_chart}")
         return line_chart
@@ -781,54 +809,166 @@ class VegaUtil:
     @staticmethod
     def _convert_scatter_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to scatter chart format."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
+        if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        x_key = fields.assignments.get("x") or VegaUtil._pick_numeric(fields)
-        y_key = fields.assignments.get("y") or VegaUtil._pick_numeric(fields, [x_key] if x_key else [])
+        keys = VegaUtil._all_keys(data)
+
+        # Parse coordinate assignments from user query
+        coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
+        field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
+
+        # Determine x and y keys
+        # Priority: user-specified coordinates > heuristic detection
+        x_key = field_assignments.get('x')
+        y_key = field_assignments.get('y')
+
+        # Find numeric fields for fallback
+        numeric_keys = [k for k in keys if VegaUtil._is_numeric_field(data, k)]
+
+        # Fallback to heuristic if coordinates not specified
+        used_keys = [k for k in [x_key, y_key] if k is not None]
+        available_numeric = [k for k in numeric_keys if k not in used_keys]
+
+        if not x_key and available_numeric:
+            x_key = available_numeric[0]
+            available_numeric = available_numeric[1:]
+
+        if not y_key and available_numeric:
+            y_key = available_numeric[0]
 
         if not (x_key and y_key):
             logger.warning(f"Need at least 2 numeric fields for scatter chart. Found: x={x_key}, y={y_key}")
             return {"values": []}
 
-        category_key = fields.assignments.get("color") or VegaUtil._pick_categorical(fields, [x_key, y_key])
-        values = VegaUtil._build_xy_points(rows, x_key, y_key, category_key=category_key)
+        # Optional: find category field for coloring (from query or heuristic)
+        category_key = field_assignments.get('color')
+        if not category_key:
+            # Heuristic: first non-numeric, non-coordinate field
+            for k in keys:
+                if k not in [x_key, y_key] and not VegaUtil._is_numeric_field(data, k):
+                    category_key = k
+                    break
+
+        values = []
+        for item in data:
+            x_val = VegaUtil._extract_y_value(item.get(x_key))
+            y_val = VegaUtil._extract_y_value(item.get(y_key))
+
+            if x_val is not None and y_val is not None:
+                try:
+                    point: dict[str, Any] = {"x": float(x_val), "y": float(y_val)}
+                    if category_key:
+                        cat_val = item.get(category_key, "")
+                        if isinstance(cat_val, dict):
+                            cat_val = cat_val.get('value', str(cat_val))
+
+                        point["category"] = VegaUtil._format_display_value(cat_val, category_key)
+                    values.append(point)
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping scatter point: {e}")
+                    continue
+
+        # Format column names for metadata
+        formatted_columns = [
+            VegaUtil._format_column_name(x_key),
+            VegaUtil._format_column_name(y_key)
+        ]
+        if category_key:
+            formatted_columns.append(VegaUtil._format_column_name(category_key))
 
         return {
             "values": values,
             "_x_key": x_key,
             "_y_key": y_key,
             "_category_key": category_key,
-            "_columns": VegaUtil._format_columns(x_key, y_key, category_key),
+            "_columns": formatted_columns
         }
 
     @staticmethod
     def _convert_bubble_chart(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to bubble chart format (x, y, size)."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
+        if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        x_key = fields.assignments.get("x") or VegaUtil._pick_numeric(fields)
-        y_key = fields.assignments.get("y") or VegaUtil._pick_numeric(fields, [x_key] if x_key else [])
-        size_key = fields.assignments.get("size") or VegaUtil._pick_numeric(fields, [k for k in [x_key, y_key] if k])
+        keys = VegaUtil._all_keys(data)
 
+        # Parse coordinate assignments from user query
+        coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
+        field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
+
+        # Determine x, y, and size keys
+        # Priority: user-specified coordinates > heuristic detection
+        x_key = field_assignments.get('x')
+        y_key = field_assignments.get('y')
+        size_key = field_assignments.get('size')
+
+        # Find numeric fields for fallback
+        numeric_keys = [k for k in keys if VegaUtil._is_numeric_field(data, k)]
+
+        # Filter out already assigned keys from numeric_keys for fallback selection
+        used_keys = [k for k in [x_key, y_key, size_key] if k is not None]
+        available_numeric = [k for k in numeric_keys if k not in used_keys]
+
+        # Fallback to heuristic if coordinates not specified
+        if not x_key and available_numeric:
+            x_key = available_numeric[0]
+            available_numeric = available_numeric[1:]
+
+        if not y_key and available_numeric:
+            y_key = available_numeric[0]
+            available_numeric = available_numeric[1:]
+
+        if not size_key and available_numeric:
+            size_key = available_numeric[0]
+            available_numeric = available_numeric[1:]
+
+        # Validate we have at least 3 numeric fields
         if not (x_key and y_key and size_key):
             logger.warning(f"Need at least 3 numeric fields for bubble chart. Found: x={x_key}, y={y_key}, size={size_key}")
             return {"values": []}
 
-        label_key = fields.assignments.get("color") or VegaUtil._pick_categorical(fields, [x_key, y_key, size_key])
-        values = VegaUtil._build_xy_points(
-            rows,
-            x_key,
-            y_key,
-            category_key=label_key,
-            size_key=size_key,
-            category_output_key="label",
-        )
+        # Optional: find category/label field (from query or heuristic)
+        label_key = field_assignments.get('color')  # Color can be used as label
+        if not label_key:
+            # Heuristic: first non-numeric field
+            for k in keys:
+                if k not in [x_key, y_key, size_key] and not VegaUtil._is_numeric_field(data, k):
+                    label_key = k
+                    break
+
+        values = []
+        for item in data:
+            x_val = VegaUtil._extract_y_value(item.get(x_key))
+            y_val = VegaUtil._extract_y_value(item.get(y_key))
+            size_val = VegaUtil._extract_y_value(item.get(size_key))
+
+            if x_val is not None and y_val is not None and size_val is not None:
+                try:
+                    bubble: dict[str, Any] = {
+                        "x": float(x_val),
+                        "y": float(y_val),
+                        "size": float(size_val)
+                    }
+                    if label_key:
+                        label_val = item.get(label_key, "")
+                        if isinstance(label_val, dict):
+                            label_val = label_val.get('value', str(label_val))
+
+                        bubble["label"] = VegaUtil._format_display_value(label_val, label_key)
+                    values.append(bubble)
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping bubble: {e}")
+                    continue
+
+        # Format column names for metadata
+        formatted_columns = [
+            VegaUtil._format_column_name(x_key),
+            VegaUtil._format_column_name(y_key),
+            VegaUtil._format_column_name(size_key)
+        ]
+        if label_key:
+            formatted_columns.append(VegaUtil._format_column_name(label_key))
 
         return {
             "values": values,
@@ -836,97 +976,170 @@ class VegaUtil:
             "_y_key": y_key,
             "_size_key": size_key,
             "_label_key": label_key,
-            "_columns": VegaUtil._format_columns(x_key, y_key, size_key, label_key),
+            "_columns": formatted_columns
         }
 
     @staticmethod
     def _convert_treemap(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to treemap format (hierarchical structure)."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
+        if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        name_key = (
-            fields.assignments.get("x")
-            or VegaUtil._pick_named_key(fields, {"name", "label", "category", "group", "policyid", "policy", "token"})
-            or VegaUtil._pick_categorical(fields)
-            or (fields.keys[0] if fields.keys else None)
-        )
-        size_key = fields.assignments.get("size") or fields.assignments.get("y") or VegaUtil._pick_numeric(fields, [name_key] if name_key else [])
-        size_key = size_key or (fields.keys[-1] if fields.keys else None)
-        parent_key = VegaUtil._pick_named_key(fields, {"parent", "group", "category"}, [name_key] if name_key else [])
+        keys = VegaUtil._all_keys(data)
 
-        if not (name_key and size_key):
-            return {"values": []}
+        # Find name/label and size fields
+        name_key = next((k for k in keys if k.lower() in ['name', 'label', 'category', 'group', 'policyid', 'policy', 'token']), keys[0])
+
+        # Find numeric field for size - use centralized numeric detection
+        size_key = None
+        for k in keys:
+            if k != name_key and VegaUtil._is_numeric_field(data, k):
+                size_key = k
+                break
+
+        if not size_key:
+            size_key = keys[-1] if len(keys) > 1 else keys[0]
+
+        # Optional: find parent/group field for hierarchy
+        parent_key = next((k for k in keys if k.lower() in ['parent', 'group', 'category'] and k != name_key), None)
 
         values = []
-        for item in rows:
-            size_val = VegaUtil._numeric_value(item.get(size_key))
-            if size_val is None:
-                logger.warning("Skipping treemap node: non-numeric size")
-                continue
+        for item in data:
+            name_val = item.get(name_key, "")
+            if isinstance(name_val, dict):
+                name_val = name_val.get('value', str(name_val))
 
-            node: dict[str, Any] = {
-                "name": VegaUtil._format_display_value(item.get(name_key, ""), name_key),
-                "value": size_val,
-            }
-            if parent_key:
-                node["parent"] = VegaUtil._format_display_value(item.get(parent_key, ""), parent_key)
-            values.append(node)
+            size_val = VegaUtil._extract_y_value(item.get(size_key))
+
+            if size_val is not None:
+                try:
+                    node = {
+                        "name": VegaUtil._format_display_value(name_val, name_key),
+                        "value": float(size_val)
+                    }
+                    if parent_key:
+                        parent_val = item.get(parent_key, "")
+                        if isinstance(parent_val, dict):
+                            parent_val = parent_val.get('value', str(parent_val))
+                        node["parent"] = str(parent_val)
+                    values.append(node)
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Skipping treemap node: {e}")
+                    continue
+
+        # Format column names for metadata
+        formatted_columns = [
+            VegaUtil._format_column_name(name_key),
+            VegaUtil._format_column_name(size_key)
+        ]
+        if parent_key:
+            formatted_columns.append(VegaUtil._format_column_name(parent_key))
 
         return {
             "values": values,
             "_name_key": name_key,
             "_size_key": size_key,
             "_parent_key": parent_key,
-            "_columns": VegaUtil._format_columns(name_key, size_key, parent_key),
+            "_columns": formatted_columns
         }
 
     @staticmethod
     def _convert_heatmap(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to heatmap format (x, y, value)."""
-        rows = VegaUtil._as_row_list(data)
-        if not rows:
+        if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
 
-        fields = VegaUtil._prepare_fields(rows, user_query)
-        x_key = fields.assignments.get("x") or VegaUtil._pick_categorical(fields)
-        y_key = fields.assignments.get("y") or VegaUtil._pick_categorical(fields, [x_key] if x_key else [])
-        value_key = fields.assignments.get("z") or fields.assignments.get("size") or VegaUtil._pick_numeric(fields, [k for k in [x_key, y_key] if k])
-        value_key = value_key or (fields.keys[-1] if fields.keys else None)
+        keys = VegaUtil._all_keys(data)
+
+        coordinate_map = VegaUtil._parse_coordinate_assignments(user_query, data)
+        field_assignments = VegaUtil._apply_coordinate_mapping(data, coordinate_map)
+
+        x_key = field_assignments.get("x")
+        y_key = field_assignments.get("y")
+        value_key = field_assignments.get("z")
+
+        categorical_keys, numeric_keys = VegaUtil._classify_fields(data)
+
+        used_keys = [k for k in [x_key, y_key, value_key] if k is not None]
+        available_categorical = [k for k in categorical_keys if k not in used_keys]
+        available_numeric = [k for k in numeric_keys if k not in used_keys]
+
+        if not x_key and available_categorical:
+            x_key = available_categorical[0]
+            available_categorical = available_categorical[1:]
+
+        if not y_key and available_categorical:
+            y_key = available_categorical[0]
+
+        if not value_key and available_numeric:
+            value_key = available_numeric[0]
+        elif not value_key and keys:
+            value_key = keys[-1]
 
         if not (x_key and y_key and value_key):
-            logger.warning(f"Need x, y, and value fields for heatmap. Found: x={x_key}, y={y_key}, value={value_key}")
+            logger.warning(
+                f"Need x, y, and value fields for heatmap. Found: x={x_key}, y={y_key}, value={value_key}"
+            )
             return {"values": []}
 
-        x_is_temporal = VegaUtil._is_temporal_key(x_key)
-        y_is_temporal = VegaUtil._is_temporal_key(y_key)
+        x_is_temporal = VegaUtil._is_date_field(data, x_key)
+        y_is_temporal = VegaUtil._is_date_field(data, y_key)
+
         values = []
 
-        for item in rows:
-            heat_val = VegaUtil._numeric_value(item.get(value_key))
+        for item in data:
+            x_val = item.get(x_key, "")
+            if isinstance(x_val, dict):
+                x_val = x_val.get("value", str(x_val))
+
+            y_val = item.get(y_key, "")
+            if isinstance(y_val, dict):
+                y_val = y_val.get("value", str(y_val))
+
+            heat_val = VegaUtil._extract_y_value(item.get(value_key))
+
             if heat_val is None:
                 continue
 
-            x_raw = VegaUtil._format_temporal_value(item.get(x_key), include_time=True) if x_is_temporal else str(VegaUtil._literal_value(item.get(x_key), ""))
-            y_raw = VegaUtil._format_temporal_value(item.get(y_key), include_time=True) if y_is_temporal else str(VegaUtil._literal_value(item.get(y_key), ""))
+            try:
+                x_raw = str(x_val)
+                y_raw = str(y_val)
 
-            values.append({
-                "x": x_raw,
-                "y": y_raw,
-                "x_raw": x_raw,
-                "y_raw": y_raw,
-                "value": heat_val,
-            })
+                x_dt = VegaUtil._parse_date_value(x_raw) if x_is_temporal else None
+                y_dt = VegaUtil._parse_date_value(y_raw) if y_is_temporal else None
+
+                x_label = x_dt.strftime("%d %b %Hh") if x_dt else x_raw
+                y_label = y_dt.strftime("%d %b %Hh") if y_dt else y_raw
+
+                values.append({
+                    "x": x_label,
+                    "y": y_label,
+                    "x_raw": x_raw,
+                    "y_raw": y_raw,
+                    "value": float(heat_val),
+                })
+
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Skipping heatmap cell: {e}")
+                continue
+
+        formatted_columns = [
+            VegaUtil._format_column_name(x_key),
+            VegaUtil._format_column_name(y_key),
+            VegaUtil._format_column_name(value_key),
+        ]
 
         return {
             "values": values,
             "_x_key": x_key,
             "_y_key": y_key,
             "_value_key": value_key,
-            "_columns": VegaUtil._format_columns(x_key, y_key, value_key),
-            "_field_types": {"x": "nominal", "y": "nominal", "value": "quantitative"},
+            "_columns": formatted_columns,
+            "_field_types": {
+                "x": "nominal",
+                "y": "nominal",
+                "value": "quantitative",
+            },
             "_sort_fields": {
                 "x": "x_raw" if x_is_temporal else None,
                 "y": "y_raw" if y_is_temporal else None,
@@ -938,52 +1151,93 @@ class VegaUtil:
         """Convert URL strings to HTML link format for Vega rendering."""
         value_str = str(value).strip()
 
+        # Check if it's an IPFS URL
         if value_str.startswith('ipfs://'):
-            ipfs_id = value_str[7:]
+            ipfs_id = value_str[7:]  # Remove 'ipfs://' prefix
             href = f"https://ipfs.io/ipfs/{ipfs_id}"
             return f'<a href="{href}" target="_blank">{value_str}</a>'
-        if value_str.startswith('https://') or value_str.startswith('http://'):
+
+        # Check if it's already an HTTPS URL
+        elif value_str.startswith('https://') or value_str.startswith('http://'):
             return f'<a href="{value_str}" target="_blank">{value_str}</a>'
+
+        # Not a URL, return as-is
         return value_str
-
-    @staticmethod
-    def _format_table_cell(col_name: str, value: Any, sparql_query: str, row: DataRow) -> Any:
-        if isinstance(value, dict):
-            formatted = get_chain().format_result_value(value)
-            if formatted is not None:
-                value = formatted
-            else:
-                value = VegaUtil._literal_value(value, str(value))
-        elif isinstance(value, str) and value.endswith(".0"):
-            value = value[:-2]
-
-        value = get_chain().convert_entity_to_explorer_link(
-            col_name,
-            value,
-            sparql_query,
-            row_context=row,
-        )
-
-        if not str(value).startswith('<a href='):
-            value = VegaUtil._convert_url_to_link(value)
-        return value
 
     @staticmethod
     def _convert_table(data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
         """Convert data to table format."""
-        table_data = VegaUtil._as_row_list(data)
-        if not table_data:
+
+        # Forcing list for one count results
+        table_data = data
+        if isinstance(data, dict):
+            table_data = [data]
+
+        if not isinstance(table_data, list) or len(table_data) == 0:
             logger.warning(f"Returning empty table for {user_query} with data {table_data}")
             return {"context": {}, "values": []}
 
+        # Get all unique keys from all rows, in case structure varies
         all_keys = VegaUtil._all_keys(table_data)
-        formatted_rows = [
-            {
-                col_name: VegaUtil._format_table_cell(col_name, row.get(col_name, ""), sparql_query, row)
-                for col_name in all_keys
-            }
-            for row in table_data
-        ]
 
-        context, value_columns = VegaUtil._constant_context_and_columns(formatted_rows, all_keys)
-        return {"context": context, "values": value_columns}
+        formatted_rows: list[dict[str, Any]] = []
+
+        for row in table_data:
+            formatted_row: dict[str, Any] = {}
+
+            for col_name in all_keys:
+                value = row.get(col_name, "")
+
+                # Handle nested structures
+                if isinstance(value, dict):
+                    formatted = get_chain().format_result_value(value)
+                    if formatted is not None:
+                        value = formatted
+                    elif "decoded" in value and "hex" in value:
+                        value = value["decoded"]
+                    elif "value" in value:
+                        value = value["value"]
+                    else:
+                        value = str(value)
+
+                elif isinstance(value, str):
+                    if value.endswith(".0"):
+                        value = value[:-2]
+
+                # Convert blockchain entities to the active chain explorer links
+                value = get_chain().convert_entity_to_explorer_link(
+                    col_name,
+                    value,
+                    sparql_query,
+                    row_context=row,
+                )
+
+                # Convert URLs to clickable links, if not already converted
+                if not str(value).startswith('<a href='):
+                    value = VegaUtil._convert_url_to_link(value)
+
+                formatted_row[col_name] = value
+
+            formatted_rows.append(formatted_row)
+
+        context: dict[str, Any] = {}
+        value_columns: list[dict[str, Any]] = []
+
+        for idx, col_name in enumerate(all_keys):
+            col_values = [row[col_name] for row in formatted_rows]
+
+            unique_values = set(map(str, col_values))
+
+            if len(unique_values) == 1:
+                context[col_name] = col_values[0]
+                continue
+
+            value_columns.append({
+                f"col{idx + 1}": col_name,
+                "values": col_values,
+            })
+
+        return {
+            "context": context,
+            "values": value_columns,
+        }
