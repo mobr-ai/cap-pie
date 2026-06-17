@@ -1223,9 +1223,8 @@ class VegaUtil:
         context: dict[str, Any] = {}
         value_columns: list[dict[str, Any]] = []
 
-        for idx, col_name in enumerate(all_keys):
+        for col_name in all_keys:
             col_values = [row[col_name] for row in formatted_rows]
-
             unique_values = set(map(str, col_values))
 
             if len(unique_values) == 1:
@@ -1233,9 +1232,11 @@ class VegaUtil:
                 continue
 
             value_columns.append({
-                f"col{idx + 1}": col_name,
+                f"col{visible_col_idx}": col_name,
                 "values": col_values,
             })
+
+            visible_col_idx += 1
 
         return {
             "context": context,
