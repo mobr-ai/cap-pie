@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from cap.util.vega_util import VegaUtil
+from cap.services.vega.facade import VegaConverter
 
 
 def _kv_rows(kv: dict[str, Any]) -> list[dict[str, Any]]:
@@ -141,8 +141,8 @@ def format_kv(result_type: Any, user_query: str, federated_query: str, kv_result
     if result_type:
         kv_results["result_type"] = result_type
 
-        if result_type in VegaUtil.known_types:
-            vega_data = VegaUtil.convert_to_vega_format(
+        if result_type in VegaConverter.known_types:
+            vega_data = VegaConverter.convert_to_vega_format(
                 kv_results,
                 user_query,
                 federated_query,
@@ -151,7 +151,7 @@ def format_kv(result_type: Any, user_query: str, federated_query: str, kv_result
             columns = []
             if kv_results.get("data"):
                 if isinstance(kv_results["data"], list):
-                    columns = VegaUtil._all_keys(kv_results["data"])
+                    columns = VegaConverter._all_keys(kv_results["data"])
                 elif isinstance(kv_results["data"], dict):
                     columns = list(kv_results["data"].keys())
 
@@ -159,7 +159,7 @@ def format_kv(result_type: Any, user_query: str, federated_query: str, kv_result
             formatted_columns = (
                 metadata_columns
                 if metadata_columns
-                else [VegaUtil._format_column_name(col) for col in columns]
+                else [VegaConverter._format_column_name(col) for col in columns]
             )
 
             vega_data = {k: v for k, v in vega_data.items() if not k.startswith("_")}
@@ -244,4 +244,3 @@ def merge_federated_kv_results(
         "data": data,
         "metadata": {"source": "federated"},
     }
-
