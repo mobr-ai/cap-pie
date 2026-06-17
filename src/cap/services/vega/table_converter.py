@@ -59,6 +59,7 @@ class VegaTableConverter:
 
         context: dict[str, Any] = {}
         value_columns: list[dict[str, Any]] = []
+        _columns: list[str] = []
 
         visible_col_idx = 1
         for col_name in all_keys:
@@ -69,8 +70,10 @@ class VegaTableConverter:
                 context[col_name] = col_values[0]
                 continue
 
+            _col_name = cls._format_column_name(col_name)
+            _columns.append(_col_name)
             value_columns.append({
-                f"col{visible_col_idx}": cls._format_column_name(col_name),
+                f"col{visible_col_idx}": _col_name,
                 "values": col_values,
             })
 
@@ -79,5 +82,5 @@ class VegaTableConverter:
         return {
             "context": context,
             "values": value_columns,
-            "_columns": value_columns,
+            "_columns": _columns,
         }
