@@ -1204,17 +1204,19 @@ class VegaUtil:
 
         if not isinstance(table_data, list) or len(table_data) == 0:
             logger.warning(f"Returning empty table for {user_query} with data {table_data}")
-            return {"values": []}
+            return {"context": {}, "values": []}
 
-        # Get all unique keys from all rows (in case structure varies)
+        # Get all unique keys from all rows, in case structure varies
         all_keys = VegaUtil._all_keys(table_data)
 
-        # Build column-based structure
-        columns = []
-        for idx, col_name in enumerate(all_keys):
-            col_values = []
-            for row in table_data:
+        formatted_rows: list[dict[str, Any]] = []
+
+        for row in table_data:
+            formatted_row: dict[str, Any] = {}
+
+            for col_name in all_keys:
                 value = row.get(col_name, "")
+
                 # Handle nested structures
                 if isinstance(value, dict):
                     formatted = get_chain().format_result_value(value)
@@ -1231,7 +1233,6 @@ class VegaUtil:
                     if value.endswith(".0"):
                         value = value[:-2]
 
-                # Convert URLs to clickable links
                 # Convert blockchain entities to the active chain explorer links
                 value = get_chain().convert_entity_to_explorer_link(
                     col_name,
@@ -1240,15 +1241,32 @@ class VegaUtil:
                     row_context=row,
                 )
 
-                # Convert ipfs (if not already converted)
+                # Convert URLs to clickable links, if not already converted
                 if not str(value).startswith('<a href='):
                     value = VegaUtil._convert_url_to_link(value)
 
-                col_values.append(value)
+                formatted_row[col_name] = value
 
-            columns.append({
+            formatted_rows.append(formatted_row)
+
+        context: dict[str, Any] = {}
+        value_columns: list[dict[str, Any]] = []
+
+        for idx, col_name in enumerate(all_keys):
+            col_values = [row[col_name] for row in formatted_rows]
+
+            unique_values = set(map(str, col_values))
+
+            if len(unique_values) == 1:
+                context[col_name] = col_values[0]
+                continue
+
+            value_columns.append({
                 f"col{idx + 1}": col_name,
-                "values": col_values
+                "values": col_values,
             })
 
-        return {"values": columns}
+        return {
+            "context": context,
+            "values": value_columns,
+        }
