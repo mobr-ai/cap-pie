@@ -37,6 +37,7 @@ class VegaConverter(
             "treemap",
             "heatmap",
             "table",
+            "text",
         }
 
     @classmethod
