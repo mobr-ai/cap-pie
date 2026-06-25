@@ -6,11 +6,14 @@ from cap.core.auth_dependencies import get_current_admin_user
 from cap.database.model import User
 from cap.database.session import get_db
 from cap.mailing.event_triggers import (
+    on_admin_beta_query_created,
     on_admin_beta_registration_created,
     on_admin_query_created,
 )
 from cap.services.admin_alerts_service import (
     get_beta_registration_notification_config,
+    update_beta_query_notification_config,
+    get_beta_query_notification_config,
     get_query_notification_config,
     # existing
     get_new_user_notification_config,
@@ -333,5 +336,74 @@ def send_test_query_notification(
         raise
     except Exception as exc:  # pragma: no cover
         raise HTTPException(status_code=500, detail="Error sending query test notification.") from exc
+
+    return {"ok": True, "recipients": cfg.get("recipients", [])}
+
+# ---------- Beta-user query notifications ----------
+
+@router.get("/beta_query", response_model=NotificationConfigOut)
+def get_beta_query_notifications(
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    cfg = get_beta_query_notification_config(db)
+    return NotificationConfigOut(**cfg)
+
+
+@router.put("/beta_query", response_model=NotificationConfigOut)
+def set_beta_query_notifications(
+    payload: NotificationConfigIn,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin_user),
+):
+    cfg = update_beta_query_notification_config(
+        db,
+        enabled=payload.enabled,
+        recipients=list(payload.recipients),
+    )
+    return NotificationConfigOut(**cfg)
+
+
+@router.post("/beta_query/test")
+def send_test_beta_query_notification(
+    payload: NotificationTestIn | None = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin_user),
+):
+    recipients = list(payload.recipients or []) if payload else []
+
+    def _send(to_list: list[str]) -> None:
+        on_admin_beta_query_created(
+            to=to_list,
+            language="en",
+            query_id=0,
+            user_id=admin.user_id,
+            user_email=admin.email or "admin-test@example.com",
+            username=admin.username or admin.display_name or "Admin test",
+            beta_registration_id=0,
+            beta_status="admin-test",
+            nl_query="How did registered beta users explore Cardano data today?",
+            detected_language="en",
+            succeeded=True,
+            total_latency_ms=1200,
+            complexity_score=2,
+        )
+
+    if recipients:
+        try:
+            _send([str(r) for r in recipients])
+        except Exception as exc:  # pragma: no cover
+            raise HTTPException(status_code=500, detail="Error sending beta-query test notification.") from exc
+        return {"ok": True, "recipients": [str(r) for r in recipients]}
+
+    try:
+        cfg = get_beta_query_notification_config(db)
+        if not cfg.get("recipients"):
+            raise HTTPException(status_code=400, detail="notificationRecipientsRequired")
+        _send(cfg["recipients"])
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail="Error sending beta-query test notification.") from exc
 
     return {"ok": True, "recipients": cfg.get("recipients", [])}

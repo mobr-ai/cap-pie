@@ -733,6 +733,28 @@
       "next": "You can now open CAP, sign in, and start testing the platform. We are especially interested in practical feedback about queries, dashboards, and analytics workflows.",
       "cta_label": "Open CAP beta",
       "footer": "This invitation was sent by the CAP team."
+    },
+    "admin_query_created": {
+      "title": "New CAP query (all users)",
+      "lead": "A CAP user submitted a new query. This alert is not limited to beta users.",
+      "footer": "You are receiving this message because all-user query notifications are enabled."
+    },
+    "admin_beta_query_created": {
+      "preheader": "A registered CAP beta user submitted a query.",
+      "title": "New beta-user CAP query",
+      "lead": "A registered CAP beta-program user submitted a new query.",
+      "query_id_label": "Query ID",
+      "user_label": "User",
+      "beta_registration_label": "Beta registration",
+      "language_label": "Language",
+      "status_label": "Status",
+      "succeeded_label": "Succeeded",
+      "failed_label": "Failed",
+      "latency_label": "Latency",
+      "complexity_label": "Complexity",
+      "query_label": "Query",
+      "cta_label": "Open beta program",
+      "footer": "You are receiving this message because beta-user query notifications are enabled."
     }
   },
   "pt": {
@@ -743,6 +765,28 @@
       "next": "Você já pode abrir a CAP, entrar na plataforma e começar os testes. Estamos especialmente interessados em feedback prático sobre consultas, dashboards e fluxos de analytics.",
       "cta_label": "Abrir beta da CAP",
       "footer": "Este convite foi enviado pela equipe da CAP."
+    },
+    "admin_query_created": {
+      "title": "Nova consulta CAP (todos os usuários)",
+      "lead": "Um usuário da CAP enviou uma nova consulta. Este alerta não é limitado a usuários beta.",
+      "footer": "Você está recebendo esta mensagem porque as notificações de consultas de todos os usuários estão habilitadas."
+    },
+    "admin_beta_query_created": {
+      "preheader": "Um usuário beta registrado da CAP enviou uma consulta.",
+      "title": "Nova consulta CAP de usuário beta",
+      "lead": "Um usuário registrado no programa beta da CAP enviou uma nova consulta.",
+      "query_id_label": "ID da consulta",
+      "user_label": "Usuário",
+      "beta_registration_label": "Inscrição beta",
+      "language_label": "Idioma",
+      "status_label": "Status",
+      "succeeded_label": "Concluída",
+      "failed_label": "Falhou",
+      "latency_label": "Latência",
+      "complexity_label": "Complexidade",
+      "query_label": "Consulta",
+      "cta_label": "Abrir programa beta",
+      "footer": "Você está recebendo esta mensagem porque as notificações de consultas de usuários beta estão habilitadas."
     }
   }
 }

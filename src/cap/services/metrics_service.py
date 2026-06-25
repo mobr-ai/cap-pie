@@ -11,7 +11,10 @@ from sqlalchemy.orm import Session
 from cap.chains.cardano.canon.pattern_registry import PatternRegistry
 from cap.database.model import DashboardMetrics, QueryMetrics
 from cap.services.lang_detect_client import LanguageDetector
-from cap.services.admin_alerts_service import maybe_notify_admins_query_created
+from cap.services.admin_alerts_service import (
+    maybe_notify_admins_beta_query_created,
+    maybe_notify_admins_query_created,
+)
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -126,7 +129,12 @@ class MetricsService:
         try:
             maybe_notify_admins_query_created(db, metric)
         except Exception:
-            logger.exception("Failed to queue query admin notification")
+            logger.exception("Failed to queue all-user query admin notification")
+
+        try:
+            maybe_notify_admins_beta_query_created(db, metric)
+        except Exception:
+            logger.exception("Failed to queue beta-user query admin notification")
 
         return metric
 

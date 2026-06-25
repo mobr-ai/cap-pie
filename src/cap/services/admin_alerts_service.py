@@ -1,8 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from cap.database.model import AdminSetting, User
+from cap.database.model import AdminSetting, BetaProgramRegistration, User
 from cap.mailing.event_triggers import (
+    on_admin_beta_query_created,
     on_admin_beta_registration_created,
     on_admin_query_created,
     on_admin_user_confirmed,
@@ -15,6 +16,7 @@ WAITLIST_CONFIG_KEY = "waitlist_notifications"
 USER_CONFIRMED_CONFIG_KEY = "user_confirmed_notifications"
 BETA_REGISTRATION_CONFIG_KEY = "beta_registration_notifications"
 QUERY_CONFIG_KEY = "query_notifications"
+BETA_QUERY_CONFIG_KEY = "beta_query_notifications"
 
 
 def _get_config(db: Session, key: str) -> dict:
@@ -244,3 +246,63 @@ def maybe_notify_admins_query_created(db: Session, metric, language: str | None 
         complexity_score=getattr(metric, "complexity_score", None),
     )
 
+# ---------------------------
+# Beta-user query notifications
+# ---------------------------
+
+def get_beta_query_notification_config(db: Session) -> dict:
+    return _get_config(db, BETA_QUERY_CONFIG_KEY)
+
+
+def update_beta_query_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
+    cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
+    return _set_config(db, BETA_QUERY_CONFIG_KEY, cfg)
+
+
+def _beta_registration_for_metric_user(db: Session, metric):
+    """Return beta registration for this metric's user, if the user's email registered for beta."""
+    user_id = getattr(metric, "user_id", None)
+    if user_id is None:
+        return None, None
+
+    try:
+        user = db.get(User, int(user_id))
+    except Exception:
+        user = None
+
+    email = (getattr(user, "email", "") or "").strip().lower() if user else ""
+    if not email:
+        return user, None
+
+    registration = db.scalar(
+        select(BetaProgramRegistration).where(BetaProgramRegistration.email == email)
+    )
+    return user, registration
+
+
+def maybe_notify_admins_beta_query_created(db: Session, metric, language: str | None = None) -> None:
+    """Notify admins only when the query author is a registered beta-program user."""
+    cfg = _get_config(db, BETA_QUERY_CONFIG_KEY)
+    if not cfg.get("enabled") or not cfg.get("recipients"):
+        return
+
+    user, registration = _beta_registration_for_metric_user(db, metric)
+    if registration is None:
+        return
+
+    user_id = getattr(metric, "user_id", None)
+    on_admin_beta_query_created(
+        to=cfg["recipients"],
+        language=language or "en",
+        query_id=getattr(metric, "id", None),
+        user_id=user_id,
+        user_email=(getattr(user, "email", "") or "") if user else "",
+        username=(getattr(user, "username", "") or "") if user else "",
+        beta_registration_id=getattr(registration, "id", None),
+        beta_status=getattr(registration, "status", "") or "",
+        nl_query=getattr(metric, "nl_query", "") or "",
+        detected_language=getattr(metric, "detected_language", "") or "",
+        succeeded=bool(getattr(metric, "query_succeeded", False)),
+        total_latency_ms=getattr(metric, "total_latency_ms", None),
+        complexity_score=getattr(metric, "complexity_score", None),
+    )

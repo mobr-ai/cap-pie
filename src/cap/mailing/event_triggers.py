@@ -819,3 +819,42 @@ def on_beta_program_invitation(
         },
         template_type="beta",
     )
+
+
+def on_admin_beta_query_created(
+    *,
+    to: Iterable[str] | str,
+    language: str | None = "en",
+    query_id: int | None = None,
+    user_id: int | None = None,
+    user_email: str | None = "",
+    username: str | None = "",
+    beta_registration_id: int | None = None,
+    beta_status: str | None = "",
+    nl_query: str | None = "",
+    detected_language: str | None = "",
+    succeeded: bool | None = None,
+    total_latency_ms: int | None = None,
+    complexity_score: int | None = None,
+) -> None:
+    """Notify admins about a new query from a registered beta-program user."""
+    _send(
+        template="admin_beta_query_created",
+        to=to,
+        language=language,
+        ctx={
+            "query_id": query_id,
+            "user_id": user_id,
+            "user_email": user_email or "",
+            "username": username or "",
+            "beta_registration_id": beta_registration_id,
+            "beta_status": beta_status or "",
+            "nl_query": nl_query or "",
+            "detected_language": detected_language or "",
+            "succeeded": succeeded,
+            "total_latency_ms": total_latency_ms,
+            "complexity_score": complexity_score,
+            "app_url": _app_url(),
+        },
+        template_type="admin",
+    )
