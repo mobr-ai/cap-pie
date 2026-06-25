@@ -1,0 +1,229 @@
+/* src/styles/landing/AgentAvatar.css */
+
+/*
+  Static CAP cube avatar.
+
+  This intentionally avoids cube/body animation. It keeps only the kind of
+  static glow, shade, glass and badge treatment that the previous robot emoji
+  had, but swaps the emoji for a theme-aware CAP cube.
+*/
+
+.cap-root .cap-agent-avatar {
+  --agent-size: 40px;
+
+  --agent-primary: var(--primary, #2563eb);
+  --agent-secondary: var(--secondary, var(--agent-primary));
+  --agent-bg: var(--background, #020617);
+  --agent-surface: var(--surface, #0f172a);
+  --agent-surface-light: var(--surface-light, rgba(255, 255, 255, 0.1));
+  --agent-text: var(--text-primary, #f8fbff);
+
+  --agent-ice: color-mix(
+    in srgb,
+    var(--agent-text) 86%,
+    var(--agent-primary) 14%
+  );
+  --agent-ink: color-mix(
+    in srgb,
+    var(--agent-bg) 84%,
+    var(--agent-primary) 16%
+  );
+  --agent-deep: color-mix(
+    in srgb,
+    var(--agent-surface) 64%,
+    var(--agent-primary) 36%
+  );
+  --agent-glow: color-mix(in srgb, var(--agent-primary) 34%, transparent);
+  --agent-glow-soft: color-mix(
+    in srgb,
+    var(--agent-secondary) 20%,
+    transparent
+  );
+  --agent-border: color-mix(in srgb, var(--agent-primary) 34%, transparent);
+
+  position: relative;
+  display: inline-grid;
+  width: var(--agent-size);
+  height: var(--agent-size);
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: visible;
+  isolation: isolate;
+  border-radius: 999px;
+
+  background:
+    radial-gradient(
+      circle at 36% 28%,
+      rgba(255, 255, 255, 0.16),
+      transparent 24%
+    ),
+    radial-gradient(circle at 58% 62%, var(--agent-glow), transparent 60%),
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--agent-surface-light) 78%,
+        var(--agent-primary) 22%
+      ),
+      color-mix(in srgb, var(--agent-bg) 76%, var(--agent-primary) 24%)
+    );
+
+  border: 1px solid var(--agent-border);
+
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--agent-primary) 10%, transparent),
+    0 0 18px var(--agent-glow-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -12px 18px rgba(0, 0, 0, 0.2);
+}
+
+.cap-root .cap-agent-avatar::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(circle, var(--agent-glow), transparent 62%);
+  opacity: 0.52;
+  filter: blur(8px);
+}
+
+.cap-root .cap-agent-avatar--chat {
+  --agent-size: 40px;
+}
+
+.cap-root .cap-agent-avatar--hero {
+  --agent-size: 7rem;
+}
+
+.cap-root .cap-agent-avatar__svg,
+.cap-root .cap-agent-avatar__svg * {
+  animation: none !important;
+}
+
+.cap-root .cap-agent-avatar__svg {
+  display: block;
+  width: 78%;
+  height: 78%;
+  overflow: visible;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.28))
+    drop-shadow(
+      0 0 5px color-mix(in srgb, var(--agent-primary) 24%, transparent)
+    );
+}
+
+.cap-root .cap-agent-stop--ice {
+  stop-color: var(--agent-ice);
+}
+
+.cap-root .cap-agent-stop--primary {
+  stop-color: var(--agent-primary);
+}
+
+.cap-root .cap-agent-stop--secondary {
+  stop-color: var(--agent-secondary);
+}
+
+.cap-root .cap-agent-stop--deep {
+  stop-color: var(--agent-deep);
+}
+
+.cap-root .cap-agent-stop--ink {
+  stop-color: var(--agent-ink);
+}
+
+.cap-root .cap-agent-avatar__shadow {
+  fill: color-mix(in srgb, var(--agent-primary) 18%, transparent);
+  opacity: 0.24;
+}
+
+.cap-root .cap-agent-avatar__face {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 0.7;
+  shape-rendering: geometricPrecision;
+}
+
+.cap-root .cap-agent-avatar__face--top {
+  opacity: 0.96;
+}
+
+.cap-root .cap-agent-avatar__face--left {
+  opacity: 0.9;
+}
+
+.cap-root .cap-agent-avatar__face--right {
+  opacity: 0.92;
+}
+
+.cap-root .cap-agent-avatar__glass {
+  fill: rgba(255, 255, 255, 0.045);
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+.cap-root .cap-agent-avatar__glass--left {
+  fill: color-mix(in srgb, var(--agent-primary) 12%, transparent);
+}
+
+.cap-root .cap-agent-avatar__glass--right {
+  fill: color-mix(in srgb, var(--agent-secondary) 12%, transparent);
+}
+
+.cap-root .cap-agent-avatar__edge {
+  stroke-width: 1.45;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.88;
+  shape-rendering: geometricPrecision;
+}
+
+.cap-root .cap-agent-avatar__edge--spine {
+  stroke-width: 1.05;
+  opacity: 0.62;
+}
+
+.cap-root .cap-agent-avatar__shine {
+  fill: none;
+  stroke: var(--agent-ice);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  opacity: 0.54;
+  mix-blend-mode: screen;
+}
+
+.cap-root .cap-agent-avatar__shine--soft {
+  opacity: 0.34;
+}
+
+.cap-root .message-avatar--agent {
+  overflow: visible;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.cap-root .message-avatar--agent .cap-agent-avatar {
+  --agent-size: 40px;
+}
+
+.cap-root .message-avatar--user {
+  overflow: hidden;
+}
+
+.cap-root .landing-empty-agent {
+  --agent-size: 7rem;
+}
+
+.cap-root .landing-empty-robotBadge .cap-agent-avatar,
+.cap-root .landing-empty-robotWrap .cap-agent-avatar {
+  margin: 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cap-root .cap-agent-avatar,
+  .cap-root .cap-agent-avatar * {
+    animation: none !important;
+  }
+}
