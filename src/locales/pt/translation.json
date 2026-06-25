@@ -178,6 +178,66 @@
       "tagline": "Construindo infraestrutura avançada de dados e IA para ecossistemas descentralizados.",
       "followUs": "Siga-nos",
       "allRights": "Todos os direitos reservados."
+    },
+    "beta": {
+      "eyebrow": "Programa Beta Fechado",
+      "title": "Participe do Beta Fechado da CAP",
+      "lead": "Explore dados da Cardano com analytics orientado por IA, consultas em linguagem natural e dashboards interativos.",
+      "description": "A CAP está abrindo um beta fechado limitado para usuários selecionados que queiram testar uma forma mais clara de analisar dados da Cardano. A plataforma combina dados estruturados da blockchain, grafos de conhecimento e raciocínio com IA para transformar informação on-chain em insights práticos.",
+      "features": {
+        "nl": {
+          "title": "Descoberta em Linguagem Natural",
+          "desc": "Faça perguntas sobre a Cardano em linguagem simples e receba análises estruturadas."
+        },
+        "dashboards": {
+          "title": "Dashboards com IA",
+          "desc": "Fixe gráficos e tabelas gerados pela IA em um workspace pessoal de analytics."
+        },
+        "federated": {
+          "title": "Inteligência de Dados Federados",
+          "desc": "Explore uma visão unificada entre atividade on-chain e metadados off-chain essenciais."
+        }
+      },
+      "audience": {
+        "title": "Quem deve se inscrever",
+        "desc": "Buscamos usuários dispostos a testar, enviar feedback e ajudar a moldar a próxima versão da CAP.",
+        "developers": "Desenvolvedores & times",
+        "analysts": "Analistas & pesquisadores",
+        "community": "Investidores & comunidade"
+      },
+      "form": {
+        "kicker": "Acesso antecipado",
+        "title": "Registre seu interesse",
+        "subtitle": "Conte como você usaria a CAP. Usaremos isso para priorizar os convites do beta.",
+        "name": "Nome",
+        "namePlaceholder": "Seu nome",
+        "email": "Email",
+        "emailPlaceholder": "voce@exemplo.com",
+        "role": "Perfil",
+        "rolePlaceholder": "Selecione uma opção",
+        "roles": {
+          "developer": "Desenvolvedor / builder",
+          "analyst": "Analista / pesquisador",
+          "ecosystem": "Time do ecossistema",
+          "investor": "Investidor / comunidade",
+          "other": "Outro"
+        },
+        "organization": "Organização / projeto",
+        "organizationPlaceholder": "Opcional",
+        "useCase": "O que você gostaria de testar?",
+        "useCasePlaceholder": "Exemplo: analytics de staking, monitoramento de governança, dashboards de tokens, fluxos de pesquisa...",
+        "submit": "Registrar para o Beta Fechado",
+        "submitting": "Enviando...",
+        "note": "O acesso ao beta fechado é limitado enquanto testamos o produto com os primeiros usuários.",
+        "successInline": "Obrigado — seu registro foi recebido.",
+        "successToast": "Registro recebido. Vamos analisar e retornar por email.",
+        "error": "Não foi possível enviar seu registro. Tente novamente."
+      }
+    },
+    "betaBadge": {
+      "kicker": "Beta fechado",
+      "text": "Tem interesse em acesso antecipado? Registre seu interesse.",
+      "aria": "Abrir a página de inscrição do beta fechado da CAP"
     }
   },
   "nav": {
@@ -794,7 +854,77 @@
     "dataConsoleInlineDependency": "Dependência de serviço indisponível.",
     "dataConsoleShowRawResult": "Mostrar resposta bruta",
     "dataConsoleUploadRunningTooltip": "O upload/pré-cache está demorando mais que o normal. Em desenvolvimento local, isso geralmente indica Redis/QLever indisponível ou arquivo de mapeamentos grande.",
-    "dataConsoleLongRunningToast": "{{action}} está demorando mais que o normal. Em desenvolvimento local, isso pode acontecer quando Redis/QLever está indisponível ou o arquivo enviado é grande."
+    "dataConsoleLongRunningToast": "{{action}} está demorando mais que o normal. Em desenvolvimento local, isso pode acontecer quando Redis/QLever está indisponível ou o arquivo enviado é grande.",
+    "tabBetaProgram": "Programa Beta",
+    "betaProgram": {
+      "title": "Programa Beta Fechado",
+      "subtitle": "Acompanhe inscrições, atividade e notificações do programa beta.",
+      "totalRegistrations": "Inscrições",
+      "filtered": "Filtrado",
+      "newReviewing": "Novos / em análise",
+      "newReviewingCaption": "Pedidos aguardando triagem",
+      "linkedUsers": "Usuários vinculados",
+      "withActivity": "Com atividade",
+      "betaQueries": "Consultas beta",
+      "betaQueriesCaption": "Consultas de usuários registrados no beta",
+      "registrationsTitle": "Inscrições",
+      "registrationsSubtitle": "Gerencie status, notas e vínculo com contas CAP.",
+      "searchPlaceholder": "Buscar por e-mail, nome, organização ou caso de uso",
+      "allStatuses": "Todos os status",
+      "person": "Pessoa",
+      "profile": "Perfil",
+      "useCase": "Caso de uso",
+      "account": "Conta",
+      "activity": "Atividade",
+      "statusAndNotes": "Status e notas",
+      "source": "Origem",
+      "noAccount": "Sem conta vinculada",
+      "notesPlaceholder": "Notas internas",
+      "noRegistrations": "Nenhuma inscrição encontrada.",
+      "latestQueriesTitle": "Últimas consultas",
+      "latestQueriesSubtitle": "Consultas recentes feitas por usuários inscritos no beta que também possuem conta CAP.",
+      "noQueries": "Nenhuma consulta encontrada para usuários beta.",
+      "notificationsTitle": "Notificações",
+      "notificationsSubtitle": "Controle alertas administrativos para novas inscrições e novas consultas.",
+      "betaRegistrationNotifications": "Novas inscrições beta",
+      "betaRegistrationNotificationsHelp": "Envia e-mail aos administradores quando alguém se registra no beta.",
+      "queryNotifications": "Novas consultas",
+      "queryNotificationsHelp": "Envia e-mail aos administradores quando usuários executam novas consultas.",
+      "updateSuccess": "Inscrição atualizada.",
+      "updateError": "Falha ao atualizar inscrição.",
+      "status": {
+        "new": "Novo",
+        "reviewing": "Em análise",
+        "invited": "Convidado",
+        "accepted": "Aceito",
+        "rejected": "Rejeitado",
+        "archived": "Arquivado"
+      },
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "autoRefresh": "Atualização automática",
+      "autoRefreshHelp": "Esta aba atualiza em segundo plano quando estiver visível, evitando múltiplas requisições simultâneas.",
+      "lastUpdated": "última atualização: {{time}}",
+      "query": "Consulta",
+      "language": "Idioma",
+      "ok": "OK",
+      "totalLatency": "Latência total",
+      "createdAt": "Criado em",
+      "activityHint": "Atividade vinculada por e-mail de inscrição → conta CAP → consultas executadas.",
+      "autoSaved": "Salvo automaticamente",
+      "selectRecipientsFirst": "Selecione pelo menos um destinatário antes de enviar o teste.",
+      "invite": "Convidar",
+      "inviteSuccess": "Convite do beta enviado.",
+      "inviteError": "Não foi possível enviar o convite do beta.",
+      "remove": "Remover",
+      "removeConfirm": "Remover a inscrição de {{email}}? Esta ação não remove a conta CAP vinculada.",
+      "removeSuccess": "Inscrição removida.",
+      "removeError": "Não foi possível remover a inscrição.",
+      "markReviewing": "Marcar como em análise",
+      "markAccepted": "Marcar como aceito"
+    },
+    "on": "Ativo",
+    "off": "Inativo"
   },
   "common": {
     "yes": "Sim",
@@ -1059,5 +1189,6 @@
         "description": "Tema retrô CLI com acentos verde fósforo"
       }
     }
-  }
+  },
+  "betaRegistrationError": "Não foi possível enviar seu registro. Tente novamente."
 }

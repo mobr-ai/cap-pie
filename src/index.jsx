@@ -40,6 +40,8 @@ import AnalysesPage from "./pages/AnalysesPage";
 import UserQueryMetricsPage from "./pages/UserQueryMetricsPage";
 import LoadingPage from "./pages/LoadingPage";
 import WelcomePage from "./pages/WelcomePage";
+import BetaProgramPage from "./pages/BetaProgramPage";
+import { BETA_PROGRAM_ENABLED } from "./config/betaProgram";
 
 // Hooks
 import { useAuthRequest } from "./hooks/useAuthRequest";
@@ -138,6 +140,47 @@ function getInitialLoading() {
   } catch {
     return false;
   }
+}
+
+
+function PublicBetaShell() {
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    variant: "secondary",
+  });
+
+  const showToast = useCallback((message, variant = "secondary") => {
+    setToast({ show: true, message: String(message || ""), variant });
+  }, []);
+
+  const outletContext = useMemo(() => ({ showToast }), [showToast]);
+
+  return (
+    <>
+      <Outlet context={outletContext} />
+      <ToastContainer
+        position="bottom-end"
+        containerPosition="fixed"
+        className="p-3"
+        style={{ zIndex: 9999 }}
+      >
+        <Toast
+          bg={toast.variant}
+          onClose={() => setToast((prev) => ({ ...prev, show: false }))}
+          show={toast.show}
+          delay={6000}
+          autohide
+        >
+          <Toast.Body className="text-white">
+            {toast.message.split("\n").map((line, idx) => (
+              <div key={idx}>{line}</div>
+            ))}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+    </>
+  );
 }
 
 // ---------------------------
@@ -451,7 +494,9 @@ function Layout() {
 
   // --- Enforce allowed routes when not logged in ---------------------------
   useEffect(() => {
-    const allowlist = new Set(["/login", "/signup", "/welcome"]);
+    const publicPaths = ["/login", "/signup", "/welcome"];
+    if (BETA_PROGRAM_ENABLED) publicPaths.push("/beta", "/closed-beta");
+    const allowlist = new Set(publicPaths);
     if (!session && !allowlist.has(location.pathname)) {
       setSidebarOpen(false);
       navigate("/login", {
@@ -543,6 +588,12 @@ function AppRouter() {
     <GoogleOAuthProvider clientId={googleClientId}>
       <BrowserRouter>
         <Routes>
+          {BETA_PROGRAM_ENABLED && (
+            <Route element={<PublicBetaShell />}>
+              <Route path="/beta" element={<BetaProgramPage />} />
+              <Route path="/closed-beta" element={<BetaProgramPage />} />
+            </Route>
+          )}
           <Route element={<Layout />}>
             <Route path="/" element={<LandingPage />} />
             <Route
@@ -564,6 +615,10 @@ function AppRouter() {
             {/* <Route path="/login" element={<AuthPage type="login" />} /> */}
             <Route path="/login" element={<WelcomePage type="login" />} />
             <Route path="/welcome" element={<WelcomePage type="login" />} />
+            {BETA_PROGRAM_ENABLED && (
+              <>
+              </>
+            )}
             <Route path="/signup" element={<WaitingListPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/billing" element={<BillingPage />} />
