@@ -2,5 +2,6 @@
 @import "./welcome/WelcomeHero.css";
 @import "./welcome/WelcomeAuth.css";
 @import "./welcome/WelcomeVideo.css";
+@import "./welcome/WelcomeBetaBadge.css";
 @import "./welcome/WelcomeShowcase.css";
 @import "./welcome/WelcomeResponsive.css";

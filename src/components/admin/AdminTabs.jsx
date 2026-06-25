@@ -7,19 +7,37 @@ import React, {
   useState,
 } from "react";
 
-export function AdminTabs({ activeTab, onChange, t }) {
-  const tabs = useMemo(
-    () => [
-      { key: "overview", label: t("admin.tabOverview") },
-      { key: "users", label: t("admin.tabUsers") },
-      { key: "billing", label: t("admin.tabBilling") },
-      { key: "metrics", label: t("admin.tabMetrics") },
-      { key: "data-console", label: t("admin.tabDataConsole") },
-      { key: "system", label: t("admin.tabSystem") },
-      { key: "alerts", label: t("admin.tabAlerts") },
-    ],
-    [t]
-  );
+export function AdminTabs({ activeTab, onChange, t, tabs: providedTabs }) {
+  const tabs = useMemo(() => {
+    const labels = {
+      overview: t("admin.tabOverview"),
+      users: t("admin.tabUsers"),
+      billing: t("admin.tabBilling"),
+      metrics: t("admin.tabMetrics"),
+      "beta-program": t("admin.tabBetaProgram"),
+      "data-console": t("admin.tabDataConsole"),
+      system: t("admin.tabSystem"),
+      alerts: t("admin.tabAlerts"),
+    };
+
+    const source =
+      Array.isArray(providedTabs) && providedTabs.length
+        ? providedTabs
+        : [
+            { key: "overview" },
+            { key: "users" },
+            { key: "billing" },
+            { key: "metrics" },
+            { key: "data-console" },
+            { key: "system" },
+            { key: "alerts" },
+          ];
+
+    return source.map((tab) => ({
+      ...tab,
+      label: tab.label || labels[tab.key] || tab.key,
+    }));
+  }, [providedTabs, t]);
 
   const shellRef = useRef(null); // non-scrolling outer pill
   const scrollerRef = useRef(null); // scrolling row

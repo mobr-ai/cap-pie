@@ -13,7 +13,9 @@ import { useAdminWaitlist } from "@/hooks/useAdminWaitlist";
 import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { useAdminMetrics } from "@/hooks/useAdminMetrics";
 import { useAdminDataConsole } from "@/hooks/useAdminDataConsole";
+import { useAdminBetaProgram } from "@/hooks/useAdminBetaProgram";
 import { useSwipeTabs } from "@/hooks/useSwipeTabs";
+import { BETA_ADMIN_TAB_ENABLED } from "@/config/betaProgram";
 
 import { AdminTabs } from "@/components/admin/AdminTabs";
 import { SystemOverview } from "@/components/admin/SystemOverview";
@@ -30,6 +32,7 @@ import { WaitlistAlertsPanel } from "@/components/admin/WaitlistAlertsPanel";
 import { UserConfirmedAlertsPanel } from "@/components/admin/UserConfirmedAlertsPanel";
 import { MetricsOverview } from "@/components/admin/MetricsOverview";
 import { AdminDataConsole } from "@/components/admin/AdminDataConsole";
+import { BetaProgramAdminPanel } from "@/components/admin/BetaProgramAdminPanel";
 import { AlertsRecipientsPool } from "@/components/admin/AlertsRecipientsPool";
 import QueryDetailsModal from "@/components/admin/QueryDetailsModal";
 
@@ -79,17 +82,34 @@ export default function AdminPage() {
   });
   const notifications = useAdminNotifications(authFetch, showToast, t);
   const metrics = useAdminMetrics(authFetch, activeTab === "metrics");
+  const betaProgram = useAdminBetaProgram(
+    authFetch,
+    showToast,
+    t,
+    BETA_ADMIN_TAB_ENABLED && activeTab === "beta-program",
+  );
   const dataConsole = useAdminDataConsole(authFetch, showToast, t);
 
-  const tabs = [
-    { key: "overview" },
-    { key: "users" },
-    { key: "billing" },
-    { key: "metrics" },
-    { key: "data-console" },
-    { key: "system" },
-    { key: "alerts" },
-  ];
+  const tabs = useMemo(
+    () => [
+      { key: "overview" },
+      { key: "users" },
+      { key: "billing" },
+      { key: "metrics" },
+      ...(BETA_ADMIN_TAB_ENABLED ? [{ key: "beta-program" }] : []),
+      { key: "data-console" },
+      { key: "system" },
+      { key: "alerts" },
+    ],
+    [],
+  );
+
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.key === activeTab)) {
+      changeTab("overview");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, tabs]);
 
   const [recipientPool, setRecipientPool] = useState(() => {
     try {
@@ -118,14 +138,25 @@ export default function AdminPage() {
     notifications?.waitlist?.notifyConfig?.recipients || [];
   const userConfirmedRecipients =
     notifications?.userConfirmed?.notifyConfig?.recipients || [];
+  const betaRegistrationRecipients =
+    betaProgram?.betaNotify?.notifyConfig?.recipients || [];
+  const queryRecipients = betaProgram?.queryNotify?.notifyConfig?.recipients || [];
 
   const seededFromConfigs = useMemo(() => {
     return uniqEmails([
       ...newUserRecipients,
       ...waitlistRecipients,
       ...userConfirmedRecipients,
+      ...betaRegistrationRecipients,
+      ...queryRecipients,
     ]);
-  }, [newUserRecipients, waitlistRecipients, userConfirmedRecipients]);
+  }, [
+    newUserRecipients,
+    waitlistRecipients,
+    userConfirmedRecipients,
+    betaRegistrationRecipients,
+    queryRecipients,
+  ]);
 
   useEffect(() => {
     if (!seededFromConfigs.length) return;
@@ -170,7 +201,7 @@ export default function AdminPage() {
           <p className="admin-subtitle">{t("admin.subtitle")}</p>
         </header>
 
-        <AdminTabs activeTab={activeTab} onChange={changeTab} t={t} />
+        <AdminTabs activeTab={activeTab} onChange={changeTab} t={t} tabs={tabs} />
 
         {activeTab === "overview" && (
           <>
@@ -207,6 +238,16 @@ export default function AdminPage() {
               onOpenQuery={(q) => setSelectedQuery(q)}
             />
           </>
+        )}
+
+        {activeTab === "beta-program" && BETA_ADMIN_TAB_ENABLED && (
+          <BetaProgramAdminPanel
+            t={t}
+            betaProgram={betaProgram}
+            recipientPool={recipientPool}
+            setRecipientPool={setRecipientPool}
+            onOpenQuery={(q) => setSelectedQuery(q)}
+          />
         )}
 
         {activeTab === "data-console" && (

@@ -179,6 +179,66 @@
       "tagline": "Building advanced data and AI infrastructure for decentralized ecosystems.",
       "followUs": "Follow Us",
       "allRights": "All rights reserved."
+    },
+    "beta": {
+      "eyebrow": "Closed Beta Program",
+      "title": "Join the CAP Closed Beta",
+      "lead": "Explore Cardano data with AI-powered analytics, natural language queries, and interactive dashboards.",
+      "description": "CAP is opening a limited closed beta for selected users who want to test a clearer way to analyze Cardano data. The platform combines structured blockchain data, knowledge graphs, and AI reasoning to move from raw on-chain information to practical insights.",
+      "features": {
+        "nl": {
+          "title": "Natural Language Discovery",
+          "desc": "Ask questions about Cardano in plain English and retrieve structured analytics."
+        },
+        "dashboards": {
+          "title": "AI-Powered Dashboards",
+          "desc": "Pin generated charts and tables into a personal analytics workspace."
+        },
+        "federated": {
+          "title": "Federated Data Intelligence",
+          "desc": "Explore a unified view across on-chain activity and essential off-chain metadata."
+        }
+      },
+      "audience": {
+        "title": "Who should apply",
+        "desc": "We are looking for users willing to test, give feedback, and help shape the next version of CAP.",
+        "developers": "Developers & teams",
+        "analysts": "Analysts & researchers",
+        "community": "Investors & community contributors"
+      },
+      "form": {
+        "kicker": "Early access",
+        "title": "Register your interest",
+        "subtitle": "Tell us how you would use CAP. We will use this to prioritize beta invitations.",
+        "name": "Name",
+        "namePlaceholder": "Your name",
+        "email": "Email",
+        "emailPlaceholder": "you@example.com",
+        "role": "Profile",
+        "rolePlaceholder": "Select one",
+        "roles": {
+          "developer": "Developer / builder",
+          "analyst": "Analyst / researcher",
+          "ecosystem": "Ecosystem team",
+          "investor": "Investor / community",
+          "other": "Other"
+        },
+        "organization": "Organization / project",
+        "organizationPlaceholder": "Optional",
+        "useCase": "What would you like to test?",
+        "useCasePlaceholder": "Example: staking analytics, governance monitoring, token dashboards, research workflows...",
+        "submit": "Register for Closed Beta",
+        "submitting": "Submitting...",
+        "note": "Closed beta access is limited while we test the product with early users.",
+        "successInline": "Thanks — your registration was received.",
+        "successToast": "Registration received. We will review it and follow up by email.",
+        "error": "Could not submit your registration. Please try again."
+      }
+    },
+    "betaBadge": {
+      "kicker": "Closed beta",
+      "text": "Interested in early access? Register your interest.",
+      "aria": "Open the CAP closed beta registration page"
     }
   },
   "nav": {
@@ -793,7 +853,77 @@
     "dataConsoleInlineDependency": "Service dependency unavailable.",
     "dataConsoleShowRawResult": "Show raw response",
     "dataConsoleUploadRunningTooltip": "Upload/pre-cache is taking longer than usual. In local dev this usually means Redis/QLever is unavailable or the mapping file is large.",
-    "dataConsoleLongRunningToast": "{{action}} is taking longer than usual. In local dev this may happen when Redis/QLever is unavailable or the uploaded file is large."
+    "dataConsoleLongRunningToast": "{{action}} is taking longer than usual. In local dev this may happen when Redis/QLever is unavailable or the uploaded file is large.",
+    "tabBetaProgram": "Beta Program",
+    "betaProgram": {
+      "title": "Closed Beta Program",
+      "subtitle": "Track registrations, activity, and notifications for the beta program.",
+      "totalRegistrations": "Registrations",
+      "filtered": "Filtered",
+      "newReviewing": "New / reviewing",
+      "newReviewingCaption": "Requests waiting for triage",
+      "linkedUsers": "Linked users",
+      "withActivity": "With activity",
+      "betaQueries": "Beta queries",
+      "betaQueriesCaption": "Queries from registered beta users",
+      "registrationsTitle": "Registrations",
+      "registrationsSubtitle": "Manage status, notes, and linked CAP accounts.",
+      "searchPlaceholder": "Search by email, name, organization, or use case",
+      "allStatuses": "All statuses",
+      "person": "Person",
+      "profile": "Profile",
+      "useCase": "Use case",
+      "account": "Account",
+      "activity": "Activity",
+      "statusAndNotes": "Status & notes",
+      "source": "Source",
+      "noAccount": "No linked account",
+      "notesPlaceholder": "Internal notes",
+      "noRegistrations": "No registrations found.",
+      "latestQueriesTitle": "Latest queries",
+      "latestQueriesSubtitle": "Recent queries from registered beta users who also have CAP accounts.",
+      "noQueries": "No queries found for beta users.",
+      "notificationsTitle": "Notifications",
+      "notificationsSubtitle": "Control admin alerts for new registrations and new queries.",
+      "betaRegistrationNotifications": "New beta registrations",
+      "betaRegistrationNotificationsHelp": "Email admins when someone registers for the beta program.",
+      "queryNotifications": "New queries",
+      "queryNotificationsHelp": "Email admins when users submit new queries.",
+      "updateSuccess": "Registration updated.",
+      "updateError": "Failed to update registration.",
+      "status": {
+        "new": "New",
+        "reviewing": "Reviewing",
+        "invited": "Invited",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "archived": "Archived"
+      },
+      "save": "Save",
+      "saving": "Saving…",
+      "autoRefresh": "Auto-refresh on",
+      "autoRefreshHelp": "This tab refreshes in the background while visible and avoids overlapping requests.",
+      "lastUpdated": "last updated: {{time}}",
+      "query": "Query",
+      "language": "Language",
+      "ok": "OK",
+      "totalLatency": "Total latency",
+      "createdAt": "Created at",
+      "activityHint": "Activity is linked by registration email → CAP account → submitted queries.",
+      "autoSaved": "Auto-saved",
+      "selectRecipientsFirst": "Select at least one recipient before sending a test email.",
+      "invite": "Invite",
+      "inviteSuccess": "Beta invitation sent.",
+      "inviteError": "Could not send the beta invitation.",
+      "remove": "Remove",
+      "removeConfirm": "Remove the registration for {{email}}? This does not remove the linked CAP account.",
+      "removeSuccess": "Registration removed.",
+      "removeError": "Could not remove the registration.",
+      "markReviewing": "Mark as reviewing",
+      "markAccepted": "Mark as accepted"
+    },
+    "on": "On",
+    "off": "Off"
   },
   "common": {
     "yes": "Yes",
@@ -1058,5 +1188,6 @@
         "description": "Retro CLI theme with phosphor green accents"
       }
     }
-  }
+  },
+  "betaRegistrationError": "Could not submit your registration. Please try again."
 }
