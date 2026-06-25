@@ -192,6 +192,7 @@ def _reconcile_pending_payment_sessions(
             PaymentSession.tx_hash.isnot(None),
         )
         .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
+        .with_for_update(skip_locked=True)
         .limit(max(1, min(int(limit or 25), 100)))
         .all()
     )
@@ -465,6 +466,30 @@ def _credit_user_balance(
     amount_lovelace: int,
     reason: str = "deposit",
 ) -> UserCreditBalance:
+    existing_ledger = db.scalar(
+        select(UserCreditLedger)
+        .where(
+            UserCreditLedger.user_id == user.user_id,
+            UserCreditLedger.payment_session_id == session.id,
+            UserCreditLedger.reason == reason,
+        )
+        .with_for_update()
+    )
+
+    if existing_ledger:
+        balance = _get_or_create_credit_balance(
+            db,
+            user_id=user.user_id,
+            currency=session.currency_snapshot,
+        )
+        logger.warning(
+            "Skipping duplicate credit ledger for payment_session_id=%s user_id=%s reason=%s",
+            session.id,
+            user.user_id,
+            reason,
+        )
+        return balance
+
     balance = _get_or_create_credit_balance(
         db,
         user_id=user.user_id,
@@ -819,8 +844,6 @@ def get_my_billing_access(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    _reconcile_pending_payment_sessions(db, user=current_user, limit=25)
-
     auto_renewal = _maybe_auto_renew_premium_from_balance(db, user=current_user)
 
     state = get_billing_access_state(db, current_user)
@@ -885,8 +908,6 @@ def get_my_credit_balance(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    _reconcile_pending_payment_sessions(db, user=current_user, limit=25)
-
     row = db.scalar(
         select(UserCreditBalance).where(
             UserCreditBalance.user_id == current_user.user_id,
@@ -918,11 +939,14 @@ def get_my_billing_transactions(
         .all()
     )
 
-    support_sessions = (
+    payment_session_rows = (
         db.query(PaymentSession)
         .filter(
             PaymentSession.user_id == current_user.user_id,
-            PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            (
+                (PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION)
+                | (PaymentSession.status != "paid")
+            ),
         )
         .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
         .limit(safe_limit)
@@ -994,11 +1018,11 @@ def get_my_billing_transactions(
             "currency": row.currency_snapshot,
             "amount": int(row.amount_snapshot or 0),
             "balance_after": balance_after,
-            "reason": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            "reason": getattr(row, "kind", None) or PAYMENT_KIND_SUPPORT_CONTRIBUTION,
             "status": row.status,
             "payment_session_id": row.id,
             "metadata": {
-                "kind": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+                "kind": getattr(row, "kind", None) or PAYMENT_KIND_SUPPORT_CONTRIBUTION,
                 "session_id": row.session_id,
                 "tx_hash": row.tx_hash,
                 "network": row.network_snapshot,
@@ -1009,7 +1033,7 @@ def get_my_billing_transactions(
             "created_at": _format_utc(row.paid_at or row.created_at),
             "_sort_at": _from_db_naive_utc(row.paid_at or row.created_at),
         }
-        for row in support_sessions
+        for row in payment_session_rows
     )
 
     transactions.sort(key=lambda item: item.get("_sort_at") or datetime.min.replace(tzinfo=UTC), reverse=True)
