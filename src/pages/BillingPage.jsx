@@ -367,23 +367,30 @@ export default function BillingPage() {
     setBillingError("");
 
     try {
-      const data = await fetchMyEntitlements(outlet.session);
-      setBillingEntitlements(data?.entitlements || []);
-
-      const balanceData = await fetchMyCreditBalance(outlet.session);
-      setCreditBalance(balanceData?.balance || null);
-
-      const preferencesData = await fetchBillingPreferences(outlet.session);
-      setBillingPreferences(preferencesData?.preferences || null);
-
-      const plansData = await fetchBillingPlans();
-      setBillingPlans(plansData?.plans || []);
-
+      // Important: transactions/me may reconcile pending Cardano payments.
+      // Fetch it first, then refresh balance/entitlements from the post-reconcile state.
       const transactionsData = await fetchMyBillingTransactions(
         outlet.session,
         12,
       );
       setBillingTransactions(transactionsData?.transactions || []);
+
+      const [
+        data,
+        balanceData,
+        preferencesData,
+        plansData,
+      ] = await Promise.all([
+        fetchMyEntitlements(outlet.session),
+        fetchMyCreditBalance(outlet.session),
+        fetchBillingPreferences(outlet.session),
+        fetchBillingPlans(),
+      ]);
+
+      setBillingEntitlements(data?.entitlements || []);
+      setCreditBalance(balanceData?.balance || null);
+      setBillingPreferences(preferencesData?.preferences || null);
+      setBillingPlans(plansData?.plans || []);
     } catch (err) {
       console.error("[Settings] Billing status failed:", err);
       setBillingError(t("settingsBilling.errors.statusFailed"));
