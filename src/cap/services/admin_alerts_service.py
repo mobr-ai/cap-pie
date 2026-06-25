@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 
 from cap.database.model import AdminSetting, User
 from cap.mailing.event_triggers import (
+    on_admin_beta_registration_created,
+    on_admin_query_created,
     on_admin_user_confirmed,
     on_admin_user_created,
     on_admin_waitlist_created,
@@ -11,6 +13,8 @@ from cap.mailing.event_triggers import (
 NEW_USER_CONFIG_KEY = "new_user_notifications"
 WAITLIST_CONFIG_KEY = "waitlist_notifications"
 USER_CONFIRMED_CONFIG_KEY = "user_confirmed_notifications"
+BETA_REGISTRATION_CONFIG_KEY = "beta_registration_notifications"
+QUERY_CONFIG_KEY = "query_notifications"
 
 
 def _get_config(db: Session, key: str) -> dict:
@@ -168,5 +172,75 @@ def maybe_notify_admins_user_confirmed(
         language=(language or "en").strip() or "en",
         confirmed_user_email=user.email,
         source=source,
+    )
+
+# ---------------------------
+# Beta program notifications
+# ---------------------------
+
+def get_beta_registration_notification_config(db: Session) -> dict:
+    return _get_config(db, BETA_REGISTRATION_CONFIG_KEY)
+
+
+def update_beta_registration_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
+    cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
+    return _set_config(db, BETA_REGISTRATION_CONFIG_KEY, cfg)
+
+
+def maybe_notify_admins_beta_registration(db: Session, registration, language: str | None = None) -> None:
+    cfg = _get_config(db, BETA_REGISTRATION_CONFIG_KEY)
+    if not cfg.get("enabled") or not cfg.get("recipients"):
+        return
+
+    on_admin_beta_registration_created(
+        to=cfg["recipients"],
+        language=(language or getattr(registration, "language", None) or "en"),
+        beta_email=getattr(registration, "email", "") or "",
+        beta_name=getattr(registration, "full_name", "") or "",
+        beta_role=getattr(registration, "role", "") or "",
+        beta_organization=getattr(registration, "organization", "") or "",
+        beta_use_case=getattr(registration, "use_case", "") or "",
+        source=getattr(registration, "source", "beta_program") or "beta_program",
+    )
+
+
+# ---------------------------
+# Query notifications
+# ---------------------------
+
+def get_query_notification_config(db: Session) -> dict:
+    return _get_config(db, QUERY_CONFIG_KEY)
+
+
+def update_query_notification_config(db: Session, enabled: bool, recipients: list[str]) -> dict:
+    cfg = {"enabled": bool(enabled), "recipients": _normalize_recipients(recipients)}
+    return _set_config(db, QUERY_CONFIG_KEY, cfg)
+
+
+def maybe_notify_admins_query_created(db: Session, metric, language: str | None = None) -> None:
+    cfg = _get_config(db, QUERY_CONFIG_KEY)
+    if not cfg.get("enabled") or not cfg.get("recipients"):
+        return
+
+    user = None
+    user_id = getattr(metric, "user_id", None)
+    if user_id is not None:
+        try:
+            user = db.get(User, int(user_id))
+        except Exception:
+            user = None
+
+    on_admin_query_created(
+        to=cfg["recipients"],
+        language=language or "en",
+        query_id=getattr(metric, "id", None),
+        user_id=user_id,
+        user_email=(getattr(user, "email", "") or "") if user else "",
+        username=(getattr(user, "username", "") or "") if user else "",
+        nl_query=getattr(metric, "nl_query", "") or "",
+        detected_language=getattr(metric, "detected_language", "") or "",
+        succeeded=bool(getattr(metric, "query_succeeded", False)),
+        total_latency_ms=getattr(metric, "total_latency_ms", None),
+        complexity_score=getattr(metric, "complexity_score", None),
     )
 

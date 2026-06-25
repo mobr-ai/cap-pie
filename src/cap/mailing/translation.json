@@ -638,5 +638,111 @@
       "cta_label": "Abrir cobrança",
       "footer": "Mensagem automática de cobrança da Cardano Analytics Platform (CAP)."
     }
+  },
+  "beta_program_confirmation": {
+    "en": {
+      "preheader": "Your CAP closed beta interest was registered.",
+      "title": "CAP closed beta registration received",
+      "lead": "Thanks for registering your interest in the CAP closed beta program.",
+      "next": "We are reviewing requests in small batches so we can collect focused feedback and keep the experience stable.",
+      "role_label": "Profile",
+      "organization_label": "Organization",
+      "use_case_label": "Use case",
+      "cta_label": "Open CAP",
+      "footer": "This is an automated message from the Cardano Analytics Platform (CAP)."
+    },
+    "pt": {
+      "preheader": "Seu interesse no beta fechado da CAP foi registrado.",
+      "title": "Inscrição no beta fechado da CAP recebida",
+      "lead": "Obrigado por registrar seu interesse no programa de beta fechado da CAP.",
+      "next": "Estamos analisando os pedidos em pequenos grupos para coletar feedback com foco e manter a experiência estável.",
+      "role_label": "Perfil",
+      "organization_label": "Organização",
+      "use_case_label": "Caso de uso",
+      "cta_label": "Abrir CAP",
+      "footer": "Mensagem automática da Cardano Analytics Platform (CAP)."
+    }
+  },
+  "admin_beta_registration_created": {
+    "en": {
+      "preheader": "A new user registered interest in the CAP closed beta.",
+      "title": "New beta registration",
+      "lead": "A new user registered interest in the CAP closed beta program.",
+      "email_label": "Email",
+      "name_label": "Name",
+      "role_label": "Profile",
+      "organization_label": "Organization",
+      "source_label": "Source",
+      "use_case_label": "Use case",
+      "manage_link_label": "Open beta program",
+      "footer": "You are receiving this message because beta registration notifications are enabled."
+    },
+    "pt": {
+      "preheader": "Um novo usuário registrou interesse no beta fechado da CAP.",
+      "title": "Nova inscrição no beta",
+      "lead": "Um novo usuário registrou interesse no programa de beta fechado da CAP.",
+      "email_label": "E-mail",
+      "name_label": "Nome",
+      "role_label": "Perfil",
+      "organization_label": "Organização",
+      "source_label": "Origem",
+      "use_case_label": "Caso de uso",
+      "manage_link_label": "Abrir programa beta",
+      "footer": "Você está recebendo esta mensagem porque as notificações do beta estão habilitadas."
+    }
+  },
+  "admin_query_created": {
+    "en": {
+      "preheader": "A CAP user submitted a new query.",
+      "title": "New CAP query",
+      "lead": "A user submitted a new query in CAP.",
+      "query_id_label": "Query ID",
+      "user_label": "User",
+      "language_label": "Language",
+      "status_label": "Status",
+      "succeeded_yes": "Succeeded",
+      "succeeded_no": "Failed",
+      "latency_label": "Latency",
+      "complexity_label": "Complexity",
+      "query_label": "Query",
+      "manage_link_label": "Open metrics",
+      "footer": "You are receiving this message because query notifications are enabled."
+    },
+    "pt": {
+      "preheader": "Um usuário da CAP enviou uma nova consulta.",
+      "title": "Nova consulta na CAP",
+      "lead": "Um usuário enviou uma nova consulta na CAP.",
+      "query_id_label": "ID da consulta",
+      "user_label": "Usuário",
+      "language_label": "Idioma",
+      "status_label": "Status",
+      "succeeded_yes": "Sucesso",
+      "succeeded_no": "Falhou",
+      "latency_label": "Latência",
+      "complexity_label": "Complexidade",
+      "query_label": "Consulta",
+      "manage_link_label": "Abrir métricas",
+      "footer": "Você está recebendo esta mensagem porque as notificações de consultas estão habilitadas."
+    }
+  },
+  "en": {
+    "beta_program_invitation": {
+      "preheader": "You have been invited to the CAP closed beta.",
+      "title": "CAP closed beta invitation",
+      "lead": "Your CAP closed beta request has been selected for early access.",
+      "next": "You can now open CAP, sign in, and start testing the platform. We are especially interested in practical feedback about queries, dashboards, and analytics workflows.",
+      "cta_label": "Open CAP beta",
+      "footer": "This invitation was sent by the CAP team."
+    }
+  },
+  "pt": {
+    "beta_program_invitation": {
+      "preheader": "Você recebeu um convite para o beta fechado da CAP.",
+      "title": "Convite para o beta fechado da CAP",
+      "lead": "Sua solicitação para o beta fechado da CAP foi selecionada para acesso antecipado.",
+      "next": "Você já pode abrir a CAP, entrar na plataforma e começar os testes. Estamos especialmente interessados em feedback prático sobre consultas, dashboards e fluxos de analytics.",
+      "cta_label": "Abrir beta da CAP",
+      "footer": "Este convite foi enviado pela equipe da CAP."
+    }
   }
 }
