@@ -1,0 +1,34 @@
+{# src/cap/mailing/templates/admin_query_created.html #}
+{% extends "base_email.html" %}
+{% block preheader %}{{ translations.preheader or "A CAP user submitted a new query." }}{% endblock %}
+{% block content %}
+<h2 style="margin: 0 0 12px 0">{{ translations.title or "New CAP query" }}</h2>
+
+<p style="margin: 0 0 12px 0">{{ translations.lead or "A user submitted a new query in CAP." }}</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px 0; border-collapse: collapse; font-size: 14px">
+  {% if query_id is not none %}<tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.query_id_label or "Query ID" }}:</td><td style="padding: 4px 0">{{ query_id }}</td></tr>{% endif %}
+  {% if user_email %}<tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.user_label or "User" }}:</td><td style="padding: 4px 0">{{ user_email }}</td></tr>{% endif %}
+  {% if detected_language %}<tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.language_label or "Language" }}:</td><td style="padding: 4px 0">{{ detected_language }}</td></tr>{% endif %}
+  <tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.status_label or "Status" }}:</td><td style="padding: 4px 0">{% if succeeded %}{{ translations.succeeded_yes or "Succeeded" }}{% else %}{{ translations.succeeded_no or "Failed" }}{% endif %}</td></tr>
+  {% if total_latency_ms is not none %}<tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.latency_label or "Latency" }}:</td><td style="padding: 4px 0">{{ total_latency_ms }} ms</td></tr>{% endif %}
+  {% if complexity_score is not none %}<tr><td style="padding: 4px 8px 4px 0; font-weight: 600; white-space: nowrap">{{ translations.complexity_label or "Complexity" }}:</td><td style="padding: 4px 0">{{ complexity_score }}</td></tr>{% endif %}
+</table>
+
+{% if nl_query %}
+<p style="margin: 0 0 6px 0; font-weight: 600">{{ translations.query_label or "Query" }}</p>
+<p style="margin: 0 0 16px 0">{{ nl_query }}</p>
+{% endif %}
+
+{% if app_url %}
+<p style="margin: 0 0 16px 0">
+  <a href="{{ app_url }}" class="btn" style="display:inline-block; padding:10px 18px; border-radius:999px; background-color:#2563eb; color:#ffffff; font-size:14px; font-weight:600; text-decoration:none; line-height:1.2;">
+    {{ translations.manage_link_label or "Open metrics" }}
+  </a>
+</p>
+{% endif %}
+
+<p style="color:#6b7280; font-size:12px; margin:0">
+  {{ translations.footer or "You are receiving this message because query notifications are enabled." }}
+</p>
+{% endblock %}

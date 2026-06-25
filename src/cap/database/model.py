@@ -474,6 +474,31 @@ class AdminSetting(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
 
 
+class BetaProgramRegistration(Base):
+    __tablename__ = "beta_program_registration"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
+    full_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    role: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    organization: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    use_case: Mapped[str | None] = mapped_column(Text, nullable=True)
+    language: Mapped[str] = mapped_column(String(12), nullable=False, server_default=text("'en'"))
+    source: Mapped[str] = mapped_column(String(80), nullable=False, server_default=text("'welcome_beta_cta'"))
+    status: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'new'"), index=True)
+    admin_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"), index=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=text("NOW()"),
+        onupdate=text("NOW()"),
+    )
+
+    __table_args__ = (
+        Index("idx_beta_registration_status_created", "status", "created_at"),
+    )
+
+
 class SharedImage(Base):
     __tablename__ = "shared_image"
 

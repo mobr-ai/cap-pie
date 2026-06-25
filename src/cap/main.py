@@ -13,6 +13,7 @@ from sqlalchemy import text
 from starlette.responses import FileResponse
 
 from cap.api.auth import router as auth_router
+from cap.api.beta_program import router as beta_program_router
 from cap.api.cache_admin import router as cache_router
 from cap.api.conversation import router as conversation_router
 from cap.api.conversation_admin import router as conversation_admin_router
@@ -118,6 +119,7 @@ def create_application() -> FastAPI:
     app.include_router(api_router)
     app.include_router(nl_router)
     app.include_router(auth_router)
+    app.include_router(beta_program_router)
     app.include_router(user_router)
     app.include_router(user_admin_router)
     app.include_router(wait_router)

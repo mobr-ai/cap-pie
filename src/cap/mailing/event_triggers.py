@@ -353,6 +353,105 @@ def on_user_access_revoked(
     )
 
 
+
+
+# -------------------------
+# Beta program & admin activity triggers
+# -------------------------
+
+def _admin_app_url(tab: str = "beta-program") -> str:
+    return f"{_app_url()}/admin?tab={tab}"
+
+
+def on_beta_program_confirmation(
+    *,
+    to: Iterable[str] | str,
+    language: str | None = "en",
+    full_name: str | None = "",
+    role: str | None = "",
+    organization: str | None = "",
+    use_case: str | None = "",
+) -> None:
+    """Confirm a public closed beta registration."""
+    _send(
+        template="beta_program_confirmation",
+        to=to,
+        language=language,
+        ctx={
+            "full_name": full_name or "",
+            "role": role or "",
+            "organization": organization or "",
+            "use_case": use_case or "",
+            "app_url": _app_url(),
+        },
+        template_type="beta",
+    )
+
+
+def on_admin_beta_registration_created(
+    *,
+    to: Iterable[str] | str,
+    language: str | None = "en",
+    beta_email: str | None = "",
+    beta_name: str | None = "",
+    beta_role: str | None = "",
+    beta_organization: str | None = "",
+    beta_use_case: str | None = "",
+    source: str | None = "beta_program",
+) -> None:
+    """Notify admins about a new beta registration."""
+    _send(
+        template="admin_beta_registration_created",
+        to=to,
+        language=language,
+        ctx={
+            "beta_email": beta_email or "",
+            "beta_name": beta_name or "",
+            "beta_role": beta_role or "",
+            "beta_organization": beta_organization or "",
+            "beta_use_case": beta_use_case or "",
+            "source": source or "beta_program",
+            "app_url": _admin_app_url("beta-program"),
+        },
+        template_type="admin",
+    )
+
+
+def on_admin_query_created(
+    *,
+    to: Iterable[str] | str,
+    language: str | None = "en",
+    query_id: int | None = None,
+    user_id: int | None = None,
+    user_email: str | None = "",
+    username: str | None = "",
+    nl_query: str | None = "",
+    detected_language: str | None = "",
+    succeeded: bool | None = None,
+    total_latency_ms: int | None = None,
+    complexity_score: int | None = None,
+) -> None:
+    """Notify admins about a new user query."""
+    _send(
+        template="admin_query_created",
+        to=to,
+        language=language,
+        ctx={
+            "query_id": query_id,
+            "user_id": user_id,
+            "user_email": user_email or "",
+            "username": username or "",
+            "nl_query": nl_query or "",
+            "detected_language": detected_language or "",
+            "succeeded": bool(succeeded),
+            "total_latency_ms": total_latency_ms,
+            "complexity_score": complexity_score,
+            "app_url": _admin_app_url("metrics"),
+        },
+        template_type="admin",
+    )
+
+
 # -------------------------
 # Billing triggers
 # -------------------------
@@ -699,4 +798,24 @@ def on_admin_billing_balance_adjusted(
             "detail": note or "",
             **_balance_billing_context(balance),
         },
+    )
+
+def on_beta_program_invitation(
+    *,
+    to: Iterable[str] | str,
+    language: str | None = "en",
+    full_name: str | None = "",
+    beta_url: str | None = None,
+) -> None:
+    """Invite a beta registrant to try the CAP closed beta."""
+    _send(
+        template="beta_program_invitation",
+        to=to,
+        language=language,
+        ctx={
+            "full_name": full_name or "",
+            "beta_url": beta_url or f"{_app_url()}/beta",
+            "app_url": _app_url(),
+        },
+        template_type="beta",
     )
