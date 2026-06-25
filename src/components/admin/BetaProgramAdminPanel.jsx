@@ -625,6 +625,14 @@ export function BetaProgramAdminPanel({
           />
           <NotificationCard
             t={t}
+            title={t("admin.betaProgram.betaQueryNotifications")}
+            subtitle={t("admin.betaProgram.betaQueryNotificationsHelp")}
+            state={betaProgram.betaQueryNotify}
+            recipientPool={recipientPool}
+            setRecipientPool={setRecipientPool}
+          />
+          <NotificationCard
+            t={t}
             title={t("admin.betaProgram.queryNotifications")}
             subtitle={t("admin.betaProgram.queryNotificationsHelp")}
             state={betaProgram.queryNotify}

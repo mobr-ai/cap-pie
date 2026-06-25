@@ -885,11 +885,11 @@
       "latestQueriesSubtitle": "Consultas recentes feitas por usuários inscritos no beta que também possuem conta CAP.",
       "noQueries": "Nenhuma consulta encontrada para usuários beta.",
       "notificationsTitle": "Notificações",
-      "notificationsSubtitle": "Controle alertas administrativos para novas inscrições e novas consultas.",
+      "notificationsSubtitle": "Controle alertas administrativos para inscrições beta, consultas de usuários beta registrados e atividade global de consultas.",
       "betaRegistrationNotifications": "Novas inscrições beta",
       "betaRegistrationNotificationsHelp": "Envia e-mail aos administradores quando alguém se registra no beta.",
-      "queryNotifications": "Novas consultas",
-      "queryNotificationsHelp": "Envia e-mail aos administradores quando usuários executam novas consultas.",
+      "queryNotifications": "Todas as consultas da CAP",
+      "queryNotificationsHelp": "Envia e-mail aos administradores quando qualquer usuário da CAP executa uma nova consulta. Este alerta é global e não é limitado a usuários beta.",
       "updateSuccess": "Inscrição atualizada.",
       "updateError": "Falha ao atualizar inscrição.",
       "status": {
@@ -921,7 +921,9 @@
       "removeSuccess": "Inscrição removida.",
       "removeError": "Não foi possível remover a inscrição.",
       "markReviewing": "Marcar como em análise",
-      "markAccepted": "Marcar como aceito"
+      "markAccepted": "Marcar como aceito",
+      "betaQueryNotifications": "Consultas de usuários beta registrados",
+      "betaQueryNotificationsHelp": "Envia e-mail aos administradores apenas quando a consulta for feita por um usuário cujo e-mail está registrado no programa beta."
     },
     "on": "Ativo",
     "off": "Inativo"

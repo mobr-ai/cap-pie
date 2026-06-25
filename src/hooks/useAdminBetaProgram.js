@@ -17,12 +17,14 @@ const NOTIFICATION_AUTOSAVE_MS = 700;
 function normalizeRecipients(list) {
   const out = [];
   const seen = new Set();
+
   for (const raw of list || []) {
     const value = String(raw || "").trim().toLowerCase();
     if (!value || seen.has(value)) continue;
     seen.add(value);
     out.push(value);
   }
+
   return out;
 }
 
@@ -47,6 +49,31 @@ function makeEmptyNotification() {
   };
 }
 
+function notificationPayload(state) {
+  return {
+    enabled: !!state?.notifyConfig?.enabled,
+    recipients: normalizeRecipients(state?.notifyConfig?.recipients || []),
+  };
+}
+
+function applyNotificationResponse(setter, data) {
+  const recipients = normalizeRecipients(data?.recipients || []);
+
+  setter((prev) => ({
+    ...prev,
+    notifySaving: false,
+    notifyLoading: false,
+    notifyLoaded: true,
+    notifyDirty: false,
+    notifyError: null,
+    notifyConfig: {
+      enabled: !!data?.enabled,
+      recipients,
+    },
+    notifyRecipientsText: normalizeRecipientsText(recipients),
+  }));
+}
+
 function useDebouncedValue(value, delayMs) {
   const [debounced, setDebounced] = useState(value);
 
@@ -63,27 +90,6 @@ function isDocumentVisible() {
   return document.visibilityState !== "hidden";
 }
 
-function notificationPayload(state) {
-  return {
-    enabled: !!state?.notifyConfig?.enabled,
-    recipients: normalizeRecipients(state?.notifyConfig?.recipients || []),
-  };
-}
-
-function applyNotificationResponse(setter, data) {
-  const recipients = normalizeRecipients(data?.recipients || []);
-  setter((p) => ({
-    ...p,
-    notifySaving: false,
-    notifyLoading: false,
-    notifyLoaded: true,
-    notifyDirty: false,
-    notifyError: null,
-    notifyConfig: { enabled: !!data?.enabled, recipients },
-    notifyRecipientsText: normalizeRecipientsText(recipients),
-  }));
-}
-
 export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -96,20 +102,38 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const inFlightRef = useRef(false);
-  const mountedRef = useRef(true);
-
   const [betaNotifications, setBetaNotifications] = useState(() =>
+    makeEmptyNotification(),
+  );
+  const [betaQueryNotifications, setBetaQueryNotifications] = useState(() =>
     makeEmptyNotification(),
   );
   const [queryNotifications, setQueryNotifications] = useState(() =>
     makeEmptyNotification(),
   );
 
+  const inFlightRef = useRef(false);
+  const mountedRef = useRef(true);
   const authReady = !!authFetch && enabled;
+
+  const getNotificationSetter = useCallback((kind) => {
+    if (kind === "beta_registration") return setBetaNotifications;
+    if (kind === "beta_query") return setBetaQueryNotifications;
+    return setQueryNotifications;
+  }, []);
+
+  const getNotificationState = useCallback(
+    (kind) => {
+      if (kind === "beta_registration") return betaNotifications;
+      if (kind === "beta_query") return betaQueryNotifications;
+      return queryNotifications;
+    },
+    [betaNotifications, betaQueryNotifications, queryNotifications],
+  );
 
   useEffect(() => {
     mountedRef.current = true;
+
     return () => {
       mountedRef.current = false;
     };
@@ -122,37 +146,47 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
       if (inFlightRef.current) return;
 
       inFlightRef.current = true;
+
       if (silent) setIsRefreshing(true);
       else setIsLoading(true);
+
       setError("");
 
       try {
         const params = new URLSearchParams();
         params.set("limit", "100");
         params.set("offset", "0");
-        if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
-        if (debouncedStatus) params.set("status", debouncedStatus);
 
-        const [r1, r2] = await Promise.all([
+        if (debouncedSearch.trim()) {
+          params.set("search", debouncedSearch.trim());
+        }
+
+        if (debouncedStatus) {
+          params.set("status", debouncedStatus);
+        }
+
+        const [registrationsRes, queriesRes] = await Promise.all([
           authFetch(`/api/v1/admin/beta/registrations?${params.toString()}`),
           authFetch("/api/v1/admin/beta/queries?limit=25"),
         ]);
 
-        if (!r1.ok) {
-          const data = await r1.json().catch(() => ({}));
-          throw new Error(data.detail || `HTTP ${r1.status}`);
+        if (!registrationsRes.ok) {
+          const data = await registrationsRes.json().catch(() => ({}));
+          throw new Error(data.detail || `HTTP ${registrationsRes.status}`);
         }
-        if (!r2.ok) {
-          const data = await r2.json().catch(() => ({}));
-          throw new Error(data.detail || `HTTP ${r2.status}`);
+
+        if (!queriesRes.ok) {
+          const data = await queriesRes.json().catch(() => ({}));
+          throw new Error(data.detail || `HTTP ${queriesRes.status}`);
         }
 
         const [registrationsData, queriesData] = await Promise.all([
-          r1.json(),
-          r2.json(),
+          registrationsRes.json(),
+          queriesRes.json(),
         ]);
 
         if (!mountedRef.current) return;
+
         setRegistrations(registrationsData);
         setLatestQueries(queriesData);
       } catch (err) {
@@ -161,6 +195,7 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
         setError(String(err?.message || err));
       } finally {
         inFlightRef.current = false;
+
         if (mountedRef.current) {
           setIsLoading(false);
           setIsRefreshing(false);
@@ -177,14 +212,16 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   }, [authReady, debouncedSearch, debouncedStatus, loadRegistrations]);
 
   useEffect(() => {
-    if (!authReady) return;
+    if (!authReady) return undefined;
 
     const interval = window.setInterval(() => {
       loadRegistrations({ silent: true });
     }, POLL_INTERVAL_MS);
 
     const onVisibility = () => {
-      if (isDocumentVisible()) loadRegistrations({ silent: true, force: true });
+      if (isDocumentVisible()) {
+        loadRegistrations({ silent: true, force: true });
+      }
     };
 
     document.addEventListener("visibilitychange", onVisibility);
@@ -199,47 +236,48 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
     async (kind) => {
       if (!authReady) return;
 
-      const setter =
-        kind === "beta_registration" ? setBetaNotifications : setQueryNotifications;
-
-      setter((p) => ({ ...p, notifyLoading: true, notifyError: null }));
+      const setter = getNotificationSetter(kind);
+      setter((prev) => ({ ...prev, notifyLoading: true, notifyError: null }));
 
       try {
         const res = await authFetch(`/api/v1/admin/notifications/${kind}`);
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
           throw new Error(data.detail || `HTTP ${res.status}`);
         }
-        applyNotificationResponse(setter, await res.json());
+
+        applyNotificationResponse(setter, data);
       } catch (err) {
         console.error(err);
-        setter((p) => ({
-          ...p,
+        setter((prev) => ({
+          ...prev,
           notifyLoading: false,
           notifyLoaded: true,
           notifyError: String(err?.message || err),
         }));
       }
     },
-    [authFetch, authReady],
+    [authFetch, authReady, getNotificationSetter],
   );
 
   useEffect(() => {
     if (!authReady) return;
+
     loadNotification("beta_registration");
+    loadNotification("beta_query");
     loadNotification("query");
   }, [authReady, loadNotification]);
 
   const saveNotification = useCallback(
     async (kind, overridePayload = null, { silent = false } = {}) => {
       if (!authFetch) return false;
-      const setter =
-        kind === "beta_registration" ? setBetaNotifications : setQueryNotifications;
-      const current =
-        kind === "beta_registration" ? betaNotifications : queryNotifications;
+
+      const setter = getNotificationSetter(kind);
+      const current = getNotificationState(kind);
       const payload = overridePayload || notificationPayload(current);
 
-      setter((p) => ({ ...p, notifySaving: true, notifyError: null }));
+      setter((prev) => ({ ...prev, notifySaving: true, notifyError: null }));
 
       try {
         const res = await authFetch(`/api/v1/admin/notifications/${kind}`, {
@@ -247,34 +285,50 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
           throw new Error(data.detail || `HTTP ${res.status}`);
         }
-        applyNotificationResponse(setter, await res.json());
-        if (!silent) showToast && showToast(t("admin.notifySaveSuccess"), "success");
+
+        applyNotificationResponse(setter, data);
+
+        if (!silent) {
+          showToast && showToast(t("admin.notifySaveSuccess"), "success");
+        }
+
         return true;
       } catch (err) {
         console.error(err);
-        setter((p) => ({
-          ...p,
+        setter((prev) => ({
+          ...prev,
           notifySaving: false,
           notifyError: String(err?.message || err),
         }));
-        if (!silent) showToast && showToast(t("admin.notifySaveError"), "danger");
+
+        if (!silent) {
+          showToast && showToast(t("admin.notifySaveError"), "danger");
+        }
+
         return false;
       }
     },
-    [authFetch, betaNotifications, queryNotifications, showToast, t],
+    [authFetch, getNotificationSetter, getNotificationState, showToast, t],
   );
 
   const autoSaveNotification = useCallback(
     (kind, state) => {
-      if (!authReady || !state.notifyLoaded || !state.notifyDirty) return undefined;
+      if (!authReady || !state.notifyLoaded || !state.notifyDirty) {
+        return undefined;
+      }
+
       const payload = notificationPayload(state);
+
       const timer = window.setTimeout(() => {
         saveNotification(kind, payload, { silent: true });
       }, NOTIFICATION_AUTOSAVE_MS);
+
       return () => window.clearTimeout(timer);
     },
     [authReady, saveNotification],
@@ -286,6 +340,11 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   );
 
   useEffect(
+    () => autoSaveNotification("beta_query", betaQueryNotifications),
+    [autoSaveNotification, betaQueryNotifications],
+  );
+
+  useEffect(
     () => autoSaveNotification("query", queryNotifications),
     [autoSaveNotification, queryNotifications],
   );
@@ -293,18 +352,20 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   const testNotification = useCallback(
     async (kind) => {
       if (!authFetch) return;
-      const setter =
-        kind === "beta_registration" ? setBetaNotifications : setQueryNotifications;
-      const current =
-        kind === "beta_registration" ? betaNotifications : queryNotifications;
-      const recipients = normalizeRecipients(current.notifyConfig?.recipients || []);
+
+      const setter = getNotificationSetter(kind);
+      const current = getNotificationState(kind);
+      const recipients = normalizeRecipients(
+        current.notifyConfig?.recipients || [],
+      );
 
       if (!recipients.length) {
-        showToast && showToast(t("admin.betaProgram.selectRecipientsFirst"), "warning");
+        showToast &&
+          showToast(t("admin.betaProgram.selectRecipientsFirst"), "warning");
         return;
       }
 
-      setter((p) => ({ ...p, notificationsTesting: true }));
+      setter((prev) => ({ ...prev, notificationsTesting: true }));
 
       try {
         const res = await authFetch(`/api/v1/admin/notifications/${kind}/test`, {
@@ -312,44 +373,61 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ recipients }),
         });
+
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        if (!res.ok) {
+          throw new Error(data.detail || `HTTP ${res.status}`);
+        }
+
         showToast && showToast(t("admin.notificationsTestOk"), "success");
       } catch (err) {
         console.error(err);
         showToast && showToast(t("admin.notificationsTestError"), "danger");
       } finally {
-        setter((p) => ({ ...p, notificationsTesting: false }));
+        setter((prev) => ({ ...prev, notificationsTesting: false }));
       }
     },
-    [authFetch, betaNotifications, queryNotifications, showToast, t],
+    [authFetch, getNotificationSetter, getNotificationState, showToast, t],
   );
 
-  const setNotificationEnabled = useCallback((kind, nextEnabled) => {
-    const setter = kind === "beta_registration" ? setBetaNotifications : setQueryNotifications;
-    setter((p) => ({
-      ...p,
-      notifyDirty: true,
-      notifyConfig: { ...p.notifyConfig, enabled: !!nextEnabled },
-    }));
-  }, []);
+  const setNotificationEnabled = useCallback(
+    (kind, nextEnabled) => {
+      const setter = getNotificationSetter(kind);
 
-  const setNotificationRecipientsText = useCallback((kind, raw) => {
-    const setter = kind === "beta_registration" ? setBetaNotifications : setQueryNotifications;
-    setter((p) => ({
-      ...p,
-      notifyDirty: true,
-      notifyRecipientsText: raw,
-      notifyConfig: {
-        ...p.notifyConfig,
-        recipients: parseRecipientsText(raw),
-      },
-    }));
-  }, []);
+      setter((prev) => ({
+        ...prev,
+        notifyDirty: true,
+        notifyConfig: {
+          ...prev.notifyConfig,
+          enabled: !!nextEnabled,
+        },
+      }));
+    },
+    [getNotificationSetter],
+  );
+
+  const setNotificationRecipientsText = useCallback(
+    (kind, raw) => {
+      const setter = getNotificationSetter(kind);
+
+      setter((prev) => ({
+        ...prev,
+        notifyDirty: true,
+        notifyRecipientsText: raw,
+        notifyConfig: {
+          ...prev.notifyConfig,
+          recipients: parseRecipientsText(raw),
+        },
+      }));
+    },
+    [getNotificationSetter],
+  );
 
   const updateRegistration = useCallback(
     async (id, payload, options = {}) => {
       if (!authFetch || !id) return null;
+
       const { silent = false } = options;
 
       try {
@@ -360,24 +438,37 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
         });
 
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        if (!res.ok) {
+          throw new Error(data.detail || `HTTP ${res.status}`);
+        }
 
         setRegistrations((prev) => {
           if (!prev?.items) return prev;
+
           return {
             ...prev,
             items: prev.items.map((item) => (item.id === id ? data : item)),
           };
         });
 
-        if (!silent) showToast && showToast(t("admin.betaProgram.updateSuccess"), "success");
+        if (!silent) {
+          showToast &&
+            showToast(t("admin.betaProgram.updateSuccess"), "success");
+        }
+
         return data;
       } catch (err) {
         console.error(err);
+
         if (!silent) {
           showToast &&
-            showToast(err?.message || t("admin.betaProgram.updateError"), "danger");
+            showToast(
+              err?.message || t("admin.betaProgram.updateError"),
+              "danger",
+            );
         }
+
         throw err;
       }
     },
@@ -387,24 +478,34 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   const inviteRegistration = useCallback(
     async (id) => {
       if (!authFetch || !id) return null;
+
       try {
-        const res = await authFetch(`/api/v1/admin/beta/registrations/${id}/invite`, {
-          method: "POST",
-        });
+        const res = await authFetch(
+          `/api/v1/admin/beta/registrations/${id}/invite`,
+          { method: "POST" },
+        );
+
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        if (!res.ok) {
+          throw new Error(data.detail || `HTTP ${res.status}`);
+        }
+
         setRegistrations((prev) => {
           if (!prev?.items) return prev;
+
           return {
             ...prev,
             items: prev.items.map((item) => (item.id === id ? data : item)),
           };
         });
+
         showToast && showToast(t("admin.betaProgram.inviteSuccess"), "success");
         return data;
       } catch (err) {
         console.error(err);
-        showToast && showToast(err?.message || t("admin.betaProgram.inviteError"), "danger");
+        showToast &&
+          showToast(err?.message || t("admin.betaProgram.inviteError"), "danger");
         return null;
       }
     },
@@ -414,29 +515,41 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
   const deleteRegistration = useCallback(
     async (id) => {
       if (!authFetch || !id) return false;
+
       try {
         const res = await authFetch(`/api/v1/admin/beta/registrations/${id}`, {
           method: "DELETE",
         });
+
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        if (!res.ok) {
+          throw new Error(data.detail || `HTTP ${res.status}`);
+        }
+
         setRegistrations((prev) => {
           if (!prev?.items) return prev;
+
           return {
             ...prev,
             items: prev.items.filter((item) => item.id !== id),
             stats: {
               ...(prev.stats || {}),
-              filtered_total: Math.max(0, Number(prev.stats?.filtered_total || 1) - 1),
+              filtered_total: Math.max(
+                0,
+                Number(prev.stats?.filtered_total || 1) - 1,
+              ),
               total: Math.max(0, Number(prev.stats?.total || 1) - 1),
             },
           };
         });
+
         showToast && showToast(t("admin.betaProgram.removeSuccess"), "success");
         return true;
       } catch (err) {
         console.error(err);
-        showToast && showToast(err?.message || t("admin.betaProgram.removeError"), "danger");
+        showToast &&
+          showToast(err?.message || t("admin.betaProgram.removeError"), "danger");
         return false;
       }
     },
@@ -453,6 +566,23 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
     }),
     [
       betaNotifications,
+      saveNotification,
+      setNotificationEnabled,
+      setNotificationRecipientsText,
+      testNotification,
+    ],
+  );
+
+  const betaQueryNotify = useMemo(
+    () => ({
+      ...betaQueryNotifications,
+      setNotifyEnabled: (v) => setNotificationEnabled("beta_query", v),
+      setNotifyText: (v) => setNotificationRecipientsText("beta_query", v),
+      saveNotify: () => saveNotification("beta_query"),
+      testNotify: () => testNotification("beta_query"),
+    }),
+    [
+      betaQueryNotifications,
       saveNotification,
       setNotificationEnabled,
       setNotificationRecipientsText,
@@ -493,6 +623,7 @@ export function useAdminBetaProgram(authFetch, showToast, t, enabled = true) {
     inviteRegistration,
     deleteRegistration,
     betaNotify,
+    betaQueryNotify,
     queryNotify,
   };
 }

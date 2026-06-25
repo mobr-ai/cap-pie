@@ -884,11 +884,11 @@
       "latestQueriesSubtitle": "Recent queries from registered beta users who also have CAP accounts.",
       "noQueries": "No queries found for beta users.",
       "notificationsTitle": "Notifications",
-      "notificationsSubtitle": "Control admin alerts for new registrations and new queries.",
+      "notificationsSubtitle": "Control admin alerts for beta registrations, registered beta-user queries, and all-user query activity.",
       "betaRegistrationNotifications": "New beta registrations",
       "betaRegistrationNotificationsHelp": "Email admins when someone registers for the beta program.",
-      "queryNotifications": "New queries",
-      "queryNotificationsHelp": "Email admins when users submit new queries.",
+      "queryNotifications": "All CAP queries",
+      "queryNotificationsHelp": "Email admins when any CAP user submits a new query. This is global and not limited to beta users.",
       "updateSuccess": "Registration updated.",
       "updateError": "Failed to update registration.",
       "status": {
@@ -920,7 +920,9 @@
       "removeSuccess": "Registration removed.",
       "removeError": "Could not remove the registration.",
       "markReviewing": "Mark as reviewing",
-      "markAccepted": "Mark as accepted"
+      "markAccepted": "Mark as accepted",
+      "betaQueryNotifications": "Registered beta-user queries",
+      "betaQueryNotificationsHelp": "Email admins only when a query is submitted by a user whose e-mail is registered in the beta program."
     },
     "on": "On",
     "off": "Off"
