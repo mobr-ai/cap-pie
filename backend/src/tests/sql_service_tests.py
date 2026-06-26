@@ -3,7 +3,7 @@ import json
 import re
 from pathlib import Path
 
-from cap.federated.sparql.sparql_service import execute_sparql
+from cap.federated.sql.sql_service import execute_sql
 
 INPUT_FILE = Path("queries.txt")
 
@@ -29,28 +29,33 @@ def extract_query_blocks(content: str) -> list[dict]:
             except json.JSONDecodeError as exc:
                 raise ValueError(f"Invalid JSON for NL query: {nl_query}") from exc
 
-            sparql = payload.get("sparql", "").strip()
+            sql = payload.get("sql", "").strip()
         else:
-            sparql = assistant_block
+            continue
 
-        if sparql:
+        if sql:
             blocks.append({
                 "nl_query": nl_query,
-                "sparql": sparql,
+                "sql": sql,
             })
 
     return blocks
 
 
-def count_rows(sparql_results: dict) -> int:
-    bindings = sparql_results.get("results", {}).get("bindings", [])
-    if bindings:
-        return len(bindings)
+def count_rows(sql_results) -> int:
+    if sql_results is None:
+        return 0
 
-    if sparql_results.get("boolean") is not None:
-        return 1
+    if isinstance(sql_results, dict):
+        if "rows" in sql_results:
+            return len(sql_results["rows"])
+        if "data" in sql_results:
+            return len(sql_results["data"])
 
-    return 0
+    if isinstance(sql_results, (list, tuple)):
+        return len(sql_results)
+
+    return 1
 
 
 async def main():
@@ -58,33 +63,29 @@ async def main():
     query_blocks = extract_query_blocks(content)
 
     if not query_blocks:
-        raise RuntimeError("No SPARQL queries found in input file.")
+        raise RuntimeError("No SQL queries found in input file.")
 
     for idx, item in enumerate(query_blocks, start=1):
         nl_query = item["nl_query"]
-        sparql = item["sparql"]
+        sql = item["sql"]
 
         print(f"\n[{idx}/{len(query_blocks)}] Executing NL query:")
         print(nl_query)
 
-        result = await execute_sparql(
-            sparql_query=sparql,
-            is_sequential=False,
-            sparql_queries=[],
-        )
+        result = await execute_sql(sql=sql)
 
         if result.get("error_msg"):
             raise RuntimeError(
-                f"SPARQL error while executing query:\n{nl_query}\n\n"
+                f"SQL error while executing query:\n{nl_query}\n\n"
                 f"Error: {result['error_msg']}"
             )
 
-        sparql_results = result.get("sparql_results", {})
-        row_count = count_rows(sparql_results)
+        sql_results = result.get("sql_results", {})
+        row_count = count_rows(sql_results)
 
         print(f"Rows returned: {row_count}")
 
-    print("\nAll SPARQL queries executed successfully.")
+    print("\nAll SQL queries executed successfully.")
 
 
 if __name__ == "__main__":

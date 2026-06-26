@@ -15,7 +15,7 @@ from cap.config import settings
 from cap.services.msg_formatter import MessageFormatter
 from cap.services.similarity_service import SearchStrategy, SimilarityService
 from cap.util.str_util import get_file_content
-from cap.util.vega_util import VegaUtil
+from cap.services.vega.facade import VegaConverter
 
 logger = logging.getLogger(__name__)
 
@@ -208,7 +208,7 @@ class PromptBuilder:
             logger.warning(f"Result formatting failed: {e}")
             context_res = str(formatted_results)
 
-        if result_type in VegaUtil.known_types:
+        if result_type in VegaConverter.known_types:
             known_info = f"""
                 {current_date}
                 {self.default_chart_prompt}

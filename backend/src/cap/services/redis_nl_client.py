@@ -294,6 +294,8 @@ class RedisNLClient:
                 if not placeholder_map:
                     span.set_attribute("cache_hit", True)
                     logger.info ("***Cache HIT without placeholders")
+                    logger.info ("***Cached data:")
+                    logger.info (data)
                     return data
 
                 # Restore placeholders

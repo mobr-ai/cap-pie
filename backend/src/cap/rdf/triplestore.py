@@ -12,8 +12,8 @@ from SPARQLWrapper import JSON, SPARQLWrapper
 
 from cap.chains.registry import get_chain
 from cap.config import settings
-from cap.util.sparql_date_processor import SparqlDateProcessor
-from cap.util.sparql_util import force_limit_cap
+from cap.federated.sparql.sparql_date_processor import SparqlDateProcessor
+from cap.federated.sparql.sparql_util import force_limit_cap
 
 tracer = trace.get_tracer(__name__)
 logger = logging.getLogger(__name__)

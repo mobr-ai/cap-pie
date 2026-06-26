@@ -4,10 +4,9 @@ from typing import Any
 from sqlalchemy import text
 
 from cap.database.session import SessionLocal
-from cap.federated.sql_util import force_limit
+from cap.federated.sql.sql_util import force_limit
 
 logger = logging.getLogger(__name__)
-
 
 async def execute_sql(sql: str, limit_cap: int = 3500) -> dict[str, Any]:
     if not sql or not sql.strip():

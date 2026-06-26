@@ -9,7 +9,7 @@ from pathlib import Path
 from pprint import pprint
 
 from cap.chains.cardano.canon.sparql_normalizer import SPARQLNormalizer
-from cap.util.sparql_util import _validate_and_fix_sparql
+from cap.federated.sparql.sparql_util import _validate_and_fix_sparql
 
 
 def _read_content_sparql_file(path: str | Path) -> str:

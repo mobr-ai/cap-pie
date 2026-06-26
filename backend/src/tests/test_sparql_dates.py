@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
-from cap.util.sparql_date_processor import SparqlDateProcessor
-from cap.util.sparql_util import force_limit_cap
+from cap.federated.sparql.sparql_date_processor import SparqlDateProcessor
+from cap.federated.sparql.sparql_util import force_limit_cap
 
 # Test suite
 if __name__ == "__main__":

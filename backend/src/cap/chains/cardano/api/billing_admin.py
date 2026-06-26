@@ -31,6 +31,8 @@ from cap.services.billing_notifications import (
     update_billing_notification_setting,
 )
 
+from .billing import _reconcile_pending_payment_sessions
+
 router = APIRouter(prefix="/api/v1/admin/billing", tags=["billing_admin"])
 logger = logging.getLogger(__name__)
 
@@ -270,6 +272,9 @@ def list_admin_billing_users(
     users = db.scalars(
         stmt.order_by(User.user_id.asc()).limit(limit).offset(offset)
     ).all()
+
+    for user in users:
+        _reconcile_pending_payment_sessions(db, user=user, limit=10)
 
     items = [_billing_user_payload(db, user) for user in users]
 

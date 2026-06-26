@@ -11,7 +11,7 @@ from pprint import pprint
 import httpx
 
 from cap.rdf.triplestore import TriplestoreClient
-from cap.util.sparql_result_processor import _detect_ada_variables, convert_sparql_to_kv
+from cap.federated.sparql.sparql_result_processor import _detect_ada_variables, convert_sparql_to_kv
 
 
 def _read_content_sparql_file(path: str | Path) -> str:

@@ -4,9 +4,9 @@ from typing import Any
 
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.offchain_schema import OFFCHAIN_SCHEMA
-from cap.federated.sql_util import clean_sql
+from cap.federated.sql.sql_util import clean_sql
 from cap.services.prompt_builder import PromptBuilder
-from cap.util.sparql_util import ensure_validity
+from cap.federated.sparql.sparql_util import ensure_validity
 
 logger = logging.getLogger(__name__)
 

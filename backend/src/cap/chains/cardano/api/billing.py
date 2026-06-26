@@ -184,17 +184,15 @@ def _reconcile_pending_payment_sessions(
     user: User,
     limit: int = 25,
 ) -> int:
-    now = _utcnow()
-
     sessions = (
         db.query(PaymentSession)
         .filter(
             PaymentSession.user_id == user.user_id,
-            PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION,
             PaymentSession.status == "pending",
             PaymentSession.tx_hash.isnot(None),
         )
         .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
+        .with_for_update(skip_locked=True)
         .limit(max(1, min(int(limit or 25), 100)))
         .all()
     )
@@ -206,16 +204,26 @@ def _reconcile_pending_payment_sessions(
     updated = 0
 
     for session in sessions:
-        expires_at = _from_db_naive_utc(session.expires_at)
-
-        if expires_at and expires_at <= now:
-            session.status = "expired"
-            db.add(session)
-            updated += 1
-            continue
-
         tx_hash = (session.tx_hash or "").strip()
         if not tx_hash:
+            continue
+
+        duplicate_paid = db.scalar(
+            select(PaymentSession).where(
+                PaymentSession.tx_hash == tx_hash,
+                PaymentSession.status == "paid",
+                PaymentSession.id != session.id,
+            )
+        )
+        if duplicate_paid:
+            session.provider_response = {
+                "ok": False,
+                "error": "txHashAlreadyUsed",
+                "duplicate_payment_session_id": duplicate_paid.session_id,
+                "reconciled_at": _format_utc(_utcnow()),
+            }
+            db.add(session)
+            updated += 1
             continue
 
         try:
@@ -230,11 +238,13 @@ def _reconcile_pending_payment_sessions(
                 "ok": False,
                 "error": "reconciliationException",
                 "message": str(err),
+                "reconciled_at": _format_utc(_utcnow()),
             }
             db.add(session)
             updated += 1
             continue
 
+        now = _utcnow()
         session.provider = result.provider
         session.provider_response = {
             "ok": result.ok,
@@ -246,8 +256,22 @@ def _reconcile_pending_payment_sessions(
         }
 
         if result.ok:
-            session.status = "paid"
-            session.paid_at = _to_db_naive_utc(now)
+            finalized = _finalize_reconciled_payment_session(
+                db,
+                user=user,
+                session=session,
+                paid_at=now,
+            )
+            db.commit()
+            db.refresh(session)
+            _send_reconciled_payment_email(
+                db,
+                user=user,
+                session=session,
+                finalized=finalized,
+            )
+            updated += 1
+            continue
 
         db.add(session)
         updated += 1
@@ -442,6 +466,30 @@ def _credit_user_balance(
     amount_lovelace: int,
     reason: str = "deposit",
 ) -> UserCreditBalance:
+    existing_ledger = db.scalar(
+        select(UserCreditLedger)
+        .where(
+            UserCreditLedger.user_id == user.user_id,
+            UserCreditLedger.payment_session_id == session.id,
+            UserCreditLedger.reason == reason,
+        )
+        .with_for_update()
+    )
+
+    if existing_ledger:
+        balance = _get_or_create_credit_balance(
+            db,
+            user_id=user.user_id,
+            currency=session.currency_snapshot,
+        )
+        logger.warning(
+            "Skipping duplicate credit ledger for payment_session_id=%s user_id=%s reason=%s",
+            session.id,
+            user.user_id,
+            reason,
+        )
+        return balance
+
     balance = _get_or_create_credit_balance(
         db,
         user_id=user.user_id,
@@ -468,6 +516,101 @@ def _credit_user_balance(
     )
     db.add(ledger)
     return balance
+
+
+def _finalize_reconciled_payment_session(
+    db: Session,
+    *,
+    user: User,
+    session: PaymentSession,
+    paid_at: datetime,
+) -> dict[str, Any]:
+    kind = getattr(session, "kind", PAYMENT_KIND_PLAN_PURCHASE)
+
+    session.status = "paid"
+    session.paid_at = _to_db_naive_utc(paid_at)
+    db.add(session)
+    db.flush()
+
+    if kind == PAYMENT_KIND_CREDIT_DEPOSIT:
+        balance = _credit_user_balance(
+            db,
+            user=user,
+            session=session,
+            amount_lovelace=int(session.amount_snapshot or 0),
+            reason="deposit",
+        )
+        db.flush()
+        return {
+            "kind": kind,
+            "balance": balance,
+        }
+
+    if kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION:
+        return {
+            "kind": kind,
+        }
+
+    had_active_entitlement = _latest_premium_entitlement(
+        db,
+        user=user,
+        entitlement_code=session.entitlement_code_snapshot,
+    ) is not None
+
+    entitlement = _grant_entitlement(
+        db,
+        user=user,
+        session=session,
+        duration_days=int(session.duration_days_snapshot or 0),
+    )
+    db.flush()
+
+    return {
+        "kind": kind,
+        "entitlement": entitlement,
+        "had_active_entitlement": had_active_entitlement,
+    }
+
+
+def _send_reconciled_payment_email(
+    db: Session,
+    *,
+    user: User,
+    session: PaymentSession,
+    finalized: dict[str, Any],
+) -> None:
+    kind = finalized.get("kind")
+
+    if kind == PAYMENT_KIND_CREDIT_DEPOSIT:
+        _send_billing_email_if_enabled(
+            db,
+            "balance_credited",
+            "on_billing_balance_credited",
+            user=user,
+            session=session,
+            balance=finalized.get("balance"),
+        )
+        return
+
+    if kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION:
+        _send_billing_email_if_enabled(
+            db,
+            "support_contribution_confirmed",
+            "on_billing_payment_confirmed",
+            user=user,
+            session=session,
+        )
+        return
+
+    had_active_entitlement = bool(finalized.get("had_active_entitlement"))
+    _send_billing_email_if_enabled(
+        db,
+        "premium_extended" if had_active_entitlement else "premium_activated",
+        "on_billing_premium_extended" if had_active_entitlement else "on_billing_premium_activated",
+        user=user,
+        entitlement=finalized.get("entitlement"),
+        session=session,
+    )
 
 
 def _credit_balance_payload(row: UserCreditBalance | None) -> dict[str, Any]:
@@ -796,11 +939,14 @@ def get_my_billing_transactions(
         .all()
     )
 
-    support_sessions = (
+    payment_session_rows = (
         db.query(PaymentSession)
         .filter(
             PaymentSession.user_id == current_user.user_id,
-            PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            (
+                (PaymentSession.kind == PAYMENT_KIND_SUPPORT_CONTRIBUTION)
+                | (PaymentSession.status != "paid")
+            ),
         )
         .order_by(PaymentSession.created_at.desc(), PaymentSession.id.desc())
         .limit(safe_limit)
@@ -872,11 +1018,11 @@ def get_my_billing_transactions(
             "currency": row.currency_snapshot,
             "amount": int(row.amount_snapshot or 0),
             "balance_after": balance_after,
-            "reason": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+            "reason": getattr(row, "kind", None) or PAYMENT_KIND_SUPPORT_CONTRIBUTION,
             "status": row.status,
             "payment_session_id": row.id,
             "metadata": {
-                "kind": PAYMENT_KIND_SUPPORT_CONTRIBUTION,
+                "kind": getattr(row, "kind", None) or PAYMENT_KIND_SUPPORT_CONTRIBUTION,
                 "session_id": row.session_id,
                 "tx_hash": row.tx_hash,
                 "network": row.network_snapshot,
@@ -887,7 +1033,7 @@ def get_my_billing_transactions(
             "created_at": _format_utc(row.paid_at or row.created_at),
             "_sort_at": _from_db_naive_utc(row.paid_at or row.created_at),
         }
-        for row in support_sessions
+        for row in payment_session_rows
     )
 
     transactions.sort(key=lambda item: item.get("_sort_at") or datetime.min.replace(tzinfo=UTC), reverse=True)

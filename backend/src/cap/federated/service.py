@@ -1,8 +1,8 @@
 import logging
 
 from cap.federated.models import FederatedExecutionResult, FederatedQuery
-from cap.federated.sql_service import execute_sql
-from cap.services.sparql_service import execute_sparql
+from cap.federated.sql.sql_service import execute_sql
+from cap.federated.sparql.sparql_service import execute_sparql
 
 logger = logging.getLogger(__name__)
 

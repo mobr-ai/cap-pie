@@ -1,0 +1,26 @@
+{# src/cap/mailing/templates/beta_program_invitation.html #}
+{% extends "base_email.html" %}
+{% block preheader %}{{ translations.preheader or "You have been invited to the CAP closed beta." }}{% endblock %}
+{% block content %}
+<h2 style="margin: 0 0 12px 0">{{ translations.title or "CAP closed beta invitation" }}</h2>
+
+<p style="margin: 0 0 12px 0">
+  {{ translations.lead or "Your CAP closed beta request has been selected for early access." }}
+</p>
+
+<p style="margin: 0 0 16px 0">
+  {{ translations.next or "You can now open CAP, sign in, and start testing the platform. We are especially interested in practical feedback about queries, dashboards, and analytics workflows." }}
+</p>
+
+{% if beta_url %}
+<p style="margin: 0 0 16px 0">
+  <a href="{{ beta_url }}" class="btn" style="display:inline-block; padding:10px 18px; border-radius:999px; background-color:#2563eb; color:#ffffff; font-size:14px; font-weight:600; text-decoration:none; line-height:1.2;">
+    {{ translations.cta_label or "Open CAP beta" }}
+  </a>
+</p>
+{% endif %}
+
+<p style="color:#6b7280; font-size:12px; margin:0">
+  {{ translations.footer or "This invitation was sent by the CAP team." }}
+</p>
+{% endblock %}

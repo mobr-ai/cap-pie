@@ -18,8 +18,8 @@ from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
 from cap.services.llm_client import get_llm_client
 from cap.services.redis_nl_client import get_redis_nl_client
 from cap.services.similarity_service import SearchStrategy
-from cap.services.sparql_service import execute_sparql
-from cap.util.sparql_result_processor import convert_sparql_to_kv
+from cap.federated.sparql.sparql_service import execute_sparql
+from cap.federated.sparql.sparql_result_processor import convert_sparql_to_kv
 
 
 @dataclass
