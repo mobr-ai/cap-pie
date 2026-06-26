@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useGoogleOneTapLogin } from "@react-oauth/google";
 import {
+  Link,
   useOutletContext,
   useSearchParams,
   useNavigate,
@@ -24,6 +25,7 @@ import {
 
 import LoadingPage from "./LoadingPage";
 import useRevealOnScroll from "../hooks/useRevealOnScroll";
+import { BETA_PROGRAM_ENABLED } from "../config/betaProgram";
 import WelcomeShowcase from "../components/welcome/WelcomeShowcase";
 
 export default function WelcomePage(props) {
@@ -66,6 +68,8 @@ export default function WelcomePage(props) {
   const handleScrollToShowcase = () => {
     const yOffset = +20; // navbar height
     const element = showcaseRef.current;
+    if (!element) return;
+
     const y =
       element.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
@@ -489,6 +493,32 @@ export default function WelcomePage(props) {
                   "Sign in to access your workspace, dashboards, and analytics.",
                 )}
               </p>
+
+              {BETA_PROGRAM_ENABLED && (
+
+              <Link
+                className="WelcomePage-betaBadge"
+                to="/beta"
+                aria-label={t(
+                  "welcome.betaBadge.aria",
+                  "Open the CAP closed beta registration page",
+                )}
+              >
+                <span className="WelcomePage-betaBadgeKicker">
+                  {t("welcome.betaBadge.kicker", "Closed beta")}
+                </span>
+                <span className="WelcomePage-betaBadgeText">
+                  {t(
+                    "welcome.betaBadge.text",
+                    "Interested in early access? Register your interest.",
+                  )}
+                </span>
+                <span className="WelcomePage-betaBadgeArrow" aria-hidden="true">
+                  →
+                </span>
+              </Link>
+
+              )}
             </div>
 
             {!loading && !isConfirmFalse && (

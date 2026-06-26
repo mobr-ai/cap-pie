@@ -1,0 +1,262 @@
+/* src/styles/admin/AdminBetaProgram.css */
+
+.admin-beta-hero-section,
+.admin-beta-table-section,
+.admin-beta-notifications-section {
+  background:
+    radial-gradient(
+      760px 260px at 0% 0%,
+      color-mix(in srgb, #3b82f6 8%, transparent),
+      transparent 64%
+    ),
+    var(--theme-surface, rgba(15, 23, 42, 0.72));
+}
+
+.admin-beta-stat-card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #3b82f6 5%, transparent),
+      transparent 70%
+    ),
+    var(--theme-surface-2, rgba(255, 255, 255, 0.045));
+}
+
+.admin-beta-refresh-pulse {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--theme-accent, #38bdf8) 85%, #ffffff);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent, #38bdf8) 16%, transparent);
+  animation: adminBetaPulse 1s ease-in-out infinite;
+}
+
+@keyframes adminBetaPulse {
+  0%, 100% { transform: scale(0.92); opacity: 0.7; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+.admin-beta-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px);
+  gap: 0.75rem;
+  margin: 0 0 0.85rem;
+  padding: 0.72rem;
+  border-radius: 0.9rem;
+  background: var(--theme-surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--theme-border, rgba(255, 255, 255, 0.1));
+}
+
+.admin-beta-primary {
+  color: var(--theme-text, rgba(255, 255, 255, 0.92));
+  font-weight: 650;
+}
+
+.admin-beta-muted,
+.admin-beta-row-status,
+.admin-beta-autosave-hint {
+  color: var(--theme-text-muted, rgba(255, 255, 255, 0.55));
+  font-size: 0.86rem;
+}
+
+.admin-beta-usecase {
+  max-width: 360px;
+  white-space: normal;
+  color: var(--theme-text-soft, rgba(255, 255, 255, 0.78));
+}
+
+.admin-beta-query-cell {
+  max-width: 520px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--theme-text-soft, rgba(255, 255, 255, 0.78));
+}
+
+.admin-beta-notes {
+  margin-top: 0.42rem;
+  min-width: 220px;
+}
+
+.admin-beta-row-status {
+  margin-top: 0.32rem;
+}
+
+.admin-beta-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.admin-beta-table-wrapper {
+  border-radius: 0.95rem;
+}
+
+.admin-beta-registration-table,
+.admin-beta-query-table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: color-mix(in srgb, #3b82f6 5%, transparent);
+  --bs-table-border-color: var(--theme-border, rgba(255, 255, 255, 0.1));
+}
+
+.admin-beta-registration-table thead th,
+.admin-beta-query-table thead th {
+  color: var(--theme-text-soft, rgba(219, 234, 254, 0.82));
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-beta-registration-table tbody tr,
+.admin-beta-query-table tbody tr {
+  transition: background-color 0.14s ease;
+}
+
+.admin-beta-registration-table tbody tr:hover,
+.admin-beta-query-table tbody tr:hover {
+  background: color-mix(in srgb, #3b82f6 8%, transparent);
+}
+
+.admin-beta-notify-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-beta-notify-card {
+  border-radius: 18px;
+  padding: 1rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #3b82f6 4%, transparent),
+      transparent 48%
+    ),
+    var(--theme-surface-2, rgba(255, 255, 255, 0.055));
+  border: 1px solid var(--theme-border, rgba(255, 255, 255, 0.12));
+  box-shadow: var(--theme-shadow-soft, 0 22px 70px rgba(0, 0, 0, 0.38));
+}
+
+.admin-beta-notify-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-beta-notify-title {
+  color: var(--theme-text, rgba(255, 255, 255, 0.9));
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.admin-beta-notify-subtitle {
+  margin-top: 0.25rem;
+  color: var(--theme-text-muted, rgba(255, 255, 255, 0.62));
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.admin-beta-recipient-adder {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-beta-recipient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 170px;
+  overflow: auto;
+  padding: 0.5rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--theme-surface-3, #020617) 82%, transparent);
+  border: 1px solid var(--theme-border, rgba(255, 255, 255, 0.08));
+}
+
+.admin-beta-recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  color: var(--theme-text-soft, rgba(255, 255, 255, 0.78));
+}
+
+.admin-beta-notify-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.admin-beta-billing-toggle {
+  margin-top: 0.1rem;
+}
+
+@media (max-width: 900px) {
+  .admin-beta-filters,
+  .admin-beta-notify-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-beta-notify-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-beta-refresh-pulse {
+    animation: none;
+  }
+}
+
+
+/* Beta registration action column: match other admin tables */
+.admin-beta-registration-table .admin-users-actions-col {
+  width: 8.75rem;
+  min-width: 8.75rem;
+}
+
+.admin-beta-registration-table .admin-beta-actions-cell {
+  vertical-align: top;
+}
+
+.admin-beta-registration-table .admin-beta-row-icon-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.admin-beta-registration-table .admin-user-action-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-beta-registration-table .admin-user-action-btn svg {
+  width: 0.86rem;
+  height: 0.86rem;
+}
+
+
+
+.admin-beta-notify-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1200px) {
+  .admin-beta-notify-grid {
+    grid-template-columns: 1fr;
+  }
+}

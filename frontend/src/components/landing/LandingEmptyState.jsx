@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import AgentAvatar from "@/components/landing/AgentAvatar";
 
-const ROBOT = "\uD83E\uDD16"; // unicode escape
 
 function capitalizeFirstLetter(s) {
   const str = String(s || "").trim();
@@ -117,7 +117,11 @@ export default function LandingEmptyState({
     <div className="landing-empty">
       <div className="landing-empty-robotWrap" aria-hidden="true">
         <div className="landing-empty-robotBadge">
-          <span className="landing-empty-robot">{ROBOT}</span>
+          <AgentAvatar
+            variant="hero"
+            className="landing-empty-agent"
+            label="CAP analytics agent"
+          />
         </div>
       </div>
 

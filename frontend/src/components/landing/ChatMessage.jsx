@@ -8,6 +8,8 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 
+import AgentAvatar from "@/components/landing/AgentAvatar";
+
 // Tracks replay completion per message id and per replayKey.
 // NOTE: Map updates do NOT trigger rerenders; we also use local state for that.
 const lastReplayKeyDoneByMessageId = new Map();
@@ -177,15 +179,25 @@ function ChatMessageImpl({
       </ReactMarkdown>
     );
   }, [content]);
-
-  // Avatars (unicode escapes)
+  // Avatar
   const userAvatar = "\uD83D\uDC64"; // 👤
-  const assistantAvatar = "\uD83E\uDD16"; // 🤖
 
   return (
     <div className={`message ${isUser ? "user" : "assistant"}`}>
-      <div className="message-avatar">
-        {isUser ? userAvatar : assistantAvatar}
+      <div
+        className={`message-avatar ${
+          isUser ? "message-avatar--user" : "message-avatar--agent"
+        }`}
+      >
+        {isUser ? (
+          <span aria-hidden="true">{userAvatar}</span>
+        ) : (
+          <AgentAvatar
+            variant="chat"
+            active={streaming}
+            label="CAP analytics agent"
+          />
+        )}
       </div>
 
       <div className="message-content">
