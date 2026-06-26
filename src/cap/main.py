@@ -25,6 +25,7 @@ from cap.api.notifications_admin import router as notif_admin_router
 from cap.api.share import router as share_router
 from cap.api.sparql_query import router as api_router
 from cap.api.system_admin import router as system_router
+from cap.api.telegram import router as telegram_router
 from cap.api.user import router as user_router
 from cap.api.user_admin import router as user_admin_router
 from cap.api.waitlist import router as wait_router
@@ -133,6 +134,7 @@ def create_application() -> FastAPI:
     app.include_router(notif_admin_router)
     app.include_router(conversation_router)
     app.include_router(conversation_admin_router)
+    app.include_router(telegram_router)
 
     chain = get_chain()
 
