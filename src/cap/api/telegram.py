@@ -51,8 +51,13 @@ def _extract_text_and_kv(chunks: list[str]) -> tuple[str, dict[str, Any] | None]
     collecting_kv = False
 
     for raw in chunks:
-        for line in str(raw).splitlines():
+        value = raw.decode("utf-8") if isinstance(raw, bytes) else str(raw)
+
+        for line in value.splitlines():
             s = line.strip()
+
+            if not s:
+                continue
 
             if s.startswith("status:"):
                 continue
@@ -76,7 +81,7 @@ def _extract_text_and_kv(chunks: list[str]) -> tuple[str, dict[str, Any] | None]
             else:
                 text_parts.append(line)
 
-    answer = "\n".join(t for t in text_parts if t.strip()).strip()
+    answer = "".join(text_parts).strip()
 
     kv = None
     raw_kv = "\n".join(kv_lines).strip()
