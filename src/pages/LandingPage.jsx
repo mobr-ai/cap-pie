@@ -35,6 +35,7 @@ export default function LandingPage() {
 
   const outlet = useOutletContext() || {};
   const {
+    user: currentUser,
     session,
     showToast,
     healthOnline,
@@ -48,6 +49,26 @@ export default function LandingPage() {
   useEffect(() => {
     authFetchRef.current = authFetch;
   }, [authFetch]);
+
+  const chatAvatarUser = React.useMemo(() => {
+    if (!currentUser) return null;
+
+    return {
+      id: currentUser.id,
+      email: currentUser.email || "",
+      username: currentUser.username || "",
+      display_name: currentUser.display_name || "",
+      settings: currentUser.settings || "",
+      avatar: currentUser.avatar || "",
+    };
+  }, [
+    currentUser?.id,
+    currentUser?.email,
+    currentUser?.username,
+    currentUser?.display_name,
+    currentUser?.settings,
+    currentUser?.avatar,
+  ]);
 
   const navigate = useNavigate();
   const { conversationId: routeConversationId } = useParams();
@@ -282,6 +303,7 @@ export default function LandingPage() {
                 chartViewByMsgIdRef={chartViewByMsgIdRef}
                 tableElByMsgIdRef={tableElByMsgIdRef}
                 ArtifactToolBtn={ArtifactToolButton}
+                currentUser={chatAvatarUser}
               />
             )}
           </div>

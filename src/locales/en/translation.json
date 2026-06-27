@@ -1191,5 +1191,44 @@
       }
     }
   },
-  "betaRegistrationError": "Could not submit your registration. Please try again."
+  "betaRegistrationError": "Could not submit your registration. Please try again.",
+  "settingsChatAvatar": {
+    "title": "Chat avatar",
+    "description": "Choose how your user avatar appears in CAP conversations.",
+    "previewLabel": "Avatar preview",
+    "userAvatarLabel": "User avatar",
+    "noImageHint": "No profile image is available yet. Auto and Profile photo will use the default emoji until you upload an avatar or sign in with a profile image.",
+    "saveFailed": "Could not save chat avatar preference.",
+    "options": {
+      "image": {
+        "label": "Profile photo",
+        "description": "Use your uploaded or Google profile photo, with emoji fallback."
+      },
+      "emojiUser": {
+        "label": "User emoji",
+        "description": "Keep the classic user emoji."
+      },
+      "emojiSparkles": {
+        "label": "Sparkles",
+        "description": "A lightweight expressive emoji avatar."
+      },
+      "emojiRocket": {
+        "label": "Rocket",
+        "description": "A builder-oriented emoji avatar."
+      },
+      "iconCube": {
+        "label": "Cube icon",
+        "description": "A theme-aware cube icon aligned with CAP."
+      },
+      "iconChart": {
+        "label": "Analytics icon",
+        "description": "A chart icon for analytics-focused users."
+      },
+      "none": {
+        "label": "None",
+        "description": "Hide your avatar in chat messages."
+      }
+    },
+    "selectLabel": "Avatar style"
+  }
 }

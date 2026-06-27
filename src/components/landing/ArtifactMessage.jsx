@@ -8,6 +8,7 @@ import { faShareAlt } from "@fortawesome/free-solid-svg-icons";
 
 import VegaChart from "@/components/artifacts/VegaChart";
 import KVTable, { isValidKVTable } from "@/components/artifacts/KVTable";
+import AgentAvatar from "@/components/landing/AgentAvatar";
 
 export default function ArtifactMessage({
   message,
@@ -29,13 +30,12 @@ export default function ArtifactMessage({
 
   if (isTable && !isValidKVTable(message.kv)) return null;
 
-  // Avoid emoji literals in suggested code; keep same UI semantics.
-  const assistantAvatar = "\uD83E\uDD16";
-
   if (isChart) {
     return (
       <div className="message assistant">
-        <div className="message-avatar">{assistantAvatar}</div>
+        <div className="message-avatar message-avatar--agent">
+          <AgentAvatar variant="chat" label="CAP analytics agent" />
+        </div>
         <div className="message-content">
           <div className="message-bubble markdown-body">
             <div
@@ -84,7 +84,9 @@ export default function ArtifactMessage({
   // table
   return (
     <div className="message assistant kv-message">
-      <div className="message-avatar">{assistantAvatar}</div>
+      <div className="message-avatar message-avatar--agent">
+          <AgentAvatar variant="chat" label="CAP analytics agent" />
+        </div>
       <div className="message-content">
         <div className="message-bubble markdown-body kv-bubble">
           <div

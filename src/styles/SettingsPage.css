@@ -1,3 +1,70 @@
 @import "./settings/SettingsBaseProfile.css";
 @import "./settings/SettingsBilling.css";
 @import "./settings/SettingsSupport.css";
+@import "./settings/SettingsChatAvatar.css";
+
+
+/* Settings language select theme fix */
+.Settings-container .Settings-language .form-select,
+.Settings-container #languageSelect,
+.Settings-container select#languageSelect {
+  appearance: none;
+  -webkit-appearance: none;
+
+  color: var(--theme-text, var(--text-primary)) !important;
+  background-color: var(--theme-surface-elevated, var(--surface-light)) !important;
+  border: 1px solid var(--theme-border, var(--border)) !important;
+  border-radius: 12px;
+  padding-right: 2.35rem;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent 50%,
+      var(--theme-text-muted, var(--text-secondary)) 50%
+    ),
+    linear-gradient(
+      135deg,
+      var(--theme-text-muted, var(--text-secondary)) 50%,
+      transparent 50%
+    ) !important;
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50% !important;
+  background-size:
+    6px 6px,
+    6px 6px !important;
+  background-repeat: no-repeat !important;
+
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.Settings-container .Settings-language .form-select:focus,
+.Settings-container #languageSelect:focus {
+  border-color: var(--primary) !important;
+  box-shadow:
+    0 0 0 0.2rem color-mix(in srgb, var(--primary) 18%, transparent),
+    0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.Settings-container .Settings-language .form-select option,
+.Settings-container #languageSelect option {
+  color: var(--theme-text, var(--text-primary));
+  background: var(--theme-surface, var(--surface));
+}
+
+[data-theme="paper"] .Settings-container .Settings-language .form-select,
+[data-theme="paper"] .Settings-container #languageSelect {
+  color: var(--paper-text, var(--theme-text, var(--text-primary))) !important;
+  background-color: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+[data-theme="paper"] .Settings-container .Settings-language .form-select option,
+[data-theme="paper"] .Settings-container #languageSelect option {
+  color: var(--paper-text, #0f172a);
+  background: #ffffff;
+}
+/* End settings language select theme fix */
