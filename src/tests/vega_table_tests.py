@@ -1,5 +1,6 @@
 from cap.services.vega.facade import VegaConverter
 
+
 def print_converted_table(result: dict) -> None:
     table = result.get("data", result)
 
@@ -17,8 +18,14 @@ def print_converted_table(result: dict) -> None:
         return
 
     headers = [next(k for k in col if k.startswith("col")) for col in columns]
-    header_names = [col[h] for col, h in zip(columns, headers)]
-    rows = list(zip(*(col["values"] for col in columns)))
+    header_names = [
+        col[h]
+        for col, h in zip(columns, headers, strict=True)
+    ]
+
+    rows = list(
+        zip(*(col["values"] for col in columns), strict=True)
+    )
 
     widths = [
         max(len(str(name)), *(len(str(row[i])) for row in rows))

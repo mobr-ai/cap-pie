@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 
-
 _FALSE_VALUES = {"0", "false", "no", "off", "disabled"}
 
 

@@ -12,7 +12,11 @@ from sqlalchemy.orm import Session
 from cap.core.auth_dependencies import get_current_user_unconfirmed
 from cap.database.model import TelegramAccount, TelegramChatBinding, TelegramRenderedImage, User
 from cap.database.session import get_db
-from cap.services.billing_access import BillingAccessDenied, check_nl_query_access, consume_nl_query_success
+from cap.services.billing_access import (
+    BillingAccessDenied,
+    check_nl_query_access,
+    consume_nl_query_success,
+)
 from cap.services.nl_service import query_with_stream_response
 from cap.services.telegram_auth import (
     verify_internal_bot_request,

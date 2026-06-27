@@ -4,13 +4,13 @@ from typing import Any
 from langchain_core.tools import tool
 
 from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
+from cap.federated.federated_result_processor import merge_federated_kv_results
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
-from cap.services.redis_nl_client import RedisNLClient
-from cap.services.similarity_service import SimilarityService
-from cap.federated.federated_result_processor import merge_federated_kv_results
 from cap.federated.sparql.sparql_result_processor import convert_sparql_to_kv
 from cap.federated.sql.sql_result_processor import normalize_sql_results
+from cap.services.redis_nl_client import RedisNLClient
+from cap.services.similarity_service import SimilarityService
 
 
 @tool

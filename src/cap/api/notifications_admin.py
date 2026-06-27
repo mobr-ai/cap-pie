@@ -11,26 +11,24 @@ from cap.mailing.event_triggers import (
     on_admin_query_created,
 )
 from cap.services.admin_alerts_service import (
-    get_beta_registration_notification_config,
-    update_beta_query_notification_config,
     get_beta_query_notification_config,
-    get_query_notification_config,
+    get_beta_registration_notification_config,
     # existing
     get_new_user_notification_config,
+    get_query_notification_config,
     # NEW (user confirmed)
     get_user_confirmed_notification_config,
     # existing (waitlist)
     get_waitlist_notification_config,
-    maybe_notify_admins_beta_registration,
-    maybe_notify_admins_query_created,
     maybe_notify_admins_new_user,
     maybe_notify_admins_user_confirmed,
     maybe_notify_admins_waitlist,
+    update_beta_query_notification_config,
+    update_beta_registration_notification_config,
     update_new_user_notification_config,
+    update_query_notification_config,
     update_user_confirmed_notification_config,
     update_waitlist_notification_config,
-    update_beta_registration_notification_config,
-    update_query_notification_config,
 )
 
 router = APIRouter(prefix="/api/v1/admin/notifications", tags=["notifications_admin"])

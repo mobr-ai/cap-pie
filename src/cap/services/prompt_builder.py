@@ -14,8 +14,8 @@ from cap.chains.registry import get_chain
 from cap.config import settings
 from cap.services.msg_formatter import MessageFormatter
 from cap.services.similarity_service import SearchStrategy, SimilarityService
-from cap.util.str_util import get_file_content
 from cap.services.vega.facade import VegaConverter
+from cap.util.str_util import get_file_content
 
 logger = logging.getLogger(__name__)
 

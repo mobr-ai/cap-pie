@@ -1,5 +1,7 @@
 import re
+
 from cap.services.vega.value_util import DataRow
+
 
 class VegaCoordinate:
     @classmethod

@@ -56,8 +56,8 @@ def _layout(fig: go.Figure, title: str | None = None) -> go.Figure:
         title=title or "",
         width=1200,
         height=760,
-        margin=dict(l=70, r=50, t=90, b=80),
-        font=dict(size=18),
+        margin={"l": 70, "r": 50, "t": 90, "b": 80},
+        font={"size": 18},
         paper_bgcolor="white",
         plot_bgcolor="white",
     )
@@ -150,8 +150,14 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
         fig = go.Figure(
             data=[
                 go.Table(
-                    header=dict(values=list(df.columns), align="left"),
-                    cells=dict(values=[df[c].astype(str).tolist() for c in df.columns], align="left"),
+                    header={
+                        "values": list(df.columns),
+                        "align": "left",
+                    },
+                    cells={
+                        "values": [df[c].astype(str).tolist() for c in df.columns],
+                        "align": "left",
+                    },
                 )
             ]
         )
@@ -187,7 +193,11 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
                     x=[v.get("x") for v in values],
                     y=[v.get("y") for v in values],
                     mode="markers",
-                    marker=dict(size=sizes, sizemode="area", sizeref=max(sizes) / 80 if sizes else 1),
+                    marker={
+                        "size": sizes,
+                        "sizemode": "area",
+                        "sizeref": max(sizes) / 80 if sizes else 1,
+                    },
                     text=[v.get("label", "") for v in values],
                 )
             ]
