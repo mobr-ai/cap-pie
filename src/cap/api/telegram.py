@@ -24,6 +24,7 @@ from cap.services.telegram_auth import (
     verify_telegram_webhook_secret,
 )
 from cap.services.telegram_chart_renderer import TELEGRAM_RENDER_DIR, render_telegram_image
+from cap.services.vega.facade import VegaConverter
 
 router = APIRouter(prefix="/api/v1/telegram", tags=["telegram"])
 
@@ -94,6 +95,77 @@ def _extract_text_and_kv(chunks: list[str]) -> tuple[str, dict[str, Any] | None]
     return answer, kv
 
 
+def _infer_telegram_result_type(user_query: str, fallback: str | None) -> str:
+    if fallback in VegaConverter.known_types:
+        return fallback
+
+    q = (user_query or "").lower()
+
+    if "line" in q or "trend" in q or "daily" in q or "over time" in q:
+        return "line_chart"
+    if "bar" in q:
+        return "bar_chart"
+    if "scatter" in q:
+        return "scatter_chart"
+    if "bubble" in q:
+        return "bubble_chart"
+    if "pie" in q:
+        return "pie_chart"
+    if "heatmap" in q or "heat map" in q:
+        return "heatmap"
+    if "treemap" in q or "tree map" in q:
+        return "treemap"
+    if "table" in q or "list" in q or "show" in q:
+        return "table"
+
+    if fallback in {"multiple", "single"}:
+        return "table"
+
+    return "text"
+
+
+def _build_telegram_render_payload(
+    *,
+    final_state: dict[str, Any],
+    user_query: str,
+) -> dict[str, Any] | None:
+    raw_kv_results = final_state.get("kv_results")
+    if not isinstance(raw_kv_results, dict) or not raw_kv_results:
+        return None
+
+    federated_query = final_state.get("federated_query")
+
+    planned_type = ""
+    if federated_query is not None:
+        planned_type = getattr(federated_query, "visualization_type", "") or ""
+
+    result_type = _infer_telegram_result_type(
+        user_query=user_query,
+        fallback=planned_type or raw_kv_results.get("result_type"),
+    )
+
+    if result_type == "text":
+        return None
+
+    sparql_query = ""
+    if federated_query is not None:
+        sparql_query = (
+            getattr(federated_query, "sparql", "")
+            or getattr(federated_query, "sparql_query", "")
+            or ""
+        )
+        if not sparql_query and hasattr(federated_query, "model_dump_json"):
+            sparql_query = federated_query.model_dump_json()
+
+    payload = dict(raw_kv_results)
+    payload["result_type"] = result_type
+    payload["user_query"] = user_query
+    payload["sparql_query"] = sparql_query
+    payload["title"] = user_query[:120]
+
+    return payload
+
+
 async def _run_telegram_query(
     *,
     db: Session,
@@ -109,25 +181,33 @@ async def _run_telegram_query(
         raise HTTPException(status_code=402, detail=exc.payload) from exc
 
     chunks: list[str] = []
+    final_state_out: dict[str, Any] = {}
+
     async for chunk in query_with_stream_response(
         query=query,
         context=context,
         db=db,
         user=cap_user,
         conversation_history=[],
+        final_state_out=final_state_out,
     ):
         chunks.append(chunk.decode("utf-8") if isinstance(chunk, bytes) else str(chunk))
 
-    answer, kv = _extract_text_and_kv(chunks)
+    answer, _streamed_kv = _extract_text_and_kv(chunks)
 
     image = None
-    if kv:
+    render_payload = _build_telegram_render_payload(
+        final_state=final_state_out,
+        user_query=query,
+    )
+
+    if render_payload:
         image = render_telegram_image(
             db=db,
             cap_user=cap_user,
             telegram_user_id=telegram_user_id,
             telegram_chat_id=telegram_chat_id,
-            kv_results=kv,
+            kv_results=render_payload,
             absolute=True,
         )
 
