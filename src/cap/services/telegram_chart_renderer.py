@@ -10,6 +10,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from PIL import Image, ImageEnhance
 
+from cap.services.vega.facade import VegaConverter
 from cap.database.model import TelegramRenderedImage, User
 
 TELEGRAM_RENDER_DIR = Path(os.getenv("TELEGRAM_RENDER_DIR", "/var/lib/cap/telegram-renders")).resolve()
@@ -98,11 +99,28 @@ def render_telegram_image(
     Renders table/bar/line/scatter/bubble/pie/heatmap/treemap to PNG.
     Returns a short-lived URL that the bot can send as photo/document.
     """
+
     result_type = kv_results.get("result_type") or kv_results.get("type") or "text"
-    vega = kv_results.get("vega") or kv_results.get("config") or kv_results
 
     if result_type == "text":
         return None
+
+    sparql_query = (
+        kv_results.get("sparql")
+        or kv_results.get("sparql_query")
+        or kv_results.get("query")
+        or ""
+    )
+
+    user_query = kv_results.get("user_query") or kv_results.get("nl_query") or ""
+
+    vega = kv_results.get("vega")
+    if not vega:
+        vega = VegaConverter.convert_to_vega_format(
+            kv_results=kv_results,
+            user_query=user_query,
+            sparql_query=sparql_query,
+        )
 
     fig = _figure_from_vega(result_type, vega, kv_results.get("title"))
 

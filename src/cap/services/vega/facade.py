@@ -19,26 +19,25 @@ class VegaConverter(
     VegaField,
     VegaValue,
 ):
-    """Util to convert data to Vega format.
-    """
+    """Util to convert data to Vega format."""
 
     x_candidates = [
-            'yearMonth', 'year', 'month', 'date', 'timePeriod', 'timestamp', 'ts',
-            'epoch', 'epochNumber', 'x', 'index', 'blockHeight', 'blockNumber',
-            'name', 'label', 'category'
-        ]
+        'yearMonth', 'year', 'month', 'date', 'timePeriod', 'timestamp', 'ts',
+        'epoch', 'epochNumber', 'x', 'index', 'blockHeight', 'blockNumber',
+        'name', 'label', 'category'
+    ]
 
     known_types = {
-            "bar_chart",
-            "pie_chart",
-            "line_chart",
-            "scatter_chart",
-            "bubble_chart",
-            "treemap",
-            "heatmap",
-            "table",
-            "text",
-        }
+        "bar_chart",
+        "pie_chart",
+        "line_chart",
+        "scatter_chart",
+        "bubble_chart",
+        "treemap",
+        "heatmap",
+        "table",
+        "text",
+    }
 
     @classmethod
     def convert_to_vega_format(
