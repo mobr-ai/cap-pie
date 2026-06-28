@@ -86,6 +86,55 @@ def _table_to_dataframe(vega: dict[str, Any]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, dict[str, Any], str | None]:
+    """
+    Accept both:
+    1. Raw kv_results used by tests:
+       {"result_type": "line_chart", "data": [...]}
+
+    2. CAP widget payload streamed by format_kv:
+       {"type": "line_chart", "config": {"values": [...]}}
+       or
+       {"result_type": "line_chart", "config": {"values": [...]}}
+    """
+    result_type = (
+        kv_results.get("result_type")
+        or kv_results.get("type")
+        or kv_results.get("visualization_type")
+        or "text"
+    )
+
+    title = kv_results.get("title") or kv_results.get("user_query") or kv_results.get("nl_query")
+
+    # Already converted widget/Vega payload.
+    config = kv_results.get("config")
+    if isinstance(config, dict) and "values" in config:
+        return result_type, config, title
+
+    vega = kv_results.get("vega")
+    if isinstance(vega, dict) and "values" in vega:
+        return result_type, vega, title
+
+    # Raw kv_results path, same as your passing test.
+    sparql_query = (
+        kv_results.get("sparql_query")
+        or kv_results.get("sparql")
+        or kv_results.get("query")
+        or ""
+    )
+    user_query = kv_results.get("user_query") or kv_results.get("nl_query") or ""
+
+    normalized_raw = dict(kv_results)
+    normalized_raw["result_type"] = result_type
+
+    converted = VegaConverter.convert_to_vega_format(
+        kv_results=normalized_raw,
+        user_query=user_query,
+        sparql_query=sparql_query,
+    )
+    return result_type, converted, title
+
+
 def render_telegram_image(
     *,
     db,
@@ -100,29 +149,11 @@ def render_telegram_image(
     Returns a short-lived URL that the bot can send as photo/document.
     """
 
-    result_type = kv_results.get("result_type") or kv_results.get("type") or "text"
-
+    result_type, vega, title = _normalize_telegram_chart_payload(kv_results)
     if result_type == "text":
         return None
 
-    sparql_query = (
-        kv_results.get("sparql")
-        or kv_results.get("sparql_query")
-        or kv_results.get("query")
-        or ""
-    )
-
-    user_query = kv_results.get("user_query") or kv_results.get("nl_query") or ""
-
-    vega = kv_results.get("vega")
-    if not vega:
-        vega = VegaConverter.convert_to_vega_format(
-            kv_results=kv_results,
-            user_query=user_query,
-            sparql_query=sparql_query,
-        )
-
-    fig = _figure_from_vega(result_type, vega, kv_results.get("title"))
+    fig = _figure_from_vega(result_type, vega, title)
 
     _ensure_dir()
     image_id = str(uuid.uuid4())
