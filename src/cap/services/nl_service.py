@@ -4,6 +4,7 @@ Multi-stage pipeline: NL -> FederatedQuery(SPARQL/SQL) -> Execute -> Contextuali
 """
 import logging
 import time
+from typing import Any
 
 from cap.services.agentic.graph import build_agentic_query_graph
 from cap.services.llm_client import get_llm_client
