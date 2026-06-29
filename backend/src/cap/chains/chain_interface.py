@@ -48,7 +48,6 @@ class ChainModule(Protocol):
         self,
         var_name: str,
         value: Any,
-        sparql_query: str = "",
     ) -> str: ...
 
     def convert_result_value(

@@ -1,9 +1,10 @@
 """
 Natural language query API endpoint using LLM.
-Multi-stage pipeline: NL -> FederatedQuery(SPARQL/SQL) -> Execute -> Contextualize -> Stream
+Multi-stage pipeline: NL -> FederatedQuery -> Execute -> Contextualize -> Stream
 """
 import logging
 import time
+from typing import Any
 
 from cap.services.agentic.graph import build_agentic_query_graph
 from cap.services.llm_client import get_llm_client
@@ -20,6 +21,7 @@ async def query_with_stream_response(
     db=None,
     user=None,
     conversation_history=None,
+    final_state_out: dict[str, Any] | None = None,
 ):
     start_time = time.time()
     final_state = {}
@@ -77,6 +79,10 @@ async def query_with_stream_response(
 
     finally:
         total_latency_ms = int((time.time() - start_time) * 1000)
+
+        if final_state_out is not None:
+            final_state_out.clear()
+            final_state_out.update(final_state or {})
 
         try:
             federated_query = final_state.get("federated_query")

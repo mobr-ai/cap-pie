@@ -552,3 +552,57 @@ class AssetOHLCV(Base):
         Index("ix_asset_ohlcv_asset_ts", "asset_id", "ts"),
         Index("ix_asset_ohlcv_ts_interval", "ts", "interval"),
     )
+
+class TelegramAccount(Base):
+    __tablename__ = "telegram_account"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    telegram_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True, index=True)
+    cap_user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("user.user_id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    telegram_username: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    first_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    auth_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+
+class TelegramChatBinding(Base):
+    __tablename__ = "telegram_chat_binding"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    telegram_chat_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True, index=True)
+    chat_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_by_telegram_user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    default_cap_user_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("user.user_id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"), onupdate=text("NOW()"))
+
+
+class TelegramRenderedImage(Base):
+    __tablename__ = "telegram_rendered_image"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    cap_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False, index=True)
+    telegram_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    telegram_chat_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    access_token: Mapped[str] = mapped_column(String(96), nullable=False, index=True)
+    mime: Mapped[str] = mapped_column(String(64), nullable=False)
+    bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    etag: Mapped[str] = mapped_column(String(64), nullable=False)
+    storage_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=text("NOW()"), index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)

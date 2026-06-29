@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 from datetime import datetime
 from typing import Any
@@ -387,7 +385,10 @@ def list_beta_registrations(
         .order_by(BetaProgramRegistration.status.asc())
     ).all()
 
-    all_reg_emails = [email for email in db.scalars(select(BetaProgramRegistration.email)).all()]
+    all_reg_emails = db.scalars(
+        select(BetaProgramRegistration.email)
+    ).all()
+
     all_user_by_email, all_activity_by_user_id = _user_maps_for_emails(db, all_reg_emails)
 
     user_by_email, activity_by_user_id = _user_maps_for_emails(db, [row.email for row in rows])

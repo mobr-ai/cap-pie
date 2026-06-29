@@ -13,17 +13,17 @@ from opentelemetry import trace
 
 from cap.chains.cardano.canon.semantic_matcher import SemanticMatcher
 from cap.config import settings
+from cap.federated.federated_result_processor import format_kv
 from cap.federated.models import FederatedQuery
 from cap.federated.planner import FederatedPlanner
+from cap.federated.sparql.sparql_result_processor import convert_results_to_explorer_links
 from cap.services.intent.refer_classifier import ReferClassifier
 from cap.services.intent.render_classifier import RenderClassifier
 from cap.services.prompt_builder import PromptBuilder
 from cap.services.similarity_service import SearchStrategy
-from cap.federated.federated_result_processor import format_kv
-from cap.federated.sparql.sparql_result_processor import convert_results_to_explorer_links
+from cap.services.vega.facade import VegaConverter
 from cap.util.str_util import matches_keyword
 from cap.util.tag_filter import TagFilter
-from cap.services.vega.facade import VegaConverter
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
@@ -398,7 +398,6 @@ class LLMClient:
                 kv_formatted, result_type = format_kv(
                     result_type=result_type,
                     user_query=user_query,
-                    federated_query=serialized_query,
                     kv_results=kv_results
                 )
                 logger.info(f"Sending data to feed widget: \n   {kv_formatted}")

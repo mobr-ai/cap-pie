@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class VegaTableConverter:
     @classmethod
-    def _convert_table(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_table(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to table format."""
 
         # Forcing list for one count results
@@ -43,7 +43,6 @@ class VegaTableConverter:
                 value = get_chain().convert_entity_to_explorer_link(
                     col_name,
                     value,
-                    sparql_query,
                     row_context=row,
                 )
 

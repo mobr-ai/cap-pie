@@ -4,11 +4,7 @@ Runtime flags:
 - CAP_BETA_PROGRAM_ENABLED=false disables public beta registration.
 - CAP_BETA_ADMIN_ENABLED=false disables admin beta-management APIs.
 """
-
-from __future__ import annotations
-
 import os
-
 
 _FALSE_VALUES = {"0", "false", "no", "off", "disabled"}
 

@@ -137,7 +137,7 @@ def _time_series_rows(
     return out
 
 
-def format_kv(result_type: Any, user_query: str, federated_query: str, kv_results: dict) -> tuple[str, str]:
+def format_kv(result_type: Any, user_query: str, kv_results: dict) -> tuple[str, str]:
     if result_type:
         kv_results["result_type"] = result_type
 
@@ -145,7 +145,6 @@ def format_kv(result_type: Any, user_query: str, federated_query: str, kv_result
             vega_data = VegaConverter.convert_to_vega_format(
                 kv_results,
                 user_query,
-                federated_query,
             )
 
             columns = []

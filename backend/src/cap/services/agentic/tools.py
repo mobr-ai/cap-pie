@@ -4,13 +4,13 @@ from typing import Any
 from langchain_core.tools import tool
 
 from cap.chains.cardano.canon.query_normalizer import QueryNormalizer
+from cap.federated.federated_result_processor import merge_federated_kv_results
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.service import execute_federated_query
-from cap.services.redis_nl_client import RedisNLClient
-from cap.services.similarity_service import SimilarityService
-from cap.federated.federated_result_processor import merge_federated_kv_results
 from cap.federated.sparql.sparql_result_processor import convert_sparql_to_kv
 from cap.federated.sql.sql_result_processor import normalize_sql_results
+from cap.services.redis_nl_client import RedisNLClient
+from cap.services.similarity_service import SimilarityService
 
 
 @tool
@@ -50,6 +50,7 @@ async def get_cached_federated_query(
                 sql=sql,
                 source=QuerySource(source),
                 explanation=explanation,
+                nl_query=user_query
             )
 
     except json.JSONDecodeError:
@@ -61,6 +62,7 @@ async def get_cached_federated_query(
         sql="",
         source=QuerySource.ONCHAIN,
         explanation="legacy SPARQL cache entry",
+        nl_query=user_query
     )
 
 
@@ -133,6 +135,8 @@ def format_execution_context(
         kv_results = merge_federated_kv_results(sparql_kv, sql_kv)
     else:
         kv_results = sparql_kv or sql_kv
+
+    kv_results["title"] = federated_query.nl_query[:120]
 
     return "\n\n".join(sections), kv_results
 

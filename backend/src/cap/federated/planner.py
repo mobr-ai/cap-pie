@@ -4,9 +4,9 @@ from typing import Any
 
 from cap.federated.models import FederatedQuery, QuerySource
 from cap.federated.offchain_schema import OFFCHAIN_SCHEMA
+from cap.federated.sparql.sparql_util import ensure_validity
 from cap.federated.sql.sql_util import clean_sql
 from cap.services.prompt_builder import PromptBuilder
-from cap.federated.sparql.sparql_util import ensure_validity
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +66,7 @@ User Question:
             sql=sql,
             source=QuerySource(source),
             explanation=explanation,
+            nl_query=natural_query
         )
 
     @staticmethod

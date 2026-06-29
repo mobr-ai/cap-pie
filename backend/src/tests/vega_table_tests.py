@@ -1,5 +1,6 @@
 from cap.services.vega.facade import VegaConverter
 
+
 def print_converted_table(result: dict) -> None:
     table = result.get("data", result)
 
@@ -17,8 +18,14 @@ def print_converted_table(result: dict) -> None:
         return
 
     headers = [next(k for k in col if k.startswith("col")) for col in columns]
-    header_names = [col[h] for col, h in zip(columns, headers)]
-    rows = list(zip(*(col["values"] for col in columns)))
+    header_names = [
+        col[h]
+        for col, h in zip(columns, headers, strict=True)
+    ]
+
+    rows = list(
+        zip(*(col["values"] for col in columns), strict=True)
+    )
 
     widths = [
         max(len(str(name)), *(len(str(row[i])) for row in rows))
@@ -100,8 +107,7 @@ def test_convert_table_tokens_with_price_information():
     }
     result = VegaConverter.convert_to_vega_format(
         kv_results=synthetic_kv,
-        user_query="Show all tokens that have price information",
-        sparql_query="",
+        user_query="Show all tokens that have price information"
     )
 
     print_converted_table(result)

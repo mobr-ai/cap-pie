@@ -8,7 +8,6 @@ from cap.chains.registry import get_chain
 logger = logging.getLogger(__name__)
 
 DataRow: TypeAlias = dict[str, Any]
-VegaValue: TypeAlias = dict[str, Any]
 
 class VegaValue:
     @classmethod
