@@ -70,16 +70,75 @@ def _watermark_png(image_path: Path) -> None:
     out.save(image_path, "PNG", optimize=True)
 
 
-def _layout(fig: go.Figure, title: str | None = None) -> go.Figure:
+def _axis_title(value: Any | None) -> str | None:
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    return VegaConverter._format_column_name(text)
+
+
+def _columns(vega: dict[str, Any]) -> list[str]:
+    columns = vega.get("_columns") or []
+    return columns if isinstance(columns, list) else []
+
+
+def _axis_titles(
+    result_type: str,
+    vega: dict[str, Any],
+    *,
+    default_x: str | None = None,
+    default_y: str | None = None,
+) -> tuple[str | None, str | None]:
+    columns = _columns(vega)
+
+    x_key = vega.get("_x_key")
+    y_key = vega.get("_y_key")
+
+    if result_type == "line_chart":
+        y_keys = vega.get("_y_keys") or []
+        if not y_key and isinstance(y_keys, list) and len(y_keys) == 1:
+            y_key = y_keys[0]
+        elif not y_key and isinstance(y_keys, list) and len(y_keys) > 1:
+            y_key = "value"
+
+    if not x_key and len(columns) >= 1:
+        x_key = columns[0]
+    if not y_key and len(columns) >= 2:
+        y_key = columns[1]
+
+    return (
+        _axis_title(x_key) or default_x,
+        _axis_title(y_key) or default_y,
+    )
+
+
+def _layout(
+    fig: go.Figure,
+    title: str | None = None,
+    *,
+    x_title: str | None = None,
+    y_title: str | None = None,
+) -> go.Figure:
     fig.update_layout(
         title=title or "",
         width=1200,
         height=760,
-        margin={"l": 70, "r": 50, "t": 90, "b": 80},
+        margin={"l": 95, "r": 50, "t": 90, "b": 110},
         font={"size": 18},
         paper_bgcolor="white",
         plot_bgcolor="white",
     )
+
+    if x_title:
+        fig.update_xaxes(title_text=x_title, title_standoff=18, automargin=True)
+
+    if y_title:
+        fig.update_yaxes(title_text=y_title, title_standoff=18, automargin=True)
+
     return fig
 
 
@@ -118,6 +177,59 @@ def _with_metadata_columns(
     if columns and "_columns" not in payload:
         payload = dict(payload)
         payload["_columns"] = columns
+
+    return payload
+
+
+def _with_raw_axis_metadata(
+    *,
+    result_type: str,
+    payload: dict[str, Any],
+    raw_data: Any,
+    user_query: str,
+) -> dict[str, Any]:
+    if not isinstance(raw_data, list) or not raw_data:
+        return payload
+
+    keys = VegaConverter._all_keys(raw_data)
+    if not keys:
+        return payload
+
+    payload = dict(payload)
+    payload.setdefault(
+        "_columns",
+        [VegaConverter._format_column_name(key) for key in keys],
+    )
+
+    if result_type != "bar_chart":
+        return payload
+
+    first_item = raw_data[0]
+    coordinate_map = VegaConverter._parse_coordinate_assignments(user_query, raw_data)
+    field_assignments = VegaConverter._apply_coordinate_mapping(raw_data, coordinate_map)
+
+    x_key = field_assignments.get("x")
+    y_key = field_assignments.get("y")
+
+    if not x_key:
+        x_candidates = VegaConverter._get_x_candidates(first_item, keys)
+        x_candidate_names = {candidate.lower() for candidate in x_candidates}
+        x_key = next(
+            (key for key in keys if key.lower() in x_candidate_names),
+            keys[0],
+        )
+
+    if not y_key:
+        for key in keys:
+            if key != x_key and VegaConverter._is_numeric_field(raw_data, key):
+                y_key = key
+                break
+
+    if not y_key:
+        y_key = keys[-1] if len(keys) > 1 else keys[0]
+
+    payload.setdefault("_x_key", x_key)
+    payload.setdefault("_y_key", y_key)
 
     return payload
 
@@ -191,6 +303,13 @@ def _normalize_telegram_chart_payload(
 
     converted = VegaConverter.convert_to_vega_format(
         kv_results=normalized_raw,
+        user_query=user_query,
+    )
+
+    converted = _with_raw_axis_metadata(
+        result_type=result_type,
+        payload=converted,
+        raw_data=kv_results.get("data"),
         user_query=user_query,
     )
 
@@ -295,7 +414,8 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
 
     if result_type == "bar_chart":
         fig = go.Figure(data=[go.Bar(x=[v.get("category") for v in values], y=[v.get("amount") for v in values])])
-        return _layout(fig, title)
+        x_title, y_title = _axis_titles(result_type, vega, default_x="Category", default_y="Amount")
+        return _layout(fig, title, x_title=x_title, y_title=y_title)
 
     if result_type == "pie_chart":
         fig = go.Figure(data=[go.Pie(labels=[v.get("category") for v in values], values=[v.get("value") for v in values])])
@@ -309,11 +429,13 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
                 fig.add_trace(go.Scatter(x=group["x"], y=group["y"], mode="lines+markers", name=str(c)))
         else:
             fig.add_trace(go.Scatter(x=df.get("x"), y=df.get("y"), mode="lines+markers"))
-        return _layout(fig, title)
+        x_title, y_title = _axis_titles(result_type, vega, default_x="X", default_y="Value")
+        return _layout(fig, title, x_title=x_title, y_title=y_title)
 
     if result_type == "scatter_chart":
         fig = go.Figure(data=[go.Scatter(x=[v.get("x") for v in values], y=[v.get("y") for v in values], mode="markers")])
-        return _layout(fig, title)
+        x_title, y_title = _axis_titles(result_type, vega, default_x="X", default_y="Y")
+        return _layout(fig, title, x_title=x_title, y_title=y_title)
 
     if result_type == "bubble_chart":
         sizes = [max(float(v.get("size") or v.get("z") or 1), 1.0) for v in values]
@@ -332,13 +454,15 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
                 )
             ]
         )
-        return _layout(fig, title)
+        x_title, y_title = _axis_titles(result_type, vega, default_x="X", default_y="Y")
+        return _layout(fig, title, x_title=x_title, y_title=y_title)
 
     if result_type == "heatmap":
         df = pd.DataFrame(values)
         pivot = df.pivot_table(index="y", columns="x", values="value", aggfunc="sum")
         fig = go.Figure(data=[go.Heatmap(z=pivot.values, x=list(pivot.columns), y=list(pivot.index))])
-        return _layout(fig, title)
+        x_title, y_title = _axis_titles(result_type, vega, default_x="X", default_y="Y")
+        return _layout(fig, title, x_title=x_title, y_title=y_title)
 
     if result_type == "treemap":
         fig = go.Figure(
