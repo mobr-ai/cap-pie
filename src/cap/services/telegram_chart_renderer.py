@@ -104,16 +104,68 @@ def _table_to_dataframe(vega: dict[str, Any]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, dict[str, Any], str | None]:
+def _with_metadata_columns(
+    payload: dict[str, Any],
+    kv_results: dict[str, Any],
+) -> dict[str, Any]:
     """
-    Accept both:
-    1. Raw kv_results used by tests:
+    format_kv strips internal _columns from Vega payloads and keeps display
+    column names under metadata.columns. Put them back for Telegram table rendering.
+    """
+    metadata = kv_results.get("metadata") or {}
+    columns = metadata.get("columns") if isinstance(metadata, dict) else None
+
+    if columns and "_columns" not in payload:
+        payload = dict(payload)
+        payload["_columns"] = columns
+
+    return payload
+
+
+def _extract_converted_vega_payload(
+    kv_results: dict[str, Any],
+) -> dict[str, Any] | None:
+    """
+    Accept already-converted Vega/widget payloads from all known paths.
+
+    Supported shapes:
+    - {"config": {"values": [...]}}
+    - {"vega": {"values": [...]}}
+    - {"data": {"values": [...]}}          <-- format_kv / Telegram stream path
+    - {"data": {"config": {"values": [...]}}}
+    - {"data": {"vega": {"values": [...]}}}
+    """
+    for key in ("config", "vega", "data"):
+        payload = kv_results.get(key)
+        if isinstance(payload, dict) and "values" in payload:
+            return _with_metadata_columns(payload, kv_results)
+
+    data = kv_results.get("data")
+    if isinstance(data, dict):
+        for key in ("config", "vega", "data"):
+            payload = data.get(key)
+            if isinstance(payload, dict) and "values" in payload:
+                return _with_metadata_columns(payload, kv_results)
+
+    return None
+
+
+def _normalize_telegram_chart_payload(
+    kv_results: dict[str, Any],
+) -> tuple[str, dict[str, Any], str | None]:
+    """
+    Normalize Telegram chart payloads into the Vega shape expected by
+    _figure_from_vega.
+
+    This function must support both:
+    1. Raw kv_results used by telegram_renderer_tests.py:
        {"result_type": "line_chart", "data": [...]}
 
-    2. CAP widget payload streamed by format_kv:
-       {"type": "line_chart", "config": {"values": [...]}}
-       or
-       {"result_type": "line_chart", "config": {"values": [...]}}
+    2. Stream/widget payload emitted by format_kv:
+       {"result_type": "line_chart", "data": {"values": [...]}}
+
+    The second case is the Telegram bot failure path. Do not send it back
+    through VegaConverter, because it is already converted.
     """
     result_type = (
         kv_results.get("result_type")
@@ -122,16 +174,15 @@ def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, 
         or "text"
     )
 
-    title = kv_results.get("title") or kv_results.get("user_query") or kv_results.get("nl_query")
+    title = (
+        kv_results.get("title")
+        or kv_results.get("user_query")
+        or kv_results.get("nl_query")
+    )
 
-    # Already converted widget/Vega payload.
-    config = kv_results.get("config")
-    if isinstance(config, dict) and "values" in config:
-        return result_type, config, title
-
-    vega = kv_results.get("vega")
-    if isinstance(vega, dict) and "values" in vega:
-        return result_type, vega, title
+    converted_payload = _extract_converted_vega_payload(kv_results)
+    if converted_payload is not None:
+        return result_type, converted_payload, title
 
     user_query = kv_results.get("user_query") or kv_results.get("nl_query") or ""
 
@@ -142,6 +193,7 @@ def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, 
         kv_results=normalized_raw,
         user_query=user_query,
     )
+
     return result_type, converted, title
 
 
