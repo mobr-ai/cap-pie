@@ -10,14 +10,14 @@ import pandas as pd
 import plotly.graph_objects as go
 from PIL import Image, ImageEnhance
 
-from cap.services.vega.facade import VegaConverter
 from cap.database.model import TelegramRenderedImage, User
+from cap.services.vega.facade import VegaConverter
 
 DEFAULT_TELEGRAM_RENDER_DIR = "/var/lib/cap/telegram-renders"
 DEFAULT_PUBLIC_BASE_URL = "http://localhost:8000"
 
 
-def _telegram_render_dir() -> Path:
+def telegram_render_dir() -> Path:
     return Path(
         os.getenv("TELEGRAM_RENDER_DIR", DEFAULT_TELEGRAM_RENDER_DIR)
     ).resolve()
@@ -36,7 +36,7 @@ def _image_ttl_days() -> int:
 
 
 def _ensure_dir() -> Path:
-    render_dir = _telegram_render_dir()
+    render_dir = telegram_render_dir()
     render_dir.mkdir(parents=True, exist_ok=True)
     return render_dir
 

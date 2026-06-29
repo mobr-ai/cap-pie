@@ -4,8 +4,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from cap.federated.federated_result_processor import format_kv
-from cap.federated.models import FederatedQuery, FederatedExecutionResult
+from cap.federated.models import FederatedExecutionResult, FederatedQuery
 from cap.federated.service import execute_federated_query
 from cap.services.agentic.tools import format_execution_context
 from cap.services.telegram_chart_renderer import render_telegram_image

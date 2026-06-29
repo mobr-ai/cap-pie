@@ -1,6 +1,4 @@
 import asyncio
-import json
-import re
 from pathlib import Path
 
 from cap.federated.sparql.sparql_service import execute_sparql

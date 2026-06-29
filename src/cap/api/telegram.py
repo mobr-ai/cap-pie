@@ -23,8 +23,7 @@ from cap.services.telegram_auth import (
     verify_telegram_init_data,
     verify_telegram_webhook_secret,
 )
-from cap.services.telegram_chart_renderer import TELEGRAM_RENDER_DIR, render_telegram_image
-from cap.services.vega.facade import VegaConverter
+from cap.services.telegram_chart_renderer import telegram_render_dir, render_telegram_image
 
 router = APIRouter(prefix="/api/v1/telegram", tags=["telegram"])
 
@@ -319,9 +318,9 @@ def get_telegram_image(
     if obj.expires_at <= datetime.now():
         raise HTTPException(404, detail="expired")
 
-    file_path = (TELEGRAM_RENDER_DIR / obj.storage_path).resolve()
+    file_path = (telegram_render_dir() / obj.storage_path).resolve()
     try:
-        file_path.relative_to(TELEGRAM_RENDER_DIR)
+        file_path.relative_to(telegram_render_dir())
     except Exception as exc:
         raise HTTPException(500, detail="invalidStoragePath") from exc
 
