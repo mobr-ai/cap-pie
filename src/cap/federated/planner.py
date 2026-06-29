@@ -66,6 +66,7 @@ User Question:
             sql=sql,
             source=QuerySource(source),
             explanation=explanation,
+            nl_query=natural_query
         )
 
     @staticmethod

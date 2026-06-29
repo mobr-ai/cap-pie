@@ -43,8 +43,7 @@ class VegaConverter(
     def convert_to_vega_format(
         cls,
         kv_results: dict[str, Any],
-        user_query: str,
-        sparql_query: str
+        user_query: str
         ) -> dict[str, Any]:
         """
         Convert kv_results to Vega-compatible format based on result_type and data structure.
@@ -59,28 +58,28 @@ class VegaConverter(
 
         try:
             if result_type == "bar_chart":
-                return cls._convert_bar_chart(data, user_query, sparql_query)
+                return cls._convert_bar_chart(data, user_query)
 
             elif result_type == "pie_chart":
-                return cls._convert_pie_chart(data, user_query, sparql_query)
+                return cls._convert_pie_chart(data, user_query)
 
             elif result_type == "line_chart":
-                return cls._convert_line_chart(data, user_query, sparql_query)
+                return cls._convert_line_chart(data, user_query)
 
             elif result_type == "table":
-                return cls._convert_table(data, user_query, sparql_query)
+                return cls._convert_table(data, user_query)
 
             elif result_type == "scatter_chart":
-                return cls._convert_scatter_chart(data, user_query, sparql_query)
+                return cls._convert_scatter_chart(data, user_query)
 
             elif result_type == "bubble_chart":
-                return cls._convert_bubble_chart(data, user_query, sparql_query)
+                return cls._convert_bubble_chart(data, user_query)
 
             elif result_type == "treemap":
-                return cls._convert_treemap(data, user_query, sparql_query)
+                return cls._convert_treemap(data, user_query)
 
             elif result_type == "heatmap":
-                return cls._convert_heatmap(data, user_query, sparql_query)
+                return cls._convert_heatmap(data, user_query)
             else:
                 return {"values": []}
 

@@ -398,7 +398,6 @@ class LLMClient:
                 kv_formatted, result_type = format_kv(
                     result_type=result_type,
                     user_query=user_query,
-                    federated_query=serialized_query,
                     kv_results=kv_results
                 )
                 logger.info(f"Sending data to feed widget: \n   {kv_formatted}")

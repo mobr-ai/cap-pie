@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class VegaChartConverter:
     @classmethod
-    def _convert_bar_chart(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_bar_chart(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to bar chart format."""
         if isinstance(data, list) and len(data) > 0:
             first_item = data[0]
@@ -62,7 +62,7 @@ class VegaChartConverter:
         return {"values": []}
 
     @classmethod
-    def _convert_pie_chart(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_pie_chart(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to pie chart format."""
         # Pie chart data can be either a list or a nested dict
         if isinstance(data, dict):
@@ -184,7 +184,7 @@ class VegaChartConverter:
         return labels
 
     @classmethod
-    def _convert_line_chart(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_line_chart(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to line chart format with multi-series support."""
         if not isinstance(data, list) or len(data) == 0:
             logger.warning("cant serialize trend if it is not a list")
@@ -286,7 +286,7 @@ class VegaChartConverter:
         return line_chart
 
     @classmethod
-    def _convert_scatter_chart(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_scatter_chart(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to scatter chart format."""
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
@@ -365,7 +365,7 @@ class VegaChartConverter:
         }
 
     @classmethod
-    def _convert_bubble_chart(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_bubble_chart(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to bubble chart format (x, y, size)."""
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
@@ -459,7 +459,7 @@ class VegaChartConverter:
         }
 
     @classmethod
-    def _convert_treemap(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_treemap(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to treemap format (hierarchical structure)."""
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}
@@ -523,7 +523,7 @@ class VegaChartConverter:
         }
 
     @classmethod
-    def _convert_heatmap(cls, data: Any, user_query: str, sparql_query: str) -> dict[str, Any]:
+    def _convert_heatmap(cls, data: Any, user_query: str) -> dict[str, Any]:
         """Convert data to heatmap format (x, y, value)."""
         if not isinstance(data, list) or len(data) == 0:
             return {"values": []}

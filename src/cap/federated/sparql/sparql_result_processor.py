@@ -42,7 +42,6 @@ def convert_results_to_explorer_links(
                 else chain.convert_entity_to_explorer_link(
                     key,
                     value,
-                    sparql_query,
                     row_context=current_row_context,
                 )
             )

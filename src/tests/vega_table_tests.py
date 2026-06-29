@@ -107,8 +107,7 @@ def test_convert_table_tokens_with_price_information():
     }
     result = VegaConverter.convert_to_vega_format(
         kv_results=synthetic_kv,
-        user_query="Show all tokens that have price information",
-        sparql_query="",
+        user_query="Show all tokens that have price information"
     )
 
     print_converted_table(result)

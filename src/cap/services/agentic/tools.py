@@ -50,6 +50,7 @@ async def get_cached_federated_query(
                 sql=sql,
                 source=QuerySource(source),
                 explanation=explanation,
+                nl_query=user_query
             )
 
     except json.JSONDecodeError:
@@ -61,6 +62,7 @@ async def get_cached_federated_query(
         sql="",
         source=QuerySource.ONCHAIN,
         explanation="legacy SPARQL cache entry",
+        nl_query=user_query
     )
 
 
@@ -133,6 +135,8 @@ def format_execution_context(
         kv_results = merge_federated_kv_results(sparql_kv, sql_kv)
     else:
         kv_results = sparql_kv or sql_kv
+
+    kv_results["title"] = federated_query.nl_query[:120]
 
     return "\n\n".join(sections), kv_results
 

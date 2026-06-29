@@ -16,6 +16,7 @@ class FederatedQuery(BaseModel):
     sql: str = ""
     source: QuerySource
     explanation: str = ""
+    nl_query: str = ""
 
 
 class FederatedExecutionResult(BaseModel):

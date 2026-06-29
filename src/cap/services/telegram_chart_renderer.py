@@ -13,21 +13,39 @@ from PIL import Image, ImageEnhance
 from cap.services.vega.facade import VegaConverter
 from cap.database.model import TelegramRenderedImage, User
 
-TELEGRAM_RENDER_DIR = Path(os.getenv("TELEGRAM_RENDER_DIR", "/var/lib/cap/telegram-renders")).resolve()
-PUBLIC_BASE_URL = (os.getenv("PUBLIC_BASE_URL") or "http://localhost:8000").rstrip("/")
-CAP_LOGO_PATH = os.getenv("CAP_LOGO_PATH", "")
-IMAGE_TTL_DAYS = int(os.getenv("TELEGRAM_RENDER_TTL_DAYS", "2"))
+DEFAULT_TELEGRAM_RENDER_DIR = "/var/lib/cap/telegram-renders"
+DEFAULT_PUBLIC_BASE_URL = "http://localhost:8000"
 
 
-def _ensure_dir() -> None:
-    TELEGRAM_RENDER_DIR.mkdir(parents=True, exist_ok=True)
+def _telegram_render_dir() -> Path:
+    return Path(
+        os.getenv("TELEGRAM_RENDER_DIR", DEFAULT_TELEGRAM_RENDER_DIR)
+    ).resolve()
 
+
+def _public_base_url() -> str:
+    return (os.getenv("PUBLIC_BASE_URL") or DEFAULT_PUBLIC_BASE_URL).rstrip("/")
+
+
+def _cap_logo_path() -> str:
+    return os.getenv("CAP_LOGO_PATH", "")
+
+
+def _image_ttl_days() -> int:
+    return int(os.getenv("TELEGRAM_RENDER_TTL_DAYS", "2"))
+
+
+def _ensure_dir() -> Path:
+    render_dir = _telegram_render_dir()
+    render_dir.mkdir(parents=True, exist_ok=True)
+    return render_dir
 
 def _watermark_png(image_path: Path) -> None:
-    if not CAP_LOGO_PATH:
+    cap_logo_path = _cap_logo_path()
+    if not cap_logo_path:
         return
 
-    logo_path = Path(CAP_LOGO_PATH)
+    logo_path = Path(cap_logo_path)
     if not logo_path.exists():
         return
 
@@ -115,13 +133,6 @@ def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, 
     if isinstance(vega, dict) and "values" in vega:
         return result_type, vega, title
 
-    # Raw kv_results path, same as your passing test.
-    sparql_query = (
-        kv_results.get("sparql_query")
-        or kv_results.get("sparql")
-        or kv_results.get("query")
-        or ""
-    )
     user_query = kv_results.get("user_query") or kv_results.get("nl_query") or ""
 
     normalized_raw = dict(kv_results)
@@ -130,7 +141,6 @@ def _normalize_telegram_chart_payload(kv_results: dict[str, Any]) -> tuple[str, 
     converted = VegaConverter.convert_to_vega_format(
         kv_results=normalized_raw,
         user_query=user_query,
-        sparql_query=sparql_query,
     )
     return result_type, converted, title
 
@@ -155,10 +165,10 @@ def render_telegram_image(
 
     fig = _figure_from_vega(result_type, vega, title)
 
-    _ensure_dir()
+    render_dir = _ensure_dir()
     image_id = str(uuid.uuid4())
     filename = f"{image_id}.png"
-    path = TELEGRAM_RENDER_DIR / filename
+    path = render_dir / filename
 
     fig.write_image(str(path), format="png", scale=2)
     _watermark_png(path)
@@ -177,14 +187,14 @@ def render_telegram_image(
         bytes=len(raw),
         etag=etag,
         storage_path=filename,
-        expires_at=datetime.now() + timedelta(days=IMAGE_TTL_DAYS),
+        expires_at=datetime.now() + timedelta(days=_image_ttl_days()),
     )
     db.add(obj)
     db.commit()
 
     rel = f"/api/v1/telegram/image/{image_id}?t={token}"
     return {
-        "url": f"{PUBLIC_BASE_URL}{rel}" if absolute else rel,
+        "url": f"{_public_base_url()}{rel}" if absolute else rel,
         "mime": "image/png",
         "bytes": len(raw),
         "expires_at": obj.expires_at.isoformat(),
@@ -196,21 +206,40 @@ def _figure_from_vega(result_type: str, vega: dict[str, Any], title: str | None)
 
     if result_type == "table":
         df = _table_to_dataframe(vega).head(25)
+
+        # Dynamic height calculation
+        header_height = 45
+        row_height = 38
+        table_height = header_height + (len(df) * row_height)
+
         fig = go.Figure(
             data=[
                 go.Table(
                     header={
                         "values": list(df.columns),
                         "align": "left",
+                        "height": header_height,
+                        "font": {"size": 18},
                     },
                     cells={
                         "values": [df[c].astype(str).tolist() for c in df.columns],
                         "align": "left",
+                        "height": row_height,
+                        "font": {"size": 16},
                     },
                 )
             ]
         )
-        return _layout(fig, title)
+
+        fig.update_layout(
+            title=title or "",
+            width=1200,
+            height=max(760, table_height + 120),
+            margin={"l": 50, "r": 50, "t": 90, "b": 50},
+            paper_bgcolor="white",
+        )
+
+        return fig
 
     if result_type == "bar_chart":
         fig = go.Figure(data=[go.Bar(x=[v.get("category") for v in values], y=[v.get("amount") for v in values])])

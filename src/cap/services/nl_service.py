@@ -1,6 +1,6 @@
 """
 Natural language query API endpoint using LLM.
-Multi-stage pipeline: NL -> FederatedQuery(SPARQL/SQL) -> Execute -> Contextualize -> Stream
+Multi-stage pipeline: NL -> FederatedQuery -> Execute -> Contextualize -> Stream
 """
 import logging
 import time

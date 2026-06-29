@@ -117,24 +117,79 @@ def _find_block_number(row_context: dict[str, Any] | None) -> str | None:
     return None
 
 
+def _is_hex(value: str, length: int | None = None) -> bool:
+    if length is not None and len(value) != length:
+        return False
+    return bool(re.fullmatch(r"[0-9a-fA-F]+", value))
+
+
+def _detect_entity_from_result_context(
+    col_name: str,
+    value: Any,
+    row_context: dict[str, Any] | None = None,
+) -> str | None:
+    value_clean = _extract_plain_value(value)
+    col_lower = col_name.lstrip("?").lower()
+
+    if not value_clean:
+        return None
+
+    if value_clean.startswith(("addr1", "stake1")):
+        return "address"
+
+    if value_clean.startswith("pool1"):
+        return "pool"
+
+    if "metadata" in col_lower and _is_hex(value_clean, 64):
+        return "metadata"
+
+    if "address" in col_lower or "addr" in col_lower or "stake" in col_lower:
+        return "address"
+
+    if "pool" in col_lower:
+        return "pool" if value_clean.startswith("pool1") else None
+
+    if "policy" in col_lower:
+        return "policy" if _is_hex(value_clean, 56) else None
+
+    if "epoch" in col_lower:
+        return "epoch" if value_clean.isdigit() else None
+
+    if "block" in col_lower:
+        if "hash" in col_lower:
+            return "block" if _find_block_number(row_context) else None
+        return "block" if value_clean.isdigit() else None
+
+    if (
+        "transaction" in col_lower
+        or "txhash" in col_lower
+        or "tx_hash" in col_lower
+        or "txid" in col_lower
+        or "tx_id" in col_lower
+    ):
+        return "transaction" if _is_hex(value_clean, 64) else None
+
+    return None
+
+
 def convert_entity_to_cardanoscan_link(
     var_name: str,
     value: Any,
-    sparql_query: str = "",
     row_context: dict[str, Any] | None = None,
 ) -> str:
     if value is None:
         return ""
 
-    value_clean = str(value).strip()
+    value_clean = _extract_plain_value(value)
 
     if value_clean.startswith("<a href="):
         return value_clean
 
-    entity_type = _detect_entity_from_ontology(var_name, sparql_query)
-
-    if entity_type == "pool" and not value_clean.startswith("pool1"):
-        entity_type = None
+    entity_type = _detect_entity_from_result_context(
+        var_name,
+        value_clean,
+        row_context=row_context,
+    )
 
     if not entity_type:
         return value_clean

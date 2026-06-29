@@ -4,42 +4,22 @@ import re
 from pathlib import Path
 
 from cap.federated.sparql.sparql_service import execute_sparql
+from cap.util.query_file_parser import QueryFileParser
 
 INPUT_FILE = Path("queries.txt")
 
 def extract_query_blocks(content: str) -> list[dict]:
-    blocks = []
-
-    pattern = re.compile(
-        r"MESSAGE user\s+(?P<nl_query>.*?)\n"
-        r"MESSAGE assistant\s+(?P<assistant_block>.*?)(?=\nMESSAGE user|\Z)",
-        re.DOTALL,
-    )
-
-    for match in pattern.finditer(content):
-        nl_query = match.group("nl_query").strip()
-        assistant_block = match.group("assistant_block").strip()
-
-        if not assistant_block:
-            continue
-
-        if assistant_block.startswith("{"):
-            try:
-                payload = json.loads(assistant_block)
-            except json.JSONDecodeError as exc:
-                raise ValueError(f"Invalid JSON for NL query: {nl_query}") from exc
-
-            sparql = payload.get("sparql", "").strip()
-        else:
-            sparql = assistant_block
-
-        if sparql:
-            blocks.append({
+    queries = []
+    raw_queries = QueryFileParser.parse(content)
+    for nl_query, payload in raw_queries:
+        sql = str(payload.get("sql", "")).strip()
+        if sql:
+            queries.append({
                 "nl_query": nl_query,
-                "sparql": sparql,
+                "sql": sql,
             })
 
-    return blocks
+    return queries
 
 
 def count_rows(sparql_results: dict) -> int:
