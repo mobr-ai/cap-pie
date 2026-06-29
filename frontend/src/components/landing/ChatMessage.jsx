@@ -1,5 +1,5 @@
 // src/components/landing/ChatMessage.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import ReactMarkdown from "react-markdown";
@@ -9,6 +9,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 
 import AgentAvatar from "@/components/landing/AgentAvatar";
+import UserAvatar, { resolveUserAvatar } from "@/components/landing/UserAvatar";
 
 // Tracks replay completion per message id and per replayKey.
 // NOTE: Map updates do NOT trigger rerenders; we also use local state for that.
@@ -64,6 +65,8 @@ function ChatMessageImpl({
   replayTyping = false,
   replayKey = null,
   statusText = "",
+  currentUser = null,
+  userAvatarPreference = null,
 }) {
   const { t } = useTranslation();
 
@@ -103,6 +106,13 @@ function ChatMessageImpl({
     !streaming &&
     assistantHasText &&
     !replayDone;
+
+  const handleReplayDone = useCallback(() => {
+    if (id && replayKey != null) {
+      lastReplayKeyDoneByMessageId.set(id, replayKey);
+    }
+    setReplayDone(true);
+  }, [id, replayKey]);
 
   // Final markdown (with highlight) — only rendered when not streaming and not replaying
   const finalMarkdown = useMemo(() => {
@@ -179,26 +189,34 @@ function ChatMessageImpl({
       </ReactMarkdown>
     );
   }, [content]);
-  // Avatar
-  const userAvatar = "\uD83D\uDC64"; // 👤
+  const userAvatarModel = isUser
+    ? resolveUserAvatar(currentUser, userAvatarPreference)
+    : null;
+  const showUserAvatar = !isUser || userAvatarModel?.kind !== "none";
 
   return (
-    <div className={`message ${isUser ? "user" : "assistant"}`}>
-      <div
-        className={`message-avatar ${
-          isUser ? "message-avatar--user" : "message-avatar--agent"
-        }`}
-      >
-        {isUser ? (
-          <span aria-hidden="true">{userAvatar}</span>
-        ) : (
-          <AgentAvatar
-            variant="chat"
-            active={streaming}
-            label="CAP analytics agent"
-          />
-        )}
-      </div>
+    <div
+      className={`message ${isUser ? "user" : "assistant"} ${
+        isUser && !showUserAvatar ? "message--no-avatar" : ""
+      }`}
+    >
+      {isUser ? (
+        showUserAvatar ? (
+          <div className="message-avatar message-avatar--user">
+            <UserAvatar
+              user={currentUser}
+              preference={userAvatarPreference}
+              resolved={userAvatarModel}
+              variant="chat"
+              label={t("settingsChatAvatar.userAvatarLabel")}
+            />
+          </div>
+        ) : null
+      ) : (
+        <div className="message-avatar message-avatar--agent">
+          <AgentAvatar variant="chat" label="CAP analytics agent" />
+        </div>
+      )}
 
       <div className="message-content">
         <div className="message-bubble markdown-body">
@@ -230,12 +248,7 @@ function ChatMessageImpl({
                 <ReplayTypingPlain
                   text={content || ""}
                   speedMs={1}
-                  onDone={() => {
-                    if (id && replayKey != null) {
-                      lastReplayKeyDoneByMessageId.set(id, replayKey);
-                    }
-                    setReplayDone(true);
-                  }}
+                  onDone={handleReplayDone}
                 />
               ) : (
                 finalMarkdown
@@ -256,6 +269,8 @@ export default React.memo(ChatMessageImpl, (prev, next) => {
     prev.streaming === next.streaming &&
     prev.replayTyping === next.replayTyping &&
     prev.replayKey === next.replayKey &&
-    prev.statusText === next.statusText
+    prev.statusText === next.statusText &&
+    prev.currentUser === next.currentUser &&
+    prev.userAvatarPreference === next.userAvatarPreference
   );
 });

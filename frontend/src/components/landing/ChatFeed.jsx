@@ -5,6 +5,7 @@ import ChatMessage from "@/components/landing/ChatMessage";
 import ArtifactMessage from "@/components/landing/ArtifactMessage";
 
 export default function ChatFeed({
+  currentUser = null,
   messages,
   messageElsRef,
   pinArtifact,
@@ -54,7 +55,8 @@ export default function ChatFeed({
               streaming={!!m.streaming}
               replayTyping={!!m.replayTyping}
               replayKey={m.replayKey ?? null}
-            />
+              currentUser={currentUser}
+/>
           )}
         </div>
       ))}

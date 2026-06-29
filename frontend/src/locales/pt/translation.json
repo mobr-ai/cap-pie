@@ -1192,5 +1192,44 @@
       }
     }
   },
-  "betaRegistrationError": "Não foi possível enviar seu registro. Tente novamente."
+  "betaRegistrationError": "Não foi possível enviar seu registro. Tente novamente.",
+  "settingsChatAvatar": {
+    "title": "Avatar do chat",
+    "description": "Escolha como o seu avatar de usuário aparece nas conversas do CAP.",
+    "previewLabel": "Prévia do avatar",
+    "userAvatarLabel": "Avatar do usuário",
+    "noImageHint": "Nenhuma imagem de perfil está disponível ainda. Auto e Foto de perfil usarão o emoji padrão até você enviar um avatar ou entrar com uma imagem de perfil.",
+    "saveFailed": "Não foi possível salvar a preferência do avatar do chat.",
+    "options": {
+      "image": {
+        "label": "Foto de perfil",
+        "description": "Usa sua foto enviada ou do Google, com fallback para emoji."
+      },
+      "emojiUser": {
+        "label": "Emoji de usuário",
+        "description": "Mantém o emoji clássico de usuário."
+      },
+      "emojiSparkles": {
+        "label": "Brilho",
+        "description": "Um avatar de emoji leve e expressivo."
+      },
+      "emojiRocket": {
+        "label": "Foguete",
+        "description": "Um avatar de emoji com foco em construção."
+      },
+      "iconCube": {
+        "label": "Ícone de cubo",
+        "description": "Um ícone de cubo alinhado ao CAP e ao tema."
+      },
+      "iconChart": {
+        "label": "Ícone de analytics",
+        "description": "Um ícone de gráfico para usuários focados em análise."
+      },
+      "none": {
+        "label": "Nenhum",
+        "description": "Oculta seu avatar nas mensagens do chat."
+      }
+    },
+    "selectLabel": "Estilo do avatar"
+  }
 }

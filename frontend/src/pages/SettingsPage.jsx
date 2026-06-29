@@ -4,6 +4,13 @@ import "../styles/SettingsPage.css";
 import ShareModal from "../components/ShareModal";
 import CardanoPaymentModal from "../components/billing/CardanoPaymentModal";
 import ThemeSelector from "../components/settings/ThemeSelector";
+import UserAvatar, {
+  USER_AVATAR_LOCAL_STORAGE_KEY,
+  USER_AVATAR_OPTIONS,
+  USER_AVATAR_SETTINGS_KEY,
+  getUserAvatarImage,
+  getUserChatAvatarPreference,
+} from "../components/landing/UserAvatar";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { getCardanoTxExplorerUrl } from "../billing/explorers";
 import {
@@ -28,6 +35,8 @@ import {
   faLayerGroup,
   faBolt,
   faRocket,
+  faChevronDown,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { useAuthRequest } from "../hooks/useAuthRequest";
@@ -211,6 +220,10 @@ export default function SettingsPage() {
   const [newDisplayName, setNewDisplayName] = useState(
     user ? user.display_name : "",
   );
+  const [chatUserAvatarPreference, setChatUserAvatarPreference] = useState(() =>
+    getUserChatAvatarPreference(user),
+  );
+  const [showChatAvatarMenu, setShowChatAvatarMenu] = useState(false);
 
   // Spinners
   const [isSavingUsername, setIsSavingUsername] = useState(false);
@@ -220,6 +233,7 @@ export default function SettingsPage() {
 
   const navigate = useNavigate();
   const avatarInputRef = useRef(null);
+  const chatAvatarMenuRef = useRef(null);
   const hasPremiumAccess = hasEntitlement(
     billingEntitlements,
     "cap_premium_access",
@@ -344,6 +358,10 @@ export default function SettingsPage() {
     }
   });
 
+  useOnClickOutside(chatAvatarMenuRef, () => {
+    setShowChatAvatarMenu(false);
+  });
+
   // Redirect if not logged in
   useEffect(() => {
     if (!user || !user.id || !outlet?.session?.access_token) navigate("/login");
@@ -353,7 +371,8 @@ export default function SettingsPage() {
   useEffect(() => {
     setNewUsername(user?.username || "");
     setNewDisplayName(user?.display_name || "");
-  }, [user?.username, user?.display_name]);
+    setChatUserAvatarPreference(getUserChatAvatarPreference(user));
+  }, [user?.username, user?.display_name, user?.settings, user?.avatar]);
 
   // ---- Billing -------------------------------------------------------------
 
@@ -548,6 +567,27 @@ export default function SettingsPage() {
     }
   };
 
+  const handleChatUserAvatarPreferenceChange = async (value) => {
+    const normalizedValue = value === "auto" ? "image" : value;
+    const previous = chatUserAvatarPreference;
+    setChatUserAvatarPreference(normalizedValue);
+    setShowChatAvatarMenu(false);
+
+    try {
+      window.localStorage.setItem(USER_AVATAR_LOCAL_STORAGE_KEY, normalizedValue);
+    } catch {
+      // localStorage can be unavailable in strict privacy contexts.
+    }
+
+    try {
+      await saveSettingsLocally({ [USER_AVATAR_SETTINGS_KEY]: normalizedValue });
+    } catch (err) {
+      console.error(err);
+      setChatUserAvatarPreference(previous);
+      showToast?.(t("settingsChatAvatar.saveFailed"), "danger");
+    }
+  };
+
   // ---- Language ------------------------------------------------------------
   const handleLanguageChange = (e) => {
     const selected = e.target.value;
@@ -692,6 +732,53 @@ export default function SettingsPage() {
 
   if (!user) return null;
 
+  const chatAvatarImageUrl = getUserAvatarImage(user);
+  const normalizedChatUserAvatarPreference =
+    chatUserAvatarPreference === "auto" ? "image" : chatUserAvatarPreference;
+
+  const selectedChatAvatarOption =
+    USER_AVATAR_OPTIONS.find(
+      (option) => option.value === normalizedChatUserAvatarPreference,
+    ) || USER_AVATAR_OPTIONS[0];
+
+  const renderChatAvatarPreview = (preference, className = "") => {
+    const normalizedPreference = preference === "auto" ? "image" : preference;
+
+    if (normalizedPreference === "none") {
+      return (
+        <span
+          className={`Settings-chat-avatar-none-preview ${className}`}
+          aria-hidden="true"
+        >
+          ×
+        </span>
+      );
+    }
+
+    if (normalizedPreference === "image") {
+      return (
+        <span
+          className={`Settings-chat-avatar-profile-preview ${className}`}
+          role="img"
+          aria-label={t("settingsChatAvatar.options.image.label")}
+        >
+          <img src="/icons/avatar.png" alt="" aria-hidden="true" />
+        </span>
+      );
+    }
+
+    return (
+      <UserAvatar
+        user={user}
+        preference={normalizedPreference}
+        variant="settings"
+        className={className}
+        label={t("settingsChatAvatar.previewLabel")}
+      />
+    );
+  };
+
+
   // ---- UI ------------------------------------------------------------------
   const handleAutoRenewToggle = async (event) => {
     const enabled = Boolean(event.target.checked);
@@ -767,7 +854,7 @@ export default function SettingsPage() {
                 title={t("tooltipAvatar")}
               >
                 <Image
-                  src={user.avatar || avatarImg}
+                  src={getUserAvatarImage(user) || avatarImg}
                   alt="Avatar"
                   className="Settings-avatar-img"
                   onError={(e) => (e.currentTarget.src = avatarImg)}
@@ -924,6 +1011,108 @@ export default function SettingsPage() {
             </Col>
           </Row>
         </div>
+        <div
+          className="Settings-chat-avatar-box"
+          aria-labelledby="settings-chat-avatar-title"
+        >
+          <div className="Settings-chat-avatar-header">
+            <div>
+              <h5
+                id="settings-chat-avatar-title"
+                className="Settings-chat-avatar-title"
+              >
+                {t("settingsChatAvatar.title")}
+              </h5>
+              <p className="Settings-chat-avatar-description">
+                {t("settingsChatAvatar.description")}
+              </p>
+            </div>
+          </div>
+
+          <div className="Settings-chat-avatar-control" ref={chatAvatarMenuRef}>
+            <div
+              className={`Settings-chat-avatar-dropdown ${
+                showChatAvatarMenu ? "is-open" : ""
+              }`}
+            >
+              <button
+                type="button"
+                className="Settings-chat-avatar-trigger"
+                aria-haspopup="listbox"
+                aria-expanded={showChatAvatarMenu}
+                onClick={() => setShowChatAvatarMenu((open) => !open)}
+              >
+                <span className="Settings-chat-avatar-triggerPreview">
+                  {renderChatAvatarPreview(normalizedChatUserAvatarPreference, "is-mini")}
+                </span>
+
+                <span className="Settings-chat-avatar-triggerText">
+                  <span>{t(selectedChatAvatarOption.labelKey)}</span>
+                </span>
+
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className="Settings-chat-avatar-chevron"
+                />
+              </button>
+
+              {showChatAvatarMenu ? (
+                <div
+                  className="Settings-chat-avatar-menu"
+                  role="listbox"
+                  aria-label={t("settingsChatAvatar.selectLabel")}
+                >
+                  {USER_AVATAR_OPTIONS.map((option) => {
+                    const selected = option.value === normalizedChatUserAvatarPreference;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        className={`Settings-chat-avatar-menuItem ${
+                          selected ? "is-selected" : ""
+                        }`}
+                        onClick={() =>
+                          handleChatUserAvatarPreferenceChange(option.value)
+                        }
+                      >
+                        <span className="Settings-chat-avatar-menuPreview">
+                          {renderChatAvatarPreview(option.value, "is-mini")}
+                        </span>
+
+                        <span className="Settings-chat-avatar-menuCopy">
+                          <span className="Settings-chat-avatar-menuLabel">
+                            {t(option.labelKey)}
+                          </span>
+                        </span>
+
+                        {selected ? (
+                          <FontAwesomeIcon
+                            icon={faCheck}
+                            className="Settings-chat-avatar-check"
+                          />
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {!chatAvatarImageUrl ? (
+            <div className="Settings-chat-avatar-hint">
+              {t("settingsChatAvatar.noImageHint")}
+            </div>
+          ) : null}
+        </div>
+
+
+
+
+
 
 
         <ThemeSelector />
